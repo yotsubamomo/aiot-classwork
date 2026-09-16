@@ -1,52 +1,592 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-theme="sunset">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Momo</title>
+  <meta name="description" content="Momo 的個人網站與台北即時時間">
+  <meta name="theme-color" content="#f0eee6">
+  <title>Momo — Taipei Time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script>
+    try {
+      const saved = JSON.parse(localStorage.getItem('momo-preferences'));
+      if (['aurora', 'minimal', 'sunset'].includes(saved?.theme)) {
+        document.documentElement.dataset.theme = saved.theme;
+      }
+    } catch (_) {
+      // Invalid or unavailable storage falls back to the default theme.
+    }
+  </script>
   <style>
+    :root {
+      color-scheme: light;
+      font-family: Manrope, "Noto Sans TC", system-ui, sans-serif;
+      font-synthesis: none;
+      --page: #f0eee6;
+      --ink: #152016;
+      --muted: #566058;
+      --accent: #ff6b35;
+      --accent-ink: #152016;
+      --line: rgb(21 32 22 / 28%);
+      --panel: rgb(240 238 230 / 82%);
+      --panel-solid: #f0eee6;
+      --panel-border: rgb(21 32 22 / 25%);
+      --hover: rgb(21 32 22 / 9%);
+      --ring: #152016;
+      --shadow: 0 18px 50px rgb(21 32 22 / 14%);
+      --ambient: transparent;
+      --transition: 240ms ease;
+    }
+
+    :root[data-theme="aurora"] {
+      color-scheme: dark;
+      --page: #07120f;
+      --ink: #e8fff8;
+      --muted: #9bc0b5;
+      --accent: #59f0bd;
+      --accent-ink: #06110e;
+      --line: rgb(146 255 220 / 30%);
+      --panel: rgb(8 27 23 / 82%);
+      --panel-solid: #0a1c18;
+      --panel-border: rgb(146 255 220 / 28%);
+      --hover: rgb(146 255 220 / 12%);
+      --ring: #8effd9;
+      --shadow: 0 20px 60px rgb(0 0 0 / 38%);
+      --ambient: radial-gradient(circle at 76% 24%, rgb(89 240 189 / 24%), transparent 32%), radial-gradient(circle at 18% 82%, rgb(128 92 255 / 25%), transparent 34%);
+    }
+
+    :root[data-theme="minimal"] {
+      --page: #f7f7f5;
+      --ink: #151515;
+      --muted: #666662;
+      --accent: #d8ff3e;
+      --accent-ink: #151515;
+      --line: rgb(21 21 21 / 28%);
+      --panel: rgb(255 255 255 / 88%);
+      --panel-solid: #fff;
+      --panel-border: rgb(21 21 21 / 30%);
+      --hover: rgb(21 21 21 / 8%);
+      --ring: #151515;
+      --shadow: 6px 6px 0 #151515;
+      --ambient: linear-gradient(90deg, transparent 49.9%, rgb(21 21 21 / 5%) 50%, transparent 50.1%);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+
     body {
+      min-width: 320px;
       min-height: 100vh;
+      min-height: 100dvh;
       margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background-color: var(--page);
+      background-image: var(--ambient);
+      transition: color var(--transition), background-color var(--transition);
+    }
+
+    button { font: inherit; }
+
+    .site-shell {
+      position: relative;
       display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      padding: 2rem clamp(1.25rem, 5vw, 5rem);
+      isolation: isolate;
+    }
+
+    .site-shell::before {
+      position: absolute;
+      z-index: -1;
+      top: -22vw;
+      right: -15vw;
+      width: max(54vw, 430px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 100px rgb(255 255 255 / 8%);
+      content: "";
+      transition: opacity var(--transition), background-color var(--transition), box-shadow var(--transition);
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-lockup { display: flex; align-items: center; gap: 1rem; }
+
+    .brand-mark {
+      display: grid;
+      width: 2.75rem;
+      aspect-ratio: 1;
+      flex: 0 0 auto;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      font-weight: 800;
       place-items: center;
-      color: #1f2937;
-      background: #f8fafc;
-      font-family: system-ui, sans-serif;
-      text-align: center;
     }
 
-    h1 {
-      margin: 0 0 0.5rem;
-      font-size: clamp(2.5rem, 10vw, 5rem);
+    .eyebrow {
+      margin: 0;
+      font: 500 .72rem/1.35 "DM Mono", monospace;
+      letter-spacing: .18em;
+      text-transform: uppercase;
     }
 
-    time {
-      font-size: clamp(1rem, 4vw, 1.5rem);
+    .control-deck {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: .5rem;
+      padding: .4rem;
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      transition: background-color var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .control-button,
+    .format-button,
+    .focus-exit {
+      min-height: 2.75rem;
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+      transition: color 160ms ease, background-color 160ms ease, transform 160ms ease;
+      touch-action: manipulation;
+    }
+
+    .control-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      padding: .65rem .9rem;
+      border-radius: 999px;
+      background: transparent;
+      font-size: .78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .control-button:hover,
+    .format-button:hover { background: var(--hover); }
+
+    .control-button:active,
+    .format-button:active,
+    .focus-exit:active { transform: scale(.97); }
+
+    button:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 3px;
+    }
+
+    .control-icon { width: 1.05rem; height: 1.05rem; flex: 0 0 auto; }
+
+    .format-switcher {
+      display: flex;
+      padding: .2rem;
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+    }
+
+    .format-button {
+      min-width: 3.2rem;
+      padding: .5rem .7rem;
+      border-radius: 999px;
+      background: transparent;
+      font: 700 .72rem/1 "DM Mono", monospace;
+    }
+
+    .format-button[aria-pressed="true"] {
+      color: var(--accent-ink);
+      background: var(--accent);
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      padding-block: clamp(4rem, 10vh, 8rem) 3rem;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(5rem, 20vw, 15rem);
+      font-weight: 900;
+      line-height: .72;
+      letter-spacing: -.095em;
+    }
+
+    .hero h1 span {
+      display: block;
+      margin-left: clamp(2rem, 14vw, 12rem);
+      color: transparent;
+      -webkit-text-stroke: 2px var(--ink);
+      transition: -webkit-text-stroke-color var(--transition);
+    }
+
+    .time-panel {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .clock-wrap { display: flex; align-items: flex-end; gap: .8rem; }
+
+    .clock {
+      font: 500 clamp(1.8rem, 4.5vw, 4.25rem)/1 "DM Mono", monospace;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.07em;
+    }
+
+    .meridiem {
+      padding-bottom: .28em;
+      color: var(--muted);
+      font: 500 clamp(.75rem, 1.4vw, 1rem)/1 "DM Mono", monospace;
+      letter-spacing: .12em;
+    }
+
+    .date-block { text-align: right; }
+    .date { margin: 0; font-weight: 600; }
+    .timezone { margin: .35rem 0 0; color: var(--muted); font: 500 .7rem/1.4 "DM Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+
+    .focus-exit {
+      position: fixed;
+      z-index: 10;
+      top: 1.25rem;
+      right: 1.25rem;
+      display: none;
+      align-items: center;
+      gap: .6rem;
+      padding: .7rem 1rem;
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      background: var(--panel-solid);
+      box-shadow: var(--shadow);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 20;
+      bottom: 1.25rem;
+      left: 50%;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      max-width: calc(100vw - 2rem);
+      padding: .8rem 1rem;
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--panel-solid);
+      box-shadow: var(--shadow);
+      font-size: .82rem;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, .75rem);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+    .toast svg { width: 1rem; height: 1rem; }
+
+    body.focus-mode .site-shell { grid-template-rows: 1fr auto; }
+    body.focus-mode .site-shell::before { opacity: 0; }
+    body.focus-mode .site-nav,
+    body.focus-mode .control-deck { display: none; }
+    body.focus-mode .timezone { display: none; }
+    body.focus-mode .hero { align-items: center; justify-content: center; padding: 4rem 0; text-align: center; }
+    body.focus-mode .hero h1 span { margin-left: 0; }
+    body.focus-mode .focus-exit { display: inline-flex; }
+    body.focus-mode .time-panel { grid-row: 2; }
+
+    @media (max-width: 980px) {
+      .site-nav { align-items: flex-start; }
+      .control-deck { max-width: 33rem; flex-wrap: wrap; border-radius: 1.25rem; }
+    }
+
+    @media (max-width: 720px) {
+      .site-shell { padding: 1rem; }
+      .site-shell::before { top: -13rem; right: -19rem; }
+      .site-nav { align-items: center; }
+      .brand-lockup .eyebrow { display: none; }
+      .control-deck { justify-content: flex-end; max-width: calc(100% - 3.75rem); padding: .25rem; gap: .15rem; border-radius: 1rem; }
+      .control-button { width: 2.75rem; padding: 0; }
+      .control-button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      .format-button { min-width: 2.75rem; padding-inline: .5rem; }
+      .hero { padding-block: 7rem 3rem; }
+      .hero h1 span { margin-top: .12em; margin-left: 0; }
+      .time-panel { align-items: flex-end; }
+      .date-block { max-width: 10.5rem; }
+      .timezone { font-size: .62rem; }
+      .focus-exit { top: max(1rem, env(safe-area-inset-top)); right: 1rem; }
+      body.focus-mode .hero { padding-inline: 0; }
+    }
+
+    @media (max-width: 440px) {
+      .format-button { min-width: 2.55rem; }
+      .control-deck { max-width: calc(100% - 3.25rem); }
+      .brand-mark { width: 2.5rem; }
+      .time-panel { gap: .75rem; }
+      .clock-wrap { gap: .4rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Momo</h1>
-    <time id="clock">讀取時間中…</time>
+  <main class="site-shell">
+    <header class="site-nav">
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">M</span>
+        <p class="eyebrow">Personal space<br>Taipei, Taiwan</p>
+      </div>
+
+      <div class="control-deck" role="group" aria-label="網站顯示控制">
+        <button class="control-button" id="theme-button" type="button" aria-label="切換視覺主題">
+          <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path>
+          </svg>
+          <span id="theme-label">主題 · Sunset</span>
+        </button>
+
+        <div class="format-switcher" role="group" aria-label="時間格式">
+          <button class="format-button" id="format-24" type="button" aria-pressed="true">24H</button>
+          <button class="format-button" id="format-12" type="button" aria-pressed="false">12H</button>
+        </div>
+
+        <button class="control-button" id="copy-button" type="button">
+          <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <rect x="8" y="8" width="12" height="12" rx="2"></rect>
+            <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+          </svg>
+          <span>複製時間</span>
+        </button>
+
+        <button class="control-button" id="focus-button" type="button" aria-pressed="false">
+          <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path>
+          </svg>
+          <span>專注模式</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="display-name">
+      <h1 id="display-name">MO<span>MO</span></h1>
+    </section>
+
+    <footer class="time-panel">
+      <div class="clock-wrap">
+        <time class="clock" id="clock">--:--:--</time>
+        <span class="meridiem" id="meridiem" hidden></span>
+      </div>
+      <div class="date-block">
+        <p class="date" id="date">讀取台北時間中…</p>
+        <p class="timezone">Asia/Taipei · UTC+8</p>
+      </div>
+    </footer>
   </main>
 
+  <button class="focus-exit" id="focus-exit" type="button">
+    <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <path d="M9 18l6-6-6-6"></path>
+    </svg>
+    退出專注模式
+  </button>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M20 6 9 17l-5-5"></path>
+    </svg>
+    <span id="toast-message">已複製台北時間</span>
+  </div>
+
   <script>
-    const clock = document.querySelector('#clock');
-    const formatter = new Intl.DateTimeFormat('zh-TW', {
-      timeZone: 'Asia/Taipei',
-      dateStyle: 'full',
-      timeStyle: 'medium',
-      hour12: false
-    });
+    const STORAGE_KEY = 'momo-preferences';
+    const THEMES = ['aurora', 'minimal', 'sunset'];
+    const THEME_LABELS = { aurora: 'Aurora', minimal: 'Minimal', sunset: 'Sunset' };
+    const THEME_COLORS = { aurora: '#07120f', minimal: '#f7f7f5', sunset: '#f0eee6' };
+
+    const elements = {
+      clock: document.querySelector('#clock'),
+      meridiem: document.querySelector('#meridiem'),
+      date: document.querySelector('#date'),
+      themeButton: document.querySelector('#theme-button'),
+      themeLabel: document.querySelector('#theme-label'),
+      format24: document.querySelector('#format-24'),
+      format12: document.querySelector('#format-12'),
+      copyButton: document.querySelector('#copy-button'),
+      focusButton: document.querySelector('#focus-button'),
+      focusExit: document.querySelector('#focus-exit'),
+      toast: document.querySelector('#toast'),
+      toastMessage: document.querySelector('#toast-message'),
+      themeColor: document.querySelector('meta[name="theme-color"]')
+    };
+
+    const state = {
+      theme: document.documentElement.dataset.theme,
+      format24: true,
+      focusMode: false
+    };
+
+    let toastTimer;
+
+    function loadPreferences() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (['aurora', 'minimal', 'sunset'].includes(saved?.theme)) state.theme = saved.theme;
+        if (typeof saved?.format24 === 'boolean') state.format24 = saved.format24;
+      } catch (_) {
+        // Storage is optional; keep defaults when it is unavailable or invalid.
+      }
+    }
+
+    function savePreferences() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: state.theme, format24: state.format24 }));
+      } catch (_) {
+        // The page remains fully usable when storage is unavailable.
+      }
+    }
+
+    function setTheme(theme, persist = true) {
+      state.theme = theme;
+      document.documentElement.dataset.theme = theme;
+      elements.themeLabel.textContent = `主題 · ${THEME_LABELS[theme]}`;
+      elements.themeButton.setAttribute('aria-label', `目前主題為 ${THEME_LABELS[theme]}，切換到下一個主題`);
+      elements.themeColor.content = THEME_COLORS[theme];
+      if (persist) savePreferences();
+    }
+
+    function cycleTheme() {
+      const index = THEMES.indexOf(state.theme);
+      setTheme(THEMES[(index + 1) % THEMES.length]);
+    }
+
+    function setTimeFormat(format24, persist = true) {
+      state.format24 = format24;
+      elements.format24.setAttribute('aria-pressed', String(format24));
+      elements.format12.setAttribute('aria-pressed', String(!format24));
+      if (persist) savePreferences();
+      updateClock();
+    }
+
+    function taipeiTimeParts(now) {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Taipei',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: !state.format24,
+        hourCycle: state.format24 ? 'h23' : undefined
+      });
+      const parts = Object.fromEntries(
+        formatter.formatToParts(now)
+          .filter(({ type }) => ['hour', 'minute', 'second', 'dayPeriod'].includes(type))
+          .map(({ type, value }) => [type, value])
+      );
+      return parts;
+    }
+
+    function taipeiDate(now) {
+      const date = new Intl.DateTimeFormat('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(now);
+      const weekday = new Intl.DateTimeFormat('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        weekday: 'long'
+      }).format(now);
+      return `${date} ${weekday}`;
+    }
 
     function updateClock() {
       const now = new Date();
-      clock.dateTime = now.toISOString();
-      clock.textContent = formatter.format(now);
+      const parts = taipeiTimeParts(now);
+      elements.clock.dateTime = now.toISOString();
+      elements.clock.textContent = `${parts.hour}:${parts.minute}:${parts.second}`;
+      elements.date.textContent = taipeiDate(now);
+      elements.meridiem.hidden = state.format24;
+      elements.meridiem.textContent = state.format24 ? '' : parts.dayPeriod;
     }
 
+    function copiedTimeText() {
+      const now = new Date();
+      const parts = taipeiTimeParts(now);
+      const time = `${parts.hour}:${parts.minute}:${parts.second}${state.format24 ? '' : ` ${parts.dayPeriod}`}`;
+      return `Momo｜${taipeiDate(now)} ${time}｜Asia/Taipei (UTC+8)`;
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      elements.toastMessage.textContent = message;
+      elements.toast.classList.add('visible');
+      toastTimer = setTimeout(() => elements.toast.classList.remove('visible'), 3000);
+    }
+
+    async function copyTime() {
+      const text = copiedTimeText();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.setAttribute('readonly', '');
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+      }
+      showToast('已複製台北時間');
+    }
+
+    function setFocusMode(enabled) {
+      state.focusMode = enabled;
+      document.body.classList.toggle('focus-mode', enabled);
+      elements.focusButton.setAttribute('aria-pressed', String(enabled));
+      if (enabled) elements.focusExit.focus();
+      else elements.focusButton.focus();
+    }
+
+    elements.themeButton.addEventListener('click', cycleTheme);
+    elements.format24.addEventListener('click', () => setTimeFormat(true));
+    elements.format12.addEventListener('click', () => setTimeFormat(false));
+    elements.copyButton.addEventListener('click', copyTime);
+    elements.focusButton.addEventListener('click', () => setFocusMode(true));
+    elements.focusExit.addEventListener('click', () => setFocusMode(false));
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && state.focusMode) setFocusMode(false);
+    });
+
+    loadPreferences();
+    setTheme(state.theme, false);
+    setTimeFormat(state.format24, false);
     updateClock();
     setInterval(updateClock, 1000);
   </script>
