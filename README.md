@@ -16,10 +16,9 @@
 
 ## Live Demo Snapshot
 
-> 網站截圖後補。
+[![DIC-1 個人入口網站與動態時鐘](./week02/home.jpg)](https://yotsubamomo.github.io/aiot-classwork/week02/)
 
-<!-- 後續可將圖片放在 week02/assets/dic-1-screenshot.png，並取消下一行註解。 -->
-<!-- ![DIC-1 個人入口網站與動態時鐘](./week02/assets/dic-1-screenshot.png) -->
+> 點擊圖片可開啟 Live Demo。
 
 ## 今日專案摘要
 
