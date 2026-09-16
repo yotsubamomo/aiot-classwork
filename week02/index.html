@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Momo</title>
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      color: #1f2937;
+      background: #f8fafc;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(2.5rem, 10vw, 5rem);
+    }
+
+    time {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Momo</h1>
+    <time id="clock">讀取時間中…</time>
+  </main>
+
+  <script>
+    const clock = document.querySelector('#clock');
+    const formatter = new Intl.DateTimeFormat('zh-TW', {
+      timeZone: 'Asia/Taipei',
+      dateStyle: 'full',
+      timeStyle: 'medium',
+      hour12: false
+    });
+
+    function updateClock() {
+      const now = new Date();
+      clock.dateTime = now.toISOString();
+      clock.textContent = formatter.format(now);
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
