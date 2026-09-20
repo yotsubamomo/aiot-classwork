@@ -29,7 +29,7 @@ DIC-1 使用零框架、零建構依賴的 Vanilla HTML、CSS 與 JavaScript，�
 - 使用瀏覽器儲存空間保留主題與時間格式偏好。
 - 可複製包含名稱、完整日期、時間與 `Asia/Taipei (UTC+8)` 的文字時間戳，並顯示短暫成功提示。
 - 提供暫時性的專注模式，只保留名稱、時鐘、日期及退出控制；可按 `Esc` 離開且不保存模式狀態。
-- 採用繁體中文操作文字、語意化按鈕、ARIA 標示、清楚的鍵盤焦點與 reduced-motion 支援。
+- 介面文字為英文，搭配語意化按鈕、ARIA 標示、清楚的鍵盤焦點與 reduced-motion 支援。
 - 響應式版面支援桌面與手機，不需要安裝套件或執行建構流程。
 
 ## 專案結構
@@ -79,9 +79,9 @@ node --test
 
 三個主題共用相同的 Editorial Hello 版面與資訊架構，僅透過 CSS Custom Properties 改變視覺 presentation：
 
-- **Aurora**：深色極光與青綠光感。
+- **Aurora**：深色 Cyber Ambient，青綠與紫色的發光球緩慢漂移，也是首次造訪的預設主題。
 - **Minimal**：高對比、克制的黑白視覺。
-- **Sunset**：暖灰背景與橘色圓形主視覺，也是首次造訪的預設主題。
+- **Sunset**：暖灰背景與橘色圓形主視覺。
 
 ### 單一狀態樹
 
@@ -91,7 +91,7 @@ node --test
 {
   "name": "Momo",
   "tagline": "AIoT & Data Analytics",
-  "theme": "sunset",
+  "theme": "aurora",
   "format24h": true,
   "soundEnabled": false,
   "selectedCity": "taichung",
@@ -124,4 +124,4 @@ python -m http.server 5173
 - JavaScript 語法檢查通過。
 - 實際瀏覽器完成主題、12／24 小時制、複製提示及專注模式測試。
 - 375px 行動裝置寬度下無水平捲動，操作控制最小高度為 44px。
-- Sunset 與 Aurora 主題已完成桌面視覺檢查。
+- 三套主題均已完成桌面視覺檢查。

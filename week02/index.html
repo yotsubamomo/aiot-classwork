@@ -1,14 +1,11 @@
 <!doctype html>
-<html lang="zh-Hant" data-theme="sunset">
+<html lang="en" data-theme="aurora">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Momo 的個人網站與台北即時時間">
-  <meta name="theme-color" content="#f0eee6">
+  <meta name="description" content="Momo's personal portal and live Taipei time.">
+  <meta name="theme-color" content="#07120f">
   <title>Momo — Taipei Time</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <!--
     這段必須在畫面繪製前同步執行，才不會先閃一下預設主題再換色，
     所以它是行內的一般 script，而不是會被延後執行的 module。
@@ -30,22 +27,28 @@
 </head>
 <body>
   <main class="site-shell">
+    <!-- 純裝飾的環境光暈，緩慢漂移；螢幕閱讀器忽略。 -->
+    <div class="ambient-orbs" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+    </div>
+
     <header class="site-nav">
       <div class="brand-lockup">
         <span class="brand-mark" aria-hidden="true">M</span>
         <p class="eyebrow">Personal space<br>Taipei, Taiwan</p>
       </div>
 
-      <div class="control-deck" role="group" aria-label="網站顯示控制">
-        <button class="control-button" id="theme-button" type="button" aria-label="切換視覺主題">
+      <div class="control-deck" role="group" aria-label="Display controls">
+        <button class="control-button" id="theme-button" type="button" aria-label="Switch visual theme">
           <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <circle cx="12" cy="12" r="4"></circle>
             <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path>
           </svg>
-          <span id="theme-label">主題 · Sunset</span>
+          <span id="theme-label">Theme · Aurora</span>
         </button>
 
-        <div class="format-switcher" role="group" aria-label="時間格式">
+        <div class="format-switcher" role="group" aria-label="Time format">
           <button class="format-button" id="format-24" type="button" aria-pressed="true">24H</button>
           <button class="format-button" id="format-12" type="button" aria-pressed="false">12H</button>
         </div>
@@ -55,14 +58,14 @@
             <rect x="8" y="8" width="12" height="12" rx="2"></rect>
             <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
           </svg>
-          <span>複製時間</span>
+          <span>Copy time</span>
         </button>
 
         <button class="control-button" id="focus-button" type="button" aria-pressed="false">
           <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path>
           </svg>
-          <span>專注模式</span>
+          <span>Zen mode</span>
         </button>
       </div>
     </header>
@@ -77,7 +80,7 @@
         <span class="meridiem" id="meridiem" hidden></span>
       </div>
       <div class="date-block">
-        <p class="date" id="date">讀取台北時間中…</p>
+        <p class="date" id="date">Loading Taipei time…</p>
         <p class="timezone">Asia/Taipei · UTC+8</p>
       </div>
     </footer>
@@ -87,14 +90,14 @@
     <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
       <path d="M9 18l6-6-6-6"></path>
     </svg>
-    退出專注模式
+    Exit Zen mode
   </button>
 
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <path d="M20 6 9 17l-5-5"></path>
     </svg>
-    <span id="toast-message">已複製台北時間</span>
+    <span id="toast-message">Taipei time copied</span>
   </div>
 
   <script type="module" src="app.js"></script>

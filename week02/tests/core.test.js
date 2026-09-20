@@ -73,30 +73,30 @@ test('時間依台北時區計算，不跟隨傳入時刻的 UTC 表示', () => 
 });
 
 test('日期包含完整年月日與星期', () => {
-  assert.equal(formatTaipeiDate(AFTERNOON), '2026年9月20日 星期日');
+  assert.equal(formatTaipeiDate(AFTERNOON), 'Sunday, September 20, 2026');
 });
 
 test('跨日的時刻以台北日期為準', () => {
   // UTC 仍是 2025-12-31，但台北已經是 2026-01-01。
-  assert.equal(formatTaipeiDate(MIDNIGHT), '2026年1月1日 星期四');
+  assert.equal(formatTaipeiDate(MIDNIGHT), 'Thursday, January 1, 2026');
 });
 
 test('24 小時制的時間戳記文字含名稱、日期、時間與時區', () => {
   assert.equal(
     buildTimestampText(AFTERNOON, { format24h: true }),
-    'Momo｜2026年9月20日 星期日 14:30:05｜Asia/Taipei (UTC+8)'
+    'Momo · Sunday, September 20, 2026 · 14:30:05 · Asia/Taipei (UTC+8)'
   );
 });
 
 test('12 小時制的時間戳記文字帶上下午標記', () => {
   assert.equal(
     buildTimestampText(AFTERNOON, { format24h: false }),
-    'Momo｜2026年9月20日 星期日 02:30:05 PM｜Asia/Taipei (UTC+8)'
+    'Momo · Sunday, September 20, 2026 · 02:30:05 PM · Asia/Taipei (UTC+8)'
   );
 });
 
 test('時間戳記使用狀態樹裡的名稱', () => {
-  assert.match(buildTimestampText(AFTERNOON, { name: 'Ada' }), /^Ada｜/);
+  assert.match(buildTimestampText(AFTERNOON, { name: 'Ada' }), /^Ada · /);
 });
 
 // -----------------------------------------------------------------------------
@@ -111,6 +111,10 @@ test('主題依固定順序循環', () => {
 
 test('未知主題循環後回到第一個主題', () => {
   assert.equal(nextTheme('unknown'), THEMES[0]);
+});
+
+test('預設主題是深色的 Cyber Ambient（aurora）', () => {
+  assert.equal(DEFAULT_STATE.theme, 'aurora');
 });
 
 test('只有清單內的值算是合法主題', () => {
@@ -230,13 +234,13 @@ test('正規化不會改動傳入的物件', () => {
 // -----------------------------------------------------------------------------
 
 test('舊偏好的主題與時間格式會被搬到新狀態樹', () => {
-  const result = stateFromLegacyPreferences({ theme: 'aurora', format24: false });
-  assert.equal(result.theme, 'aurora');
+  const result = stateFromLegacyPreferences({ theme: 'minimal', format24: false });
+  assert.equal(result.theme, 'minimal');
   assert.equal(result.format24h, false);
 });
 
 test('舊偏好沒有的欄位使用預設值', () => {
-  const result = stateFromLegacyPreferences({ theme: 'aurora', format24: false });
+  const result = stateFromLegacyPreferences({ theme: 'minimal', format24: false });
   assert.equal(result.name, DEFAULT_STATE.name);
   assert.equal(result.soundEnabled, DEFAULT_STATE.soundEnabled);
   assert.equal(result.selectedCity, DEFAULT_STATE.selectedCity);

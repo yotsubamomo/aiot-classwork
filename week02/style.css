@@ -5,7 +5,10 @@
 
 :root {
   color-scheme: light;
-  font-family: Manrope, "Noto Sans TC", system-ui, sans-serif;
+  /* 系統字型堆疊：不載入任何外部字型，離線開啟也能正常顯示。 */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-family: var(--font-sans);
   font-synthesis: none;
   --page: #f0eee6;
   --ink: #152016;
@@ -20,6 +23,10 @@
   --ring: #152016;
   --shadow: 0 18px 50px rgb(21 32 22 / 14%);
   --ambient: transparent;
+  --orb-a: rgb(255 107 53 / 20%);
+  --orb-b: rgb(21 32 22 / 8%);
+  --disc: var(--accent);
+  --disc-blur: none;
   --transition: 240ms ease;
 }
 
@@ -37,7 +44,13 @@
   --hover: rgb(146 255 220 / 12%);
   --ring: #8effd9;
   --shadow: 0 20px 60px rgb(0 0 0 / 38%);
-  --ambient: radial-gradient(circle at 76% 24%, rgb(89 240 189 / 24%), transparent 32%), radial-gradient(circle at 18% 82%, rgb(128 92 255 / 25%), transparent 34%);
+  /* Cyber Ambient 的光暈交給會緩慢漂移的 .orb 元素，背景本身保持乾淨。 */
+  --ambient: transparent;
+  --orb-a: rgb(89 240 189 / 30%);
+  --orb-b: rgb(128 92 255 / 30%);
+  /* 深色主題下圓盤化成一團柔光，而不是實心色塊。 */
+  --disc: rgb(89 240 189 / 24%);
+  --disc-blur: blur(38px);
 }
 
 :root[data-theme="minimal"] {
@@ -54,6 +67,11 @@
   --ring: #151515;
   --shadow: 6px 6px 0 #151515;
   --ambient: linear-gradient(90deg, transparent 49.9%, rgb(21 21 21 / 5%) 50%, transparent 50.1%);
+  /* Swiss Minimalist 維持乾淨的平面感，不要發光球。 */
+  --orb-a: transparent;
+  --orb-b: transparent;
+  --disc: var(--accent);
+  --disc-blur: none;
 }
 
 * { box-sizing: border-box; }
@@ -79,9 +97,56 @@ button { font: inherit; }
   grid-template-rows: auto auto 1fr auto;
   min-height: 100vh;
   min-height: 100dvh;
-  overflow: hidden;
+  /*
+   * clip 而不是 hidden：裝飾圓盤會超出右緣，hidden 會讓容器變成「可程式捲動」，
+   * 焦點移回控制列時瀏覽器就把整個版面往左捲。clip 完全不產生捲動容器。
+   */
+  overflow: clip;
   padding: 2rem clamp(1.25rem, 5vw, 5rem);
   isolation: isolate;
+}
+
+.ambient-orbs {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  display: block;
+  width: min(52vw, 620px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--orb-a);
+  filter: blur(60px);
+  transition: background-color var(--transition);
+  will-change: transform;
+}
+
+.orb-a {
+  top: -14vh;
+  right: -6vw;
+  animation: orb-drift-a 26s ease-in-out infinite alternate;
+}
+
+.orb-b {
+  bottom: -18vh;
+  left: -10vw;
+  background: var(--orb-b);
+  animation: orb-drift-b 34s ease-in-out infinite alternate;
+}
+
+@keyframes orb-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-6vw, 5vh, 0) scale(1.14); }
+}
+
+@keyframes orb-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.05); }
+  to { transform: translate3d(7vw, -6vh, 0) scale(.92); }
 }
 
 .site-shell::before {
@@ -92,10 +157,11 @@ button { font: inherit; }
   width: max(54vw, 430px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--disc);
   box-shadow: 0 0 100px rgb(255 255 255 / 8%);
   content: "";
-  transition: opacity var(--transition), background-color var(--transition), box-shadow var(--transition);
+  filter: var(--disc-blur);
+  transition: opacity var(--transition), background-color var(--transition), box-shadow var(--transition), filter var(--transition);
 }
 
 .site-nav {
@@ -120,7 +186,7 @@ button { font: inherit; }
 
 .eyebrow {
   margin: 0;
-  font: 500 .72rem/1.35 "DM Mono", monospace;
+  font: 500 .72rem/1.35 var(--font-mono);
   letter-spacing: .18em;
   text-transform: uppercase;
 }
@@ -189,7 +255,7 @@ button:focus-visible {
   padding: .5rem .7rem;
   border-radius: 999px;
   background: transparent;
-  font: 700 .72rem/1 "DM Mono", monospace;
+  font: 700 .72rem/1 var(--font-mono);
 }
 
 .format-button[aria-pressed="true"] {
@@ -232,7 +298,7 @@ button:focus-visible {
 .clock-wrap { display: flex; align-items: flex-end; gap: .8rem; }
 
 .clock {
-  font: 500 clamp(1.8rem, 4.5vw, 4.25rem)/1 "DM Mono", monospace;
+  font: 500 clamp(1.8rem, 4.5vw, 4.25rem)/1 var(--font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: -.07em;
 }
@@ -240,13 +306,13 @@ button:focus-visible {
 .meridiem {
   padding-bottom: .28em;
   color: var(--muted);
-  font: 500 clamp(.75rem, 1.4vw, 1rem)/1 "DM Mono", monospace;
+  font: 500 clamp(.75rem, 1.4vw, 1rem)/1 var(--font-mono);
   letter-spacing: .12em;
 }
 
 .date-block { text-align: right; }
 .date { margin: 0; font-weight: 600; }
-.timezone { margin: .35rem 0 0; color: var(--muted); font: 500 .7rem/1.4 "DM Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+.timezone { margin: .35rem 0 0; color: var(--muted); font: 500 .7rem/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
 
 .focus-exit {
   position: fixed;
@@ -334,4 +400,7 @@ body.focus-mode .time-panel { grid-row: 2; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+
+  /* 動畫整個關掉而不是加速，光暈仍然看得到，只是不再移動。 */
+  .orb { animation: none; transform: none; }
 }

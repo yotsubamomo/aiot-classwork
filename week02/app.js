@@ -91,8 +91,8 @@ function setTheme(theme, { persist = true } = {}) {
   else state = normalizeState({ ...state, theme });
 
   document.documentElement.dataset.theme = state.theme;
-  elements.themeLabel.textContent = `主題 · ${THEME_LABELS[state.theme]}`;
-  elements.themeButton.setAttribute('aria-label', `目前主題為 ${THEME_LABELS[state.theme]}，切換到下一個主題`);
+  elements.themeLabel.textContent = `Theme · ${THEME_LABELS[state.theme]}`;
+  elements.themeButton.setAttribute('aria-label', `Current theme is ${THEME_LABELS[state.theme]}. Switch to the next theme.`);
   elements.themeColor.content = THEME_COLORS[state.theme];
 }
 
@@ -146,7 +146,7 @@ async function copyTime() {
     document.execCommand('copy');
     textArea.remove();
   }
-  showToast('已複製台北時間');
+  showToast('Taipei time copied');
 }
 
 /**

@@ -39,7 +39,7 @@ export const TIME_ZONE = 'Asia/Taipei';
 export const DEFAULT_STATE = Object.freeze({
   name: 'Momo',
   tagline: 'AIoT & Data Analytics',
-  theme: 'sunset',
+  theme: 'aurora',
   format24h: true,
   soundEnabled: false,
   selectedCity: 'taichung',
@@ -125,19 +125,15 @@ export function taipeiTimeParts(date, { format24h = true } = {}) {
   );
 }
 
-/** 台北時區的完整日期與星期，例如「2026年9月20日 星期日」。 */
+/** 台北時區的完整日期，例如「Sunday, September 20, 2026」。 */
 export function formatTaipeiDate(date) {
-  const day = new Intl.DateTimeFormat('zh-TW', {
+  return new Intl.DateTimeFormat('en-US', {
     timeZone: TIME_ZONE,
+    weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   }).format(date);
-  const weekday = new Intl.DateTimeFormat('zh-TW', {
-    timeZone: TIME_ZONE,
-    weekday: 'long'
-  }).format(date);
-  return `${day} ${weekday}`;
 }
 
 /** 時鐘上顯示的 HH:MM:SS 文字。 */
@@ -150,5 +146,5 @@ export function formatClockText(date, { format24h = true } = {}) {
 export function buildTimestampText(date, { format24h = true, name = DEFAULT_STATE.name } = {}) {
   const parts = taipeiTimeParts(date, { format24h });
   const time = `${parts.hour}:${parts.minute}:${parts.second}${format24h ? '' : ` ${parts.dayPeriod}`}`;
-  return `${name}｜${formatTaipeiDate(date)} ${time}｜Asia/Taipei (UTC+8)`;
+  return `${name} · ${formatTaipeiDate(date)} · ${time} · Asia/Taipei (UTC+8)`;
 }
