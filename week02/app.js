@@ -34,6 +34,7 @@ import {
   normalizeWeather,
   ringDashOffset,
   sanitizeLine,
+  shortcutAction,
   splitDisplayName,
   stateFromLegacyPreferences,
   taipeiTimeParts,
@@ -663,14 +664,45 @@ elements.drawerTabs.addEventListener('keydown', (event) => {
   switchDrawerTab(DRAWER_TABS[nextIndex], { focusTab: true });
 });
 
+/** 焦點是否在會吃鍵盤輸入的控制項上（輸入框、下拉選單…）。 */
+function isFormField(target) {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.matches('input, select, textarea, [contenteditable="true"]');
+}
+
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Tab') trapFocus(event);
-  // 正在編輯名稱或標語時，鍵盤事件屬於那個輸入框，不做全域處理。
-  if (editing) return;
-  if (event.key !== 'Escape') return;
-  // 抽屜開著時 ESC 先關抽屜，抽屜沒開才離開 Zen 模式。
-  if (drawerOpen) closeDrawer();
-  else if (state.zenMode) setZenMode(false);
+
+  const action = shortcutAction({
+    key: event.key,
+    ctrlKey: event.ctrlKey,
+    metaKey: event.metaKey,
+    altKey: event.altKey,
+    fromFormField: isFormField(event.target),
+    editing,
+    drawerOpen,
+    zenMode: state.zenMode
+  });
+  if (!action) return;
+
+  event.preventDefault();
+  switch (action) {
+    case 'close-drawer':
+      closeDrawer();
+      break;
+    case 'exit-zen':
+      setZenMode(false);
+      break;
+    case 'toggle-zen':
+      setZenMode(!state.zenMode);
+      break;
+    case 'toggle-format':
+      setTimeFormat(!state.format24h);
+      break;
+    case 'copy-time':
+      copyTime();
+      break;
+  }
 });
 
 // =============================================================================

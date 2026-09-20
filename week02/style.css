@@ -492,6 +492,8 @@ body.focus-mode .site-shell::before { opacity: 0; }
 body.focus-mode .site-nav,
 body.focus-mode .control-deck { display: none; }
 body.focus-mode .timezone { display: none; }
+/* Zen 是純環境桌鐘：抽屜入口與其他控制項一起收起來。 */
+body.focus-mode .portal-nav { display: none; }
 body.focus-mode .hero { align-items: center; justify-content: center; padding: 4rem 0; text-align: center; }
 body.focus-mode .hero h1 #name-trail { margin-left: 0; }
 body.focus-mode .hero-stack { align-items: center; }

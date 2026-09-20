@@ -49,11 +49,11 @@
         </button>
 
         <div class="format-switcher" role="group" aria-label="Time format">
-          <button class="format-button" id="format-24" type="button" aria-pressed="true">24H</button>
-          <button class="format-button" id="format-12" type="button" aria-pressed="false">12H</button>
+          <button class="format-button" id="format-24" type="button" aria-pressed="true" title="24-hour clock (T toggles)">24H</button>
+          <button class="format-button" id="format-12" type="button" aria-pressed="false" title="12-hour clock (T toggles)">12H</button>
         </div>
 
-        <button class="control-button" id="copy-button" type="button">
+        <button class="control-button" id="copy-button" type="button" title="Copy the current timestamp (C)">
           <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <rect x="8" y="8" width="12" height="12" rx="2"></rect>
             <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
@@ -61,7 +61,7 @@
           <span>Copy time</span>
         </button>
 
-        <button class="control-button" id="focus-button" type="button" aria-pressed="false">
+        <button class="control-button" id="focus-button" type="button" aria-pressed="false" title="Zen mode (Z)">
           <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"></path>
           </svg>
@@ -149,7 +149,7 @@
     <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
       <path d="M9 18l6-6-6-6"></path>
     </svg>
-    Exit Zen mode
+    Exit Zen mode (Esc)
   </button>
 
   <!--

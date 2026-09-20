@@ -297,6 +297,45 @@ export function initialsFrom(name) {
   return letters.toUpperCase();
 }
 
+/**
+ * 鍵盤快捷鍵要做什麼事，由這個純函式決定，app.js 只負責執行。
+ *
+ * 幾個刻意的判斷：
+ * - 按著 Ctrl／Cmd／Alt 時一律不攔截，否則會把 Ctrl+C 這種既有組合鍵吃掉。
+ * - 正在編輯或焦點在表單控制項上時不處理，打字打到 z、t、c 不應該觸發功能。
+ * - Escape 有優先順序：抽屜開著就先關抽屜，沒開才離開 Zen 模式。
+ */
+export function shortcutAction({
+  key,
+  ctrlKey = false,
+  metaKey = false,
+  altKey = false,
+  fromFormField = false,
+  editing = false,
+  drawerOpen = false,
+  zenMode = false
+} = {}) {
+  if (ctrlKey || metaKey || altKey) return null;
+  if (editing || fromFormField) return null;
+
+  if (key === 'Escape') {
+    if (drawerOpen) return 'close-drawer';
+    if (zenMode) return 'exit-zen';
+    return null;
+  }
+
+  switch (typeof key === 'string' ? key.toLowerCase() : '') {
+    case 'z':
+      return 'toggle-zen';
+    case 't':
+      return 'toggle-format';
+    case 'c':
+      return 'copy-time';
+    default:
+      return null;
+  }
+}
+
 /** 抽屜的三個分頁，順序即為畫面上的排列順序。 */
 export const DRAWER_TABS = ['projects', 'about', 'connect'];
 

@@ -46,6 +46,7 @@ import {
   ringDashOffset,
   safeUrl,
   sanitizeLine,
+  shortcutAction,
   splitDisplayName,
   stateFromLegacyPreferences,
   taipeiCalendarDate,
@@ -491,6 +492,59 @@ test('空陣列與非陣列都回傳空清單', () => {
   assert.deepEqual(normalizeProjects([]), []);
   assert.deepEqual(normalizeProjects(null), []);
   assert.deepEqual(normalizeProjects({ projects: [] }), []);
+});
+
+// -----------------------------------------------------------------------------
+// 鍵盤快捷鍵
+// -----------------------------------------------------------------------------
+
+test('Z、T、C 各自對應一個動作，大小寫都算', () => {
+  assert.equal(shortcutAction({ key: 'z' }), 'toggle-zen');
+  assert.equal(shortcutAction({ key: 'Z' }), 'toggle-zen');
+  assert.equal(shortcutAction({ key: 't' }), 'toggle-format');
+  assert.equal(shortcutAction({ key: 'T' }), 'toggle-format');
+  assert.equal(shortcutAction({ key: 'c' }), 'copy-time');
+  assert.equal(shortcutAction({ key: 'C' }), 'copy-time');
+});
+
+test('沒有對應動作的按鍵回傳 null', () => {
+  assert.equal(shortcutAction({ key: 'a' }), null);
+  assert.equal(shortcutAction({ key: 'Enter' }), null);
+  assert.equal(shortcutAction({ key: '1' }), null);
+  assert.equal(shortcutAction({}), null);
+});
+
+test('按著 Ctrl、Cmd 或 Alt 時完全不攔截', () => {
+  assert.equal(shortcutAction({ key: 'c', ctrlKey: true }), null);
+  assert.equal(shortcutAction({ key: 'c', metaKey: true }), null);
+  assert.equal(shortcutAction({ key: 't', altKey: true }), null);
+  assert.equal(shortcutAction({ key: 'Escape', ctrlKey: true }), null);
+});
+
+test('焦點在輸入框或選單上時不攔截字母鍵', () => {
+  assert.equal(shortcutAction({ key: 'z', fromFormField: true }), null);
+  assert.equal(shortcutAction({ key: 'c', fromFormField: true }), null);
+});
+
+test('正在編輯名稱或標語時不攔截任何鍵', () => {
+  assert.equal(shortcutAction({ key: 'z', editing: true }), null);
+  assert.equal(shortcutAction({ key: 'Escape', editing: true, zenMode: true }), null);
+});
+
+test('Escape 在抽屜開啟時先關抽屜', () => {
+  assert.equal(shortcutAction({ key: 'Escape', drawerOpen: true, zenMode: true }), 'close-drawer');
+});
+
+test('Escape 在抽屜未開時才離開 Zen 模式', () => {
+  assert.equal(shortcutAction({ key: 'Escape', drawerOpen: false, zenMode: true }), 'exit-zen');
+});
+
+test('Escape 在沒有抽屜也沒有 Zen 時什麼都不做', () => {
+  assert.equal(shortcutAction({ key: 'Escape' }), null);
+});
+
+test('Z 在 Zen 模式開啟時仍回傳切換動作，用來離開', () => {
+  assert.equal(shortcutAction({ key: 'z', zenMode: true }), 'toggle-zen');
 });
 
 // -----------------------------------------------------------------------------
