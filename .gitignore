@@ -1,6 +1,6 @@
 # Claude Code plugin audit logs (protect-mcp / review-agent-governance)
-/receipts/
-/review-receipts/
+receipts/
+review-receipts/
 /home_work_01/doc/Part_5._ai_vibe_coding_天氣預測forecast_with_cwa_api.pdf
 
 # Python bytecode

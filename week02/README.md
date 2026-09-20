@@ -36,10 +36,17 @@ DIC-1 使用零框架、零建構依賴的 Vanilla HTML、CSS 與 JavaScript，�
 
 ```text
 week02/
-├── README.md    # 本檔：DIC-1 的專案說明
-├── CONTEXT.md   # DIC-1 的專案語彙與已確認行為邊界
-├── home.jpg     # Live Demo 畫面截圖
-└── index.html   # HTML、CSS 與 JavaScript 單檔網站
+├── README.md         # 本檔：DIC-1 的專案說明
+├── BRIEF.md          # 與課程規格的落差盤點
+├── SPEC.md           # 補齊規格的實作 spec
+├── CONTEXT.md        # DIC-1 的專案語彙與已確認行為邊界
+├── home.jpg          # Live Demo 畫面截圖
+├── index.html        # 語意化頁面結構
+├── style.css         # 設計 token、三套主題與響應式版面
+├── app.js            # DOM 事件、偏好讀寫與畫面更新
+├── core.js           # 純邏輯，可被瀏覽器與 Node 共用
+└── tests/
+    └── core.test.js  # core.js 的行為測試
 ```
 
 ### 核心檔案
@@ -47,7 +54,20 @@ week02/
 | 檔案 | 用途 |
 | --- | --- |
 | [`CONTEXT.md`](./CONTEXT.md) | 定義顯示名稱、台北時間、時間格式、視覺主題、保存偏好、專注模式與複製時間。 |
-| [`index.html`](./index.html) | 包含語意化頁面結構、三主題樣式、響應式版面與所有瀏覽器端互動。 |
+| [`index.html`](./index.html) | 語意化頁面結構，只負責 markup。 |
+| [`style.css`](./style.css) | 設計 token、三套視覺主題、響應式版面與無障礙樣式。 |
+| [`app.js`](./app.js) | 所有副作用：DOM 選取與事件、localStorage 讀寫、剪貼簿、時鐘更新。 |
+| [`core.js`](./core.js) | 純邏輯：時間格式化、日期文字、主題循環、偏好正規化。不碰 DOM、儲存與網路。 |
+
+## 測試
+
+`core.js` 是唯一的測試接縫，測試用 Node 內建的執行器，不需要安裝任何套件：
+
+```powershell
+node --test
+```
+
+在 `week02` 目錄下執行。瀏覽器端仍然零依賴——沒有 `node_modules`，也沒有建構步驟。
 
 ## 技術重點
 
@@ -78,16 +98,15 @@ week02/
 
 ## 本機預覽
 
-本專案為純靜態網站，不需安裝 `node_modules`。建議從儲存庫根目錄啟動本機伺服器：
+本專案為純靜態網站，不需安裝 `node_modules`。從 `week02` 目錄啟動本機伺服器：
 
 ```powershell
-Set-Location week02
 python -m http.server 5173
 ```
 
 接著開啟：<http://localhost:5173>
 
-也可以直接開啟 `index.html`；使用本機伺服器能讓瀏覽器功能的行為更接近 GitHub Pages。
+**必須透過本機伺服器開啟，不能直接雙擊 `index.html`。** 瀏覽器會擋下 `file://` 協定的 ES module 載入（以及之後要加入的 `fetch`），從檔案總管直接打開會看到沒有互動的靜態畫面。GitHub Pages 上則一切正常。
 
 ## GitHub Pages
 
