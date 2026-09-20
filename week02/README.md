@@ -13,9 +13,9 @@
 
 ## Live Demo
 
-<https://yotsubamomo.github.io/aiot-classwork/week02/>
+[![DIC-1 個人入口網站與動態時鐘](./home.jpg)](https://yotsubamomo.github.io/aiot-classwork/week02/)
 
-> `home.jpg` 是補齊規格前的淺色版面截圖，與目前的深色預設不符，尚未重拍。
+> 點擊圖片可開啟 Live Demo。截圖是 `Sunset` 主題；首次造訪的預設主題是深色的 `Aurora`。
 
 ## 專案摘要
 
