@@ -6,6 +6,7 @@
  */
 
 import {
+  DRAWER_TABS,
   LEGACY_STORAGE_KEY,
   STORAGE_KEY,
   THEME_COLORS,
@@ -16,9 +17,11 @@ import {
   formatMilliseconds,
   formatTaipeiDate,
   greeting,
+  isDrawerTab,
   isoWeek,
   minuteProgress,
   nextTheme,
+  nextTabIndex,
   normalizeState,
   ringDashOffset,
   stateFromLegacyPreferences,
@@ -47,6 +50,11 @@ const elements = {
   copyButton: document.querySelector('#copy-button'),
   focusButton: document.querySelector('#focus-button'),
   focusExit: document.querySelector('#focus-exit'),
+  drawer: document.querySelector('#drawer'),
+  drawerOverlay: document.querySelector('#drawer-overlay'),
+  drawerClose: document.querySelector('#drawer-close'),
+  drawerTabs: document.querySelector('.drawer-tabs'),
+  portalButtons: document.querySelectorAll('.portal-button'),
   toast: document.querySelector('#toast'),
   toastMessage: document.querySelector('#toast-message'),
   themeColor: document.querySelector('meta[name="theme-color"]')
@@ -208,6 +216,76 @@ async function copyTime() {
   showToast('Taipei time copied');
 }
 
+// =============================================================================
+// 抽屜：Hero 保持乾淨，次要內容收在滑出面板裡。
+//
+// 無障礙重點：開啟時焦點移入面板並把 Tab 鎖在裡面，關閉後焦點回到原本的觸發按鈕；
+// 關閉狀態用 inert，整塊內容會退出 Tab 順序與無障礙樹，不只是視覺上移開。
+// =============================================================================
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+let activeTab = DRAWER_TABS[0];
+let drawerOpen = false;
+let drawerTrigger = null;
+
+function tabButton(name) {
+  return elements.drawer.querySelector(`.drawer-tab[data-tab="${name}"]`);
+}
+
+function switchDrawerTab(name, { focusTab = false } = {}) {
+  if (!isDrawerTab(name)) return;
+  activeTab = name;
+
+  for (const tab of DRAWER_TABS) {
+    const button = tabButton(tab);
+    const panel = document.querySelector(`#panel-${tab}`);
+    const selected = tab === name;
+    button.setAttribute('aria-selected', String(selected));
+    button.tabIndex = selected ? 0 : -1;
+    panel.hidden = !selected;
+  }
+
+  if (focusTab) tabButton(name).focus();
+}
+
+function openDrawer(name, trigger) {
+  drawerTrigger = trigger ?? null;
+  drawerOpen = true;
+  switchDrawerTab(name);
+  elements.drawer.removeAttribute('inert');
+  document.body.classList.add('drawer-open');
+  tabButton(activeTab).focus();
+}
+
+function closeDrawer() {
+  if (!drawerOpen) return;
+  drawerOpen = false;
+  document.body.classList.remove('drawer-open');
+  // 先把焦點移出去再設 inert，否則焦點會停在一個已經被移出無障礙樹的元素上。
+  if (drawerTrigger) drawerTrigger.focus();
+  else elements.drawer.blur();
+  elements.drawer.setAttribute('inert', '');
+  drawerTrigger = null;
+}
+
+/** 把 Tab 鎖在抽屜內，避免焦點跑到後面被遮住的頁面上。 */
+function trapFocus(event) {
+  if (event.key !== 'Tab' || !drawerOpen) return;
+  const focusable = [...elements.drawer.querySelectorAll(FOCUSABLE)]
+    .filter((node) => node.offsetParent !== null || node === document.activeElement);
+  if (focusable.length === 0) return;
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
 /**
  * 專注模式（之後會擴充成規格的 Zen 模式）。
  * moveFocus 在啟動還原時關閉，避免頁面一載入就把焦點搶走。
@@ -232,8 +310,34 @@ elements.format12.addEventListener('click', () => setTimeFormat(false));
 elements.copyButton.addEventListener('click', copyTime);
 elements.focusButton.addEventListener('click', () => setZenMode(true));
 elements.focusExit.addEventListener('click', () => setZenMode(false));
+
+for (const button of elements.portalButtons) {
+  button.addEventListener('click', () => openDrawer(button.dataset.tab, button));
+}
+
+elements.drawerClose.addEventListener('click', closeDrawer);
+elements.drawerOverlay.addEventListener('click', closeDrawer);
+
+elements.drawerTabs.addEventListener('click', (event) => {
+  const tab = event.target.closest('.drawer-tab');
+  if (tab) switchDrawerTab(tab.dataset.tab);
+});
+
+// tablist 的方向鍵操作：切到哪一個分頁由 core.js 的純函式決定。
+elements.drawerTabs.addEventListener('keydown', (event) => {
+  const currentIndex = DRAWER_TABS.indexOf(activeTab);
+  const nextIndex = nextTabIndex(currentIndex, event.key);
+  if (nextIndex === currentIndex) return;
+  event.preventDefault();
+  switchDrawerTab(DRAWER_TABS[nextIndex], { focusTab: true });
+});
+
 window.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && state.zenMode) setZenMode(false);
+  if (event.key === 'Tab') trapFocus(event);
+  if (event.key !== 'Escape') return;
+  // 抽屜開著時 ESC 先關抽屜，抽屜沒開才離開 Zen 模式。
+  if (drawerOpen) closeDrawer();
+  else if (state.zenMode) setZenMode(false);
 });
 
 // =============================================================================

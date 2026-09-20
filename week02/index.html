@@ -77,6 +77,18 @@
           <span id="greeting-text">Good evening</span>
         </p>
         <h1 id="display-name">MO<span>MO</span></h1>
+
+        <nav class="portal-nav" aria-label="Sections">
+          <button class="portal-button" type="button" data-tab="projects">
+            <span aria-hidden="true">📂</span> Projects
+          </button>
+          <button class="portal-button" type="button" data-tab="about">
+            <span aria-hidden="true">👤</span> About
+          </button>
+          <button class="portal-button" type="button" data-tab="connect">
+            <span aria-hidden="true">🔗</span> Connect
+          </button>
+        </nav>
       </div>
     </section>
 
@@ -117,6 +129,82 @@
     </svg>
     Exit Zen mode
   </button>
+
+  <!--
+    抽屜放在 .site-shell 之外：外殼是 overflow: clip，放在裡面會被裁掉。
+    關閉時用 inert 讓整塊內容退出 Tab 順序與無障礙樹，而不只是視覺上移開。
+  -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" inert>
+    <header class="drawer-head">
+      <h2 class="drawer-title" id="drawer-title">Explore</h2>
+      <button class="drawer-close" id="drawer-close" type="button" aria-label="Close drawer">
+        <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="drawer-tabs" role="tablist" aria-label="Drawer sections">
+      <button class="drawer-tab" id="tab-projects" type="button" role="tab" aria-selected="true" aria-controls="panel-projects" data-tab="projects">Projects</button>
+      <button class="drawer-tab" id="tab-about" type="button" role="tab" aria-selected="false" aria-controls="panel-about" data-tab="about" tabindex="-1">About</button>
+      <button class="drawer-tab" id="tab-connect" type="button" role="tab" aria-selected="false" aria-controls="panel-connect" data-tab="connect" tabindex="-1">Connect</button>
+    </div>
+
+    <div class="drawer-body">
+      <section class="drawer-panel" id="panel-projects" role="tabpanel" aria-labelledby="tab-projects" tabindex="0">
+        <div class="project-grid" id="project-grid"></div>
+        <p class="drawer-note" id="project-status">The project catalogue is not loaded yet.</p>
+      </section>
+
+      <section class="drawer-panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="0" hidden>
+        <p class="placeholder-flag">Placeholder content — replace with your own.</p>
+        <h3 class="drawer-heading">Bio</h3>
+        <p>Write two or three sentences about who you are and what you build.</p>
+        <h3 class="drawer-heading">Background</h3>
+        <p>Your school, department and programme go here.</p>
+        <h3 class="drawer-heading">Research interests</h3>
+        <ul class="tag-list">
+          <li class="tag">AI</li>
+          <li class="tag">IoT</li>
+          <li class="tag">Edge Computing</li>
+        </ul>
+        <h3 class="drawer-heading">Skills</h3>
+        <ul class="tag-list">
+          <li class="tag">Add</li>
+          <li class="tag">Your</li>
+          <li class="tag">Skills</li>
+        </ul>
+      </section>
+
+      <section class="drawer-panel" id="panel-connect" role="tabpanel" aria-labelledby="tab-connect" tabindex="0" hidden>
+        <p class="placeholder-flag">Only the repository link is real. The rest are placeholders.</p>
+        <ul class="link-list">
+          <li>
+            <a class="link-item" href="https://github.com/yotsubamomo/aiot-classwork">
+              <span aria-hidden="true">🐙</span> GitHub repository
+            </a>
+          </li>
+          <li>
+            <span class="link-item is-placeholder">
+              <span aria-hidden="true">💼</span> LinkedIn — not set yet
+            </span>
+          </li>
+          <li>
+            <span class="link-item is-placeholder">
+              <span aria-hidden="true">✉️</span> Email — not set yet
+            </span>
+          </li>
+          <li>
+            <span class="link-item is-placeholder">
+              <span aria-hidden="true">🎓</span> Course portal — not set yet
+            </span>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </aside>
 
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

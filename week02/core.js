@@ -125,6 +125,35 @@ export function taipeiTimeParts(date, { format24h = true } = {}) {
   );
 }
 
+/** 抽屜的三個分頁，順序即為畫面上的排列順序。 */
+export const DRAWER_TABS = ['projects', 'about', 'connect'];
+
+/** 這個值是不是合法的分頁名稱。 */
+export function isDrawerTab(value) {
+  return DRAWER_TABS.includes(value);
+}
+
+/**
+ * tablist 的鍵盤操作：左右（或上下）方向鍵在分頁之間循環，Home／End 跳到頭尾。
+ * 其他按鍵維持原位，交給瀏覽器處理。
+ */
+export function nextTabIndex(currentIndex, key, count = DRAWER_TABS.length) {
+  switch (key) {
+    case 'ArrowRight':
+    case 'ArrowDown':
+      return (currentIndex + 1) % count;
+    case 'ArrowLeft':
+    case 'ArrowUp':
+      return (currentIndex - 1 + count) % count;
+    case 'Home':
+      return 0;
+    case 'End':
+      return count - 1;
+    default:
+      return currentIndex;
+  }
+}
+
 /** 依時段顯示的問候語與圖示。 */
 export const GREETINGS = Object.freeze({
   morning: { text: 'Good morning', icon: '🌤' },

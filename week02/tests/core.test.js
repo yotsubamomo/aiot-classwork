@@ -13,6 +13,7 @@ import assert from 'node:assert/strict';
 
 import {
   DEFAULT_STATE,
+  DRAWER_TABS,
   GREETINGS,
   NAME_MAX_LENGTH,
   THEMES,
@@ -24,9 +25,11 @@ import {
   greeting,
   greetingKey,
   isCity,
+  isDrawerTab,
   isTheme,
   isoWeek,
   minuteProgress,
+  nextTabIndex,
   nextTheme,
   normalizeState,
   ringDashOffset,
@@ -283,6 +286,48 @@ test('只有清單內的值算是合法城市', () => {
   assert.equal(isCity('taichung'), true);
   assert.equal(isCity('Taichung'), false);
   assert.equal(isCity('tokyo'), false);
+});
+
+// -----------------------------------------------------------------------------
+// 抽屜分頁
+// -----------------------------------------------------------------------------
+
+test('抽屜有 Projects、About、Connect 三個分頁', () => {
+  assert.deepEqual(DRAWER_TABS, ['projects', 'about', 'connect']);
+});
+
+test('只有清單內的值算是合法分頁', () => {
+  assert.equal(isDrawerTab('about'), true);
+  assert.equal(isDrawerTab('About'), false);
+  assert.equal(isDrawerTab('settings'), false);
+});
+
+test('右方向鍵往後切，走到最後一個會繞回第一個', () => {
+  assert.equal(nextTabIndex(0, 'ArrowRight'), 1);
+  assert.equal(nextTabIndex(1, 'ArrowRight'), 2);
+  assert.equal(nextTabIndex(2, 'ArrowRight'), 0);
+});
+
+test('左方向鍵往前切，走到第一個會繞回最後一個', () => {
+  assert.equal(nextTabIndex(2, 'ArrowLeft'), 1);
+  assert.equal(nextTabIndex(1, 'ArrowLeft'), 0);
+  assert.equal(nextTabIndex(0, 'ArrowLeft'), 2);
+});
+
+test('上下方向鍵與左右方向鍵作用相同', () => {
+  assert.equal(nextTabIndex(0, 'ArrowDown'), 1);
+  assert.equal(nextTabIndex(0, 'ArrowUp'), 2);
+});
+
+test('Home 與 End 跳到頭尾', () => {
+  assert.equal(nextTabIndex(1, 'Home'), 0);
+  assert.equal(nextTabIndex(1, 'End'), 2);
+});
+
+test('其他按鍵維持原本的分頁', () => {
+  assert.equal(nextTabIndex(1, 'Enter'), 1);
+  assert.equal(nextTabIndex(1, 'a'), 1);
+  assert.equal(nextTabIndex(1, 'Escape'), 1);
 });
 
 // -----------------------------------------------------------------------------
