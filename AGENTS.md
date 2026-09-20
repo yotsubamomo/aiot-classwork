@@ -35,4 +35,18 @@ Repository 中找不到的資訊視為未知，向使用者確認，不自行補
 - 不為整理目的新增 framework、package layout 或 tooling。
 - Root 目前沒有統一的 project-level build、test 或 dependency 設定。各週的 install、run 與 test 方式只依該週可確認的 README、requirements、notebook 或設定檔執行；未確認的 command 不做假設。
 
+## Agent skills
+
+### Issue tracker
+
+Issue 與 spec 放在 GitHub Issues（`yotsubamomo/aiot-classwork`），以 `gh` CLI 操作。見 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+沿用五個預設標籤名稱，未改名。見 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+多 context：root 的 `CONTEXT-MAP.md` 指向各單元的 `CONTEXT.md`。見 `docs/agents/domain.md`。
+
 本檔只保留跨 session、跨 week 仍成立的資訊，不記錄單週進度、TODO、單次 session 內容或未確認的推測。

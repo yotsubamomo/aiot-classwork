@@ -46,6 +46,20 @@ Repository 裡找不到的項目視為未知，向使用者確認；不要自行
 
 各週的 install / run / test 方式以該週目錄內的檔案（README、requirements、notebook、設定檔等）為準。之後確認為跨週長期通用的 command，再補到此處。
 
+## Agent skills
+
+### Issue tracker
+
+Issue 與 spec 放在 GitHub Issues（`yotsubamomo/aiot-classwork`），以 `gh` CLI 操作。見 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+沿用五個預設標籤名稱，未改名。見 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+多 context：root 的 `CONTEXT-MAP.md` 指向各單元的 `CONTEXT.md`。見 `docs/agents/domain.md`。
+
 ## 維護本檔
 
 本檔只記錄長期有效的資訊。某週的作業進度、TODO、單次 session 的工作內容與尚未確認的推測，不寫入此檔。
