@@ -17,14 +17,18 @@ import {
   THEMES,
   buildTimestampText,
   formatClockText,
+  formatMilliseconds,
   formatTaipeiDate,
   isCity,
   isTheme,
+  minuteProgress,
   nextTheme,
   normalizeState,
+  ringDashOffset,
   sanitizeLine,
   stateFromLegacyPreferences,
-  taipeiTimeParts
+  taipeiTimeParts,
+  unixSeconds
 } from '../core.js';
 
 // 2026-09-20 14:30:05 台北時間（UTC+8）。
@@ -97,6 +101,64 @@ test('12 小時制的時間戳記文字帶上下午標記', () => {
 
 test('時間戳記使用狀態樹裡的名稱', () => {
   assert.match(buildTimestampText(AFTERNOON, { name: 'Ada' }), /^Ada · /);
+});
+
+// -----------------------------------------------------------------------------
+// 秒數進度環、毫秒與 UNIX timestamp
+// -----------------------------------------------------------------------------
+
+test('整分鐘的進度是 0', () => {
+  assert.equal(minuteProgress(new Date('2026-09-20T06:30:00.000Z')), 0);
+});
+
+test('半分鐘的進度是 0.5', () => {
+  assert.equal(minuteProgress(new Date('2026-09-20T06:30:30.000Z')), 0.5);
+});
+
+test('59.999 秒的進度接近 1 但還沒滿', () => {
+  const progress = minuteProgress(new Date('2026-09-20T06:30:59.999Z'));
+  assert.ok(progress > 0.9999, `progress was ${progress}`);
+  assert.ok(progress < 1, `progress was ${progress}`);
+});
+
+test('跨分鐘時進度歸零', () => {
+  assert.equal(minuteProgress(new Date('2026-09-20T06:31:00.000Z')), 0);
+});
+
+test('毫秒也算進進度，同一秒內會持續前進', () => {
+  const early = minuteProgress(new Date('2026-09-20T06:30:10.100Z'));
+  const late = minuteProgress(new Date('2026-09-20T06:30:10.900Z'));
+  assert.ok(late > early, '同一秒內的進度必須增加');
+});
+
+test('進度 0 時整圈留白，進度 1 時畫滿', () => {
+  const circumference = 282.743;
+  assert.equal(ringDashOffset(0, circumference), circumference);
+  assert.equal(ringDashOffset(1, circumference), 0);
+  assert.ok(Math.abs(ringDashOffset(0.5, circumference) - circumference / 2) < 0.001);
+});
+
+test('超出範圍的進度會被夾回 0 到 1', () => {
+  const circumference = 282.743;
+  assert.equal(ringDashOffset(-2, circumference), circumference);
+  assert.equal(ringDashOffset(5, circumference), 0);
+});
+
+test('毫秒補零成三位數', () => {
+  assert.equal(formatMilliseconds(new Date('2026-09-20T06:30:10.005Z')), '005');
+  assert.equal(formatMilliseconds(new Date('2026-09-20T06:30:10.042Z')), '042');
+  assert.equal(formatMilliseconds(new Date('2026-09-20T06:30:10.999Z')), '999');
+  assert.equal(formatMilliseconds(new Date('2026-09-20T06:30:10.000Z')), '000');
+});
+
+test('UNIX timestamp 是無條件捨去到秒的 epoch 秒數', () => {
+  assert.equal(unixSeconds(new Date('2026-09-20T06:30:05.000Z')), 1789885805);
+  assert.equal(unixSeconds(new Date('2026-09-20T06:30:05.999Z')), 1789885805);
+});
+
+test('UNIX timestamp 不受顯示時區影響', () => {
+  // 同一個時刻不論以哪個時區呈現，epoch 秒數都一樣。
+  assert.equal(unixSeconds(AFTERNOON), Math.floor(AFTERNOON.getTime() / 1000));
 });
 
 // -----------------------------------------------------------------------------

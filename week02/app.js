@@ -12,11 +12,15 @@ import {
   THEME_LABELS,
   buildTimestampText,
   formatClockText,
+  formatMilliseconds,
   formatTaipeiDate,
+  minuteProgress,
   nextTheme,
   normalizeState,
+  ringDashOffset,
   stateFromLegacyPreferences,
-  taipeiTimeParts
+  taipeiTimeParts,
+  unixSeconds
 } from './core.js';
 
 // =============================================================================
@@ -25,6 +29,9 @@ import {
 const elements = {
   clock: document.querySelector('#clock'),
   meridiem: document.querySelector('#meridiem'),
+  milliseconds: document.querySelector('#milliseconds'),
+  epoch: document.querySelector('#epoch'),
+  secondRing: document.querySelector('#second-ring'),
   date: document.querySelector('#date'),
   themeButton: document.querySelector('#theme-button'),
   themeLabel: document.querySelector('#theme-label'),
@@ -110,17 +117,56 @@ function setTimeFormat(format24h, { persist = true } = {}) {
 }
 
 // =============================================================================
-// 時鐘：每秒把 core.js 算出來的文字寫回畫面。
+// 時鐘：以 requestAnimationFrame 連續更新。
+//
+// 每一幀只改寫毫秒與進度環——這兩個本來就每一幀都不一樣；
+// 時、分、秒與日期只在跨秒時才寫回 DOM，避免每秒做六十次沒有意義的重繪。
+// 進度環的 SVG 半徑是 45（viewBox 100），整圈長度就是 2πr。
 // =============================================================================
-function updateClock() {
-  const now = new Date();
+const RING_CIRCUMFERENCE = 2 * Math.PI * 45;
+
+let lastRenderedSecond = null;
+
+function renderClock(now) {
+  elements.milliseconds.textContent = formatMilliseconds(now);
+  elements.secondRing.style.strokeDashoffset =
+    ringDashOffset(minuteProgress(now), RING_CIRCUMFERENCE).toFixed(2);
+
+  const second = unixSeconds(now);
+  if (second === lastRenderedSecond) return;
+  lastRenderedSecond = second;
+
   elements.clock.dateTime = now.toISOString();
   elements.clock.textContent = formatClockText(now, { format24h: state.format24h });
+  elements.epoch.textContent = String(second);
   elements.date.textContent = formatTaipeiDate(now);
   elements.meridiem.hidden = state.format24h;
   elements.meridiem.textContent = state.format24h
     ? ''
     : taipeiTimeParts(now, { format24h: false }).dayPeriod;
+}
+
+/** 立刻重畫一次，用在偏好變更後不等下一秒就要看到結果的情況。 */
+function updateClock() {
+  lastRenderedSecond = null;
+  renderClock(new Date());
+}
+
+function startClock() {
+  // 先同步畫一次，不必等第一幀，載入時就不會看到 --:--:-- 的預設值。
+  updateClock();
+
+  const frame = () => {
+    renderClock(new Date());
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+
+  // 分頁切走時瀏覽器會暫停 requestAnimationFrame，回來時立刻補畫一次，
+  // 避免先看到凍結在離開前的舊時間。
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updateClock();
+  });
 }
 
 function showToast(message) {
@@ -185,5 +231,4 @@ state = readStoredState();
 setTheme(state.theme, { persist: false });
 setTimeFormat(state.format24h, { persist: false });
 setZenMode(state.zenMode, { persist: false, moveFocus: false });
-updateClock();
-setInterval(updateClock, 1000);
+startClock();

@@ -76,8 +76,23 @@
 
     <footer class="time-panel">
       <div class="clock-wrap">
-        <time class="clock" id="clock">--:--:--</time>
-        <span class="meridiem" id="meridiem" hidden></span>
+        <!-- 秒數進度環：60 秒走完一圈，純裝飾，數值由旁邊的時鐘文字提供。 -->
+        <svg class="second-ring" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="second-ring-track" cx="50" cy="50" r="45"></circle>
+          <circle class="second-ring-progress" id="second-ring" cx="50" cy="50" r="45"></circle>
+        </svg>
+
+        <div class="clock-stack">
+          <div class="clock-line">
+            <time class="clock" id="clock">--:--:--</time>
+            <span class="meridiem" id="meridiem" hidden></span>
+          </div>
+          <p class="clock-meta">
+            <span>UNIX <span id="epoch">—</span></span>
+            <span aria-hidden="true">·</span>
+            <span><span id="milliseconds">000</span> ms</span>
+          </p>
+        </div>
       </div>
       <div class="date-block">
         <p class="date" id="date">Loading Taipei time…</p>

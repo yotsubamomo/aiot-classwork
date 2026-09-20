@@ -136,6 +136,35 @@ export function formatTaipeiDate(date) {
   }).format(date);
 }
 
+/**
+ * 這一分鐘已經走了多少比例（0 到 1，不含 1）。
+ *
+ * 直接用 epoch 毫秒取餘數，而不是讀時、分、秒：秒與毫秒在整點偏移的時區裡
+ * 都是一樣的，台北是 UTC+8 整點偏移，所以分鐘邊界完全對齊。
+ * 帶上毫秒才能讓進度環連續移動，而不是每秒跳一格。
+ */
+export function minuteProgress(date) {
+  const withinMinute = ((date.getTime() % 60000) + 60000) % 60000;
+  return withinMinute / 60000;
+}
+
+/** 進度環的 stroke-dashoffset：進度 0 時整圈留白，進度 1 時畫滿。 */
+export function ringDashOffset(progress, circumference) {
+  const clamped = Math.min(Math.max(progress, 0), 1);
+  return circumference * (1 - clamped);
+}
+
+/** 補零到三位的毫秒文字。 */
+export function formatMilliseconds(date) {
+  const ms = ((date.getTime() % 1000) + 1000) % 1000;
+  return String(ms).padStart(3, '0');
+}
+
+/** UNIX timestamp（秒）。 */
+export function unixSeconds(date) {
+  return Math.floor(date.getTime() / 1000);
+}
+
 /** 時鐘上顯示的 HH:MM:SS 文字。 */
 export function formatClockText(date, { format24h = true } = {}) {
   const parts = taipeiTimeParts(date, { format24h });
