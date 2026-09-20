@@ -1,6 +1,6 @@
 # DIC-1 驗收清單
 
-逐條對應課程規格（`AIoT2026-L2Web`）的功能需求與非功能需求。落差盤點見 [`BRIEF.md`](./BRIEF.md)，實作決策見 [`SPEC.md`](./SPEC.md)。
+逐條對應課程規格（`AIoT2026-L2Web`）的功能需求與非功能需求。落差盤點見 [`../brief/BRIEF.md`](../brief/BRIEF.md)，實作決策見 [`../spec/SPEC.md`](../spec/SPEC.md)，票務索引見 [`../ticket/tickets.md`](../ticket/tickets.md)。
 
 **驗收日期**：2026-09-21
 **驗收環境**：Live Demo <https://yotsubamomo.github.io/aiot-classwork/week02/>，桌機 1024×768 與行動裝置 375×812 兩種寬度

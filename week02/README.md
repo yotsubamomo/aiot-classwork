@@ -45,10 +45,13 @@ DIC-1 使用零框架、零建構依賴的 Vanilla HTML、CSS 與 JavaScript，�
 ```text
 week02/
 ├── README.md         # 本檔：DIC-1 的專案說明
-├── BRIEF.md          # 與課程規格的落差盤點
-├── SPEC.md           # 補齊規格的實作 spec
-├── ACCEPTANCE.md     # 逐條對應規格的驗收清單
 ├── CONTEXT.md        # DIC-1 的專案語彙與已確認行為邊界
+├── doc/
+│   ├── requirement/  # 老師提供的題目與講義
+│   ├── brief/        # 與課程規格的落差盤點
+│   ├── spec/         # 補齊規格的實作 spec
+│   ├── ticket/       # 票務索引（票本身在 GitHub Issues）
+│   └── acceptance/   # 逐條對應規格的驗收清單
 ├── home.jpg          # Live Demo 畫面截圖
 ├── index.html        # 語意化頁面結構
 ├── projects.json     # 專案目錄資料，卡片由此動態產生
@@ -64,7 +67,7 @@ week02/
 | 檔案 | 用途 |
 | --- | --- |
 | [`CONTEXT.md`](./CONTEXT.md) | 專案語彙：身分、時間、環境資訊、抽屜與狀態的用詞定義與避免用語。 |
-| [`ACCEPTANCE.md`](./ACCEPTANCE.md) | 逐條對應規格 FR／NFR 的驗收清單與驗證方式。 |
+| [`doc/`](./doc/) | 題目、落差盤點、spec、票務索引與驗收清單，依類型分資料夾。 |
 | [`index.html`](./index.html) | 語意化頁面結構，只負責 markup。 |
 | [`style.css`](./style.css) | 設計 token、三套視覺主題、響應式版面與無障礙樣式。 |
 | [`app.js`](./app.js) | 所有副作用：DOM 選取與事件、localStorage 讀寫、剪貼簿、時鐘更新。 |
@@ -135,7 +138,7 @@ python -m http.server 5173
 
 ## 驗證紀錄
 
-逐條對應規格的完整清單見 [`ACCEPTANCE.md`](./ACCEPTANCE.md)。摘要：
+逐條對應規格的完整清單見 [`doc/acceptance/ACCEPTANCE.md`](./doc/acceptance/ACCEPTANCE.md)。摘要：
 
 - `node --test` 109 個測試全數通過。
 - 規格 FR-1 至 FR-7 與 NFR-1 至 NFR-4 全部在 Live Demo 上實測通過。

@@ -1,7 +1,7 @@
 # Spec: AIoT Personal Portal & Timekeeper（DIC-1 補齊規格）
 
 - **專案識別**：`AIoT2026-L2Web`
-- **依據**：課程規格 Requirements Specification（作者 Huan Chen）；落差盤點見 [`BRIEF.md`](./BRIEF.md)
+- **依據**：課程規格 Requirements Specification（作者 Huan Chen）；落差盤點見 [`../brief/BRIEF.md`](../brief/BRIEF.md)
 - **狀態**：待實作
 - **Issue tracker**：尚未設定，此 spec 暫存為檔案
 

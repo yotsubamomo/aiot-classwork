@@ -16,6 +16,31 @@ Root 的 `AGENTS.md` 是給 Codex 用的指示檔，內容是從本檔整理出�
 - 每個 week 是相對獨立的課程單元，可能包含 lecture material、notes、assignment、source code、dataset、experiment、report / result。各週內部結構不強制統一，以該週實際檔案為準。
 - 目前沒有 cross-week 共用程式或共用資源目錄。之後真的出現跨週重用需求時，再依實際情況整理，不預先建立。
 
+## 單元文件的存放位置
+
+每個 DIC 或作業單元的文件放在該單元自己的 `doc/` 下，依類型分資料夾。資料夾在真的產出該類文件時才建立，不預先建空的。
+
+```text
+weekNN/ 或 home_workNN/
+├── doc/
+│   ├── requirement/   # 老師提供的題目、講義、規格文件（來源文件，不改寫）
+│   ├── brief/         # 事前盤點：落差分析、既有實作與需求的比對
+│   ├── spec/          # 實作 spec（`/to-spec` 的產出）
+│   ├── ticket/        # 票務索引（`/to-tickets` 的產出摘要）
+│   └── acceptance/    # 逐條對應需求的驗收清單與驗證方式
+├── CONTEXT.md         # 該單元的專案語彙，留在單元根目錄
+├── README.md          # 該單元的說明文件，留在單元根目錄
+└── （實作檔案）
+```
+
+規則：
+
+- **`doc/` 只放文件**，實作檔案、資料檔與測試留在單元根目錄或其既有位置。
+- **`CONTEXT.md` 與 `README.md` 留在單元根目錄**。前者是 `CONTEXT-MAP.md` 指向的詞彙表位置，後者是單元的入口。
+- **票開在 GitHub Issues**，`doc/ticket/` 只放索引：編號、標題、依賴關係、狀態與連結。不要把每張票的內容複製成檔案，那會與 tracker 上的狀態不同步。
+- **老師提供的原始文件放 `doc/requirement/`**，保持原樣不改寫；需要整理時另外寫成 brief。
+- 既有單元 `week02/` 已依此結構整理，可作為範例。
+
 ## 尋找某週的作業 context
 
 處理某週任務時，從該週目錄開始，先確認：

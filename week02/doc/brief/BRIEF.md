@@ -6,7 +6,7 @@
 
 - **規格**：Requirements Specification: AIoT Personal Portal & Timekeeper（`AIoT2026-L2Web`，作者 Huan Chen）。
 - **老師的參考實作**：<https://github.com/huanchen1107/0916-2>（含 `requirements.md`、`design.md`、`index.html`、`style.css`、`app.js`、`projects.json`）。
-- **目前實作**：[`index.html`](./index.html) 單檔，另有 [`CONTEXT.md`](./CONTEXT.md)、[`README.md`](./README.md)。
+- **目前實作**：[`index.html`](../../index.html) 單檔，另有 [`CONTEXT.md`](../../CONTEXT.md)、[`README.md`](../../README.md)。
 
 目前實作是在取得這份規格之前完成的，所以落差不是實作品質問題，而是當初的範圍就比較小。
 
@@ -20,7 +20,7 @@
 | 部分符合 | 6 | FR-1.1、FR-1.5、FR-3.1、FR-5.1、FR-7.1、FR-7.2 |
 | 完全未做 | 16 | FR-1.2、FR-1.4、FR-1.6、FR-2.1～2.4、FR-3.2、FR-3.3、FR-4.1～4.3、FR-5.2、FR-6.1～6.3 |
 
-另外目前的 [`CONTEXT.md`](./CONTEXT.md) 寫著「只有視覺主題與時間格式會被保存」「專注模式永遠不保存」，與 FR-5.2 要求保存 7 個欄位（含 `zenMode`）直接衝突，補齊功能時必須一併改寫。
+另外目前的 [`CONTEXT.md`](../../CONTEXT.md) 寫著「只有視覺主題與時間格式會被保存」「專注模式永遠不保存」，與 FR-5.2 要求保存 7 個欄位（含 `zenMode`）直接衝突，補齊功能時必須一併改寫。
 
 ## 3. 待補項目
 
