@@ -788,3 +788,71 @@ a.link-item:hover { background: var(--hover); }
 }
 
 .retry-button:hover { background: var(--hover); }
+
+/* 天氣列：問候徽章旁邊的環境資訊。 */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.context-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+
+.weather-chip {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: .5rem;
+  padding: .3rem .4rem .3rem .9rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.weather-readout {
+  font: 600 .74rem/1.3 var(--font-sans);
+  letter-spacing: .02em;
+}
+
+.weather-readout.is-stale { color: var(--muted); }
+
+.city-select {
+  min-height: 2.15rem;
+  padding: .2rem 1.6rem .2rem .6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  color: inherit;
+  background: transparent;
+  font: 600 .72rem/1 var(--font-sans);
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right .85rem center, right .6rem center;
+  background-size: .25rem .25rem, .25rem .25rem;
+  background-repeat: no-repeat;
+}
+
+.city-select:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* 原生選單的選項清單由作業系統繪製，需要明確給底色才不會在深色主題下看不見。 */
+.city-select option {
+  color: var(--ink);
+  background: var(--panel-solid);
+}
+
+/* Zen 模式是純環境桌鐘，天氣屬於狀態資訊，一併收起來。 */
+body.focus-mode .weather-chip { display: none; }

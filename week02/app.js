@@ -6,16 +6,20 @@
  */
 
 import {
+  CITIES,
   DRAWER_TABS,
   LEGACY_STORAGE_KEY,
   STORAGE_KEY,
   THEME_COLORS,
   THEME_LABELS,
+  WEATHER_CACHE_KEY,
   buildTimestampText,
   dayOfYear,
   formatClockText,
   formatMilliseconds,
   formatTaipeiDate,
+  formatWeatherReadout,
+  findCity,
   greeting,
   isDrawerTab,
   isoWeek,
@@ -24,10 +28,12 @@ import {
   nextTabIndex,
   normalizeProjects,
   normalizeState,
+  normalizeWeather,
   ringDashOffset,
   stateFromLegacyPreferences,
   taipeiTimeParts,
-  unixSeconds
+  unixSeconds,
+  weatherApiUrl
 } from './core.js';
 
 // =============================================================================
@@ -51,6 +57,8 @@ const elements = {
   copyButton: document.querySelector('#copy-button'),
   focusButton: document.querySelector('#focus-button'),
   focusExit: document.querySelector('#focus-exit'),
+  weatherReadout: document.querySelector('#weather-readout'),
+  citySelect: document.querySelector('#city-select'),
   projectGrid: document.querySelector('#project-grid'),
   projectStatus: document.querySelector('#project-status'),
   drawer: document.querySelector('#drawer'),
@@ -217,6 +225,114 @@ async function copyTime() {
     textArea.remove();
   }
   showToast('Taipei time copied');
+}
+
+// =============================================================================
+// 即時天氣（Open-Meteo，不需要 API key）。
+//
+// 外部服務一定會有失敗的時候，所以成功的讀數會被快取起來；取不到資料時顯示上次的值
+// 並明確標示是離線資料與它的時間，完全沒有快取才顯示 unavailable——不編造數字。
+// 天氣的任何失敗都不影響時鐘、抽屜等其他功能。
+// =============================================================================
+const WEATHER_TIMEOUT_MS = 8000;
+const WEATHER_REFRESH_MS = 10 * 60 * 1000;
+
+let weatherRetryButton = null;
+
+function readWeatherCache() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY));
+    return cached && typeof cached === 'object' ? cached : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function writeWeatherCache(weather) {
+  try {
+    const cache = readWeatherCache();
+    cache[weather.cityId] = weather;
+    localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(cache));
+  } catch (_) {
+    // 快取只是加分，存不進去也不影響這次的顯示。
+  }
+}
+
+/** 快取讀數的時間，用台北時間的時與分表示。 */
+function cacheTimeLabel(observedAt) {
+  const parts = taipeiTimeParts(new Date(observedAt), { format24h: true });
+  return `${parts.hour}:${parts.minute}`;
+}
+
+function setWeatherReadout(text, { stale = false, showRetry = false } = {}) {
+  elements.weatherReadout.textContent = text;
+  elements.weatherReadout.classList.toggle('is-stale', stale);
+
+  if (weatherRetryButton) {
+    weatherRetryButton.remove();
+    weatherRetryButton = null;
+  }
+  if (!showRetry) return;
+
+  weatherRetryButton = document.createElement('button');
+  weatherRetryButton.type = 'button';
+  weatherRetryButton.className = 'retry-button';
+  weatherRetryButton.textContent = 'Retry';
+  weatherRetryButton.addEventListener('click', () => loadWeather());
+  elements.weatherReadout.after(weatherRetryButton);
+}
+
+function showWeatherFallback(cityId) {
+  const cached = readWeatherCache()[cityId];
+  const cityLabel = findCity(cityId).label;
+
+  if (cached && normalizeWeather({ current: { temperature_2m: cached.temperature, weather_code: cached.code } }, { cityId })) {
+    setWeatherReadout(
+      `${formatWeatherReadout(cached)} · offline, last seen ${cacheTimeLabel(cached.observedAt)}`,
+      { stale: true, showRetry: true }
+    );
+    return;
+  }
+  setWeatherReadout(`Weather unavailable · ${cityLabel}`, { stale: true, showRetry: true });
+}
+
+async function loadWeather() {
+  const cityId = state.selectedCity;
+  setWeatherReadout(`Loading weather · ${findCity(cityId).label}`);
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), WEATHER_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(weatherApiUrl(cityId), { signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const weather = normalizeWeather(await response.json(), { cityId });
+    if (!weather) throw new Error('unexpected payload');
+
+    writeWeatherCache(weather);
+    setWeatherReadout(formatWeatherReadout(weather));
+  } catch (_) {
+    // 網路錯誤、逾時、HTTP 失敗與格式不符都走同一條路：退回快取或明說拿不到。
+    showWeatherFallback(cityId);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function setupCitySelect() {
+  elements.citySelect.replaceChildren(...CITIES.map((city) => {
+    const option = document.createElement('option');
+    option.value = city.id;
+    option.textContent = city.label;
+    return option;
+  }));
+  elements.citySelect.value = state.selectedCity;
+
+  elements.citySelect.addEventListener('change', () => {
+    updateState({ selectedCity: elements.citySelect.value });
+    loadWeather();
+  });
 }
 
 // =============================================================================
@@ -480,3 +596,7 @@ setTimeFormat(state.format24h, { persist: false });
 setZenMode(state.zenMode, { persist: false, moveFocus: false });
 startClock();
 loadProjects();
+setupCitySelect();
+loadWeather();
+// 留著當桌鐘的話，讀數每十分鐘自己更新一次。
+setInterval(loadWeather, WEATHER_REFRESH_MS);

@@ -22,8 +22,23 @@ export const THEME_LABELS = { aurora: 'Aurora', minimal: 'Minimal', sunset: 'Sun
 /** 主題代號對應的瀏覽器工具列顏色（<meta name="theme-color">）。 */
 export const THEME_COLORS = { aurora: '#07120f', minimal: '#f7f7f5', sunset: '#f0eee6' };
 
-/** 天氣可選的城市代號。座標等細節在天氣功能落地時補上。 */
-export const CITIES = ['taichung', 'taipei', 'hsinchu', 'tainan', 'kaohsiung'];
+/** 天氣可選的城市，順序即為選單順序。 */
+export const CITIES = Object.freeze([
+  { id: 'taichung', label: 'Taichung', latitude: 24.1477, longitude: 120.6736 },
+  { id: 'taipei', label: 'Taipei', latitude: 25.0330, longitude: 121.5654 },
+  { id: 'hsinchu', label: 'Hsinchu', latitude: 24.8138, longitude: 120.9675 },
+  { id: 'tainan', label: 'Tainan', latitude: 22.9997, longitude: 120.2270 },
+  { id: 'kaohsiung', label: 'Kaohsiung', latitude: 22.6273, longitude: 120.3014 }
+]);
+
+/** 城市代號清單，狀態正規化時用來檢查值是否合法。 */
+export const CITY_IDS = CITIES.map((city) => city.id);
+
+/** 天氣快取的儲存鍵。刻意與 aiot_user_state 分開，不污染規格定義的七個欄位。 */
+export const WEATHER_CACHE_KEY = 'aiot_weather_cache';
+
+/** Open-Meteo 的 forecast 端點，不需要 API key。 */
+export const WEATHER_API_ORIGIN = 'https://api.open-meteo.com';
 
 /** 名稱與標語的長度上限，避免單一欄位撐破版面。 */
 export const NAME_MAX_LENGTH = 40;
@@ -53,7 +68,79 @@ export function isTheme(value) {
 
 /** 這個值是不是合法的城市代號。 */
 export function isCity(value) {
-  return CITIES.includes(value);
+  return CITY_IDS.includes(value);
+}
+
+/** 依代號取得城市資料；找不到時回退到清單第一個，呼叫端就不必處理 undefined。 */
+export function findCity(id) {
+  return CITIES.find((city) => city.id === id) ?? CITIES[0];
+}
+
+/** 組出查詢某城市目前天氣的網址。 */
+export function weatherApiUrl(cityId) {
+  const city = findCity(cityId);
+  const url = new URL('/v1/forecast', WEATHER_API_ORIGIN);
+  url.searchParams.set('latitude', String(city.latitude));
+  url.searchParams.set('longitude', String(city.longitude));
+  url.searchParams.set('current', 'temperature_2m,weather_code');
+  url.searchParams.set('timezone', TIME_ZONE);
+  return url.href;
+}
+
+/**
+ * WMO weather code 轉成圖示與描述。
+ * 官方代碼是分組的（雨、陣雨、雷雨…），這裡按組對應，未知代碼回退到中性圖示。
+ */
+export function describeWeatherCode(code) {
+  const groups = [
+    { codes: [0], icon: '☀️', label: 'Clear sky' },
+    { codes: [1], icon: '🌤', label: 'Mainly clear' },
+    { codes: [2], icon: '⛅', label: 'Partly cloudy' },
+    { codes: [3], icon: '☁️', label: 'Overcast' },
+    { codes: [45, 48], icon: '🌫', label: 'Fog' },
+    { codes: [51, 53, 55, 56, 57], icon: '🌦', label: 'Drizzle' },
+    { codes: [61, 63, 65, 66, 67], icon: '🌧', label: 'Rain' },
+    { codes: [71, 73, 75, 77], icon: '❄️', label: 'Snow' },
+    { codes: [80, 81, 82], icon: '🌦', label: 'Rain showers' },
+    { codes: [85, 86], icon: '🌨', label: 'Snow showers' },
+    { codes: [95, 96, 99], icon: '⛈', label: 'Thunderstorm' }
+  ];
+  const match = groups.find((group) => group.codes.includes(code));
+  return match
+    ? { icon: match.icon, label: match.label }
+    : { icon: '🌡', label: 'Unknown conditions' };
+}
+
+/** 攝氏溫度的顯示文字，四捨五入到整數。 */
+export function formatTemperature(celsius) {
+  return `${Math.round(celsius)}°C`;
+}
+
+/**
+ * 把 Open-Meteo 的回應整理成畫面需要的形狀。
+ * 缺少溫度或代碼、型別不對、或數值不是有限數，一律回傳 null，呼叫端就知道這次讀數不可用。
+ */
+export function normalizeWeather(raw, { cityId, observedAt } = {}) {
+  const current = raw && typeof raw === 'object' ? raw.current : null;
+  if (!current || typeof current !== 'object') return null;
+
+  const temperature = current.temperature_2m;
+  const code = current.weather_code;
+  if (typeof temperature !== 'number' || !Number.isFinite(temperature)) return null;
+  if (typeof code !== 'number' || !Number.isFinite(code)) return null;
+
+  return {
+    cityId: isCity(cityId) ? cityId : CITY_IDS[0],
+    temperature,
+    code,
+    observedAt: typeof observedAt === 'number' ? observedAt : Date.now()
+  };
+}
+
+/** 天氣列的主要文字，例如「26°C ⛅ · Taichung」。 */
+export function formatWeatherReadout(weather) {
+  const { icon } = describeWeatherCode(weather.code);
+  return `${formatTemperature(weather.temperature)} ${icon} · ${findCity(weather.cityId).label}`;
 }
 
 /** 取得循環切換的下一個主題。 */

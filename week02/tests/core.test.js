@@ -12,6 +12,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  CITIES,
+  CITY_IDS,
   DEFAULT_STATE,
   DRAWER_TABS,
   GREETINGS,
@@ -20,9 +22,13 @@ import {
   THEMES,
   buildTimestampText,
   dayOfYear,
+  describeWeatherCode,
+  findCity,
   formatClockText,
   formatMilliseconds,
   formatTaipeiDate,
+  formatTemperature,
+  formatWeatherReadout,
   greeting,
   greetingKey,
   isCity,
@@ -35,13 +41,15 @@ import {
   normalizeProject,
   normalizeProjects,
   normalizeState,
+  normalizeWeather,
   ringDashOffset,
   safeUrl,
   sanitizeLine,
   stateFromLegacyPreferences,
   taipeiCalendarDate,
   taipeiTimeParts,
-  unixSeconds
+  unixSeconds,
+  weatherApiUrl
 } from '../core.js';
 
 // 2026-09-20 14:30:05 台北時間（UTC+8）。
@@ -290,6 +298,106 @@ test('只有清單內的值算是合法城市', () => {
   assert.equal(isCity('taichung'), true);
   assert.equal(isCity('Taichung'), false);
   assert.equal(isCity('tokyo'), false);
+});
+
+// -----------------------------------------------------------------------------
+// 天氣
+// -----------------------------------------------------------------------------
+
+test('城市清單就是規格要求的五個科技城市', () => {
+  assert.deepEqual(CITY_IDS, ['taichung', 'taipei', 'hsinchu', 'tainan', 'kaohsiung']);
+});
+
+test('每個城市都有顯示名稱與座標', () => {
+  for (const city of CITIES) {
+    assert.equal(typeof city.label, 'string');
+    assert.ok(city.label.length > 0);
+    assert.equal(typeof city.latitude, 'number');
+    assert.equal(typeof city.longitude, 'number');
+  }
+});
+
+test('未知城市代號回退到清單第一個', () => {
+  assert.equal(findCity('tokyo').id, 'taichung');
+  assert.equal(findCity(undefined).id, 'taichung');
+  assert.equal(findCity('tainan').id, 'tainan');
+});
+
+test('天氣網址帶上該城市的座標與台北時區', () => {
+  const url = new URL(weatherApiUrl('kaohsiung'));
+  assert.equal(url.origin, 'https://api.open-meteo.com');
+  assert.equal(url.pathname, '/v1/forecast');
+  assert.equal(url.searchParams.get('latitude'), '22.6273');
+  assert.equal(url.searchParams.get('longitude'), '120.3014');
+  assert.equal(url.searchParams.get('current'), 'temperature_2m,weather_code');
+  assert.equal(url.searchParams.get('timezone'), 'Asia/Taipei');
+});
+
+test('天氣網址不含任何 API key', () => {
+  const url = new URL(weatherApiUrl('taipei'));
+  assert.equal(url.searchParams.get('apikey'), null);
+  assert.equal(url.searchParams.get('key'), null);
+});
+
+test('主要天氣分組都有對應的圖示與描述', () => {
+  assert.equal(describeWeatherCode(0).label, 'Clear sky');
+  assert.equal(describeWeatherCode(2).label, 'Partly cloudy');
+  assert.equal(describeWeatherCode(3).label, 'Overcast');
+  assert.equal(describeWeatherCode(45).label, 'Fog');
+  assert.equal(describeWeatherCode(53).label, 'Drizzle');
+  assert.equal(describeWeatherCode(65).label, 'Rain');
+  assert.equal(describeWeatherCode(73).label, 'Snow');
+  assert.equal(describeWeatherCode(81).label, 'Rain showers');
+  assert.equal(describeWeatherCode(86).label, 'Snow showers');
+  assert.equal(describeWeatherCode(95).label, 'Thunderstorm');
+});
+
+test('未知或缺少的天氣代碼回退到中性圖示，不會爆掉', () => {
+  for (const code of [7, 999, -1, undefined, null, 'rain']) {
+    const result = describeWeatherCode(code);
+    assert.equal(result.label, 'Unknown conditions');
+    assert.ok(result.icon.length > 0);
+  }
+});
+
+test('溫度四捨五入到整數並帶單位', () => {
+  assert.equal(formatTemperature(26.4), '26°C');
+  assert.equal(formatTemperature(26.5), '27°C');
+  assert.equal(formatTemperature(-3.2), '-3°C');
+  assert.equal(formatTemperature(0), '0°C');
+});
+
+test('完整的天氣回應會被接受', () => {
+  const result = normalizeWeather(
+    { current: { temperature_2m: 26.4, weather_code: 2 } },
+    { cityId: 'taipei', observedAt: 1789917000000 }
+  );
+  assert.deepEqual(result, {
+    cityId: 'taipei',
+    temperature: 26.4,
+    code: 2,
+    observedAt: 1789917000000
+  });
+});
+
+test('缺少欄位或型別不對的天氣回應視為不可用', () => {
+  assert.equal(normalizeWeather(null, { cityId: 'taipei' }), null);
+  assert.equal(normalizeWeather({}, { cityId: 'taipei' }), null);
+  assert.equal(normalizeWeather({ current: {} }, { cityId: 'taipei' }), null);
+  assert.equal(normalizeWeather({ current: { temperature_2m: '26', weather_code: 2 } }, { cityId: 'taipei' }), null);
+  assert.equal(normalizeWeather({ current: { temperature_2m: 26, weather_code: null } }, { cityId: 'taipei' }), null);
+  assert.equal(normalizeWeather({ current: { temperature_2m: NaN, weather_code: 2 } }, { cityId: 'taipei' }), null);
+});
+
+test('天氣回應裡的未知城市代號回退到預設城市', () => {
+  const result = normalizeWeather({ current: { temperature_2m: 20, weather_code: 0 } }, { cityId: 'tokyo' });
+  assert.equal(result.cityId, 'taichung');
+});
+
+test('天氣列文字含溫度、圖示與城市名稱', () => {
+  const readout = formatWeatherReadout({ cityId: 'taichung', temperature: 26.4, code: 2, observedAt: 0 });
+  assert.match(readout, /^26°C /);
+  assert.match(readout, / · Taichung$/);
 });
 
 // -----------------------------------------------------------------------------

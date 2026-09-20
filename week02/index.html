@@ -72,10 +72,18 @@
 
     <section class="hero" aria-labelledby="display-name">
       <div class="hero-stack">
-        <p class="greeting-badge">
-          <span id="greeting-icon" aria-hidden="true">🌙</span>
-          <span id="greeting-text">Good evening</span>
-        </p>
+        <div class="context-row">
+          <p class="greeting-badge">
+            <span id="greeting-icon" aria-hidden="true">🌙</span>
+            <span id="greeting-text">Good evening</span>
+          </p>
+
+          <div class="weather-chip">
+            <span class="weather-readout" id="weather-readout">Loading weather…</span>
+            <label class="visually-hidden" for="city-select">Weather city</label>
+            <select class="city-select" id="city-select"></select>
+          </div>
+        </div>
         <h1 id="display-name">MO<span>MO</span></h1>
 
         <nav class="portal-nav" aria-label="Sections">
