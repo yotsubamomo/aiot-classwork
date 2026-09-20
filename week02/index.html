@@ -84,7 +84,21 @@
             <select class="city-select" id="city-select"></select>
           </div>
         </div>
-        <h1 id="display-name">MO<span>MO</span></h1>
+        <!--
+          名稱與標語都是就地編輯：顯示元素本身可點擊、可用鍵盤聚焦，
+          進入編輯後換成同位置的 input，送出時寫回狀態樹。
+        -->
+        <h1 id="display-name">
+          <span class="editable" id="name-display" tabindex="0" role="button"
+                aria-label="Display name. Activate to edit.">MO<span id="name-trail">MO</span></span>
+          <input class="name-input" id="name-input" type="text" maxlength="40" aria-label="Display name" hidden>
+        </h1>
+
+        <p class="tagline">
+          <span class="editable" id="tagline-display" tabindex="0" role="button"
+                aria-label="Tagline. Activate to edit.">AIoT &amp; Data Analytics</span>
+          <input class="tagline-input" id="tagline-input" type="text" maxlength="80" aria-label="Tagline" hidden>
+        </p>
 
         <nav class="portal-nav" aria-label="Sections">
           <button class="portal-button" type="button" data-tab="projects">

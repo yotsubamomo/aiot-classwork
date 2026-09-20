@@ -31,6 +31,7 @@ import {
   formatWeatherReadout,
   greeting,
   greetingKey,
+  initialsFrom,
   isCity,
   isDrawerTab,
   isTheme,
@@ -45,6 +46,7 @@ import {
   ringDashOffset,
   safeUrl,
   sanitizeLine,
+  splitDisplayName,
   stateFromLegacyPreferences,
   taipeiCalendarDate,
   taipeiTimeParts,
@@ -489,6 +491,49 @@ test('空陣列與非陣列都回傳空清單', () => {
   assert.deepEqual(normalizeProjects([]), []);
   assert.deepEqual(normalizeProjects(null), []);
   assert.deepEqual(normalizeProjects({ projects: [] }), []);
+});
+
+// -----------------------------------------------------------------------------
+// 名稱呈現
+// -----------------------------------------------------------------------------
+
+test('有空白的名字從第一個空白切開', () => {
+  assert.deepEqual(splitDisplayName('Ada Lovelace'), { lead: 'Ada', trail: 'Lovelace' });
+});
+
+test('多個詞的名字只切第一個空白，其餘留在第二行', () => {
+  assert.deepEqual(splitDisplayName('Huan Chen Lee'), { lead: 'Huan', trail: 'Chen Lee' });
+});
+
+test('單一個詞的名字對半切', () => {
+  assert.deepEqual(splitDisplayName('Momo'), { lead: 'Mo', trail: 'mo' });
+  assert.deepEqual(splitDisplayName('Ada'), { lead: 'Ad', trail: 'a' });
+});
+
+test('只有一個字元時第二行留空', () => {
+  assert.deepEqual(splitDisplayName('M'), { lead: 'M', trail: '' });
+});
+
+test('拆字前會先清理，空值回退到預設名稱', () => {
+  assert.deepEqual(splitDisplayName('  Ada   Lovelace  '), { lead: 'Ada', trail: 'Lovelace' });
+  assert.deepEqual(splitDisplayName('   '), splitDisplayName(DEFAULT_STATE.name));
+  assert.deepEqual(splitDisplayName(null), splitDisplayName(DEFAULT_STATE.name));
+});
+
+test('兩個詞以上的縮寫取前兩個詞的首字母', () => {
+  assert.equal(initialsFrom('Huan Chen'), 'HC');
+  assert.equal(initialsFrom('ada lovelace king'), 'AL');
+});
+
+test('單一個詞的縮寫取前兩個字元', () => {
+  assert.equal(initialsFrom('Momo'), 'MO');
+  assert.equal(initialsFrom('M'), 'M');
+});
+
+test('縮寫一律大寫，空值回退到預設名稱的縮寫', () => {
+  assert.equal(initialsFrom('ada'), 'AD');
+  assert.equal(initialsFrom(''), initialsFrom(DEFAULT_STATE.name));
+  assert.equal(initialsFrom(undefined), initialsFrom(DEFAULT_STATE.name));
 });
 
 // -----------------------------------------------------------------------------

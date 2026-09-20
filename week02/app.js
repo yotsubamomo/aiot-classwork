@@ -9,7 +9,9 @@ import {
   CITIES,
   DRAWER_TABS,
   LEGACY_STORAGE_KEY,
+  NAME_MAX_LENGTH,
   STORAGE_KEY,
+  TAGLINE_MAX_LENGTH,
   THEME_COLORS,
   THEME_LABELS,
   WEATHER_CACHE_KEY,
@@ -21,6 +23,7 @@ import {
   formatWeatherReadout,
   findCity,
   greeting,
+  initialsFrom,
   isDrawerTab,
   isoWeek,
   minuteProgress,
@@ -30,6 +33,8 @@ import {
   normalizeState,
   normalizeWeather,
   ringDashOffset,
+  sanitizeLine,
+  splitDisplayName,
   stateFromLegacyPreferences,
   taipeiTimeParts,
   unixSeconds,
@@ -48,6 +53,12 @@ const elements = {
   date: document.querySelector('#date'),
   weekBadge: document.querySelector('#week-badge'),
   dayBadge: document.querySelector('#day-badge'),
+  brandMark: document.querySelector('.brand-mark'),
+  nameDisplay: document.querySelector('#name-display'),
+  nameTrail: document.querySelector('#name-trail'),
+  nameInput: document.querySelector('#name-input'),
+  taglineDisplay: document.querySelector('#tagline-display'),
+  taglineInput: document.querySelector('#tagline-input'),
   greetingIcon: document.querySelector('#greeting-icon'),
   greetingText: document.querySelector('#greeting-text'),
   themeButton: document.querySelector('#theme-button'),
@@ -225,6 +236,80 @@ async function copyTime() {
     textArea.remove();
   }
   showToast('Taipei time copied');
+}
+
+// =============================================================================
+// 身分：名稱與標語的就地編輯。
+//
+// 顯示與輸入是同一個位置的兩個元素，交替顯示，不用 contenteditable——
+// 原生 input 的選取、輸入法與 maxlength 行為都比較可預期。
+// 送出前一律經過 core.js 的清理函式，空值就還原前一個值。
+// =============================================================================
+let editing = false;
+
+function renderIdentity() {
+  const { lead, trail } = splitDisplayName(state.name);
+  elements.nameDisplay.firstChild.textContent = lead;
+  elements.nameTrail.textContent = trail;
+  elements.nameDisplay.title = state.name;
+  elements.taglineDisplay.textContent = state.tagline;
+  elements.brandMark.textContent = initialsFrom(state.name);
+}
+
+function setupEditable({ display, input, stateKey, maxLength }) {
+  const commit = () => {
+    if (!editing) return;
+    finishEdit();
+    updateState({
+      [stateKey]: sanitizeLine(input.value, { maxLength, fallback: state[stateKey] })
+    });
+    renderIdentity();
+  };
+
+  const cancel = () => {
+    if (!editing) return;
+    finishEdit();
+    renderIdentity();
+  };
+
+  function finishEdit() {
+    editing = false;
+    input.hidden = true;
+    display.hidden = false;
+    display.focus();
+  }
+
+  const startEdit = () => {
+    if (editing) return;
+    editing = true;
+    input.value = state[stateKey];
+    display.hidden = true;
+    input.hidden = false;
+    input.focus();
+    input.select();
+  };
+
+  display.addEventListener('click', startEdit);
+  display.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      startEdit();
+    }
+  });
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      commit();
+    } else if (event.key === 'Escape') {
+      // 編輯中的 Escape 只取消這次編輯，不該一路關掉抽屜或離開 Zen。
+      event.preventDefault();
+      event.stopPropagation();
+      cancel();
+    }
+  });
+
+  input.addEventListener('blur', commit);
 }
 
 // =============================================================================
@@ -580,6 +665,8 @@ elements.drawerTabs.addEventListener('keydown', (event) => {
 
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Tab') trapFocus(event);
+  // 正在編輯名稱或標語時，鍵盤事件屬於那個輸入框，不做全域處理。
+  if (editing) return;
   if (event.key !== 'Escape') return;
   // 抽屜開著時 ESC 先關抽屜，抽屜沒開才離開 Zen 模式。
   if (drawerOpen) closeDrawer();
@@ -596,6 +683,9 @@ setTimeFormat(state.format24h, { persist: false });
 setZenMode(state.zenMode, { persist: false, moveFocus: false });
 startClock();
 loadProjects();
+renderIdentity();
+setupEditable({ display: elements.nameDisplay, input: elements.nameInput, stateKey: 'name', maxLength: NAME_MAX_LENGTH });
+setupEditable({ display: elements.taglineDisplay, input: elements.taglineInput, stateKey: 'tagline', maxLength: TAGLINE_MAX_LENGTH });
 setupCitySelect();
 loadWeather();
 // 留著當桌鐘的話，讀數每十分鐘自己更新一次。

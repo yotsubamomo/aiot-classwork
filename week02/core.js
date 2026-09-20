@@ -268,6 +268,35 @@ export function normalizeProjects(raw) {
   return raw.map(normalizeProject).filter(Boolean);
 }
 
+/**
+ * 名稱在 Hero 上拆成兩行：第一行實心、第二行只有外框。
+ *
+ * 有空白的名字從第一個空白切開（Ada Lovelace → ADA / LOVELACE），
+ * 單一個詞則對半切（Momo → MO / MO）。只有一個字元時第二行留空。
+ */
+export function splitDisplayName(name) {
+  const cleaned = sanitizeLine(name, { maxLength: NAME_MAX_LENGTH, fallback: DEFAULT_STATE.name });
+  const spaceIndex = cleaned.indexOf(' ');
+  if (spaceIndex > 0) {
+    return { lead: cleaned.slice(0, spaceIndex), trail: cleaned.slice(spaceIndex + 1) };
+  }
+  const half = Math.ceil(cleaned.length / 2);
+  return { lead: cleaned.slice(0, half), trail: cleaned.slice(half) };
+}
+
+/**
+ * 頭像上的縮寫。
+ * 兩個詞以上取前兩個詞的首字母（Huan Chen → HC），單一個詞取前兩個字元（Momo → MO）。
+ */
+export function initialsFrom(name) {
+  const cleaned = sanitizeLine(name, { maxLength: NAME_MAX_LENGTH, fallback: DEFAULT_STATE.name });
+  const words = cleaned.split(' ').filter(Boolean);
+  const letters = words.length >= 2
+    ? words.slice(0, 2).map((word) => word[0]).join('')
+    : cleaned.slice(0, 2);
+  return letters.toUpperCase();
+}
+
 /** 抽屜的三個分頁，順序即為畫面上的排列順序。 */
 export const DRAWER_TABS = ['projects', 'about', 'connect'];
 
