@@ -14,6 +14,7 @@ import {
   TAGLINE_MAX_LENGTH,
   THEME_COLORS,
   THEME_LABELS,
+  TICK_SOUND,
   WEATHER_CACHE_KEY,
   buildTimestampText,
   dayOfYear,
@@ -66,6 +67,10 @@ const elements = {
   themeLabel: document.querySelector('#theme-label'),
   format24: document.querySelector('#format-24'),
   format12: document.querySelector('#format-12'),
+  soundButton: document.querySelector('#sound-button'),
+  soundLabel: document.querySelector('#sound-label'),
+  soundOnIcon: document.querySelector('#sound-on'),
+  soundMutedIcon: document.querySelector('#sound-muted'),
   copyButton: document.querySelector('#copy-button'),
   focusButton: document.querySelector('#focus-button'),
   focusExit: document.querySelector('#focus-exit'),
@@ -164,6 +169,7 @@ function setTimeFormat(format24h, { persist = true } = {}) {
 const RING_CIRCUMFERENCE = 2 * Math.PI * 45;
 
 let lastRenderedSecond = null;
+let lastTickSecond = null;
 
 function renderClock(now) {
   elements.milliseconds.textContent = formatMilliseconds(now);
@@ -173,6 +179,10 @@ function renderClock(now) {
   const second = unixSeconds(now);
   if (second === lastRenderedSecond) return;
   lastRenderedSecond = second;
+
+  // 每個整秒響一次。用獨立的計數避免偏好變更觸發的強制重畫在同一秒內重複發聲。
+  if (state.soundEnabled && second !== lastTickSecond) tickAudio.play();
+  lastTickSecond = second;
 
   elements.clock.dateTime = now.toISOString();
   elements.clock.textContent = formatClockText(now, { format24h: state.format24h });
@@ -237,6 +247,107 @@ async function copyTime() {
     textArea.remove();
   }
   showToast('Taipei time copied');
+}
+
+// =============================================================================
+// 滴答聲：用 Web Audio API 合成，不載入任何音檔。
+//
+// 瀏覽器的自動播放政策規定：AudioContext 必須在使用者互動之後才能發聲，
+// 所以音訊一律等到使用者按下音效鈕（或已開啟時的第一次互動）才初始化。
+// =============================================================================
+class TickAudioEngine {
+  constructor() {
+    this.context = null;
+  }
+
+  /** 建立或恢復 AudioContext。回傳是否真的可以發聲。 */
+  async enable() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return false;
+
+    if (!this.context) this.context = new AudioContextClass();
+    if (this.context.state === 'suspended') {
+      try {
+        await this.context.resume();
+      } catch (_) {
+        return false;
+      }
+    }
+    return this.context.state === 'running';
+  }
+
+  /** 暫停音訊，關掉音效後立刻安靜下來。 */
+  suspend() {
+    if (this.context && this.context.state === 'running') this.context.suspend();
+  }
+
+  get running() {
+    return this.context?.state === 'running';
+  }
+
+  /** 播放一次滴答。頻率與音量的包絡都來自 core.js 的 TICK_SOUND。 */
+  play() {
+    if (!this.running) return;
+
+    const now = this.context.currentTime;
+    const end = now + TICK_SOUND.durationSeconds;
+    const oscillator = this.context.createOscillator();
+    const gain = this.context.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(TICK_SOUND.startFrequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(TICK_SOUND.endFrequency, end);
+    gain.gain.setValueAtTime(TICK_SOUND.peakGain, now);
+    gain.gain.exponentialRampToValueAtTime(TICK_SOUND.endGain, end);
+
+    oscillator.connect(gain).connect(this.context.destination);
+    oscillator.start(now);
+    oscillator.stop(end + 0.005);
+  }
+}
+
+const tickAudio = new TickAudioEngine();
+
+function renderSoundButton() {
+  const on = state.soundEnabled;
+  elements.soundButton.setAttribute('aria-pressed', String(on));
+  elements.soundLabel.textContent = on ? 'Sound on' : 'Sound off';
+  elements.soundOnIcon.hidden = !on;
+  elements.soundMutedIcon.hidden = on;
+}
+
+async function toggleSound() {
+  if (state.soundEnabled) {
+    updateState({ soundEnabled: false });
+    tickAudio.suspend();
+    renderSoundButton();
+    return;
+  }
+
+  const ready = await tickAudio.enable();
+  if (!ready) {
+    // 瀏覽器不支援或拒絕啟動音訊時，不要假裝已經開啟。
+    showToast('Sound is not available in this browser');
+    return;
+  }
+  updateState({ soundEnabled: true });
+  renderSoundButton();
+}
+
+/**
+ * 上次造訪時音效是開著的話，狀態會被還原，但音訊仍然需要一次使用者互動才能發聲。
+ * 這裡掛一次性的監聽，使用者第一次點擊或按鍵時再把 AudioContext 接起來。
+ */
+function resumeSoundOnFirstGesture() {
+  if (!state.soundEnabled) return;
+
+  const resume = () => {
+    tickAudio.enable();
+    document.removeEventListener('pointerdown', resume);
+    document.removeEventListener('keydown', resume);
+  };
+  document.addEventListener('pointerdown', resume, { once: true });
+  document.addEventListener('keydown', resume, { once: true });
 }
 
 // =============================================================================
@@ -639,6 +750,7 @@ function setZenMode(enabled, { persist = true, moveFocus = true } = {}) {
 elements.themeButton.addEventListener('click', cycleTheme);
 elements.format24.addEventListener('click', () => setTimeFormat(true));
 elements.format12.addEventListener('click', () => setTimeFormat(false));
+elements.soundButton.addEventListener('click', toggleSound);
 elements.copyButton.addEventListener('click', copyTime);
 elements.focusButton.addEventListener('click', () => setZenMode(true));
 elements.focusExit.addEventListener('click', () => setZenMode(false));
@@ -716,6 +828,9 @@ setZenMode(state.zenMode, { persist: false, moveFocus: false });
 startClock();
 loadProjects();
 renderIdentity();
+renderSoundButton();
+// 上次是開著的話，等第一次互動再把音訊接起來（自動播放政策）。
+resumeSoundOnFirstGesture();
 setupEditable({ display: elements.nameDisplay, input: elements.nameInput, stateKey: 'name', maxLength: NAME_MAX_LENGTH });
 setupEditable({ display: elements.taglineDisplay, input: elements.taglineInput, stateKey: 'tagline', maxLength: TAGLINE_MAX_LENGTH });
 setupCitySelect();

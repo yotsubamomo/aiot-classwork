@@ -20,6 +20,7 @@ import {
   MAX_TECH_TAGS,
   NAME_MAX_LENGTH,
   THEMES,
+  TICK_SOUND,
   buildTimestampText,
   dayOfYear,
   describeWeatherCode,
@@ -492,6 +493,30 @@ test('空陣列與非陣列都回傳空清單', () => {
   assert.deepEqual(normalizeProjects([]), []);
   assert.deepEqual(normalizeProjects(null), []);
   assert.deepEqual(normalizeProjects({ projects: [] }), []);
+});
+
+// -----------------------------------------------------------------------------
+// 滴答聲的合成參數
+// -----------------------------------------------------------------------------
+
+test('滴答聲從高頻滑到低頻，聽起來才像機械撞擊而不是嗶聲', () => {
+  assert.ok(TICK_SOUND.startFrequency > TICK_SOUND.endFrequency);
+});
+
+test('滴答聲的頻率落在人耳聽得到的範圍', () => {
+  assert.ok(TICK_SOUND.endFrequency >= 20, '低頻不能低於聽覺下限');
+  assert.ok(TICK_SOUND.startFrequency <= 20000, '高頻不能超過聽覺上限');
+});
+
+test('滴答聲極短，不會蓋過下一秒', () => {
+  assert.ok(TICK_SOUND.durationSeconds > 0);
+  assert.ok(TICK_SOUND.durationSeconds < 0.2, '單次滴答必須遠短於一秒');
+});
+
+test('音量溫和且衰減到接近零', () => {
+  assert.ok(TICK_SOUND.peakGain > 0 && TICK_SOUND.peakGain <= 0.2, '避免刺耳的音量');
+  assert.ok(TICK_SOUND.endGain > 0, 'exponentialRamp 的目標值不能是 0');
+  assert.ok(TICK_SOUND.endGain < TICK_SOUND.peakGain);
 });
 
 // -----------------------------------------------------------------------------

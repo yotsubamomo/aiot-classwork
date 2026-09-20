@@ -53,6 +53,16 @@
           <button class="format-button" id="format-12" type="button" aria-pressed="false" title="12-hour clock (T toggles)">12H</button>
         </div>
 
+        <button class="control-button" id="sound-button" type="button" aria-pressed="false"
+                title="Clock tick sound (off by default)">
+          <svg class="control-icon" id="sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M11 5 6 9H3v6h3l5 4V5z"></path>
+            <path id="sound-muted" d="M17 9l4 6M21 9l-4 6"></path>
+            <path id="sound-on" d="M15.5 8.5a5 5 0 0 1 0 7" hidden></path>
+          </svg>
+          <span id="sound-label">Sound off</span>
+        </button>
+
         <button class="control-button" id="copy-button" type="button" title="Copy the current timestamp (C)">
           <svg class="control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
             <rect x="8" y="8" width="12" height="12" rx="2"></rect>

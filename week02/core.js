@@ -336,6 +336,21 @@ export function shortcutAction({
   }
 }
 
+/**
+ * 滴答聲的合成參數。
+ *
+ * 機械時鐘的滴答是一個極短的高頻撞擊聲，所以用正弦波從高頻快速滑到低頻，
+ * 音量同時衰減到接近零——25 毫秒就結束，聽起來才像「喀」而不是「嗶」。
+ * 參數放在這裡而不是散在 app.js，音色要調整時只有一個地方要改。
+ */
+export const TICK_SOUND = Object.freeze({
+  startFrequency: 1400,
+  endFrequency: 320,
+  peakGain: 0.04,
+  endGain: 0.0001,
+  durationSeconds: 0.025
+});
+
 /** 抽屜的三個分頁，順序即為畫面上的排列順序。 */
 export const DRAWER_TABS = ['projects', 'about', 'connect'];
 
