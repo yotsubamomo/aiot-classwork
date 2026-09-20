@@ -7,15 +7,15 @@
 - **授課單元**：Lecture 2 — 瀏覽器、現代 Web 核心與非同步資料流（L2Web）
 - **示範教師**：Huan Chen
 - **網站顯示名稱**：Momo
-- **完成日期**：2026-09-16
+- **完成日期**：2026-09-16 初版；2026-09-21 依課程規格補齊
 - **儲存庫網址**：[github.com/yotsubamomo/aiot-classwork](https://github.com/yotsubamomo/aiot-classwork)
 - **Live Demo Page**：[yotsubamomo.github.io/aiot-classwork/week02/](https://yotsubamomo.github.io/aiot-classwork/week02/)
 
-## Live Demo Snapshot
+## Live Demo
 
-[![DIC-1 個人入口網站與動態時鐘](./home.jpg)](https://yotsubamomo.github.io/aiot-classwork/week02/)
+<https://yotsubamomo.github.io/aiot-classwork/week02/>
 
-> 點擊圖片可開啟 Live Demo。
+> `home.jpg` 是補齊規格前的淺色版面截圖，與目前的深色預設不符，尚未重拍。
 
 ## 專案摘要
 
@@ -47,6 +47,7 @@ week02/
 ├── README.md         # 本檔：DIC-1 的專案說明
 ├── BRIEF.md          # 與課程規格的落差盤點
 ├── SPEC.md           # 補齊規格的實作 spec
+├── ACCEPTANCE.md     # 逐條對應規格的驗收清單
 ├── CONTEXT.md        # DIC-1 的專案語彙與已確認行為邊界
 ├── home.jpg          # Live Demo 畫面截圖
 ├── index.html        # 語意化頁面結構
@@ -62,7 +63,8 @@ week02/
 
 | 檔案 | 用途 |
 | --- | --- |
-| [`CONTEXT.md`](./CONTEXT.md) | 定義顯示名稱、台北時間、時間格式、視覺主題、保存偏好、專注模式與複製時間。 |
+| [`CONTEXT.md`](./CONTEXT.md) | 專案語彙：身分、時間、環境資訊、抽屜與狀態的用詞定義與避免用語。 |
+| [`ACCEPTANCE.md`](./ACCEPTANCE.md) | 逐條對應規格 FR／NFR 的驗收清單與驗證方式。 |
 | [`index.html`](./index.html) | 語意化頁面結構，只負責 markup。 |
 | [`style.css`](./style.css) | 設計 token、三套視覺主題、響應式版面與無障礙樣式。 |
 | [`app.js`](./app.js) | 所有副作用：DOM 選取與事件、localStorage 讀寫、剪貼簿、時鐘更新。 |
@@ -133,7 +135,9 @@ python -m http.server 5173
 
 ## 驗證紀錄
 
-- JavaScript 語法檢查通過。
-- 實際瀏覽器完成主題、12／24 小時制、複製提示、抽屜、天氣與 Zen 模式測試。
-- 375px 行動裝置寬度下無水平捲動，操作控制最小高度為 44px。
+逐條對應規格的完整清單見 [`ACCEPTANCE.md`](./ACCEPTANCE.md)。摘要：
+
+- `node --test` 109 個測試全數通過。
+- 規格 FR-1 至 FR-7 與 NFR-1 至 NFR-4 全部在 Live Demo 上實測通過。
+- 375px 行動裝置寬度下無水平捲動，所有可點控制項高度 ≥ 44px。
 - 三套主題均已完成桌面視覺檢查。

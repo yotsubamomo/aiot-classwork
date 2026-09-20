@@ -1,8 +1,27 @@
 /**
  * app.js — 把 core.js 的純邏輯接到真實世界。
  *
- * 這一層負責所有副作用：DOM 查詢與事件、localStorage 讀寫、剪貼簿、計時器。
+ * 這一層負責所有副作用：DOM 查詢與事件、localStorage 讀寫、網路請求、音訊與計時器。
  * 需要判斷或計算的部分一律呼叫 core.js，不在這裡重複實作。
+ *
+ * ---------------------------------------------------------------------------
+ * 課程主題導覽（Lecture 2）
+ *
+ * 1. DOM 選取與事件處理
+ *    - 「DOM 選取」區段：一次查好節點放進 elements。
+ *    - 「事件處理」區段：所有互動的進入點，含鍵盤快捷鍵與焦點管理。
+ *
+ * 2. 非同步 fetch 與 JSON 解析
+ *    - 「非同步載入專案目錄」區段：fetch → JSON → 正規化 → 動態產生 DOM。
+ *    - 「即時天氣」區段：對外部 API 的請求，含逾時、失敗退回與快取。
+ *
+ * 3. SVG 的程序化繪製
+ *    - 「時鐘」區段的 renderClock()：每一幀改寫 stroke-dashoffset 畫出秒數進度環。
+ *
+ * 4. localStorage 的序列化與狀態還原
+ *    - 「localStorage」區段：讀取、正規化、搬移舊格式與寫回。
+ *    - 檔案最後的「啟動」區段：還原狀態後把畫面對齊。
+ * ---------------------------------------------------------------------------
  */
 
 import {
@@ -173,6 +192,10 @@ let lastTickSecond = null;
 
 function renderClock(now) {
   elements.milliseconds.textContent = formatMilliseconds(now);
+
+  // SVG 程序化繪製：圓的 stroke-dasharray 設成整圈長度，dashoffset 決定「還沒畫的部分」。
+  // offset 等於整圈長度時完全空白，等於 0 時畫滿一圈，所以只要每一幀改寫這個數字，
+  // 就能畫出跟著時間連續前進的進度環，不需要任何繪圖函式庫。
   elements.secondRing.style.strokeDashoffset =
     ringDashOffset(minuteProgress(now), RING_CIRCUMFERENCE).toFixed(2);
 

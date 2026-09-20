@@ -863,7 +863,7 @@ a.link-item:hover { background: var(--hover); }
   min-height: 2.75rem;
   align-items: center;
   gap: .5rem;
-  padding: .3rem .4rem .3rem .9rem;
+  padding: .15rem .25rem .15rem .9rem;
   border: 1px solid var(--panel-border);
   border-radius: 999px;
   background: var(--panel);
@@ -879,7 +879,8 @@ a.link-item:hover { background: var(--hover); }
 .weather-readout.is-stale { color: var(--muted); }
 
 .city-select {
-  min-height: 2.15rem;
+  /* 觸控目標的最小尺寸：44px，與控制列上的其他按鈕一致。 */
+  min-height: 2.75rem;
   padding: .2rem 1.6rem .2rem .6rem;
   border: 1px solid var(--panel-border);
   border-radius: 999px;
