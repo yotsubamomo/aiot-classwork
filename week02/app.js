@@ -11,9 +11,12 @@ import {
   THEME_COLORS,
   THEME_LABELS,
   buildTimestampText,
+  dayOfYear,
   formatClockText,
   formatMilliseconds,
   formatTaipeiDate,
+  greeting,
+  isoWeek,
   minuteProgress,
   nextTheme,
   normalizeState,
@@ -33,6 +36,10 @@ const elements = {
   epoch: document.querySelector('#epoch'),
   secondRing: document.querySelector('#second-ring'),
   date: document.querySelector('#date'),
+  weekBadge: document.querySelector('#week-badge'),
+  dayBadge: document.querySelector('#day-badge'),
+  greetingIcon: document.querySelector('#greeting-icon'),
+  greetingText: document.querySelector('#greeting-text'),
   themeButton: document.querySelector('#theme-button'),
   themeLabel: document.querySelector('#theme-label'),
   format24: document.querySelector('#format-24'),
@@ -140,6 +147,12 @@ function renderClock(now) {
   elements.clock.textContent = formatClockText(now, { format24h: state.format24h });
   elements.epoch.textContent = String(second);
   elements.date.textContent = formatTaipeiDate(now);
+  elements.weekBadge.textContent = `Week ${isoWeek(now).week}`;
+  elements.dayBadge.textContent = `Day ${dayOfYear(now)}`;
+
+  const { text, icon } = greeting(now);
+  elements.greetingIcon.textContent = icon;
+  elements.greetingText.textContent = text;
   elements.meridiem.hidden = state.format24h;
   elements.meridiem.textContent = state.format24h
     ? ''

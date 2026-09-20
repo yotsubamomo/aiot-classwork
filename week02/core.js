@@ -125,6 +125,77 @@ export function taipeiTimeParts(date, { format24h = true } = {}) {
   );
 }
 
+/** 依時段顯示的問候語與圖示。 */
+export const GREETINGS = Object.freeze({
+  morning: { text: 'Good morning', icon: '🌤' },
+  afternoon: { text: 'Good afternoon', icon: '☀️' },
+  evening: { text: 'Good evening', icon: '🌆' },
+  night: { text: 'Good night', icon: '🌙' }
+});
+
+/**
+ * 取出某個時刻在台北的日曆日期（年、月、日）。
+ *
+ * ISO 週數與年積日都必須以台北的日期為準，不能用 UTC 的日期，
+ * 否則台北的凌晨會被算成前一天。`en-CA` 的輸出固定是 YYYY-MM-DD，方便拆解。
+ */
+export function taipeiCalendarDate(date) {
+  const [year, month, day] = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date).split('-').map(Number);
+  return { year, month, day };
+}
+
+/** 台北日期在該年的第幾天，1 月 1 日是第 1 天。 */
+export function dayOfYear(date) {
+  const { year, month, day } = taipeiCalendarDate(date);
+  const startOfYear = Date.UTC(year, 0, 1);
+  const today = Date.UTC(year, month - 1, day);
+  return Math.round((today - startOfYear) / 86400000) + 1;
+}
+
+/**
+ * ISO 8601 週數。
+ *
+ * ISO 的規則是「包含該年第一個星期四的那一週是第 1 週」，週一為一週之始。
+ * 作法是把日期移到當週的星期四，再和該 ISO 年第一個星期四相減；
+ * 這樣年底與年初跨週的情況會自動落在正確的年份上，
+ * 所以同時回傳 isoYear——12 月底可能屬於下一年的第 1 週。
+ */
+export function isoWeek(date) {
+  const { year, month, day } = taipeiCalendarDate(date);
+  const thursday = new Date(Date.UTC(year, month - 1, day));
+  const weekdayFromMonday = (thursday.getUTCDay() + 6) % 7;
+  thursday.setUTCDate(thursday.getUTCDate() - weekdayFromMonday + 3);
+
+  const isoYear = thursday.getUTCFullYear();
+  const firstThursday = new Date(Date.UTC(isoYear, 0, 4));
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - ((firstThursday.getUTCDay() + 6) % 7) + 3);
+
+  const week = 1 + Math.round((thursday.getTime() - firstThursday.getTime()) / 604800000);
+  return { week, isoYear };
+}
+
+/**
+ * 依台北時間的小時數決定問候語。
+ * 05–11 morning、12–17 afternoon、18–21 evening，其餘為 night。
+ */
+export function greetingKey(date) {
+  const hour = Number(taipeiTimeParts(date, { format24h: true }).hour);
+  if (hour >= 5 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 18) return 'afternoon';
+  if (hour >= 18 && hour < 22) return 'evening';
+  return 'night';
+}
+
+/** 問候語與圖示。 */
+export function greeting(date) {
+  return GREETINGS[greetingKey(date)];
+}
+
 /** 台北時區的完整日期，例如「Sunday, September 20, 2026」。 */
 export function formatTaipeiDate(date) {
   return new Intl.DateTimeFormat('en-US', {

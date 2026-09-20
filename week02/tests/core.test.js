@@ -13,20 +13,26 @@ import assert from 'node:assert/strict';
 
 import {
   DEFAULT_STATE,
+  GREETINGS,
   NAME_MAX_LENGTH,
   THEMES,
   buildTimestampText,
+  dayOfYear,
   formatClockText,
   formatMilliseconds,
   formatTaipeiDate,
+  greeting,
+  greetingKey,
   isCity,
   isTheme,
+  isoWeek,
   minuteProgress,
   nextTheme,
   normalizeState,
   ringDashOffset,
   sanitizeLine,
   stateFromLegacyPreferences,
+  taipeiCalendarDate,
   taipeiTimeParts,
   unixSeconds
 } from '../core.js';
@@ -101,6 +107,94 @@ test('12 小時制的時間戳記文字帶上下午標記', () => {
 
 test('時間戳記使用狀態樹裡的名稱', () => {
   assert.match(buildTimestampText(AFTERNOON, { name: 'Ada' }), /^Ada · /);
+});
+
+// -----------------------------------------------------------------------------
+// 日曆：年積日與 ISO 週數
+// -----------------------------------------------------------------------------
+
+test('日曆日期以台北為準，不是 UTC 的日期', () => {
+  // UTC 還是 9/20 下午，台北已經是 9/21 凌晨。
+  const afterTaipeiMidnight = new Date('2026-09-20T16:30:00Z');
+  assert.deepEqual(taipeiCalendarDate(afterTaipeiMidnight), { year: 2026, month: 9, day: 21 });
+  assert.equal(dayOfYear(afterTaipeiMidnight), 264);
+});
+
+test('年積日從 1 月 1 日的第 1 天開始算', () => {
+  assert.equal(dayOfYear(MIDNIGHT), 1);
+});
+
+test('平年 3 月 1 日是第 60 天', () => {
+  assert.equal(dayOfYear(new Date('2026-03-01T04:00:00Z')), 60);
+});
+
+test('閏年 2 月 29 日是第 60 天、3 月 1 日是第 61 天', () => {
+  assert.equal(dayOfYear(new Date('2028-02-29T04:00:00Z')), 60);
+  assert.equal(dayOfYear(new Date('2028-03-01T04:00:00Z')), 61);
+});
+
+test('平年的最後一天是第 365 天，閏年是第 366 天', () => {
+  assert.equal(dayOfYear(new Date('2026-12-31T04:00:00Z')), 365);
+  assert.equal(dayOfYear(new Date('2028-12-31T04:00:00Z')), 366);
+});
+
+test('一般日期的 ISO 週數', () => {
+  assert.deepEqual(isoWeek(AFTERNOON), { week: 38, isoYear: 2026 });
+});
+
+test('1 月 1 日是星期四時屬於當年的第 1 週', () => {
+  // 2026-01-01 是星期四。
+  assert.deepEqual(isoWeek(MIDNIGHT), { week: 1, isoYear: 2026 });
+});
+
+test('年初幾天可能仍屬於前一年的最後一週', () => {
+  // 台北的 2027-01-01 是星期五，依 ISO 屬於 2026 年第 53 週。
+  assert.deepEqual(isoWeek(new Date('2026-12-31T16:30:00Z')), { week: 53, isoYear: 2026 });
+  // 台北的 2028-01-01 是星期六，屬於 2027 年第 52 週。
+  assert.deepEqual(isoWeek(new Date('2027-12-31T16:30:00Z')), { week: 52, isoYear: 2027 });
+});
+
+test('年底可能出現第 53 週', () => {
+  assert.deepEqual(isoWeek(new Date('2026-12-31T04:00:00Z')), { week: 53, isoYear: 2026 });
+});
+
+test('閏年 2 月 29 日與 3 月 1 日落在同一週', () => {
+  assert.deepEqual(isoWeek(new Date('2028-02-29T04:00:00Z')), { week: 9, isoYear: 2028 });
+  assert.deepEqual(isoWeek(new Date('2028-03-01T04:00:00Z')), { week: 9, isoYear: 2028 });
+});
+
+// -----------------------------------------------------------------------------
+// 時段問候語
+// -----------------------------------------------------------------------------
+
+test('問候語依台北時間的時段變化', () => {
+  const at = (taipeiTime) => greetingKey(new Date(taipeiTime));
+  // 台北時間 = UTC + 8，測試值直接寫成對應的 UTC 時刻。
+  assert.equal(at('2026-09-19T21:00:00Z'), 'morning');   // 台北 05:00
+  assert.equal(at('2026-09-20T02:00:00Z'), 'morning');   // 台北 10:00
+  assert.equal(at('2026-09-20T04:00:00Z'), 'afternoon'); // 台北 12:00
+  assert.equal(at('2026-09-20T08:00:00Z'), 'afternoon'); // 台北 16:00
+  assert.equal(at('2026-09-20T10:00:00Z'), 'evening');   // 台北 18:00
+  assert.equal(at('2026-09-20T13:00:00Z'), 'evening');   // 台北 21:00
+  assert.equal(at('2026-09-20T14:00:00Z'), 'night');     // 台北 22:00
+  assert.equal(at('2026-09-20T18:00:00Z'), 'night');     // 台北隔日 02:00
+});
+
+test('時段交界的前一分鐘仍屬於前一個時段', () => {
+  assert.equal(greetingKey(new Date('2026-09-19T20:59:00Z')), 'night');     // 台北 04:59
+  assert.equal(greetingKey(new Date('2026-09-20T03:59:00Z')), 'morning');   // 台北 11:59
+  assert.equal(greetingKey(new Date('2026-09-20T09:59:00Z')), 'afternoon'); // 台北 17:59
+  assert.equal(greetingKey(new Date('2026-09-20T13:59:00Z')), 'evening');   // 台北 21:59
+});
+
+test('問候語帶有文字與圖示', () => {
+  const result = greeting(new Date('2026-09-20T02:00:00Z'));
+  assert.equal(result.text, 'Good morning');
+  assert.ok(result.icon.length > 0);
+});
+
+test('四個時段都有對應的問候語', () => {
+  assert.deepEqual(Object.keys(GREETINGS).sort(), ['afternoon', 'evening', 'morning', 'night']);
 });
 
 // -----------------------------------------------------------------------------

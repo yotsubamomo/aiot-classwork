@@ -71,7 +71,13 @@
     </header>
 
     <section class="hero" aria-labelledby="display-name">
-      <h1 id="display-name">MO<span>MO</span></h1>
+      <div class="hero-stack">
+        <p class="greeting-badge">
+          <span id="greeting-icon" aria-hidden="true">🌙</span>
+          <span id="greeting-text">Good evening</span>
+        </p>
+        <h1 id="display-name">MO<span>MO</span></h1>
+      </div>
     </section>
 
     <footer class="time-panel">
@@ -96,6 +102,10 @@
       </div>
       <div class="date-block">
         <p class="date" id="date">Loading Taipei time…</p>
+        <p class="date-badges">
+          <span class="badge" id="week-badge">Week —</span>
+          <span class="badge" id="day-badge">Day —</span>
+        </p>
         <p class="timezone">Asia/Taipei · UTC+8</p>
       </div>
     </footer>
