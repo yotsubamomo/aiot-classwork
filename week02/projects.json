@@ -1,0 +1,32 @@
+[
+  {
+    "id": "placeholder-edge-ai",
+    "title": "Placeholder — Edge AI project",
+    "category": "Edge Computing",
+    "badge": "Placeholder",
+    "description": "Replace this entry in projects.json with a real project. Describe what the system does, what hardware it runs on and what result it achieved.",
+    "techStack": ["Python", "TensorFlow Lite", "Raspberry Pi"],
+    "githubUrl": "https://github.com/yotsubamomo/aiot-classwork",
+    "demoUrl": ""
+  },
+  {
+    "id": "placeholder-sensor-node",
+    "title": "Placeholder — Sensor node",
+    "category": "IoT & Sensors",
+    "badge": "Placeholder",
+    "description": "Replace this entry with a hardware or firmware project. Keep the description to two or three sentences so the card stays readable.",
+    "techStack": ["ESP32", "C++", "MQTT"],
+    "githubUrl": "https://github.com/yotsubamomo/aiot-classwork",
+    "demoUrl": ""
+  },
+  {
+    "id": "placeholder-dashboard",
+    "title": "Placeholder — Data dashboard",
+    "category": "Data Analytics",
+    "badge": "Placeholder",
+    "description": "Replace this entry with a data or visualisation project. Cards are generated from this file, so adding a project never means touching the page markup.",
+    "techStack": ["JavaScript", "Chart rendering", "REST API"],
+    "githubUrl": "https://github.com/yotsubamomo/aiot-classwork",
+    "demoUrl": ""
+  }
+]

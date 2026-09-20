@@ -125,6 +125,62 @@ export function taipeiTimeParts(date, { format24h = true } = {}) {
   );
 }
 
+/** 專案卡片上最多顯示幾個技術標籤，避免單一卡片被撐爆。 */
+export const MAX_TECH_TAGS = 6;
+
+/**
+ * 只接受 http 與 https 的絕對網址。
+ *
+ * 專案資料是從外部檔案讀進來的，直接把值塞進 href 會讓 `javascript:` 這類
+ * 協定變成可點擊的程式碼。無法解析或協定不對的一律回傳 null，呼叫端就不會產生連結。
+ */
+export function safeUrl(value) {
+  if (typeof value !== 'string') return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * 把一筆來源不可信的專案資料整理成可以安全渲染的形狀。
+ * 缺少 id、標題或描述就視為不合格，回傳 null 讓呼叫端丟棄這一筆。
+ */
+export function normalizeProject(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+
+  const id = sanitizeLine(raw.id, { maxLength: 80 });
+  const title = sanitizeLine(raw.title, { maxLength: 120 });
+  const description = sanitizeLine(raw.description, { maxLength: 400 });
+  if (!id || !title || !description) return null;
+
+  const techStack = Array.isArray(raw.techStack)
+    ? raw.techStack
+      .map((tag) => sanitizeLine(tag, { maxLength: 30 }))
+      .filter(Boolean)
+      .slice(0, MAX_TECH_TAGS)
+    : [];
+
+  return {
+    id,
+    title,
+    description,
+    category: sanitizeLine(raw.category, { maxLength: 40 }),
+    badge: sanitizeLine(raw.badge, { maxLength: 24 }),
+    techStack,
+    githubUrl: safeUrl(raw.githubUrl),
+    demoUrl: safeUrl(raw.demoUrl)
+  };
+}
+
+/** 整理整份專案目錄，結構不符的項目直接丟掉，不會讓其他項目跟著壞掉。 */
+export function normalizeProjects(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(normalizeProject).filter(Boolean);
+}
+
 /** 抽屜的三個分頁，順序即為畫面上的排列順序。 */
 export const DRAWER_TABS = ['projects', 'about', 'connect'];
 

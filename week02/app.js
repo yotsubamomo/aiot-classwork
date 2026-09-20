@@ -22,6 +22,7 @@ import {
   minuteProgress,
   nextTheme,
   nextTabIndex,
+  normalizeProjects,
   normalizeState,
   ringDashOffset,
   stateFromLegacyPreferences,
@@ -50,6 +51,8 @@ const elements = {
   copyButton: document.querySelector('#copy-button'),
   focusButton: document.querySelector('#focus-button'),
   focusExit: document.querySelector('#focus-exit'),
+  projectGrid: document.querySelector('#project-grid'),
+  projectStatus: document.querySelector('#project-status'),
   drawer: document.querySelector('#drawer'),
   drawerOverlay: document.querySelector('#drawer-overlay'),
   drawerClose: document.querySelector('#drawer-close'),
@@ -217,6 +220,133 @@ async function copyTime() {
 }
 
 // =============================================================================
+// 非同步載入專案目錄。
+//
+// 資料放在獨立的 JSON 檔，頁面本身沒有任何寫死的專案內容——新增作品只要改資料檔。
+// 讀回來的東西先經過 core.js 正規化，再用 DOM API 一個一個節點建出來；
+// 所有文字都走 textContent，不用字串拼 HTML，資料內容就不可能被當成標記執行。
+// =============================================================================
+const PROJECTS_URL = './projects.json';
+const PROJECTS_TIMEOUT_MS = 8000;
+
+function setProjectStatus(message, { showRetry = false } = {}) {
+  elements.projectStatus.textContent = '';
+
+  if (!message) {
+    elements.projectStatus.hidden = true;
+    return;
+  }
+
+  elements.projectStatus.hidden = false;
+  elements.projectStatus.append(message);
+
+  if (!showRetry) return;
+  const retry = document.createElement('button');
+  retry.type = 'button';
+  retry.className = 'retry-button';
+  retry.textContent = 'Try again';
+  retry.addEventListener('click', loadProjects);
+  elements.projectStatus.append(' ', retry);
+}
+
+/** 用 DOM API 建一張專案卡片。所有文字都是文字節點，不是字串拼出來的標記。 */
+function projectCard(project) {
+  const card = document.createElement('article');
+  card.className = 'project-card';
+
+  if (project.category || project.badge) {
+    const meta = document.createElement('p');
+    meta.className = 'project-meta';
+    if (project.category) {
+      const category = document.createElement('span');
+      category.className = 'project-category';
+      category.textContent = project.category;
+      meta.append(category);
+    }
+    if (project.badge) {
+      const badge = document.createElement('span');
+      badge.className = 'project-badge';
+      badge.textContent = project.badge;
+      meta.append(badge);
+    }
+    card.append(meta);
+  }
+
+  const title = document.createElement('h3');
+  title.className = 'project-title';
+  title.textContent = project.title;
+  card.append(title);
+
+  const description = document.createElement('p');
+  description.className = 'project-description';
+  description.textContent = project.description;
+  card.append(description);
+
+  if (project.techStack.length > 0) {
+    const tags = document.createElement('ul');
+    tags.className = 'tag-list';
+    for (const tag of project.techStack) {
+      const item = document.createElement('li');
+      item.className = 'tag';
+      item.textContent = tag;
+      tags.append(item);
+    }
+    card.append(tags);
+  }
+
+  const links = [
+    { url: project.githubUrl, label: 'Source' },
+    { url: project.demoUrl, label: 'Demo' }
+  ].filter(({ url }) => url);
+
+  if (links.length > 0) {
+    const row = document.createElement('p');
+    row.className = 'project-links';
+    for (const { url, label } of links) {
+      const link = document.createElement('a');
+      link.className = 'project-link';
+      link.href = url;
+      // 連結文字帶上專案名稱，螢幕閱讀器逐條瀏覽連結時才分得出是哪一個專案的。
+      link.textContent = `${label} — ${project.title}`;
+      row.append(link);
+    }
+    card.append(row);
+  }
+
+  return card;
+}
+
+function renderProjects(projects) {
+  elements.projectGrid.replaceChildren(...projects.map(projectCard));
+}
+
+async function loadProjects() {
+  setProjectStatus('Loading projects…');
+  elements.projectGrid.replaceChildren();
+
+  // 逾時控制：網路卡住時不要讓載入狀態永遠停在那裡。
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), PROJECTS_TIMEOUT_MS);
+
+  try {
+    // cache: 'no-cache' 會帶條件請求向伺服器確認新舊。
+    // 少了這行，改完 projects.json 重新整理仍然會看到瀏覽器快取的舊清單。
+    const response = await fetch(PROJECTS_URL, { cache: 'no-cache', signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const projects = normalizeProjects(await response.json());
+    renderProjects(projects);
+    setProjectStatus(projects.length === 0 ? 'No projects to show yet.' : '');
+  } catch (_) {
+    // 網路錯誤、逾時、HTTP 失敗與 JSON 解析失敗都走同一條路：說清楚並提供重試。
+    elements.projectGrid.replaceChildren();
+    setProjectStatus('Could not load the project catalogue.', { showRetry: true });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// =============================================================================
 // 抽屜：Hero 保持乾淨，次要內容收在滑出面板裡。
 //
 // 無障礙重點：開啟時焦點移入面板並把 Tab 鎖在裡面，關閉後焦點回到原本的觸發按鈕；
@@ -349,3 +479,4 @@ setTheme(state.theme, { persist: false });
 setTimeFormat(state.format24h, { persist: false });
 setZenMode(state.zenMode, { persist: false, moveFocus: false });
 startClock();
+loadProjects();

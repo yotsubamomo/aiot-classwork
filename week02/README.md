@@ -28,6 +28,7 @@ DIC-1 使用零框架、零建構依賴的 Vanilla HTML、CSS 與 JavaScript，�
 - 依台北時段變化的問候徽章，以及 ISO 週數與年積日標籤。
 - 支援 24 小時制及附 AM／PM 的 12 小時制。
 - 右側滑出的抽屜收納 Projects／About／Connect 三個分頁，Hero 維持乾淨；可用遮罩、關閉鈕或 `Esc` 關閉。
+- 專案卡片由 `projects.json` 非同步載入後動態產生，新增作品只要改資料檔，不必動版面。
 - 提供 `Aurora`、`Minimal`、`Sunset` 三套視覺主題；主題只改變配色、背景與光影，不改變內容結構。
 - 使用瀏覽器儲存空間保留主題與時間格式偏好。
 - 可複製包含名稱、完整日期、時間與 `Asia/Taipei (UTC+8)` 的文字時間戳，並顯示短暫成功提示。
@@ -45,6 +46,7 @@ week02/
 ├── CONTEXT.md        # DIC-1 的專案語彙與已確認行為邊界
 ├── home.jpg          # Live Demo 畫面截圖
 ├── index.html        # 語意化頁面結構
+├── projects.json     # 專案目錄資料，卡片由此動態產生
 ├── style.css         # 設計 token、三套主題與響應式版面
 ├── app.js            # DOM 事件、偏好讀寫與畫面更新
 ├── core.js           # 純邏輯，可被瀏覽器與 Node 共用
@@ -60,7 +62,8 @@ week02/
 | [`index.html`](./index.html) | 語意化頁面結構，只負責 markup。 |
 | [`style.css`](./style.css) | 設計 token、三套視覺主題、響應式版面與無障礙樣式。 |
 | [`app.js`](./app.js) | 所有副作用：DOM 選取與事件、localStorage 讀寫、剪貼簿、時鐘更新。 |
-| [`core.js`](./core.js) | 純邏輯：時間格式化、日期文字、主題循環、偏好正規化。不碰 DOM、儲存與網路。 |
+| [`core.js`](./core.js) | 純邏輯：時間格式化、日期文字、日曆計算、主題循環、狀態與專案資料正規化。不碰 DOM、儲存與網路。 |
+| [`projects.json`](./projects.json) | 專案目錄。頁面沒有任何寫死的專案內容，新增作品只要改這個檔案。 |
 
 ## 測試
 

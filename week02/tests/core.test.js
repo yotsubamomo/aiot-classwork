@@ -15,6 +15,7 @@ import {
   DEFAULT_STATE,
   DRAWER_TABS,
   GREETINGS,
+  MAX_TECH_TAGS,
   NAME_MAX_LENGTH,
   THEMES,
   buildTimestampText,
@@ -31,8 +32,11 @@ import {
   minuteProgress,
   nextTabIndex,
   nextTheme,
+  normalizeProject,
+  normalizeProjects,
   normalizeState,
   ringDashOffset,
+  safeUrl,
   sanitizeLine,
   stateFromLegacyPreferences,
   taipeiCalendarDate,
@@ -286,6 +290,97 @@ test('只有清單內的值算是合法城市', () => {
   assert.equal(isCity('taichung'), true);
   assert.equal(isCity('Taichung'), false);
   assert.equal(isCity('tokyo'), false);
+});
+
+// -----------------------------------------------------------------------------
+// 專案目錄資料
+// -----------------------------------------------------------------------------
+
+const FULL_PROJECT = {
+  id: 'edge-vision',
+  title: 'Edge AI Vision Inspection',
+  category: 'Edge Computing',
+  badge: 'Featured',
+  description: 'Real-time defect inspection on an embedded board.',
+  techStack: ['YOLOv8', 'TensorRT', 'Python'],
+  githubUrl: 'https://github.com/example/edge-vision',
+  demoUrl: 'https://example.com/demo'
+};
+
+test('完整的專案資料原樣保留', () => {
+  assert.deepEqual(normalizeProject(FULL_PROJECT), {
+    id: 'edge-vision',
+    title: 'Edge AI Vision Inspection',
+    category: 'Edge Computing',
+    badge: 'Featured',
+    description: 'Real-time defect inspection on an embedded board.',
+    techStack: ['YOLOv8', 'TensorRT', 'Python'],
+    githubUrl: 'https://github.com/example/edge-vision',
+    demoUrl: 'https://example.com/demo'
+  });
+});
+
+test('缺少 id、標題或描述的項目視為不合格', () => {
+  assert.equal(normalizeProject({ ...FULL_PROJECT, id: '' }), null);
+  assert.equal(normalizeProject({ ...FULL_PROJECT, title: '   ' }), null);
+  assert.equal(normalizeProject({ ...FULL_PROJECT, description: undefined }), null);
+});
+
+test('非物件的項目視為不合格', () => {
+  assert.equal(normalizeProject(null), null);
+  assert.equal(normalizeProject('project'), null);
+  assert.equal(normalizeProject([]), null);
+});
+
+test('缺少選填欄位時仍然合格，只是那些欄位是空的', () => {
+  const result = normalizeProject({ id: 'a', title: 'A', description: 'B' });
+  assert.equal(result.category, '');
+  assert.equal(result.badge, '');
+  assert.deepEqual(result.techStack, []);
+  assert.equal(result.githubUrl, null);
+  assert.equal(result.demoUrl, null);
+});
+
+test('techStack 型別錯誤時當成沒有標籤', () => {
+  assert.deepEqual(normalizeProject({ ...FULL_PROJECT, techStack: 'Python' }).techStack, []);
+  assert.deepEqual(normalizeProject({ ...FULL_PROJECT, techStack: null }).techStack, []);
+});
+
+test('techStack 內的空值被丟掉，數量上限被遵守', () => {
+  const messy = { ...FULL_PROJECT, techStack: ['  A  ', '', null, 'B', 'C', 'D', 'E', 'F', 'G'] };
+  const tags = normalizeProject(messy).techStack;
+  assert.equal(tags[0], 'A');
+  assert.ok(tags.length <= MAX_TECH_TAGS, `got ${tags.length} tags`);
+  assert.ok(!tags.includes(''));
+});
+
+test('只有 http 與 https 的網址會被接受', () => {
+  assert.equal(safeUrl('https://example.com/a'), 'https://example.com/a');
+  assert.equal(safeUrl('http://example.com/a'), 'http://example.com/a');
+  assert.equal(safeUrl('javascript:alert(1)'), null);
+  assert.equal(safeUrl('data:text/html,<script>'), null);
+  assert.equal(safeUrl('#'), null);
+  assert.equal(safeUrl(''), null);
+  assert.equal(safeUrl(42), null);
+});
+
+test('危險的連結不會變成卡片上的連結', () => {
+  const result = normalizeProject({ ...FULL_PROJECT, githubUrl: 'javascript:alert(1)', demoUrl: '#' });
+  assert.equal(result.githubUrl, null);
+  assert.equal(result.demoUrl, null);
+});
+
+test('整份目錄中結構不符的項目被丟掉，其餘照常保留', () => {
+  const list = [FULL_PROJECT, { title: 'no id' }, null, { ...FULL_PROJECT, id: 'second' }];
+  const result = normalizeProjects(list);
+  assert.equal(result.length, 2);
+  assert.deepEqual(result.map((p) => p.id), ['edge-vision', 'second']);
+});
+
+test('空陣列與非陣列都回傳空清單', () => {
+  assert.deepEqual(normalizeProjects([]), []);
+  assert.deepEqual(normalizeProjects(null), []);
+  assert.deepEqual(normalizeProjects({ projects: [] }), []);
 });
 
 // -----------------------------------------------------------------------------
