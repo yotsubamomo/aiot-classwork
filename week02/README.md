@@ -83,18 +83,23 @@ node --test
 - **Minimal**：高對比、克制的黑白視覺。
 - **Sunset**：暖灰背景與橘色圓形主視覺，也是首次造訪的預設主題。
 
-### 有界限的偏好保存
+### 單一狀態樹
 
-網站只保存以下兩項偏好：
+所有偏好合併成一個物件，序列化後存在 `localStorage` 的 `aiot_user_state`，就是以下七個欄位，不多也不少：
 
 ```json
 {
+  "name": "Momo",
+  "tagline": "AIoT & Data Analytics",
   "theme": "sunset",
-  "format24": true
+  "format24h": true,
+  "soundEnabled": false,
+  "selectedCity": "taichung",
+  "zenMode": false
 }
 ```
 
-專注模式、目前時間及操作提示皆不會保存。
+讀取時每個欄位各自驗證：型別錯誤、超出允許值或缺少的欄位回退到預設，未知欄位丟棄，因此手動竄改儲存內容不會讓頁面壞掉。儲存空間被封鎖時網站完全照常運作，只是設定不會保存。目前時間與操作提示屬於瞬時狀態，不在保存範圍內。
 
 ## 本機預覽
 

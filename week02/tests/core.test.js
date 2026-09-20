@@ -12,14 +12,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  DEFAULT_PREFERENCES,
+  DEFAULT_STATE,
+  NAME_MAX_LENGTH,
   THEMES,
   buildTimestampText,
   formatClockText,
   formatTaipeiDate,
+  isCity,
   isTheme,
   nextTheme,
-  normalizePreferences,
+  normalizeState,
+  sanitizeLine,
+  stateFromLegacyPreferences,
   taipeiTimeParts
 } from '../core.js';
 
@@ -30,38 +34,42 @@ const MIDNIGHT = new Date('2025-12-31T16:00:00Z');
 // 2026-06-15 12:00:00 台北時間，用來檢查正午的 12 小時制表示。
 const NOON = new Date('2026-06-15T04:00:00Z');
 
+// -----------------------------------------------------------------------------
+// 時間與日期
+// -----------------------------------------------------------------------------
+
 test('24 小時制顯示補零的時分秒', () => {
-  assert.equal(formatClockText(AFTERNOON, { format24: true }), '14:30:05');
+  assert.equal(formatClockText(AFTERNOON, { format24h: true }), '14:30:05');
 });
 
 test('12 小時制把下午兩點半顯示為 02:30:05', () => {
-  assert.equal(formatClockText(AFTERNOON, { format24: false }), '02:30:05');
+  assert.equal(formatClockText(AFTERNOON, { format24h: false }), '02:30:05');
 });
 
 test('24 小時制的午夜是 00 點而不是 24 點', () => {
-  assert.equal(formatClockText(MIDNIGHT, { format24: true }), '00:00:00');
+  assert.equal(formatClockText(MIDNIGHT, { format24h: true }), '00:00:00');
 });
 
 test('12 小時制的午夜是 12 AM', () => {
-  const parts = taipeiTimeParts(MIDNIGHT, { format24: false });
+  const parts = taipeiTimeParts(MIDNIGHT, { format24h: false });
   assert.equal(parts.hour, '12');
   assert.equal(parts.dayPeriod, 'AM');
 });
 
 test('12 小時制的正午是 12 PM', () => {
-  const parts = taipeiTimeParts(NOON, { format24: false });
+  const parts = taipeiTimeParts(NOON, { format24h: false });
   assert.equal(parts.hour, '12');
   assert.equal(parts.dayPeriod, 'PM');
 });
 
 test('24 小時制沒有上下午標記', () => {
-  assert.equal(taipeiTimeParts(AFTERNOON, { format24: true }).dayPeriod, undefined);
+  assert.equal(taipeiTimeParts(AFTERNOON, { format24h: true }).dayPeriod, undefined);
 });
 
 test('時間依台北時區計算，不跟隨傳入時刻的 UTC 表示', () => {
   // 同一個時刻在 UTC 是 06:30，在台北是 14:30。
   assert.equal(AFTERNOON.toISOString(), '2026-09-20T06:30:05.000Z');
-  assert.equal(formatClockText(AFTERNOON, { format24: true }), '14:30:05');
+  assert.equal(formatClockText(AFTERNOON, { format24h: true }), '14:30:05');
 });
 
 test('日期包含完整年月日與星期', () => {
@@ -75,21 +83,25 @@ test('跨日的時刻以台北日期為準', () => {
 
 test('24 小時制的時間戳記文字含名稱、日期、時間與時區', () => {
   assert.equal(
-    buildTimestampText(AFTERNOON, { format24: true }),
+    buildTimestampText(AFTERNOON, { format24h: true }),
     'Momo｜2026年9月20日 星期日 14:30:05｜Asia/Taipei (UTC+8)'
   );
 });
 
 test('12 小時制的時間戳記文字帶上下午標記', () => {
   assert.equal(
-    buildTimestampText(AFTERNOON, { format24: false }),
+    buildTimestampText(AFTERNOON, { format24h: false }),
     'Momo｜2026年9月20日 星期日 02:30:05 PM｜Asia/Taipei (UTC+8)'
   );
 });
 
-test('時間戳記可以使用自訂名稱', () => {
+test('時間戳記使用狀態樹裡的名稱', () => {
   assert.match(buildTimestampText(AFTERNOON, { name: 'Ada' }), /^Ada｜/);
 });
+
+// -----------------------------------------------------------------------------
+// 主題與城市
+// -----------------------------------------------------------------------------
 
 test('主題依固定順序循環', () => {
   assert.equal(nextTheme('aurora'), 'minimal');
@@ -107,36 +119,131 @@ test('只有清單內的值算是合法主題', () => {
   assert.equal(isTheme(undefined), false);
 });
 
-test('沒有已保存偏好時使用預設值', () => {
-  assert.deepEqual(normalizePreferences(null), DEFAULT_PREFERENCES);
-  assert.deepEqual(normalizePreferences(undefined), DEFAULT_PREFERENCES);
-  assert.deepEqual(normalizePreferences({}), DEFAULT_PREFERENCES);
+test('只有清單內的值算是合法城市', () => {
+  assert.equal(isCity('taichung'), true);
+  assert.equal(isCity('Taichung'), false);
+  assert.equal(isCity('tokyo'), false);
 });
 
-test('保留合法的已保存偏好', () => {
+// -----------------------------------------------------------------------------
+// 單行文字清理
+// -----------------------------------------------------------------------------
+
+test('清理文字會去除前後空白', () => {
+  assert.equal(sanitizeLine('  Momo  '), 'Momo');
+});
+
+test('清理文字會把換行與連續空白收斂成單一空格', () => {
+  assert.equal(sanitizeLine('Momo\n\nthe\t  builder'), 'Momo the builder');
+});
+
+test('清理文字會截斷超長輸入', () => {
+  const long = 'x'.repeat(NAME_MAX_LENGTH + 20);
+  assert.equal(sanitizeLine(long).length, NAME_MAX_LENGTH);
+});
+
+test('空白字串與非字串回退到 fallback', () => {
+  assert.equal(sanitizeLine('   ', { fallback: 'Momo' }), 'Momo');
+  assert.equal(sanitizeLine(null, { fallback: 'Momo' }), 'Momo');
+  assert.equal(sanitizeLine(42, { fallback: 'Momo' }), 'Momo');
+});
+
+// -----------------------------------------------------------------------------
+// 狀態樹正規化
+// -----------------------------------------------------------------------------
+
+test('沒有已保存狀態時使用預設值', () => {
+  assert.deepEqual(normalizeState(null), DEFAULT_STATE);
+  assert.deepEqual(normalizeState(undefined), DEFAULT_STATE);
+  assert.deepEqual(normalizeState({}), DEFAULT_STATE);
+});
+
+test('正規化後永遠是完整的七個欄位', () => {
   assert.deepEqual(
-    normalizePreferences({ theme: 'aurora', format24: false }),
-    { theme: 'aurora', format24: false }
+    Object.keys(normalizeState({ theme: 'aurora' })).sort(),
+    ['format24h', 'name', 'selectedCity', 'soundEnabled', 'tagline', 'theme', 'zenMode']
   );
+});
+
+test('保留合法的已保存狀態', () => {
+  const saved = {
+    name: 'Ada',
+    tagline: 'Edge AI',
+    theme: 'aurora',
+    format24h: false,
+    soundEnabled: true,
+    selectedCity: 'tainan',
+    zenMode: true
+  };
+  assert.deepEqual(normalizeState(saved), saved);
+});
+
+test('缺少的欄位各自回退到預設，不影響其他欄位', () => {
+  const result = normalizeState({ theme: 'minimal', soundEnabled: true });
+  assert.equal(result.theme, 'minimal');
+  assert.equal(result.soundEnabled, true);
+  assert.equal(result.name, DEFAULT_STATE.name);
+  assert.equal(result.selectedCity, DEFAULT_STATE.selectedCity);
 });
 
 test('未知主題值回退到預設主題', () => {
-  assert.equal(normalizePreferences({ theme: 'neon' }).theme, DEFAULT_PREFERENCES.theme);
+  assert.equal(normalizeState({ theme: 'neon' }).theme, DEFAULT_STATE.theme);
 });
 
-test('型別錯誤的時間格式回退到預設值', () => {
-  assert.equal(normalizePreferences({ format24: 'yes' }).format24, DEFAULT_PREFERENCES.format24);
+test('未知城市值回退到預設城市', () => {
+  assert.equal(normalizeState({ selectedCity: 'tokyo' }).selectedCity, DEFAULT_STATE.selectedCity);
+});
+
+test('型別錯誤的布林欄位回退到預設值', () => {
+  const result = normalizeState({ format24h: 'yes', soundEnabled: 1, zenMode: 'true' });
+  assert.equal(result.format24h, DEFAULT_STATE.format24h);
+  assert.equal(result.soundEnabled, DEFAULT_STATE.soundEnabled);
+  assert.equal(result.zenMode, DEFAULT_STATE.zenMode);
+});
+
+test('名稱與標語會被清理，空值回退到預設', () => {
+  const result = normalizeState({ name: '  Ada\nLovelace ', tagline: '   ' });
+  assert.equal(result.name, 'Ada Lovelace');
+  assert.equal(result.tagline, DEFAULT_STATE.tagline);
 });
 
 test('丟棄未知欄位', () => {
-  assert.deepEqual(
-    normalizePreferences({ theme: 'minimal', format24: true, zenMode: true, injected: '<script>' }),
-    { theme: 'minimal', format24: true }
-  );
+  const result = normalizeState({ theme: 'minimal', injected: '<script>', apiKey: 'secret' });
+  assert.equal(result.injected, undefined);
+  assert.equal(result.apiKey, undefined);
 });
 
 test('非物件的輸入不會造成例外', () => {
-  assert.deepEqual(normalizePreferences('sunset'), DEFAULT_PREFERENCES);
-  assert.deepEqual(normalizePreferences(42), DEFAULT_PREFERENCES);
-  assert.deepEqual(normalizePreferences([]), DEFAULT_PREFERENCES);
+  assert.deepEqual(normalizeState('sunset'), DEFAULT_STATE);
+  assert.deepEqual(normalizeState(42), DEFAULT_STATE);
+  assert.deepEqual(normalizeState([]), DEFAULT_STATE);
+});
+
+test('正規化不會改動傳入的物件', () => {
+  const raw = { theme: 'aurora' };
+  normalizeState(raw);
+  assert.deepEqual(raw, { theme: 'aurora' });
+});
+
+// -----------------------------------------------------------------------------
+// 舊偏好搬移
+// -----------------------------------------------------------------------------
+
+test('舊偏好的主題與時間格式會被搬到新狀態樹', () => {
+  const result = stateFromLegacyPreferences({ theme: 'aurora', format24: false });
+  assert.equal(result.theme, 'aurora');
+  assert.equal(result.format24h, false);
+});
+
+test('舊偏好沒有的欄位使用預設值', () => {
+  const result = stateFromLegacyPreferences({ theme: 'aurora', format24: false });
+  assert.equal(result.name, DEFAULT_STATE.name);
+  assert.equal(result.soundEnabled, DEFAULT_STATE.soundEnabled);
+  assert.equal(result.selectedCity, DEFAULT_STATE.selectedCity);
+  assert.equal(result.zenMode, DEFAULT_STATE.zenMode);
+});
+
+test('沒有舊偏好或格式無法辨識時使用預設狀態', () => {
+  assert.deepEqual(stateFromLegacyPreferences(null), DEFAULT_STATE);
+  assert.deepEqual(stateFromLegacyPreferences({ theme: 'neon', format24: 'yes' }), DEFAULT_STATE);
 });

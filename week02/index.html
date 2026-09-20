@@ -12,11 +12,13 @@
   <!--
     這段必須在畫面繪製前同步執行，才不會先閃一下預設主題再換色，
     所以它是行內的一般 script，而不是會被延後執行的 module。
-    主題清單與鍵名刻意與 core.js 的 THEMES 保持一致。
+    主題清單與鍵名刻意與 core.js 的 THEMES、STORAGE_KEY 保持一致；
+    舊鍵只是過渡期的後備，真正的搬移由 app.js 負責。
   -->
   <script>
     try {
-      const saved = JSON.parse(localStorage.getItem('momo-preferences'));
+      const raw = localStorage.getItem('aiot_user_state') ?? localStorage.getItem('momo-preferences');
+      const saved = JSON.parse(raw);
       if (['aurora', 'minimal', 'sunset'].includes(saved?.theme)) {
         document.documentElement.dataset.theme = saved.theme;
       }
