@@ -15,6 +15,7 @@ Root 的 `AGENTS.md` 是給 Codex 用的指示檔，內容是從本檔整理出�
 - 課程內容依週次放在 `week01/`、`week02/`、`week03/`… 目錄。
 - 每個 week 是相對獨立的課程單元，可能包含 lecture material、notes、assignment、source code、dataset、experiment、report / result。各週內部結構不強制統一，以該週實際檔案為準。
 - 目前沒有 cross-week 共用程式或共用資源目錄。之後真的出現跨週重用需求時，再依實際情況整理，不預先建立。
+- Root 的 `docs/` 放跨週、跨單元通用的文件，依用途分資料夾：`docs/agents/` 是 agent skill 的設定與慣例，`docs/conventions/` 是團隊的工作慣例（例如 git commit 規則）。單元專屬的文件不放這裡，放該單元自己的 `doc/`（單數）。
 
 ## 單元文件的存放位置
 
@@ -70,6 +71,15 @@ Repository 裡找不到的項目視為未知，向使用者確認；不要自行
 目前未發現統一的 project-level command（root 沒有 build / test / dependency 設定檔）。
 
 各週的 install / run / test 方式以該週目錄內的檔案（README、requirements、notebook、設定檔等）為準。之後確認為跨週長期通用的 command，再補到此處。
+
+## Git workflow
+
+Branch 與 commit message 的完整規則見 `docs/conventions/git-commit-rules.md`，重點如下：
+
+- 每個 feature 或 fix 都開新 branch，名稱依實際修改內容取描述性的名字，不直接在 `main` 上 commit。
+- Commit message 第一行是 `[Modify] – 主要變更的摘要`（分隔符是 en-dash `–`），接一行空白，之後每項變更各一行，以 `[Additions]`、`[Modification]`、`[Fix]` 三種前綴分類。
+- Commit message 與 PR description 都不加任何 Claude 標記：不寫 `Co-Authored-By: Claude`，也不寫 `🤖 Generated with Claude Code`。此規則優先於工具預設的 attribution 提示。
+- 描述聚焦在實際改了什麼與為什麼，清楚且技術上精確。
 
 ## Agent skills
 
