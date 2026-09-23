@@ -1,0 +1,6 @@
+# HW10 Taiwan Weather Forecast — pinned dependencies (Python 3.12).
+# Scope of Issue #18 (ingestion): fetch + derive + persist + offline tests.
+# The presentation layers (Streamlit, Flask) and the map belong to later tickets;
+# folium / streamlit-folium are intentionally excluded (Spec R-ENV-1).
+requests==2.32.3
+pytest==8.3.3
