@@ -14,9 +14,11 @@
   實作與測試留在 `home_work_01/` 內；**唯一**的 root 變更是 §2 授權範圍內的兩個 `.github/workflows/` 檔（RB-5 §8.2）。
   未動 root `CLAUDE.md`、`docs/`、`.gitignore`、其他單元或其他 `.github/workflows/` 檔。授權 push topic branch（SA-1）；
   不合併 `main`（RB-1）、不設 repository variable（RB-3，acceptor 動作）、不付費（RB-4）。
-- **Commits**：
-  - `<c1>`：初次交付（兩個 workflow、`tools/credential_scan.py`、smoke.py N-2 bound、README CI 段、worklog）。
-    （SHA 於 push 後填入 §8。）
+- **Commits**（皆 push 到 topic branch，SA-1）：
+  - `d854218`：初次交付（兩個 workflow、`tools/credential_scan.py`、smoke.py N-2 bound、README CI 段、worklog）。
+  - `84060c9`：CI workflow YAML fix——一個 step name 的 unquoted colon-space 使 YAML 誤判為 nested mapping，
+    workflow 在 parse 階段即失敗（0s，「workflow file issue」，未起任何 job）；加引號後修復。**目前受審 subject。**
+  - `<c3>`：本 worklog 更新（run URL／證據；record-only path）。（SHA 於 push 後填入 §10。）
 
 ## 1. RB-5 §8.2 授權原文（AC-29）
 
@@ -121,26 +123,47 @@
   ≈0.1s 立即失敗 → `SMOKE FAIL (no success within 6s)`、exit 1、**實測 wall 6s**（修正前 root 6s＋health 6s≈12s 會溢出）。
 - 缺 URL → exit 2（訊息不含金鑰）。正常路徑（CLI／`HW01_DEPLOY_URL`）行為不變（見 #21 §5.6）。
 
-### 5.5 CI run（AC-20、AC-21、AC-07 自動化、INV-8）— push 後填入
-- 見 §6。
+### 5.5 CI run（AC-20、AC-21、AC-07 自動化、INV-8）
+- **Run**：push run `35925410250`（commit `84060c9`），conclusion **success**，
+  `https://github.com/yotsubamomo/aiot-classwork/actions/runs/35925410250`。同一 push 另觸發 pull_request run
+  `35925413146`（branch 已開 PR），亦執行（R-TC-6 MAY）。
+- **log 摘錄**：
+  - `Show Python version` step → `Python 3.12.14`；pytest 平台行 → `platform linux -- Python 3.12.14, pytest-8.3.3`（INV-8）。
+  - pytest 各類皆收集且通過：`test_derive` 19、`test_persist` 5、`test_weather_query`（shared module）29、`test_app`
+    （Streamlit AppTest）9、`test_dashboard`（Flask test client）23、`test_static_checks` 22 → `152 passed in 4.02s`（AC-20、AC-21）。
+  - 憑證檢查 step → `credential scan passed: 465 tracked files; no .env tracked (only .env.example); no CWA-key-format
+    string in tracked files or committed history; no Authorization value in fixture/raw JSON.`（AC-07 b/c/d、A-5）。
+- **AC-20 negative（不含本單元變更不觸發）**：以 path filter config 為證據（§3；literal negative test 需 out-of-unit
+  push＝RB-5，禁止）。本 run 的兩個 commit（`d854218` 動 `home_work_01/**` 與 workflow 檔；`84060c9` 動 workflow 檔本身）
+  都落在 `paths` filter 內，故 CI 有觸發——與「僅 filter 內變更才觸發」一致。
+- 註記（non-blocking）：run 有 GitHub 平台 deprecation 警告（Node 20 → 24、ubuntu-latest 未來遷移），不影響結果。
 
-### 5.6 Smoke workflow run（AC-22、AB-17）— dispatch 後填入
-- 見 §6。
+### 5.6 Smoke workflow（AC-22、AB-17）
+- **本機同一檢查（AC-22「本機執行同一檢查亦成功」）**：`python smoke.py <preview> --timeout 90 --interval 5` →
+  `GET / -> 200  GET /api/health -> 200`、`SMOKE PASS`、exit 0（1.3s；preview alias
+  `aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app`，公開不需登入）。
+- **`workflow_dispatch` 實際執行——BLOCKED（見 §9）**：GitHub 規定 `workflow_dispatch` 的 workflow **必須存在於預設分支**
+  才可 dispatch。`home_work_01-smoke.yml` 目前只在 topic branch，`main`（預設分支）無 `.github/workflows/`，故
+  `gh workflow run home_work_01-smoke.yml --ref home_work_01-hw10-implementation -f url=<preview>` 回
+  `HTTP 404: workflow home_work_01-smoke.yml not found on the default branch`；`gh workflow list` 也未列出它
+  （相對地 `home_work_01-ci.yml` 因 push/PR 觸發已註冊）。把它放上 `main` 需合併＝**RB-1（acceptor）**。
+  URL 可用（本機 smoke 已 PASS），blocker 純為「dispatch 需預設分支」的平台限制，其唯一解為 RB-1，非 Executor 可控。
 
-## 6. CI / smoke workflow 執行證據（push／dispatch 後填入）
+## 6. CI / smoke workflow 執行證據
 
 | 項目 | 結果 | Evidence |
 | --- | --- | --- |
-| CI push run（AC-20：3.12、各類測試收集且通過、憑證檢查通過） | 待填 | run URL＋log 摘錄 |
-| Smoke `workflow_dispatch`（AC-22：兩狀態碼） | 待填 | run URL＋`GET /`／`/api/health` 狀態碼 |
+| CI push run（AC-20：3.12、各類測試收集且通過、憑證檢查通過） | **success** | run `35925410250`（`84060c9`）：Python 3.12.14、152 passed（六類齊全）、credential scan passed；§5.5 |
+| CI pull_request run（R-TC-6 MAY） | 觸發並執行 | run `35925413146`（同 push） |
+| Smoke `workflow_dispatch`（AC-22：兩狀態碼） | **BLOCKED**（workflow 需在預設分支；RB-1） | 本機同一檢查 PASS（`GET /`＝200、`/api/health`＝200，exit 0）；§5.6、§9 |
 
 ## 7. AC / requirement 對照
 
 | 項目 | 結果 | Evidence |
 | --- | --- | --- |
-| AC-20（含本單元變更 push → CI 成功；3.12；各類測試；不含變更不觸發＝path filter config） | 待 CI（§6）；negative 以 config（§3） | §6、§3、workflow `paths` |
-| AC-21（R-TC-1/3/4 每項；無網路無 `.env` 通過） | PASS（本機 152 passed）；CI 為證據（§6） | §5.1、§6 |
-| AC-22（`workflow_dispatch` smoke 成功、記兩狀態碼；本機同檢查） | 待 dispatch（§6）；本機 smoke 見 #21 §5.6 | §6 |
+| AC-20（含本單元變更 push → CI 成功；3.12；各類測試；不含變更不觸發＝path filter config） | **PASS**（run `35925410250` success）；negative 以 config（§3） | §5.5、§6 |
+| AC-21（R-TC-1/3/4 每項；無網路無 `.env` 通過） | **PASS**（CI 152 passed，六類齊全） | §5.1、§5.5 |
+| AC-22（`workflow_dispatch` smoke 成功、記兩狀態碼；本機同檢查） | 本機同檢查 **PASS**（200/200）；`workflow_dispatch` 執行 **BLOCKED**（RB-1，acceptor，§9） | §5.6、§9 |
 | AC-29（RB-5 §8.2 授權原文入 worklog；只在單元＋自身觸發；名稱識別單元） | PASS | §1、workflow `paths`／檔名 |
 | AC-07(b) `git ls-files` 無 `.env` | PASS | §5.2、§5.3 |
 | AC-07(c) 追蹤檔＋committed diff 無金鑰格式（排除 `.env`） | PASS（§3 allowlist；literal-real-key 0） | §5.2、§5.3 |
@@ -156,20 +179,30 @@
 
 Formal Ticket → independent audit **required**。本 worklog 的 verification 為 self-verification，**不**記為 audit PASS。
 交派工者依 Bindings §3.5 派 Primary Reviewer（fresh context）作 R1；本票觸及 H-1，audit record 依 A-1 記錄金鑰核對。
-受審 subject：branch `home_work_01-hw10-implementation`，commit `<c1>`（§8 push 後填）。
+受審 subject：branch `home_work_01-hw10-implementation`，commit **`84060c9`**（程式與 workflow）。本 worklog 之後的 `<c3>`
+只更新 record-only path，不改受審 subject identity（Bindings §7、Orchestrator Contract §7 P7）。
 
 ## 9. Remaining work / concerns / required authority
 
-- **AC-22 的 production-variable live run**：`vars.HW01_DEPLOY_URL` 指向 production（合併前 404，DR-12）。本票以 `url`
-  input 帶 preview alias 示範 AC-22；production 變數的 live 確認屬 release／#25，required authority = acceptor（設定
-  repository variable、RB-3；合併、RB-1）。**非本票 blocker。**
+- **AC-22 的 `workflow_dispatch` 實際執行 — BLOCKED，required authority = acceptor（RB-1）。** GitHub 規定
+  `workflow_dispatch` 的 workflow 必須存在於**預設分支**才能 dispatch；`home_work_01-smoke.yml` 目前只在 topic branch，
+  `main` 無 `.github/workflows/`，故 dispatch 回 `HTTP 404 ... not found on the default branch`（§5.6）。唯一解為把
+  smoke workflow 放上 `main`＝**RB-1 合併**（acceptor 保留動作，且本就是 release gate）；**非 Executor 可控**，也不是
+  N-13（不在控制範圍內）。已提供的最強證據：(a) 本機以 `smoke.py` 對 live preview 執行同一檢查 **PASS**（`GET /`＝200、
+  `/api/health`＝200，exit 0）；(b) smoke workflow 的 URL 解析與檔案正確（沿用 smoke.py 原檔）。合併後在 `main` 上
+  dispatch（可帶 `url` input，或用 production 變數）即完成 AC-22 的 live 執行——與 DR-12「production 變數的 live 確認屬
+  release／#25」同一 disposition。**其餘 AC（AC-20、AC-21、AC-29、AC-07 自動化）已在 CI 完成，不受此 block 影響。**
 - **AC-07(c)／A-5 example allowlist（§3）**：本票唯一實質解讀，已附 literal-real-key self-verification 佐證不弱化。
   提請 Reviewer／DA 檢視是否認可此機制；若要求改為別種實作，屬契約內 targeted correction。
-- **無 reserved boundary 命中**：只在 §2 授權範圍內動 root（兩 workflow 檔）；未合併、未設變數、未付費、未動其他單元。
-- 本票 **無 BLOCKED**。
+- **reserved boundary**：只在 §2 授權範圍內動 root（兩 workflow 檔，RB-5 §8.2）；未合併（RB-1）、未設 repository variable
+  （RB-3，acceptor）、未付費（RB-4）、未動其他單元或其他 root 檔案。
+- **狀態**：**DONE_WITH_CONCERNS** — 契約內可做的部分完成並經 CI 驗證；唯 AC-22 的 live `workflow_dispatch` 執行待 RB-1
+  （acceptor）。
 
 ## 10. Change log（本 worklog）
 
 | 時間 | 事件 |
 | --- | --- |
-| 2026-09-24 | `<c1>`：CI＋smoke workflow、`tools/credential_scan.py`、smoke.py N-2 bound、README CI 段、worklog；本機 152 passed、scanner exit 0、literal-real-key 掃描 clean、smoke budget 實測。CI/smoke run URL 待 push／dispatch 後填入（§6）。 |
+| 2026-09-24 | `d854218`：CI＋smoke workflow、`tools/credential_scan.py`、smoke.py N-2 bound、README CI 段、worklog；本機 152 passed、scanner exit 0、literal-real-key 掃描 clean、smoke budget 實測。 |
+| 2026-09-24 | `84060c9`：CI workflow YAML fix（step name colon-space 加引號）。push run `35925410250` **success**：Python 3.12.14、152 passed（六類齊全）、credential scan passed（465 tracked）；pull_request run `35925413146` 亦觸發。 |
+| 2026-09-24 | 本機 smoke 對 live preview PASS（200/200）；`workflow_dispatch` dispatch 回 404「not found on the default branch」→ AC-22 live 執行 BLOCKED（RB-1，acceptor，§9）。`<c3>`：本 worklog 更新（record-only）。 |
