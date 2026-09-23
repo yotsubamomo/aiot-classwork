@@ -51,7 +51,7 @@ Not required：行政／activation 作業（Lightweight）。如實標示「完�
 | 事項 | 分類 | 對應票 |
 | --- | --- | --- |
 | Python 3.12：系統安裝，或授權 Executor 以 uv 取得使用者層級 3.12 | NEEDS ACCEPTOR ACTION（或授權後 CAN BE RESOLVED AUTONOMOUSLY） | #18 前 |
-| ~~Vercel 專案建立、連結 repo~~ | **完成（acceptor 2026-09-24）**。主 session 核對：GitHub deployment 紀錄出現 Vercel `Production`（ref `c45ec61`，`main`）；匿名 `GET https://aiot-hw01-weather.vercel.app` 回 Vercel 404 NOT_FOUND（無登入牆；404 因 `home_work_01/` 尚無 app，屬預期）。Root Directory＝`home_work_01` 與關閉 preview protection 為 acceptor 自述，主 session 未以 Vercel API 核對（acceptor 未允許該讀取）；preview 的匿名存取於 #21 第一個 preview 部署時實測。 | — |
+| ~~Vercel 專案建立、連結 repo~~ | **完成（acceptor 2026-09-24）**。主 session 核對：GitHub deployment 紀錄出現 Vercel `Production`（ref `c45ec61`，`main`）；匿名 `GET https://aiot-hw01-weather.vercel.app` 回 Vercel 404 NOT_FOUND（無登入牆；404 因 `home_work_01/` 尚無 app，屬預期）。Root Directory＝`home_work_01` 為 acceptor 自述，主 session 未以 Vercel API 核對（acceptor 未允許該讀取）。**Preview 匿名存取已實測（2026-09-24）**：PR #26 的 Vercel bot 留言給出本分支的 preview URL（專案在 Vercel team `nchu-aiot-class` 下）；匿名 `GET` 回 Vercel 404 NOT_FOUND、無登入頁 → preview 的 Deployment Protection 已關閉，P-5 的「受審 commit 部署不需登入」成立。GitHub deployment 紀錄現有 `Preview: 1`、`Production: 1`。 | — |
 | ~~Smoke 用 repository variable~~ | **完成**：`HW01_DEPLOY_URL = https://aiot-hw01-weather.vercel.app`（`gh variable list` 2026-09-24） | — |
 | 以 `claude-opus-4-8`／`high` 開 Orchestrator 主 session（Bindings §3.3） | NEEDS ACCEPTOR ACTION | run 開始前 |
 | Bindings §8.2 表狀態文字（RB-5） | 不阻擋（DA N-26） | 方便時 |
