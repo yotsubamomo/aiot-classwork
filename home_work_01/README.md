@@ -52,8 +52,8 @@ computed by this project, not published by CWA.
 - **Python 3.12** (the deployment target does not offer 3.11). Verify with
   `python --version`.
 - Dependencies pinned in [`requirements.txt`](requirements.txt): `requests`,
-  `pytest`, `streamlit`. The map libraries used by the later dashboard ticket are
-  intentionally excluded; the Grading App must not depend on them
+  `pytest`, `streamlit`, `flask`. The map libraries used by the later ENHANCED
+  dashboard work are intentionally excluded; the MVM apps must not depend on them
   (Spec R-ENV-1, R-GA-9).
 
 ## Setup
@@ -192,8 +192,8 @@ the forecast business logic; `app.py` contains no SQL and never calls CWA.
 complete graded (MVM) behaviour and is run locally with `streamlit run app.py`. It
 is **not** the deployed runtime: the public deployment target (Vercel) cannot run
 a Streamlit server, so the same `data.db` and the same query semantics are served
-publicly by a Flask + static dashboard in a later ticket. Streamlit being local
-rather than deployed is a compatibility accommodation forced by that hosting
+by the Flask + static dashboard below (its public Vercel deployment is a later
+ticket). Streamlit being local rather than deployed is a compatibility accommodation forced by that hosting
 constraint, **not** a sign that Streamlit was outside the assignment. The Grading
 App deliberately has **no** Taiwan Map and **no** `Select Date`; those are
 enhanced, dashboard-only features.
@@ -286,8 +286,17 @@ query module (the six read-side semantics, read-only / source-relative /
 overridable database opening, and the Derived Map Temperature colour bands) and the
 Streamlit app via `AppTest` (title, `Select Region` options and order, the chart
 and table for a selected Region, the error/empty/incomplete states, and the
-displayed ingestion time), plus static checks that `app.py` holds no SQL, imports
-no HTTP client, and carries no map / `Select Date` / folium. The test fixture
+displayed ingestion time). For the Flask dashboard (Issue #20) it covers the
+backend via the Flask test client (`GET /` with the page text, `/api/health` 200
+and 503, and every data endpoint's normal / 404 / 503 responses) and the INV-2
+comparison that the API's series equals the shared module for all six Regions.
+Static checks confirm the Streamlit app and the Flask backend hold no SQL, import
+no HTTP client (dotted forms such as `from urllib import request` included), and
+carry no CWA URL / key, and that the frontend's data requests target only `/api/`;
+`app.py` also carries no map / `Select Date` / folium. (The browser-level check
+that the dashboard shows a visible message when `/series` fails on first load,
+[`tests/check_series_error_visible.py`](tests/check_series_error_visible.py), needs
+a real Chrome and so runs separately from the offline `pytest` suite.) The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two
 temperature weather elements per county (structure preserved); the negative cases

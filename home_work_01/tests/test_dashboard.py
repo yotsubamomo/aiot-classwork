@@ -55,6 +55,18 @@ def test_index_returns_page_with_title(client) -> None:
     assert "Taiwan Weather Forecast" in res.get_data(as_text=True)
 
 
+def test_index_page_has_visible_teacher_text(client) -> None:
+    """Guard the visible page text, not just <title> (INV-4 / H-2; finding F-5).
+
+    A mutant that changes the <h1>, the Select Region label, or a table header
+    must fail here even though the <title> is untouched."""
+    html = client.get("/").get_data(as_text=True)
+    assert ">Taiwan Weather Forecast</h1>" in html, "visible <h1> title missing"
+    assert ">Select Region</label>" in html, "Select Region label missing"
+    for header in ("Date", "MinT", "MaxT"):
+        assert f">{header}</th>" in html, f"table header {header} missing"
+
+
 # --- /api/health ok (R-DS-2, AC-16) --------------------------------------------
 
 

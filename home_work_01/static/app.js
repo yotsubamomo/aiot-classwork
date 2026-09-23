@@ -87,6 +87,15 @@
   // --- a selected Region: series -> chart + table ----------------------------
 
   function loadRegion(region) {
+    // Reveal the panel and set the heading up front so that EVERY outcome —
+    // success, a 404/503 from /series, or a network error — renders inside a
+    // visible panel. The message element (#chart-status) lives inside this
+    // panel, so leaving the panel hidden here would swallow the error message on
+    // first load and show a silent, chart-less page (finding F-1, R-DS-6). Doing
+    // it before the fetch also stops the heading from going stale on a failed
+    // Region switch.
+    els.panel.hidden = false;
+    els.panelHeading.textContent = "Temperature Forecast – " + region;
     fetchJson("/api/regions/" + encodeURIComponent(region) + "/series")
       .then(function (res) {
         if (!res.ok) {
@@ -99,13 +108,10 @@
         }
         hideChartStatus();
         var series = (res.body && res.body.series) || [];
-        els.panel.hidden = false;
-        els.panelHeading.textContent = "Temperature Forecast – " + region;
         renderChart(series);
         renderTable(series);
       })
       .catch(function () {
-        els.panel.hidden = false;
         showChartStatus("Cannot load this Region right now. Please try again.");
       });
   }

@@ -35,6 +35,8 @@ import ast
 import re
 from pathlib import Path
 
+import pytest
+
 _UNIT_DIR = Path(__file__).resolve().parent.parent
 _APP = _UNIT_DIR / "app.py"
 _SHARED = _UNIT_DIR / "weather_query.py"
@@ -42,9 +44,6 @@ _SERVER = _UNIT_DIR / "server.py"
 _API_ENTRY = _UNIT_DIR / "api" / "index.py"
 _REQUIREMENTS = _UNIT_DIR / "requirements.txt"
 _STATIC_DIR = _UNIT_DIR / "static"
-
-# The Flask backend files (single function serving the page and the API).
-_BACKEND = (_SERVER, _API_ENTRY)
 
 # The Streamlit Grading App side (Issue #19), used by the AC-26 checks.
 _APP_SIDE = (_APP, _SHARED)
@@ -147,14 +146,39 @@ def test_python_side_imports_no_http_client() -> None:
         assert not offending, f"{path.name} imports HTTP client(s): {offending}"
 
 
-def test_import_check_catches_from_urllib_import_request() -> None:
-    """Regression guard for finding F-4: the ``from urllib import request`` form
-    (and the dotted ``from urllib.request import ...``) must be detected."""
-    assert _imports_http_client({"urllib", "urllib.request"})
-    assert _imports_http_client({"urllib.request", "urllib.request.urlopen"})
-    assert _imports_http_client({"http", "http.client"})
-    # A benign urllib submodule is not an HTTP client.
-    assert not _imports_http_client({"urllib", "urllib.parse"})
+@pytest.mark.parametrize(
+    "snippet",
+    [
+        "from urllib import request",
+        "from urllib import request as _r",
+        "from urllib.request import urlopen",
+        "import urllib.request",
+        "from http import client",
+        "import requests as r",
+    ],
+)
+def test_import_check_catches_http_client_from_source(snippet, tmp_path) -> None:
+    """Regression guard for finding F-4, run through the *real* ``_import_targets``.
+
+    Parsing the actual source is what makes this bite: if ``_import_targets``
+    stopped recording ``module + "." + name`` for ``ImportFrom`` (the reverted
+    form), ``from urllib import request`` would yield only ``{"urllib"}`` and this
+    assertion would fail (finding F-2). A hand-built target set would not.
+    """
+    probe = tmp_path / "probe.py"
+    probe.write_text(snippet + "\n", encoding="utf-8")
+    assert _imports_http_client(_import_targets(probe)), snippet
+
+
+@pytest.mark.parametrize(
+    "snippet",
+    ["from urllib import parse", "from urllib.parse import quote", "import json"],
+)
+def test_import_check_allows_benign_imports_from_source(snippet, tmp_path) -> None:
+    """Benign standard-library imports must not be flagged (no false positive)."""
+    probe = tmp_path / "ok.py"
+    probe.write_text(snippet + "\n", encoding="utf-8")
+    assert not _imports_http_client(_import_targets(probe)), snippet
 
 
 def test_python_side_has_no_cwa_url_or_key_in_code() -> None:
