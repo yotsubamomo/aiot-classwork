@@ -1,0 +1,6 @@
+{
+  "sourceDatasetId": "F-D0047-091",
+  "acquiredAt": "2026-09-24T02:24:50+08:00",
+  "rawJson": "F-D0047-091.json",
+  "note": "acquiredAt is the local time (ISO 8601 +08:00) this raw JSON was fetched from CWA, after the success/resource_id checks passed. Offline rebuilds reuse this value and do not update it. No credentials here."
+}

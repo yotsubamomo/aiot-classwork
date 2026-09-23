@@ -21,10 +21,11 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from . import config
+from . import config, provenance
 from .derive import DeriveError, derive_snapshot
 from .fetch import FetchError, fetch_raw, load_api_key
 from .persist import persist_snapshot
+from .provenance import ProvenanceError
 
 TAIPEI_TZ = timezone(timedelta(hours=8))
 DEFAULT_RAW_OUT = config.UNIT_DIR / "data" / "raw" / f"{config.RESOURCE_ID}.json"
@@ -32,7 +33,11 @@ DEFAULT_ENV = config.UNIT_DIR / ".env"
 
 
 def ingestion_timestamp() -> str:
-    """Current time as an ISO 8601 string in +08:00 (R-DB-5)."""
+    """Current local time as an ISO 8601 string in +08:00.
+
+    Read only on the online path, at fetch success, to record the acquisition
+    time (DR-17). The offline path never reads the clock.
+    """
     return datetime.now(TAIPEI_TZ).replace(microsecond=0).isoformat()
 
 
@@ -112,17 +117,24 @@ def run_online(
     raw_out: str | Path = DEFAULT_RAW_OUT,
     db_path: str | Path = config.DB_PATH,
 ) -> int:
-    """Full online ingestion: fetch -> save -> derive -> persist."""
+    """Full online ingestion: fetch -> save (+ provenance) -> derive -> persist.
+
+    The acquisition time is captured **once**, right after the fetch succeeds
+    (DR-17 §4.2), and the same value is written both to the provenance sidecar and
+    to ``IngestionMetadata.ingestedAt``. The persist clock is never read here.
+    """
     api_key = load_api_key(env_path)
     data = fetch_raw(api_key)
+    acquired_at = ingestion_timestamp()  # acquisition time = fetch-success time
     saved = save_raw_json(data, raw_out)
+    prov = provenance.write_provenance(saved, acquired_at, config.RESOURCE_ID)
     print(f"Saved raw JSON to {saved}")
+    print(f"Saved provenance to {prov} (acquired at {acquired_at})")
     print_fetch_summary(data)
     rows = derive_snapshot(data)
     print_preview(rows)
-    ingested_at = ingestion_timestamp()
-    count = persist_snapshot(rows, ingested_at, config.RESOURCE_ID, db_path)
-    print(f"Persisted {count} rows to {db_path} (ingested at {ingested_at})")
+    count = persist_snapshot(rows, acquired_at, config.RESOURCE_ID, db_path)
+    print(f"Persisted {count} rows to {db_path} (ingested at {acquired_at})")
     return 0
 
 
@@ -130,14 +142,26 @@ def run_offline(
     *,
     json_path: str | Path,
     db_path: str | Path = config.DB_PATH,
+    acquired_at: str | None = None,
 ) -> int:
-    """Offline ingestion from a saved raw JSON: derive -> persist (no network)."""
-    data = json.loads(Path(json_path).read_text(encoding="utf-8"))
+    """Offline ingestion from a saved raw JSON: derive -> persist (no network).
+
+    The acquisition time is **not** taken from the clock (DR-17 §4.3): it comes
+    from ``acquired_at`` when given, otherwise from the raw JSON's provenance
+    sidecar. If neither is available the run fails closed (no database write).
+    """
+    if acquired_at is None:
+        acquired_at = provenance.read_acquisition_time(json_path)
+    try:
+        data = json.loads(Path(json_path).read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise DeriveError(f"raw JSON not found: {json_path}") from exc
+    except ValueError as exc:
+        raise DeriveError(f"raw JSON is not valid JSON: {json_path}") from exc
     rows = derive_snapshot(data)
     print_preview(rows)
-    ingested_at = ingestion_timestamp()
-    count = persist_snapshot(rows, ingested_at, config.RESOURCE_ID, db_path)
-    print(f"Persisted {count} rows to {db_path} (ingested at {ingested_at})")
+    count = persist_snapshot(rows, acquired_at, config.RESOURCE_ID, db_path)
+    print(f"Persisted {count} rows to {db_path} (ingested at {acquired_at})")
     return 0
 
 
@@ -176,6 +200,15 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="SQLite database path to write",
     )
+    parser.add_argument(
+        "--acquired-at",
+        dest="acquired_at",
+        metavar="ISO8601",
+        help=(
+            "offline mode: the acquisition time to record (ISO 8601 +08:00). "
+            "Overrides the provenance sidecar; required if no sidecar exists."
+        ),
+    )
     return parser
 
 
@@ -184,11 +217,15 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         if args.from_json:
-            return run_offline(json_path=args.from_json, db_path=args.db_path)
+            return run_offline(
+                json_path=args.from_json,
+                db_path=args.db_path,
+                acquired_at=args.acquired_at,
+            )
         return run_online(
             env_path=args.env_path, raw_out=args.raw_out, db_path=args.db_path
         )
-    except (FetchError, DeriveError) as exc:
+    except (FetchError, DeriveError, ProvenanceError) as exc:
         # Messages are constructed to never contain the key.
         print(f"Ingestion failed: {exc}", file=sys.stderr)
         return 1

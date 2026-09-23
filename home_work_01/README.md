@@ -91,10 +91,13 @@ pip install -r requirements.txt
 python -m ingestion
 ```
 
-This fetches `F-D0047-091` with your key, saves the complete, indented raw JSON to
-[`data/raw/F-D0047-091.json`](data/raw/F-D0047-091.json), prints a fetch summary
-(county count, weather-element names, period count) and the 42-row derived
-snapshot preview, then writes the snapshot into [`data.db`](data.db).
+This fetches `F-D0047-091` with your key, records the **acquisition time** (the
+moment the fetch succeeded), saves the complete, indented raw JSON to
+[`data/raw/F-D0047-091.json`](data/raw/F-D0047-091.json) with a **provenance
+sidecar** next to it (see below), prints a fetch summary (county count,
+weather-element names, period count) and the 42-row derived snapshot preview, then
+writes the snapshot into [`data.db`](data.db). The acquisition time is stored as
+`IngestionMetadata.ingestedAt` and is what the app shows as "last updated".
 
 **Offline (rebuild `data.db` from the saved JSON — no network, no key):**
 
@@ -102,9 +105,31 @@ snapshot preview, then writes the snapshot into [`data.db`](data.db).
 python -m ingestion --from-json data/raw/F-D0047-091.json
 ```
 
+The offline rebuild reads the acquisition time **from the provenance sidecar** (or
+from an explicit `--acquired-at` value); it never reads the clock, so rebuilding an
+old response does **not** make its "last updated" time look newer. Both the
+committed raw JSON and its provenance sidecar are checked in, so a clean checkout
+reproduces the committed `data.db` (same `ingestedAt`). If neither a sidecar nor
+`--acquired-at` is available, the rebuild **fails closed** (clear message, non-zero
+exit, no database write).
+
 Useful CLI options: `--from-json PATH` (offline source), `--raw-out PATH`
 (where the online run saves the raw JSON), `--env PATH` (the `.env`), `--db PATH`
-(the SQLite file to write).
+(the SQLite file to write), `--acquired-at ISO8601` (offline: acquisition time to
+record, overriding the sidecar).
+
+### Acquisition-time provenance sidecar
+
+Because the F-D0047-091 response carries no acquisition or publish time, the online
+run writes a small key-free JSON sidecar next to the raw JSON:
+
+- Location: [`data/raw/F-D0047-091.meta.json`](data/raw/F-D0047-091.meta.json)
+  (`<raw>.json` → `<raw>.meta.json`), inside the unit directory.
+- Content: `sourceDatasetId`, `acquiredAt` (ISO 8601 `+08:00`), and the raw JSON
+  filename. It never contains the key or any request header, and it does not modify
+  the raw JSON (which stays byte-complete).
+- `IngestionMetadata.ingestedAt` means this **acquisition time** — the time the data
+  was fetched from CWA — not the time the snapshot rows were (re)built.
 
 Any validation failure (missing member county, missing half-day, unparseable
 value, fewer than seven / non-consecutive complete days, or an HTTP/JSON failure)
@@ -158,8 +183,9 @@ CREATE TABLE TemperatureForecasts (
 `TemperatureForecasts` holds either 0 rows or exactly **42** (six Regions × seven
 Forecast Days); it never contains a partial write. Re-running ingestion **replaces
 the whole snapshot in a single transaction**, so it never duplicates rows. The
-ingestion time (ISO 8601, `+08:00`) and source dataset id are stored in a separate
-`IngestionMetadata` table, so `TemperatureForecasts` itself never changes shape.
+acquisition time (ISO 8601, `+08:00`; see the provenance sidecar above) and source
+dataset id are stored in a separate `IngestionMetadata` table, so
+`TemperatureForecasts` itself never changes shape.
 
 ## Run the tests (offline)
 

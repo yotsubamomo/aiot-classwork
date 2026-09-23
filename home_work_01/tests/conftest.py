@@ -102,3 +102,23 @@ def shift_day(data: dict, old_date: str, new_date: str) -> dict:
                 if t["StartTime"][:10] == old_date:
                     t["StartTime"] = t["StartTime"].replace(old_date, new_date, 1)
     return out
+
+
+def make_leading_incomplete(data: dict) -> dict:
+    """AC-08 / F-1: turn the leading 00:00-06:00 partial into an incomplete first day.
+
+    The real 2026-09-24 capture begins with a 00:00-06:00 partial that is not a
+    Forecast-Day segment (ignored). Relabelling its StartTime to 2026-09-23 18:00
+    makes 2026-09-23 a genuine leading day that has only its night (18:00) segment
+    and no day (06:00) segment — exactly the after-18:00 capture shape (brief 4.5).
+    Deriving this must drop 2026-09-23 and keep the same seven complete days.
+    """
+    out = copy.deepcopy(data)
+    for county in _counties(out):
+        for element in _temp_elements(county):
+            for t in element["Time"]:
+                if t["StartTime"].startswith("2026-09-24T00:00"):
+                    t["StartTime"] = t["StartTime"].replace(
+                        "2026-09-24T00:00", "2026-09-23T18:00", 1
+                    )
+    return out

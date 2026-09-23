@@ -83,11 +83,12 @@ def derive_snapshot(
                 }
             )
 
+    # Defensive post-condition: the loops above always build REGION_COUNT x
+    # FORECAST_DAYS_REQUIRED rows, so this guards against a future refactor
+    # silently changing the snapshot shape rather than a currently reachable path.
     expected = config.REGION_COUNT * config.FORECAST_DAYS_REQUIRED
-    if len(rows) != expected:  # defensive; the loops above make this unreachable
-        raise DeriveError(
-            f"expected {expected} rows but derived {len(rows)}"
-        )
+    if len(rows) != expected:
+        raise DeriveError(f"expected {expected} rows but derived {len(rows)}")
     return rows
 
 
@@ -218,9 +219,14 @@ def _value(
     if text in invalid:
         return None
     try:
-        return Decimal(text)
+        value = Decimal(text)
     except InvalidOperation:
         return None
+    # NaN / Infinity parse as Decimal but are not usable temperatures; treat them
+    # as invalid so they surface as a named county-day error, not a later crash.
+    if not value.is_finite():
+        return None
+    return value
 
 
 def _mean_half_up(values: list[Decimal]) -> float:

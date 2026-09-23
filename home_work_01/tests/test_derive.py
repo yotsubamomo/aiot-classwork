@@ -13,6 +13,7 @@ from ingestion.config import REGION_ORDER
 from ingestion.derive import DeriveError, derive_snapshot
 from tests.conftest import (
     corrupt_value,
+    make_leading_incomplete,
     remove_county,
     remove_day,
     remove_half_day,
@@ -53,6 +54,20 @@ def test_retains_seven_consecutive_days_dropping_leading_partial(sample_response
     rows = derive_snapshot(sample_response)
     all_dates = sorted({r["dataDate"] for r in rows})
     assert all_dates == WINDOW
+
+
+def test_drops_incomplete_leading_day_and_keeps_seven(sample_response):
+    # F-1: genuinely exercise the drop-leading-incomplete-day branch (R-DER-3 / DR-5).
+    # make_leading_incomplete relabels the 00:00-06:00 partial into a 2026-09-23
+    # night-only day. Deriving must drop 2026-09-23 and keep 2026-09-24..09-30 with
+    # the identical 42 values. (Regression bar: without the drop, 2026-09-23 is the
+    # first of the seven and its missing 06:00 period makes derive raise.)
+    mutated = make_leading_incomplete(sample_response)
+    rows = derive_snapshot(mutated)
+    assert len(rows) == 42
+    assert sorted({r["dataDate"] for r in rows}) == WINDOW
+    assert "2026-09-23" not in {r["dataDate"] for r in rows}
+    assert rows == derive_snapshot(sample_response)
 
 
 def test_every_row_has_both_values(sample_response):
@@ -148,3 +163,15 @@ def test_empty_string_value_is_invalid(sample_response):
     with pytest.raises(DeriveError) as exc:
         derive_snapshot(bad)
     assert "高雄市" in str(exc.value)
+
+
+@pytest.mark.parametrize("bad_value", ["NaN", "Infinity", "-Infinity", "abc"])
+def test_non_numeric_values_are_invalid(sample_response, bad_value):
+    # F-3: NaN / Infinity parse as Decimal but must be rejected as unparseable
+    # (R-DER-4 / DR-16), naming the county and date — never crash later.
+    bad = corrupt_value(sample_response, "臺南市", "2026-09-27", 18, bad_value=bad_value)
+    with pytest.raises(DeriveError) as exc:
+        derive_snapshot(bad)
+    message = str(exc.value)
+    assert "臺南市" in message
+    assert "2026-09-27" in message

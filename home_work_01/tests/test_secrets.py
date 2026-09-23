@@ -13,6 +13,7 @@ UNIT_DIR = Path(__file__).resolve().parent.parent
 ARTIFACTS = [
     UNIT_DIR / "tests" / "fixtures" / "F-D0047-091_sample.json",
     UNIT_DIR / "data" / "raw" / "F-D0047-091.json",
+    UNIT_DIR / "data" / "raw" / "F-D0047-091.meta.json",  # provenance sidecar (DR-17 T-4)
 ]
 
 

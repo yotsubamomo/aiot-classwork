@@ -92,6 +92,10 @@ def fetch_raw(
 
 def _validate_payload(data: dict) -> None:
     """Confirm the success flag and dataset id (R-ING-3)."""
+    if not isinstance(data, dict):
+        raise FetchError(
+            f"CWA response was not a JSON object (got {type(data).__name__})"
+        )
     success = str(data.get("success", "")).lower()
     if success != "true":
         raise FetchError(

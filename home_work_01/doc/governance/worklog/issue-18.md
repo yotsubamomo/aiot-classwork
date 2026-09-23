@@ -42,8 +42,9 @@ data-side labeling. Set up the Python 3.12 unit environment.
 - **Rounding (DR-4)**: `Decimal` arithmetic, `ROUND_HALF_UP` to one decimal.
 - **Snapshot replace (DR-3, R-DB-4)**: single `with conn` transaction — DELETE all, INSERT 42,
   upsert metadata; rollback on failure preserves the previous snapshot.
-- **Metadata (DR-2, R-DB-5)**: separate `IngestionMetadata` table (single row id=1) holds
-  `ingestedAt` (ISO 8601 +08:00) and `sourceDatasetId`; `TemperatureForecasts` DDL unchanged.
+- **Metadata (DR-2, R-DB-5; acquisition-time semantics per DR-17 — see §9)**: separate
+  `IngestionMetadata` table (single row id=1) holds `ingestedAt` (ISO 8601 +08:00, = acquisition
+  time) and `sourceDatasetId`; `TemperatureForecasts` DDL unchanged.
 - **Fixture (DR-10, R-TC-2)**: real `F-D0047-091` response captured 2026-09-24, saved complete
   at `data/raw/F-D0047-091.json`; the test fixture `tests/fixtures/F-D0047-091_sample.json` is a
   faithful **reduced** version (only 最高溫度/最低溫度 elements per county, structure preserved) —
@@ -124,4 +125,78 @@ data-side labeling. Set up the Python 3.12 unit environment.
   (~1.7 MB) is committed so the R1 Reviewer can verify AC-25 and rerun `--from-json` without a key.
 - Downstream tickets depend on this ticket's `data.db`, the fixture, the `IngestionMetadata`
   semantics, and the `ingestion.derive.derive_snapshot` interface.
-- Status: **DONE** (pending required independent audit).
+- Status after cycle 1 R1: **BLOCKING (F-1, F-2)** + DR-17 routing → targeted correction (see §9).
+
+## 9. Cycle 1 targeted correction — R1 BLOCKING (F-1, F-2) + DR-17
+
+- **Trigger**: R1 audit `doc/governance/audit/issue-18-c1-r1.md` returned **BLOCKING (F-1, F-2)**;
+  DA record `doc/governance/decisions/decision-20260924-ingestion-timestamp-semantics.md` (DR-17)
+  folded in. Same work item / worklog identity / branch; targeted correction only (governance §4.4).
+- **New subject**: branch `home_work_01-hw10-implementation`; new commit reported in the return.
+
+### 9.1 Findings addressed
+
+- **F-1 (Medium, H-3) — drop-leading-incomplete-day now tested.** Added
+  `tests/conftest.make_leading_incomplete` (relabels the real 00:00–06:00 leading partial to a
+  2026-09-23 night-only day, i.e. the after-18:00 capture shape) and
+  `test_derive.test_drops_incomplete_leading_day_and_keeps_seven` (asserts 2026-09-23 dropped, the
+  same 42 rows / window 24..30 retained). **Regression bar met**: deleting `derive.py:149-150`
+  (the drop-leading lines) now fails that test with `DeriveError: forecast day 2026-09-23 is
+  missing a 12-hour period` (mutation run: 1 failed, 58 passed).
+- **F-2 (Medium, H-1/H-3) — failure cases now assert through the CLI.** Added
+  `test_pipeline.test_ac09_negative_via_cli` (all five AC-09 negatives) and
+  `test_ac11_http_failure_via_cli` + `test_ac11_timeout_via_cli` (401/404/500/503/non-JSON/timeout),
+  each asserting **exit code 1**, **snapshot signature unchanged** (all rows + metadata), and — for
+  AC-11 — **key-free stdout+stderr** (sentinel key absent) and **no raw JSON written**.
+  **Regression bar met**: narrowing `pipeline.py:191` so `FetchError` is not caught (fetch error →
+  bare traceback) now fails all six AC-11 CLI tests (mutation run: 6 failed, 53 passed).
+- **DR-17 — acquisition-time provenance implemented** (I-1..I-6):
+  - `run_online` captures the timestamp **at fetch success** and writes it to a key-free provenance
+    sidecar `data/raw/F-D0047-091.meta.json` (new `ingestion/provenance.py`), passing the **same
+    value** to `persist_snapshot` (I-1).
+  - `run_offline` reads the acquisition time from the sidecar or `--acquired-at`, **removes the
+    clock read**, and **fails closed** (ProvenanceError → exit 1, no write) when absent (I-2).
+  - README documents the sidecar location/content, the offline behavior, and that a rebuild does
+    not update "last updated" (I-3).
+  - **I-4 executed**: re-ran online ingestion **once** with the corrected pipeline (authorized N-10,
+    OC AB-8/§5; CWA reachable, so the DA fallback I-5 was not needed). Committed raw JSON, provenance
+    sidecar and `data.db` as a consistent set: `data.db.ingestedAt == provenance.acquiredAt ==`
+    **`2026-09-24T02:24:50+08:00`** (verified). The regenerated raw JSON is byte-identical to the
+    previous capture (the response carries no timestamp, DR-17 E-5), so only `data.db` and the new
+    sidecar changed. Offline rebuild from the committed raw JSON + sidecar reproduces the same
+    `ingestedAt` (verified). Fixture kept unchanged (AC-08 hand-computed values still valid).
+  - Tests **T-1..T-4** added in `test_pipeline.py` (online records fetch-time in sidecar + db;
+    offline uses sidecar not clock; explicit `--acquired-at` override; offline-without-time →
+    exit 1 / no write / snapshot unchanged / message names provenance) and `test_secrets.py`
+    (committed sidecar is key-free).
+- **Low findings cleared (owner #18, in scope, low-risk)**:
+  - **F-3**: `derive._value` now rejects `NaN`/`Infinity` (`Decimal.is_finite()`), so they surface
+    as a named county-day error instead of a later crash; `test_derive.test_non_numeric_values_are_invalid`.
+  - **F-4** (partial): `fetch._validate_payload` guards a non-dict JSON body; `run_offline` maps a
+    missing/invalid JSON file to a clean `DeriveError` (no traceback, fail-closed).
+  - **F-8**: `test_pipeline.test_shifted_fixture_reingest_replaces_via_cli` re-ingests a
+    date-shifted **fixture** through the CLI and asserts full snapshot replacement.
+  - **F-5**: reworded the derive post-condition comment (no longer self-labeled "unreachable"; it is
+    a defensive shape guard). Not a behavior change.
+- **Left to their owners (dispositioned, non-blocking)**: F-6 (`--env` flexibility — default is the
+  unit `.env`; restricting it would break legitimate temp-env tests), F-7 (#22 CI regex), F-9 (#25),
+  F-10 (#19), F-11 (#25).
+
+### 9.2 Verification (self-verification; not an independent audit)
+
+- **Full suite**: `pytest -q` → **60 passed** (was 38), offline, Python 3.12.14.
+- **Mutation/regression checks** (on scratch copies, files restored):
+  - Delete `derive.py:149-150` → `test_drops_incomplete_leading_day_and_keeps_seven` FAILS (1 failed / 58 passed).
+  - Narrow `pipeline.py:191` catch (drop `FetchError`) → 6 AC-11 CLI tests FAIL (6 failed / 53 passed).
+- **DR-17 consistency**: `data.db.ingestedAt == provenance acquiredAt ==` `2026-09-24T02:24:50+08:00`;
+  offline rebuild from committed raw JSON + sidecar reproduces it.
+- **A-5 refresh (staged correction set, `.env` excluded)**: literal real key **0** across all staged
+  files and the staged diff; the new provenance sidecar and `data.db` are fully clean (literal /
+  key-pattern / Authorization all absent); the only heuristic match is `tests/test_secrets.py`'s
+  scanner unit-test literals (not a secret); `git ls-files` still has no `.env`. DDL unchanged (H-2).
+
+### 9.3 Remaining
+
+- Status: **DONE** (targeted correction complete; pending R2 scoped closure review).
+- Not committed by this Executor (belong to their authors / the Orchestrator): the R1 audit record,
+  the DR-17 decision record, and the run record — left untracked/for the dispatcher.
