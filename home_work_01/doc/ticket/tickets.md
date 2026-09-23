@@ -15,7 +15,7 @@
 
 | # | 票 | Scope class | High-risk | Blocked by | 狀態 | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
-| [#18](https://github.com/yotsubamomo/aiot-classwork/issues/18) | Ingestion：從 F-D0047-091 推導六 Region × 七 Forecast Day 的 Forecast Snapshot 並持久化到 `data.db` | MVM | H-1、H-2、H-3 | — | 待執行 | |
+| [#18](https://github.com/yotsubamomo/aiot-classwork/issues/18) | Ingestion：從 F-D0047-091 推導六 Region × 七 Forecast Day 的 Forecast Snapshot 並持久化到 `data.db` | MVM | H-1、H-2、H-3 | — | 已結案 | `7ee299c` |
 | [#19](https://github.com/yotsubamomo/aiot-classwork/issues/19) | 共用查詢／領域模組與 Grading App（`app.py`）：Select Region、一週折線圖與表格 | MVM | H-2、H-3（H-1 靜態檢查） | #18 | 待執行 | |
 | [#20](https://github.com/yotsubamomo/aiot-classwork/issues/20) | Dashboard MVM：Flask `/api/` 與靜態頁面在本機提供相同的 Region 查詢行為 | MVM | H-1、H-2 | #19 | 待執行 | |
 | [#21](https://github.com/yotsubamomo/aiot-classwork/issues/21) | Dashboard 部署到 Vercel：公開 URL 與健康 endpoint smoke | MVM | H-1 | #20 | 待執行（acceptor 前置：Vercel 專案，RB-3） | |
