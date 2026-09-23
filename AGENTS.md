@@ -10,7 +10,21 @@
 - 課程內容依週次放在 `week01/`、`week02/`、`week03/` 等目錄。
 - 每個 `weekXX/` 是相對獨立的課程單元，內部結構以該週實際檔案為準，可能包含講義、筆記、作業、程式碼、資料集、實驗與報告或結果。
 - 目前沒有 cross-week 共用程式或資源目錄。只有在實際出現跨週重用需求時，才依當時情況整理。
-- Root 的 `docs/` 放跨週、跨單元通用的文件，依用途分資料夾：`docs/agents/` 是 agent skill 的設定與慣例，`docs/conventions/` 是團隊的工作慣例（例如 git commit 規則）。單元專屬的文件放該單元自己的 `doc/`（單數），不放這裡。
+- Root 的 `docs/` 放跨週、跨單元通用的文件，依用途分資料夾：`docs/agents/` 是 agent skill 的設定與慣例，`docs/conventions/` 是團隊的工作慣例（例如 git commit 規則），`docs/governance/` 是治理規範與 Project Bindings。單元專屬的文件放該單元自己的 `doc/`（單數），不放這裡。
+
+## Governance flag
+
+依單元類型決定是否採用 Minimal Operational Governance v2.0；規範快照與 Project Bindings 在 `docs/governance/`。
+
+| 範圍 | governance |
+| --- | --- |
+| `weekNN/`（DIC，課堂實作） | off |
+| `home_workNN/`（作業） | on |
+| Root 與跨單元檔案 | off |
+
+- off 的範圍只適用本檔規則。
+- on 的範圍適用治理全部規則與 `docs/governance/project-bindings.md`。Codex 目前沒有在 Project Bindings 中宣告為任何治理角色的 model，因此不在 `home_workNN/` 執行 work item（實作、審查、裁決），只做唯讀協助。要讓 Codex 參與，先依 Bindings 的變更流程加入宣告。
+- flag 沒有中間狀態，不能只關掉部分規則。
 
 ## Unit document layout
 
@@ -32,6 +46,7 @@ weekNN/ 或 home_workNN/
 - `doc/` 只放文件；實作檔案、資料檔與測試留在單元根目錄或其既有位置。
 - `CONTEXT.md` 與 `README.md` 不進 `doc/`。
 - 票開在 GitHub Issues，`doc/ticket/` 只放索引（編號、標題、依賴、狀態、連結），不複製票的內容。
+- governance on 的單元另有 `doc/governance/`，放 Outcome Contract、decisions、worklog、audit 與 run records。
 - `week02/` 已依此結構整理，可作為範例。
 
 ## Assignment workflow
@@ -44,7 +59,7 @@ weekNN/ 或 home_workNN/
 4. Expected output。
 5. Grading 或 submission 限制（若有）。
 
-Repository 中找不到的資訊視為未知，向使用者確認，不自行補出老師未提出的要求。
+Repository 中找不到的資訊視為未知，向使用者確認，不自行補出老師未提出的要求。governance on 的單元另依 `docs/governance/project-bindings.md` 第 2.4 節處理。
 
 ## Working boundary
 

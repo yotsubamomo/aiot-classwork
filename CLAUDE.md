@@ -15,7 +15,23 @@ Root 的 `AGENTS.md` 是給 Codex 用的指示檔，內容是從本檔整理出�
 - 課程內容依週次放在 `week01/`、`week02/`、`week03/`… 目錄。
 - 每個 week 是相對獨立的課程單元，可能包含 lecture material、notes、assignment、source code、dataset、experiment、report / result。各週內部結構不強制統一，以該週實際檔案為準。
 - 目前沒有 cross-week 共用程式或共用資源目錄。之後真的出現跨週重用需求時，再依實際情況整理，不預先建立。
-- Root 的 `docs/` 放跨週、跨單元通用的文件，依用途分資料夾：`docs/agents/` 是 agent skill 的設定與慣例，`docs/conventions/` 是團隊的工作慣例（例如 git commit 規則）。單元專屬的文件不放這裡，放該單元自己的 `doc/`（單數）。
+- Root 的 `docs/` 放跨週、跨單元通用的文件，依用途分資料夾：`docs/agents/` 是 agent skill 的設定與慣例，`docs/conventions/` 是團隊的工作慣例（例如 git commit 規則），`docs/governance/` 是治理規範與 Project Bindings（見下方「治理」）。單元專屬的文件不放這裡，放該單元自己的 `doc/`（單數）。
+
+## 治理（Governance flag）
+
+依單元類型決定是否採用 Minimal Operational Governance v2.0。規範快照與 Project Bindings 在 `docs/governance/`。
+
+| 範圍 | governance |
+| --- | --- |
+| `weekNN/`（DIC，課堂實作） | off |
+| `home_workNN/`（作業） | on |
+| Root 與跨單元檔案（`CLAUDE.md`、`AGENTS.md`、`docs/`、`.claude/` 等） | off |
+
+- **off**：不讀 `docs/governance/`，只適用本檔的規則。
+- **on**：開始該單元的任何工作之前，先讀 `docs/governance/project-bindings.md`，再依其指示讀治理本文與 references。治理的 MUST／SHOULD／MAY 全部生效；本檔其他規則視為 Project Bindings 的一部分，與治理 MUST 衝突時以治理為準。
+- flag 沒有中間狀態，不能只關掉部分規則；Lightweight 或 Formal 由治理判定，不由 flag 決定。
+- 變更 flag 是 Bindings 變更：只在 work item 之間切換，並記入 `docs/governance/project-bindings.md` 的變更紀錄。
+- 治理角色的 agent definitions 在 `.claude/agents/gov-*.md`，只在 governance on 的範圍依 Bindings 派工。
 
 ## 單元文件的存放位置
 
@@ -40,6 +56,7 @@ weekNN/ 或 home_workNN/
 - **`CONTEXT.md` 與 `README.md` 留在單元根目錄**。前者是 `CONTEXT-MAP.md` 指向的詞彙表位置，後者是單元的入口。
 - **票開在 GitHub Issues**，`doc/ticket/` 只放索引：編號、標題、依賴關係、狀態與連結。不要把每張票的內容複製成檔案，那會與 tracker 上的狀態不同步。
 - **老師提供的原始文件放 `doc/requirement/`**，保持原樣不改寫；需要整理時另外寫成 brief。
+- **governance on 的單元另有 `doc/governance/`**，放 Outcome Contract、decisions、worklog、audit 與 run records；結構見 `docs/governance/project-bindings.md` 第 7 節。
 - 既有單元 `week02/` 已依此結構整理，可作為範例。
 
 ## 尋找某週的作業 context
@@ -52,7 +69,7 @@ weekNN/ 或 home_workNN/
 4. expected output
 5. grading / submission 限制（若有）
 
-Repository 裡找不到的項目視為未知，向使用者確認；不要自行補出老師沒有提出的要求。
+Repository 裡找不到的項目視為未知，向使用者確認；不要自行補出老師沒有提出的要求。governance on 的單元依 `docs/governance/project-bindings.md` 第 2.4 節處理：影響交付範圍的問題在 Outcome Contract 接受前向使用者確認，已接受範圍內的語義問題交 Design Authority 裁決。
 
 ## 工作邊界
 
