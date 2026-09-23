@@ -68,16 +68,27 @@ def _get(url: str, timeout: float) -> tuple[int | None, bytes]:
         return None, b""
 
 
-def _check_once(base_url: str, timeout: float) -> tuple[bool, int | None, int | None]:
+def _check_once(base_url: str, deadline: float) -> tuple[bool, int | None, int | None]:
     """Run one round of both checks; return ``(passed, root_code, health_code)``.
 
     ``passed`` is true only when ``GET /`` is 200 with the page marker present and
     ``GET /api/health`` is 200 with ``status == "ok"``.
+
+    ``deadline`` is the ``time.monotonic()`` instant the total budget ends. Each of
+    the two requests is capped by the time still left before it (never more than
+    15 s), so a slow first request cannot let one attempt overrun the budget (#22
+    N-2): the two GETs together stay bounded by the remaining budget.
     """
-    root_code, root_body = _get(base_url + "/", timeout)
+
+    def _budget() -> float:
+        # At least 0.1 s so a request past the deadline still fails fast rather than
+        # raising on a non-positive timeout.
+        return max(0.1, min(15.0, deadline - time.monotonic()))
+
+    root_code, root_body = _get(base_url + "/", _budget())
     root_ok = root_code == 200 and _PAGE_MARKER.encode() in root_body
 
-    health_code, health_body = _get(base_url + "/api/health", timeout)
+    health_code, health_body = _get(base_url + "/api/health", _budget())
     health_ok = False
     if health_code == 200:
         try:
@@ -107,10 +118,9 @@ def run_smoke(base_url: str, total_timeout: float, interval: float) -> bool:
         if remaining <= 0:
             break
         attempt += 1
-        # Cap this attempt's per-request timeout by the budget left, so a single
-        # slow request cannot overrun the total budget.
-        per_request_timeout = min(15.0, remaining)
-        passed, root_code, health_code = _check_once(base_url, per_request_timeout)
+        # Both requests in this attempt are capped by the time left before the
+        # deadline (see _check_once), so one attempt cannot overrun the budget.
+        passed, root_code, health_code = _check_once(base_url, deadline)
         elapsed = time.monotonic() - start
         print(
             f"[{_now()}] attempt {attempt}  url={base_url}  "

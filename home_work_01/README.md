@@ -355,6 +355,36 @@ is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the
 temperature weather elements per county (structure preserved); the negative cases
 are derived from it.
 
+## Continuous integration (GitHub Actions)
+
+Two workflows live in the repository-root `.github/workflows/` directory — the one
+place outside this unit that holds `home_work_01` files, under the acceptor's
+scoped RB-5 authorization (Outcome Contract §8.2). Each serves **only this unit**.
+
+**CI — [`home_work_01-ci.yml`](../.github/workflows/home_work_01-ci.yml).** Runs on
+every **push**, and on pull requests, but only when the change touches
+`home_work_01/**` or the CI workflow file itself: the `paths` filter means a change
+to root files, another unit, or the smoke workflow does **not** run it. The job
+sets up **Python 3.12**, installs [`requirements.txt`](requirements.txt), runs the
+full offline `pytest` suite, and then runs the credential mechanical checks
+(`python -m tools.credential_scan`): `git ls-files` tracks no `.env` (only
+`.env.example`); no tracked file and no committed diff in history contains a
+CWA-key-format string (the ignored local `.env` is excluded); and the fixture and
+saved raw JSON hold no `Authorization` value. The check prints only findings, never
+a secret. The whole run needs no network, no `.env` and no secret.
+
+**Smoke — [`home_work_01-smoke.yml`](../.github/workflows/home_work_01-smoke.yml).**
+Runs on demand only (**`workflow_dispatch`**); it never runs on push. It reuses
+[`smoke.py`](smoke.py) unchanged, so CI and a local run perform the same check. The
+public URL comes from the **`HW01_DEPLOY_URL`** repository variable — the documented
+default source, set by the repository owner (RB-3). The workflow also accepts an
+optional **`url`** input that **overrides** the variable when non-empty (it defaults
+to the variable when the input is left empty); if neither yields a URL the run fails
+with a clear message. Because `HW01_DEPLOY_URL` points at the **production** URL,
+which is live only after the reserved merge to `main`, demonstrate the workflow now
+by dispatching it with the `url` input set to the public **preview** alias; the
+production variable's own run validates after merge (release evidence).
+
 ## Correspondence to the poster `HW10_Weather/` structure
 
 The poster suggests a flat set of scripts; this project keeps the teacher-named
