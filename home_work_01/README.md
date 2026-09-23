@@ -3,10 +3,11 @@
 A one-week temperature forecast for six Taiwan Regions, taken from CWA open data,
 persisted to SQLite, and (in later tickets) shown in a web app.
 
-> **Scope of this README section.** This document currently covers the **ingestion**
-> stage (Issue #18): fetch → derive → persist. The Streamlit grading app, the
-> deployed Flask dashboard, the Taiwan map, automated CI and Vercel deployment are
-> added by later tickets and will extend this README.
+> **Scope of this README section.** This document covers the **ingestion** stage
+> (Issue #18: fetch → derive → persist) and the **Streamlit Grading App**
+> (Issue #19: `app.py` and the shared query module `weather_query.py`). The deployed
+> Flask dashboard, the Taiwan map, automated CI and Vercel deployment are added by
+> later tickets and will extend this README.
 
 ## Data source and labeling (please read)
 
@@ -49,8 +50,10 @@ computed by this project, not published by CWA.
 
 - **Python 3.12** (the deployment target does not offer 3.11). Verify with
   `python --version`.
-- Dependencies pinned in [`requirements.txt`](requirements.txt): `requests`, `pytest`.
-  `folium` / `streamlit-folium` are intentionally excluded.
+- Dependencies pinned in [`requirements.txt`](requirements.txt): `requests`,
+  `pytest`, `streamlit`. The map libraries used by the later dashboard ticket are
+  intentionally excluded; the Grading App must not depend on them
+  (Spec R-ENV-1, R-GA-9).
 
 ## Setup
 
@@ -158,6 +161,42 @@ database write** — the previous `data.db` snapshot is left unchanged.
   (42 rows of `regionName / dataDate / mint / maxt`, plus the Region count and
   date range).
 
+## Run the Grading App (`streamlit run app.py`)
+
+From the unit directory, with the virtual environment active and `data.db`
+present (run ingestion first):
+
+```bash
+cd home_work_01
+streamlit run app.py
+```
+
+The page opens `Taiwan Weather Forecast` with a `Select Region` dropdown (the six
+Regions in the fixed order: 北部地區, 中部地區, 南部地區, 東北部地區, 東部地區,
+東南部地區). Choosing a Region shows a `MaxT` / `MinT` line chart over the seven
+Forecast Days and a `Date` / `MinT` / `MaxT` table (seven rows, ascending, equal
+to `data.db`), together with the snapshot's acquisition time — when the data was
+fetched from CWA (see the provenance sidecar above), not a render time. If
+`data.db` is missing or empty the page shows a clear message telling you to run
+ingestion; an incomplete snapshot shows a warning.
+
+All data is read through the shared query module
+[`weather_query.py`](weather_query.py), the single place that holds the SQL and
+the forecast business logic; `app.py` contains no SQL and never calls CWA.
+
+### About the Grading App (Streamlit) vs. the deployed Dashboard
+
+`app.py` is the genuine Streamlit application named by the homework and is the
+**required grading artefact** for the interactive-web-app item — it carries the
+complete graded (MVM) behaviour and is run locally with `streamlit run app.py`. It
+is **not** the deployed runtime: the public deployment target (Vercel) cannot run
+a Streamlit server, so the same `data.db` and the same query semantics are served
+publicly by a Flask + static dashboard in a later ticket. Streamlit being local
+rather than deployed is a compatibility accommodation forced by that hosting
+constraint, **not** a sign that Streamlit was outside the assignment. The Grading
+App deliberately has **no** Taiwan Map and **no** `Select Date`; those are
+enhanced, dashboard-only features.
+
 ## Verify the database
 
 ```sql
@@ -197,7 +236,13 @@ The suite is fully offline: it never calls the network and never reads `.env`
 (HTTP failures are mocked). It covers the derivation (positive values hand-computed
 from county numbers, plus the five failure cases), the DDL and verification SQL,
 idempotent snapshot replacement, the ingestion metadata, and a secret scan of the
-committed JSON artifacts. The test fixture
+committed JSON artifacts. For the Grading App (Issue #19) it also covers the shared
+query module (the six read-side semantics, read-only / source-relative /
+overridable database opening, and the Derived Map Temperature colour bands) and the
+Streamlit app via `AppTest` (title, `Select Region` options and order, the chart
+and table for a selected Region, the error/empty/incomplete states, and the
+displayed ingestion time), plus static checks that `app.py` holds no SQL, imports
+no HTTP client, and carries no map / `Select Date` / folium. The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two
 temperature weather elements per county (structure preserved); the negative cases
@@ -218,5 +263,5 @@ ingestion stages into a clearly named `ingestion` package.
 | `data.db` | [`data.db`](data.db) |
 | `requirements.txt` | [`requirements.txt`](requirements.txt) |
 | `README.md` | this file |
-| `app.py` (Streamlit) | later ticket |
+| `app.py` (Streamlit) | [`app.py`](app.py) — the Grading App (Issue #19), reading through [`weather_query.py`](weather_query.py) |
 | `weather_data.csv` (optional) | not used |

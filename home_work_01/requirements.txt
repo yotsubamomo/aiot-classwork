@@ -1,6 +1,8 @@
 # HW10 Taiwan Weather Forecast — pinned dependencies (Python 3.12).
-# Scope of Issue #18 (ingestion): fetch + derive + persist + offline tests.
-# The presentation layers (Streamlit, Flask) and the map belong to later tickets;
-# folium / streamlit-folium are intentionally excluded (Spec R-ENV-1).
+# Ingestion (Issue #18): fetch + derive + persist + offline tests.
+# Grading App (Issue #19): the Streamlit app and the shared query module.
+# The map libraries used by the later dashboard ticket are intentionally not
+# listed here; the Grading App must not depend on them (Spec R-ENV-1, R-GA-9).
 requests==2.32.3
 pytest==8.3.3
+streamlit==1.64.0
