@@ -2,44 +2,143 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Taiwan Weather Forecast</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <main class="page">
-    <h1 class="title">Taiwan Weather Forecast</h1>
+  <div class="page">
+    <!-- Header. The <h1> keeps the teacher's concept word verbatim (H-2 / R-EN-2);
+         the integrated layout name "Taiwan Weather Dashboard" (R-EN-7) is a subtitle
+         and never replaces the concept word. -->
+    <header class="masthead">
+      <p class="masthead__eyebrow">Taiwan Weather Dashboard</p>
+      <h1 class="title">Taiwan Weather Forecast</h1>
+      <p class="masthead__lead">
+        Six-region seven-day forecast — pick a region to see its temperature trend,
+        daily table and weekly summary.
+      </p>
+    </header>
 
-    <!-- Error / unavailable state. Never a blank page (R-DS-6). Hidden until set. -->
-    <div id="page-error" class="banner banner--error" role="alert" hidden></div>
+    <!-- ERROR state (R-EN-1 item 5, R-DS-6): network failure / unexpected error.
+         role="alert" so it is announced. Never a blank page. Hidden until set. -->
+    <div id="page-error" class="state state--error" role="alert" hidden>
+      <span class="state__icon" aria-hidden="true">!</span>
+      <div>
+        <p class="state__title">Something went wrong</p>
+        <p id="page-error-text" class="state__body"></p>
+      </div>
+    </div>
 
-    <section id="controls" class="controls" hidden>
-      <label class="control" for="region-select">Select Region</label>
-      <select id="region-select" class="select" aria-label="Select Region"></select>
-      <p id="ingestion-time" class="caption"></p>
-    </section>
+    <!-- LOADING state (R-EN-1 item 5): visible while the first requests are in
+         flight. role="status" so it is announced politely. -->
+    <div id="page-loading" class="state state--loading" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="state__body">Loading the latest forecast…</p>
+    </div>
 
-    <section id="region-panel" class="panel" hidden>
-      <h2 id="panel-heading" class="panel__heading"></h2>
+    <!-- EMPTY state (R-EN-1 item 5): the snapshot has no usable data
+         (missing / empty / incomplete → /api/health 503). Distinct from an error. -->
+    <div id="page-empty" class="state state--empty" role="status" hidden>
+      <span class="state__icon" aria-hidden="true">◌</span>
+      <div>
+        <p class="state__title">No forecast data yet</p>
+        <p id="page-empty-text" class="state__body"></p>
+      </div>
+    </div>
 
-      <!-- Inline-SVG line chart: MaxT (red) / MinT (blue) over the seven days. -->
-      <div id="chart-status" class="banner banner--info" role="status" hidden></div>
-      <figure class="chart">
-        <div id="chart" class="chart__canvas" aria-label="MaxT and MinT line chart"></div>
-        <figcaption class="legend">
-          <span class="legend__item"><span class="swatch swatch--maxt"></span>MaxT</span>
-          <span class="legend__item"><span class="swatch swatch--mint"></span>MinT</span>
-        </figcaption>
-      </figure>
+    <!-- DASHBOARD content, revealed once a usable snapshot loads. -->
+    <div id="dashboard" class="dashboard" hidden>
 
-      <table class="table">
-        <thead>
-          <tr><th scope="col">Date</th><th scope="col">MinT</th><th scope="col">MaxT</th></tr>
-        </thead>
-        <tbody id="table-body"></tbody>
-      </table>
-    </section>
-  </main>
+      <!-- Controls: primary (Select Region) plus a reserved, disabled slot for the
+           next ticket's Select Date (#24 — NOT implemented here, R-EN-7). -->
+      <section class="controls card" aria-label="Forecast controls">
+        <div class="control">
+          <label class="control__label" for="region-select">Select Region</label>
+          <select id="region-select" class="select" aria-label="Select Region"></select>
+        </div>
+
+        <!-- RESERVED PLACEHOLDER — Select Date control, delivered by Issue #24.
+             Rendered as a labelled, disabled slot so the layout already holds its
+             place; no behaviour is implemented here (R-EN-7 / out of scope). -->
+        <div class="control control--reserved" aria-hidden="true">
+          <span class="control__label">Select Date</span>
+          <div class="placeholder placeholder--inline">
+            <span class="placeholder__tag">Coming soon</span>
+          </div>
+        </div>
+
+        <p id="ingestion-time" class="caption"></p>
+      </section>
+
+      <!-- Summary (R-EN-1 item 3): the selected Region's weekly Min / Max, derived
+           in the browser from the /api/ series only (no new business logic). -->
+      <section id="summary" class="summary" aria-label="Weekly summary" hidden>
+        <h2 class="section-heading">Weekly summary</h2>
+        <div class="stat-row">
+          <div class="stat stat--min">
+            <p class="stat__label">Lowest MinT this week</p>
+            <p class="stat__value"><span id="summary-min-value">–</span><span class="stat__unit">°C</span></p>
+            <p id="summary-min-day" class="stat__meta"></p>
+          </div>
+          <div class="stat stat--max">
+            <p class="stat__label">Highest MaxT this week</p>
+            <p class="stat__value"><span id="summary-max-value">–</span><span class="stat__unit">°C</span></p>
+            <p id="summary-max-day" class="stat__meta"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main grid: chart (primary) beside the table (secondary) on wide screens,
+           stacked on narrow ones. -->
+      <div class="grid">
+        <section id="region-panel" class="card chart-card">
+          <h2 id="panel-heading" class="section-heading"></h2>
+
+          <!-- Per-region chart status: a 404/503 on the series endpoint or a
+               network error shows here rather than leaving a blank chart (R-DS-6). -->
+          <div id="chart-status" class="state state--inline" role="status" hidden></div>
+
+          <figure class="chart">
+            <div class="chart__canvas">
+              <div id="chart" aria-label="MaxT and MinT line chart"></div>
+              <div id="chart-tooltip" class="chart-tooltip" role="status" aria-live="polite" hidden></div>
+            </div>
+            <figcaption class="legend">
+              <span class="legend__item"><span class="swatch swatch--maxt"></span>MaxT</span>
+              <span class="legend__item"><span class="swatch swatch--mint"></span>MinT</span>
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="card table-card" aria-label="Daily forecast table">
+          <h2 class="section-heading">Daily forecast</h2>
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Date</th><th scope="col">MinT</th><th scope="col">MaxT</th></tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- RESERVED PLACEHOLDER — Taiwan Map, delivered by Issue #24. Labelled empty
+           slot only; the Leaflet map and its markers are NOT implemented here
+           (R-EN-7 / out of scope). -->
+      <section class="card map-card" aria-label="Taiwan map (coming soon)">
+        <h2 class="section-heading">Taiwan Map</h2>
+        <div class="placeholder placeholder--map">
+          <span class="placeholder__tag">Coming soon</span>
+          <p class="placeholder__note">
+            An interactive Taiwan map with a per-day region overview will appear here.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
 
   <script src="/static/app.js"></script>
 </body>
