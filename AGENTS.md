@@ -64,7 +64,7 @@ Branch 與 commit message 的完整規則見 `docs/conventions/git-commit-rules.
 
 - 每個 feature 或 fix 都開新 branch，名稱依實際修改內容取描述性的名字，不直接在 `main` 上 commit。
 - Commit message 第一行是 `[Modify] – 主要變更的摘要`（分隔符是 en-dash `–`），接一行空白，之後每項變更各一行，以 `[Additions]`、`[Modification]`、`[Fix]` 三種前綴分類。
-- 不在 commit message 加任何 Claude 標記（`Co-Authored-By: Claude`、`🤖 Generated with Claude Code`）；Codex 自身的署名或產生標記同樣不加。
+- Commit message 與 PR description 都不加任何 Claude 標記（`Co-Authored-By: Claude`、`🤖 Generated with Claude Code`）；Codex 自身的署名或產生標記同樣不加。
 - 描述聚焦在實際改了什麼與為什麼，清楚且技術上精確。
 
 ## Agent skills

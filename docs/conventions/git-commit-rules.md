@@ -19,7 +19,7 @@
 - First line: Provide a detailed description of the branch name/main change
 - Empty line: Always include one blank line after the first line
 - Subsequent changes: Categorize all changes using the specified prefixes
-- **Do not include Claude Code tags**: Never add "🤖 Generated with [Claude Code]" or "Co-Authored-By: Claude" tags to commit messages
+- **Do not include Claude Code tags**: Never add "🤖 Generated with [Claude Code]" or "Co-Authored-By: Claude" tags to commit messages or pull request descriptions
 
 #### Example Format
 ```
@@ -44,9 +44,10 @@ When making commits, please:
 - Ensure the first line provides comprehensive context
 - Categorize all changes appropriately under the three main types
 - Use clear, concise descriptions for each change
+- Apply the same no-Claude-tags rule to pull request descriptions
 
 ## Commit Message Guidelines
 
-- Do not add any Claude tags to commit messages
+- Do not add any Claude tags to commit messages or pull request descriptions
 - Commit messages should focus on describing the actual changes and their purpose
 - Maintain clarity and technical precision in commit message descriptions
