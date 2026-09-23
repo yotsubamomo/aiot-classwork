@@ -149,8 +149,15 @@ def _read_only_connection(db_path: str | Path) -> sqlite3.Connection:
 
     The caller must have checked existence; a missing file raises
     ``sqlite3.OperationalError`` under ``mode=ro``.
+
+    The read-only URI is built from ``Path.as_uri()`` so that every character in
+    the path is percent-encoded correctly. A plain ``"file:" + path`` string
+    would let SQLite treat ``#`` as a fragment marker and decode ``%XX`` escapes,
+    so a real ``data.db`` under a directory whose name contains ``#`` or a space
+    would be mis-resolved and reported as missing (regression guarded by the
+    special-character path test).
     """
-    uri = "file:" + Path(db_path).as_posix() + "?mode=ro"
+    uri = Path(db_path).resolve().as_uri() + "?mode=ro"
     conn = sqlite3.connect(uri, uri=True)
     conn.row_factory = sqlite3.Row
     return conn
@@ -196,19 +203,34 @@ def snapshot_status(db_path: str | Path = DEFAULT_DB_PATH) -> SnapshotStatus:
 
 
 def _classify_rows(rows: Sequence[sqlite3.Row]) -> SnapshotStatus:
-    """OK iff exactly six canonical Regions x seven days, all values present."""
+    """OK iff exactly six canonical Regions x seven *consistent* days, all valued.
+
+    ``ok`` requires the rows to form exactly the six canonical Regions, each
+    carrying the *same* seven Forecast Days with a non-null ``mint``/``maxt`` for
+    every cell (R-SHR-2(a), DR-9). A snapshot that has 42 rows but whose seven
+    dates differ across Regions (so more than seven distinct dates overall) is
+    ``incomplete``, not ``ok`` — otherwise a hand-edited or partially-rewritten
+    database would pass as complete and the Grading App would show no warning.
+    """
     if len(rows) != REGION_COUNT * DAYS_REQUIRED:
         return SnapshotStatus.INCOMPLETE
 
     by_region: dict[str, set[str]] = {}
+    all_dates: set[str] = set()
     for row in rows:
         if row["mint"] is None or row["maxt"] is None:
             return SnapshotStatus.INCOMPLETE
         by_region.setdefault(row["regionName"], set()).add(row["dataDate"])
+        all_dates.add(row["dataDate"])
 
     if set(by_region) != set(REGION_ORDER):
         return SnapshotStatus.INCOMPLETE
-    if any(len(dates) != DAYS_REQUIRED for dates in by_region.values()):
+    if len(all_dates) != DAYS_REQUIRED:
+        return SnapshotStatus.INCOMPLETE
+    # Every Region must carry exactly the same seven Forecast Days. Because each
+    # Region's date set is a subset of the seven shared dates and there are 42
+    # rows across six Regions, equality here also rules out duplicate dates.
+    if any(dates != all_dates for dates in by_region.values()):
         return SnapshotStatus.INCOMPLETE
     return SnapshotStatus.OK
 

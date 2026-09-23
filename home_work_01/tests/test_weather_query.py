@@ -79,6 +79,21 @@ def _full_rows() -> list[tuple[str, str, float, float]]:
     return rows
 
 
+def _mismatched_rows() -> list[tuple[str, str, float, float]]:
+    """42 rows, six Regions x seven rows each, but the dates differ across Regions.
+
+    One Region's seven days are shifted into a different week, so there are 14
+    distinct dates overall (F-1): the same six-Regions/seven-rows shape but not a
+    consistent 6x7 snapshot.
+    """
+    out: list[tuple[str, str, float, float]] = []
+    for region, date, mn, mx in _full_rows():
+        if region == "東部地區":
+            date = f"2026-04-{int(date[-2:]):02d}"  # shift this Region's week
+        out.append((region, date, mn, mx))
+    return out
+
+
 @pytest.fixture
 def ok_db(tmp_path: Path) -> Path:
     path = tmp_path / "ok.db"
@@ -128,6 +143,14 @@ def test_status_incomplete_wrong_region_set(tmp_path: Path) -> None:
     ]
     path = tmp_path / "wrongset.db"
     _build_db(path, rows)
+    assert wq.snapshot_status(path) is wq.SnapshotStatus.INCOMPLETE
+
+
+def test_status_incomplete_mismatched_dates(tmp_path: Path) -> None:
+    # F-1: 42 rows, six Regions x seven rows each, but the seven dates differ
+    # across Regions (14 distinct overall) -> incomplete, never ok.
+    path = tmp_path / "mismatch.db"
+    _build_db(path, _mismatched_rows())
     assert wq.snapshot_status(path) is wq.SnapshotStatus.INCOMPLETE
 
 
@@ -247,6 +270,31 @@ def test_override_path_is_used(ok_db: Path) -> None:
 
 def test_connection_is_read_only(ok_db: Path) -> None:
     conn = wq._read_only_connection(ok_db)
+    try:
+        with pytest.raises(sqlite3.OperationalError):
+            conn.execute("DELETE FROM TemperatureForecasts")
+    finally:
+        conn.close()
+
+
+def test_special_character_path_opens(tmp_path: Path) -> None:
+    # F-2: a real database under a directory whose name contains '#' and a space
+    # must open (the read-only URI percent-encodes the path); previously it was
+    # mis-resolved and reported as missing.
+    special_dir = tmp_path / "c#course dir"
+    special_dir.mkdir()
+    path = special_dir / "data.db"
+    _build_db(path, _full_rows())
+
+    assert wq.snapshot_status(path) is wq.SnapshotStatus.OK
+    assert len(wq.region_series("中部地區", path)) == wq.DAYS_REQUIRED
+    assert wq.forecast_days(path) == [
+        f"2026-03-{d + 1:02d}" for d in range(wq.DAYS_REQUIRED)
+    ]
+    assert wq.last_ingestion_time(path) == _DEFAULT_INGESTED_AT
+
+    # Read-only is still enforced under the encoded URI.
+    conn = wq._read_only_connection(path)
     try:
         with pytest.raises(sqlite3.OperationalError):
             conn.execute("DELETE FROM TemperatureForecasts")

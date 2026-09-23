@@ -86,6 +86,8 @@ def _render_region(region: str, db_path: str | Path) -> None:
         chart_df,
         x="Date",
         y=["MaxT", "MinT"],
+        x_label="Date",
+        y_label="Temperature (°C)",
         color=[CHART_MAXT_COLOR, CHART_MINT_COLOR],
     )
 

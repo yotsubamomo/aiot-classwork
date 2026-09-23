@@ -150,6 +150,16 @@ def test_incomplete_database_shows_warning_no_exception(tmp_path: Path) -> None:
     assert at.warning
 
 
+def test_mismatched_dates_shows_warning_not_ok(tmp_path: Path) -> None:
+    # F-1: 42 rows but the seven dates differ across Regions -> the app must warn
+    # (snapshot is incomplete), not treat it as a complete snapshot with no notice.
+    path = tmp_path / "mismatch.db"
+    _build_forecast_db(path, rows=_mismatched_rows())
+    at = _run_with_db(path)
+    assert not at.exception
+    assert at.warning
+
+
 # --- helpers -------------------------------------------------------------------
 
 
@@ -183,6 +193,16 @@ def _full_rows() -> list[tuple[str, str, float, float]]:
         for d in range(wq.DAYS_REQUIRED):
             rows.append((region, f"2026-03-{d + 1:02d}", 10.0 + ri, 20.0 + ri))
     return rows
+
+
+def _mismatched_rows() -> list[tuple[str, str, float, float]]:
+    """42 rows, six Regions x seven each, but one Region's week is shifted (F-1)."""
+    out: list[tuple[str, str, float, float]] = []
+    for region, date, mn, mx in _full_rows():
+        if region == "東部地區":
+            date = f"2026-04-{int(date[-2:]):02d}"
+        out.append((region, date, mn, mx))
+    return out
 
 
 def _build_forecast_db(
