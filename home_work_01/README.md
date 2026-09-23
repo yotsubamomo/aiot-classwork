@@ -265,7 +265,10 @@ change for this.
 
 **Production vs preview.** Pushing the topic branch makes Vercel build a
 **preview** automatically; the branch-preview alias is a public, no-login URL that
-always serves the current branch head, so it is what verifies the audited commit.
+serves the branch's most recent **successful** build (Vercel moves the alias when a
+build succeeds; a failed build leaves it on the previous commit), so it verifies
+the audited commit once that commit's build is ready — confirm the served
+deployment id matches the commit rather than assuming it.
 The **production** URL updates only when the branch is merged into `main` — that
 merge is a release action, so re-running the smoke check against production after
 merge is release evidence, not a completion condition for the deployment work.

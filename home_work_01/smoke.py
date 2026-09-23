@@ -91,32 +91,52 @@ def _check_once(base_url: str, timeout: float) -> tuple[bool, int | None, int | 
 def run_smoke(base_url: str, total_timeout: float, interval: float) -> bool:
     """Retry the smoke check until it passes or ``total_timeout`` seconds elapse.
 
-    Returns ``True`` on success. Each attempt and the final verdict are printed
-    with a timestamp, the URL and the two status codes.
+    The total elapsed budget is enforced (R-TC-7 / AC-15: "≤ 90 s"): each request's
+    own timeout is capped by the time left, and a check that only succeeds *after*
+    the budget is spent is reported as a failure — so a slow deployment can never
+    yield a PASS past the limit. Returns ``True`` on success. Each attempt and the
+    final verdict are printed with a timestamp, the URL and the two status codes.
     """
     base_url = base_url.rstrip("/")
-    deadline = time.monotonic() + total_timeout
+    start = time.monotonic()
+    deadline = start + total_timeout
     attempt = 0
-    passed = root_code = health_code = None
+    root_code = health_code = None
     while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
         attempt += 1
-        passed, root_code, health_code = _check_once(base_url, timeout=15.0)
+        # Cap this attempt's per-request timeout by the budget left, so a single
+        # slow request cannot overrun the total budget.
+        per_request_timeout = min(15.0, remaining)
+        passed, root_code, health_code = _check_once(base_url, per_request_timeout)
+        elapsed = time.monotonic() - start
         print(
             f"[{_now()}] attempt {attempt}  url={base_url}  "
             f"GET / -> {root_code}  GET /api/health -> {health_code}  "
-            f"{'PASS' if passed else 'not-ready'}"
+            f"({elapsed:.1f}s elapsed)  {'PASS' if passed else 'not-ready'}"
         )
         if passed:
-            print(f"[{_now()}] SMOKE PASS  url={base_url}")
-            return True
-        if time.monotonic() + interval >= deadline:
+            if time.monotonic() <= deadline:
+                print(f"[{_now()}] SMOKE PASS  url={base_url}  ({elapsed:.1f}s)")
+                return True
+            # Passed, but only after the budget was already spent -> fail.
             print(
                 f"[{_now()}] SMOKE FAIL  url={base_url}  "
-                f"last GET / -> {root_code}  last GET /api/health -> {health_code}  "
-                f"(no success within {total_timeout:.0f}s)"
+                f"passed after the {total_timeout:.0f}s budget ({elapsed:.1f}s elapsed)"
             )
             return False
+        if time.monotonic() + interval >= deadline:
+            break
         time.sleep(interval)
+
+    print(
+        f"[{_now()}] SMOKE FAIL  url={base_url}  "
+        f"last GET / -> {root_code}  last GET /api/health -> {health_code}  "
+        f"(no success within {total_timeout:.0f}s)"
+    )
+    return False
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
