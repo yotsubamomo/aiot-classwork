@@ -1,0 +1,153 @@
+/* Taiwan Weather Forecast — dashboard styles (Issue #20, MVM).
+   No build step, no external stylesheet, no web font that needs an account.
+   Behaviour-equivalent to the Streamlit Grading App; the ENHANCED UI polish and
+   the Taiwan map are separate tickets. */
+
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --border: #e2e5ea;
+  --text: #1f2430;
+  --muted: #5a6072;
+  --maxt: #d62728;
+  --mint: #1f77b4;
+  --error-bg: #fdecec;
+  --error-border: #f5c2c2;
+  --error-text: #9b1c1c;
+  --info-bg: #eef4fb;
+  --info-border: #cadcf1;
+  --info-text: #1f4e79;
+}
+
+* { box-sizing: border-box; }
+
+/* The [hidden] attribute must always win, even over the flex/grid display rules
+   below (a bare [hidden]{display:none} would otherwise be overridden by
+   `.controls{display:flex}`, leaving hidden controls visible in the error state). */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.title {
+  font-size: 1.75rem;
+  margin: 0 0 16px;
+}
+
+.banner {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+}
+.banner--error {
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error-text);
+}
+.banner--info {
+  background: var(--info-bg);
+  border-color: var(--info-border);
+  color: var(--info-text);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.control {
+  font-weight: 600;
+}
+.select {
+  font-size: 1rem;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  max-width: 320px;
+}
+.caption {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+.panel__heading {
+  font-size: 1.15rem;
+  margin: 0 0 12px;
+}
+
+.chart {
+  margin: 0 0 20px;
+}
+.chart__canvas {
+  width: 100%;
+  overflow-x: auto;
+}
+.chart__canvas svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.chart__line--maxt { stroke: var(--maxt); }
+.chart__line--mint { stroke: var(--mint); }
+.chart__dot--maxt { fill: var(--maxt); }
+.chart__dot--mint { fill: var(--mint); }
+.chart__axis { stroke: var(--border); }
+.chart__tick-label { fill: var(--muted); font-size: 11px; }
+.chart__axis-label { fill: var(--muted); font-size: 12px; }
+
+.legend {
+  display: flex;
+  gap: 18px;
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.legend__item { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.swatch--maxt { background: var(--maxt); }
+.swatch--mint { background: var(--mint); }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.table th, .table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+.table td:nth-child(2) { color: var(--mint); }
+.table td:nth-child(3) { color: var(--maxt); }
+
+@media (max-width: 480px) {
+  .title { font-size: 1.4rem; }
+  .panel { padding: 14px; }
+}

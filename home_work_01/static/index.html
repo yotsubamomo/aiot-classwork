@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taiwan Weather Forecast</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="page">
+    <h1 class="title">Taiwan Weather Forecast</h1>
+
+    <!-- Error / unavailable state. Never a blank page (R-DS-6). Hidden until set. -->
+    <div id="page-error" class="banner banner--error" role="alert" hidden></div>
+
+    <section id="controls" class="controls" hidden>
+      <label class="control" for="region-select">Select Region</label>
+      <select id="region-select" class="select" aria-label="Select Region"></select>
+      <p id="ingestion-time" class="caption"></p>
+    </section>
+
+    <section id="region-panel" class="panel" hidden>
+      <h2 id="panel-heading" class="panel__heading"></h2>
+
+      <!-- Inline-SVG line chart: MaxT (red) / MinT (blue) over the seven days. -->
+      <div id="chart-status" class="banner banner--info" role="status" hidden></div>
+      <figure class="chart">
+        <div id="chart" class="chart__canvas" aria-label="MaxT and MinT line chart"></div>
+        <figcaption class="legend">
+          <span class="legend__item"><span class="swatch swatch--maxt"></span>MaxT</span>
+          <span class="legend__item"><span class="swatch swatch--mint"></span>MinT</span>
+        </figcaption>
+      </figure>
+
+      <table class="table">
+        <thead>
+          <tr><th scope="col">Date</th><th scope="col">MinT</th><th scope="col">MaxT</th></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

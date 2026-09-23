@@ -4,10 +4,11 @@ A one-week temperature forecast for six Taiwan Regions, taken from CWA open data
 persisted to SQLite, and (in later tickets) shown in a web app.
 
 > **Scope of this README section.** This document covers the **ingestion** stage
-> (Issue #18: fetch → derive → persist) and the **Streamlit Grading App**
-> (Issue #19: `app.py` and the shared query module `weather_query.py`). The deployed
-> Flask dashboard, the Taiwan map, automated CI and Vercel deployment are added by
-> later tickets and will extend this README.
+> (Issue #18: fetch → derive → persist), the **Streamlit Grading App**
+> (Issue #19: `app.py` and the shared query module `weather_query.py`), and the
+> **Flask dashboard** run locally (Issue #20: `server.py`, the `/api/` JSON API and
+> the static frontend under `static/`). The Taiwan map, automated CI and the actual
+> Vercel deployment are added by later tickets and will extend this README.
 
 ## Data source and labeling (please read)
 
@@ -197,6 +198,50 @@ constraint, **not** a sign that Streamlit was outside the assignment. The Gradin
 App deliberately has **no** Taiwan Map and **no** `Select Date`; those are
 enhanced, dashboard-only features.
 
+## Run the dashboard (Flask) locally
+
+The deployed presentation layer is a Flask app that serves both the dashboard
+**page** and a JSON **API**, structured to deploy to Vercel as a single Python
+function (that deployment is a later ticket). Run it locally from the unit
+directory with `data.db` present:
+
+```bash
+cd home_work_01
+python server.py            # serves http://127.0.0.1:5000/
+# or, equivalently:
+flask --app server run
+```
+
+Open <http://127.0.0.1:5000/>. The page is the same MVM experience as the
+Grading App — `Taiwan Weather Forecast`, a `Select Region` control over the six
+Regions in the fixed order, and, for the selected Region, a `MaxT` / `MinT`
+seven-day line chart and a `Date` / `MinT` / `MaxT` table equal to `data.db`,
+plus the snapshot's acquisition time. It is a static HTML/CSS/JS frontend (no
+build step) whose chart is drawn with plain inline SVG (no chart library, no key).
+Add `?region=<name>` to deep-link a Region (for example `?region=中部地區`). If the
+data is unavailable the page shows a clear message instead of a blank page.
+
+All data comes from this application's own JSON API under the `/api/` prefix; the
+browser never calls CWA and holds no key. The backend reads `data.db` only through
+the shared module [`weather_query.py`](weather_query.py) and imports no HTTP client.
+
+### `/api/` endpoints
+
+| Method & path | Returns | On error |
+| --- | --- | --- |
+| `GET /` | The dashboard HTML page (contains `Taiwan Weather Forecast`). | — |
+| `GET /api/health` | `200` JSON `{ status: "ok", region_count: 6, forecast_day_count: 7, ingestion_time }` when the snapshot is a complete six-Region × seven-day snapshot. | `503` JSON `{ status: "unavailable", reason, error }` when the snapshot is missing / empty / incomplete. |
+| `GET /api/regions` | `200` JSON `{ regions: [...] }` — the six Region names in the fixed order. | `503` (snapshot unavailable). |
+| `GET /api/regions/<region>/series` | `200` JSON `{ region, series: [{ dataDate, mint, maxt }, ...] }` — seven rows, ascending, equal to `data.db`. | `404` JSON `{ error }` for an unknown Region; `503` when unavailable. |
+| `GET /api/days` | `200` JSON `{ days: [...] }` — the seven Forecast Day dates, ascending. | `503` (snapshot unavailable). |
+| `GET /api/days/<date>` | `200` JSON `{ date, values: [{ regionName, mint, maxt, derivedMapTemperature, colourBand }, ...] }` — the six Regions for that day, incl. the Derived Map Temperature. | `404` JSON `{ error }` for an unknown date; `503` when unavailable. |
+
+Every error response is JSON carrying a human-readable `error` message. The Vercel
+structure lives beside the code — `server.py` (the app), `api/index.py` (the
+serverless entry that imports `app`), `vercel.json` (routes every request to that
+one function) and `requirements.txt`; `data.db` is packaged next to the code and
+opened read-only, and no environment variable or secret is needed at runtime.
+
 ## Verify the database
 
 ```sql
@@ -264,4 +309,5 @@ ingestion stages into a clearly named `ingestion` package.
 | `requirements.txt` | [`requirements.txt`](requirements.txt) |
 | `README.md` | this file |
 | `app.py` (Streamlit) | [`app.py`](app.py) — the Grading App (Issue #19), reading through [`weather_query.py`](weather_query.py) |
+| (deployed web app) | [`server.py`](server.py) + [`static/`](static/) + [`api/index.py`](api/index.py) + [`vercel.json`](vercel.json) — the Flask dashboard (Issue #20), also reading through [`weather_query.py`](weather_query.py) |
 | `weather_data.csv` (optional) | not used |
