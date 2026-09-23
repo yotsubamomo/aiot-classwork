@@ -192,8 +192,9 @@ the forecast business logic; `app.py` contains no SQL and never calls CWA.
 complete graded (MVM) behaviour and is run locally with `streamlit run app.py`. It
 is **not** the deployed runtime: the public deployment target (Vercel) cannot run
 a Streamlit server, so the same `data.db` and the same query semantics are served
-by the Flask + static dashboard below (its public Vercel deployment is a later
-ticket). Streamlit being local rather than deployed is a compatibility accommodation forced by that hosting
+by the Flask + static dashboard below (deployed publicly to Vercel — see
+[Deploy to Vercel](#deploy-to-vercel-public-url--smoke-check)). Streamlit being
+local rather than deployed is a compatibility accommodation forced by that hosting
 constraint, **not** a sign that Streamlit was outside the assignment. The Grading
 App deliberately has **no** Taiwan Map and **no** `Select Date`; those are
 enhanced, dashboard-only features.
@@ -202,8 +203,8 @@ enhanced, dashboard-only features.
 
 The deployed presentation layer is a Flask app that serves both the dashboard
 **page** and a JSON **API**, structured to deploy to Vercel as a single Python
-function (that deployment is a later ticket). Run it locally from the unit
-directory with `data.db` present:
+function (see [Deploy to Vercel](#deploy-to-vercel-public-url--smoke-check)). Run
+it locally from the unit directory with `data.db` present:
 
 ```bash
 cd home_work_01
@@ -241,6 +242,55 @@ structure lives beside the code — `server.py` (the app), `api/index.py` (the
 serverless entry that imports `app`), `vercel.json` (routes every request to that
 one function) and `requirements.txt`; `data.db` is packaged next to the code and
 opened read-only, and no environment variable or secret is needed at runtime.
+
+## Deploy to Vercel (public URL & smoke check)
+
+The dashboard deploys to Vercel as a **single Python serverless function** that
+serves both the page and the `/api/` JSON. Everything the deployment needs lives
+inside this unit directory: `vercel.json` (one `@vercel/python` build of
+`api/index.py`, every route sent to it, `data.db` packaged with `includeFiles`),
+`requirements.txt`, `data.db` (packaged and opened read-only), and
+[`.python-version`](.python-version) which **pins Python `3.12`** so the local
+environment, CI and the Vercel runtime all use the same interpreter. The running
+function needs **no environment variable and no secret** — the CWA key is never
+part of the deployment.
+
+**Acceptor-only setup (one-time).** Creating the Vercel project, linking it to
+`yotsubamomo/aiot-classwork`, setting the project **Root Directory = `home_work_01`**,
+and making the deployment **publicly reachable without login** (pointing the
+production branch at the topic branch, or turning off Deployment Protection for
+previews) are performed by the repository owner in the Vercel dashboard — they
+touch billing/account settings outside an agent's authority. No repository files
+change for this.
+
+**Production vs preview.** Pushing the topic branch makes Vercel build a
+**preview** automatically; the branch-preview alias is a public, no-login URL that
+always serves the current branch head, so it is what verifies the audited commit.
+The **production** URL updates only when the branch is merged into `main` — that
+merge is a release action, so re-running the smoke check against production after
+merge is release evidence, not a completion condition for the deployment work.
+
+| | URL |
+| --- | --- |
+| Public preview (audited commit; no login) | `https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app` |
+| Production (updates on merge to `main`) | `https://aiot-hw01-weather.vercel.app` |
+
+**Smoke check.** [`smoke.py`](smoke.py) verifies the public deployment: `GET /`
+returns 200 containing `Taiwan Weather Forecast` and `GET /api/health` returns 200
+with `status: "ok"`, retrying for up to 90 s of warm-up and exiting non-zero on
+failure. Run it from this directory with the URL as an argument, or via the
+`HW01_DEPLOY_URL` environment variable (the repository variable the smoke workflow
+injects):
+
+```bash
+cd home_work_01
+python smoke.py https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app
+# or, reading the URL from the environment / repository variable:
+HW01_DEPLOY_URL=https://<public-host> python smoke.py
+```
+
+It is standard-library only (no dependency to install) and is reused unchanged by
+the `workflow_dispatch` smoke workflow (Issue #22).
 
 ## Verify the database
 
