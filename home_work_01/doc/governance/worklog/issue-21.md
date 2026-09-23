@@ -7,143 +7,165 @@
   （AC-15 以受審 commit 的公開部署驗證；production 合併後更新為 release evidence，非完成條件）。
   High-risk **H-1**（部署產物與 Vercel 設定不得含金鑰；AC-07(e)），依 A-1 記錄核對。
 - **Executing role and binding**：`gov-executor`（Model Profile `default/v2.2`：`claude-opus-4-8`、effort `high`）。
-  binding 由派工的 Orchestrator/主 session 依 Bindings §3.4 從 harness 紀錄核對。
+  binding 由派工者依 Bindings §3.4 從 harness 紀錄核對，記於 run record。
 - **Subject / BASE**：branch `home_work_01-hw10-implementation`，BASE = `94c03c9`（#20 結案 HEAD）。
-  只改 `home_work_01/` 內檔案。授權 push topic branch（SA-1）以觸發 Vercel rebuild；不合併 `main`（RB-1）、
-  不動 Vercel 專案設定、不設 repository variable、不付費（RB-3/RB-4，acceptor 動作）。
+  只改 `home_work_01/` 內檔案。授權 push topic branch（SA-1）；不合併 `main`（RB-1）、不動 Vercel 專案設定、
+  不設 repository variable、不付費（RB-3/RB-4，acceptor 動作）。
+- **Commits**：
+  - `d2c98fe`：初次交付（Python 3.12 pin、`smoke.py`、README 部署段、worklog）。R1 audit 對此 commit。
+  - `e27c1dc`：**cycle-1 targeted correction**（R1 的 blocking F-1，並處理 F-2、F-4）。**目前受審 subject。**
 
-## 1. Work performed
+## 1. Work performed（含 cycle-1 correction）
 
-1. **AC-15 smoke（公開 preview URL，不需登入）** — 對 acceptor 已連結、Root Directory ＝ `home_work_01`
-   的 Vercel 專案（team `nchu-aiot-class`）branch-preview 公開別名做 smoke。
-2. **AC-23（Vercel Python 3.12）** — 部署原本沒有任何 Python 版本 pin（無 `.python-version`、無 `runtime.txt`、
-   `vercel.json` 無 `functions.runtime`），即 Vercel runtime 版本不被確定性固定，INV-8「三處一致」無保證。
-   新增 `home_work_01/.python-version` ＝ `3.12`（Vercel 文件記載的 pin 機制；「project root」＝ Root Directory
-   ＝ `home_work_01`，檔案落在單元目錄內，符合 R-ENV-2/RB-5）。
-3. **R-TC-7（本機指令）** — 新增 `home_work_01/smoke.py`：標準庫（`urllib`）實作，檢查
-   `GET /` 200 含 `Taiwan Weather Forecast`、`GET /api/health` 200 且 `status == "ok"`，暖機重試總預算
-   預設 90 s，輸出含 UTC 時間戳、URL、兩個狀態碼，失敗 exit 非零。URL 由 CLI 參數或 `HW01_DEPLOY_URL`
-   環境變數（＝ #22 smoke workflow 注入的 repository variable）提供；#22 的 `workflow_dispatch` 直接沿用同一檔。
-4. **README（#21 段）** — 新增「Deploy to Vercel (public URL & smoke check)」：單一 function 結構、
-   Python 3.12 pin、acceptor-only 專案/Root Directory 設定、production vs preview（DR-12）、公開 URL、smoke 指令；
-   並把既有兩處「later ticket」措辭改為指向本段。
-5. **AC-30 / AC-07(e) / H-1** — 核對部署設定位置、無環境變數需求、無金鑰。
+### 初次交付（d2c98fe）
+1. **AC-23（Vercel Python 3.12）** — 部署原本沒有任何 Python 版本 pin。新增 `home_work_01/.python-version`＝`3.12`
+   （Vercel 文件記載的 pin 機制；project root＝Root Directory＝`home_work_01`，符合 R-ENV-2/RB-5）。
+2. **R-TC-7（本機指令）** — 新增 `home_work_01/smoke.py`（標準庫，暖機重試，時間戳/URL/狀態碼，失敗非零 exit；
+   URL 由 CLI 參數或 `HW01_DEPLOY_URL` 環境變數；#22 `workflow_dispatch` 沿用同一檔）。
+3. **README（#21 段）**、**AC-30 / AC-07(e) / H-1** 核對。
+
+### Cycle-1 targeted correction（e27c1dc；治理 §4.4）
+R1 audit（`doc/governance/audit/issue-21-c1-r1.md`）verdict **BLOCKING (F-1)**。針對 blocking 作 targeted correction，
+並處理 non-blocking 的 F-2、F-4（F-3 為 acceptor 帳號內證據，非本 Executor 可處理，見 §7）。
+
+1. **F-1（High, blocking）修正** — 部署上 `/api/regions/<Region>/series` 對六個 Region 全部回 404。
+   **根因**：Vercel 交給 WSGI 的 `PATH_INFO` **未經 percent-decoding**（不符 PEP 3333 一般行為），中文 Region 名以
+   `%E4%B8%AD...` 到達 Flask，`<region>` 對不上六區清單 → 404；本機 Werkzeug／Flask test client 會 decode，所以離線
+   測試假綠。**修法（HOW）**：在 Vercel 進入點 `api/index.py` 以 thin WSGI middleware（`PercentDecodedPathInfo`）
+   把仍含 `%` 的 `PATH_INFO` 還原成 PEP 3333 形式（`unquote_to_bytes(raw).decode("latin-1")`），再交給 Flask 路由；
+   middleware 只在 `PATH_INFO` 含 `%` 時作用（ASCII 路徑與已解碼的 latin-1 形式都不動，idempotent）。`app` 仍是 Flask
+   實例（Vercel 偵測不受影響），只包 `app.wsgi_app`。**未改任何 endpoint 形狀**，故前端、tests、README `/api/` 清單
+   不需更動；INV-2 值一致性保持。`server.py` 保留標準 Flask 語義。
+2. **`/api/days/<date>` 與其他 path-segment endpoint** — 日期為 ASCII，`encodeURIComponent` 不編碼，故線上本就正常
+   （R1 也如此判定）；middleware 一併涵蓋，回歸測試對 encoded 日期亦驗證 200（見 §5.2）。
+3. **回歸守衛** — 新增 `tests/test_vercel_path_decoding.py`：直接以 encoded `PATH_INFO`（如 Vercel 所送）呼叫**部署用的
+   WSGI callable**（`api/index.py` 的 `app`），六區皆需 200 且值等於 `data.db`；另證明「拿掉 middleware 的 plain app 對
+   encoded 路徑仍 404」。Flask test client 會 decode，無法重現，故測試繞過它、直接建 WSGI environ。
+4. **F-2（Low）修正** — `smoke.py` 的 90 秒 budget 原本只在兩次嘗試之間檢查，可能在 budget 用完後才回報 PASS。
+   改為：每次請求 timeout 受剩餘 budget 上限限制；且若成功發生在 deadline 之後判為 FAIL。
+5. **F-4（Low）更正 worklog／README** — (a) 依原文引用 AC-23；(b) 移除「無法從外部辨識受審 commit」的錯誤敘述，改記
+   以 `data-deployment-id` 對應（見 §5.1）；(c) README「always serves the current branch head」改為「serves the
+   branch's most recent successful build … confirm the deployment id」。
 
 ## 2. Decisions and assumptions
 
-- **AC-23 Vercel 3.12 的 evidence 取徑**：Ticket 明示 evidence 可為「build-log 摘錄 **and/or** 部署設定中的
-  明確 runtime pin」。本 session 的 Vercel MCP token **無 `nchu-aiot-class` team scope**
-  （`get_deployment` / `get_project` / `list_deployments` 皆回 403；`list_teams` 回空），因此無法讀取該專案的
-  build log 或設定。依 Ticket 允許的替代，AC-23 的 evidence 以 **`.python-version` ＝ `3.12` 明確 pin**（committed
-  在部署設定內）＋ push 後 rebuild 仍通過 smoke 為準。pin 機制與 3.12 為 Vercel 官方文件記載且支援
-  （見 §5 Verification）。**限制**：無法以 build log 獨立確認 rebuild 實際跑在 3.12 且成功；見 §7 Remaining。
-- **`.python-version` 而非 `pyproject.toml`/`runtime.txt`**：專案用 `requirements.txt`（非 pyproject），
-  `.python-version` 是最小、對現有 `builds`＋`@vercel/python` 設定影響最小的 pin；不引入 pyproject 以免改變安裝方式。
-- **不加執行期版本標記**：不在 `/api/health` 或頁面加 Python 版本欄位——那會改動 H-2/AC-16 定義的 health JSON
-  契約與頁面契約，屬語義變更，超出本票；故不做（DR-7/AC-16 契約維持）。
-- **DR-12**：AC-15 以受審 commit 的公開（不需登入）部署為 PASS；production URL（`aiot-hw01-weather.vercel.app`，
-  ＝ repo variable `HW01_DEPLOY_URL`）目前 404、合併後才更新，屬 release evidence，非本票完成條件。
+- **F-1 修法選擇**：於 `api/index.py`（部署邊界）decode，而非 `server.py`。理由：缺陷是 Vercel 特有（平台不 decode），
+  在邊界修正可保 `server.py` 標準語義；且本機 `PATH_INFO` 已是解碼後的 latin-1 形式，若在共用層無條件 decode 會把已解碼
+  路徑二次編碼而破壞本機行為——middleware 的「只在含 `%` 時作用」正是避免此問題（本機路徑無 `%` → 不動）。
+- **AC-23 evidence（依原文引用，F-4a）**：Ticket AC-23 原文為「Vercel 部署日誌**或設定**顯示 Python 3.12（**截圖或
+  日誌摘錄**）」。本 session 的 Vercel token 無 `nchu-aiot-class` team scope（`get_deployment`/`list_teams` 皆 403/空），
+  無法取 build log 或 dashboard 設定截圖。依原文「或設定」，以提交在部署 Root Directory 內、由 Vercel Python runtime 讀取
+  的 `.python-version`＝`3.12`（可於 git 逐位元驗證）作為「設定」evidence。含此 pin 的 `e27c1dc` 由 Vercel **建置成功**
+  （commit status `success`，deployment `dpl_2zcQ1r3NSXBYNhP5fwvFSuw81jB8`），部署正常服務——證明 3.12 pin 未使建置失敗。
+  **限制**：build log 摘錄／dashboard 截圖屬 acceptor 帳號證據（F-3，非本 Executor 可補）。
+- **不加執行期版本標記**：不在 `/api/health` 或頁面加 Python 版本或 commit 欄位——會改動 AC-16／H-2 契約，超出本票。
+- **DR-12**：AC-15 以受審 commit 的公開（不需登入）部署為 PASS；production URL 合併後才更新，屬 release evidence。
 
 ## 3. Artifacts
 
 | 類型 | 路徑 | 說明 |
 | --- | --- | --- |
 | 新增 | `home_work_01/.python-version` | `3.12`；本機/CI/Vercel runtime pin（R-DS-8、R-ENV-1、AC-23、INV-8）。 |
-| 新增 | `home_work_01/smoke.py` | stdlib deploy smoke（R-TC-7、AC-15）；#22 沿用。 |
-| 修改 | `home_work_01/README.md` | 新增 Vercel 部署段（R-DOC-1 部署段、公開 URL、smoke 指令）；更新兩處 later-ticket 連結。 |
-| 記錄 | 本檔 | 本 work item 的 worklog（record-only path）。 |
+| 新增 | `home_work_01/smoke.py` | stdlib deploy smoke（R-TC-7、AC-15）；F-2 修正後強制 budget；#22 沿用。 |
+| **修改（e27c1dc）** | `home_work_01/api/index.py` | **F-1 修正**：PATH_INFO decode middleware；`app` 仍為 Flask 實例。 |
+| **新增（e27c1dc）** | `home_work_01/tests/test_vercel_path_decoding.py` | **F-1 回歸守衛**：encoded PATH_INFO → 六區 200＋值一致；plain app 仍 404。 |
+| 修改 | `home_work_01/README.md` | Vercel 部署段；F-4c 措辭更正。 |
+| 新增 | `home_work_01/doc/acceptance/screenshots/issue-21-dashboard-default.png`、`…-central.png` | 線上渲染截圖（F-1 closure）。 |
+| 記錄 | 本檔 | worklog（record-only path）。 |
 
-未改動任何應用程式碼（`server.py`、`weather_query.py`、`api/index.py`、`static/`、`vercel.json` 皆未變），
-故受審部署的執行期行為與 BASE `94c03c9` 位元相同；本票只加入 build-time 版本 pin、非路由的本機 helper 與文件。
+`vercel.json`、`server.py`、`weather_query.py`、`static/*`、`data.db` 未變。修正只在 Vercel 進入點與離線測試；deployed
+runtime 行為對 encoded 路徑修正、其餘不變。
 
-## 4. AC / requirement 對照
+## 4. AC / requirement 對照（受審 subject e27c1dc）
 
 | 項目 | 結果 | Evidence（§5） |
 | --- | --- | --- |
-| AC-15（公開 URL、不需登入、90s 內、對應受審 commit） | PASS | §5.1 smoke 輸出（curl ＋ `smoke.py`），含時間戳/URL/狀態碼 |
-| AC-23（Vercel Python 3.12） | 以明確 pin 為 evidence（Ticket 允許）；build-log 未能獨立確認（token scope，§7） | §5.2 `.python-version`；本機 3.12.14 |
-| AC-23（本機 3.12） | PASS | §5.2 `.venv` `python --version` ＝ 3.12.14 |
-| AC-30（部署設定＋requirements 在單元；Root Directory；root 無單元設定檔） | PASS | §5.3 |
-| AC-07(e)（Vercel 不需環境變數；未設 CWA 金鑰） | PASS（部署以無 secret 服務，`/api/health` 200） | §5.4 |
+| AC-15（公開 URL、不需登入、90s 內、對應受審 commit） | PASS | §5.1（AC-15 re-smoke；deployment-id 對應） |
+| AC-23（Vercel Python 3.12） | PASS（以「設定」pin 為證據，依原文；build 成功）；build-log/截圖為 acceptor 證據（F-3） | §5.3 |
+| AC-23（本機 3.12） | PASS（`.venv` 3.12.14） | §5.3 |
+| AC-30（部署設定＋requirements 在單元；Root Directory；root 無單元設定檔） | PASS（Root Directory 由部署行為確證；dashboard 截圖為 acceptor 證據 F-3） | §5.4 |
+| AC-07(e)：Vercel 不需環境變數 | PASS（部署以無 secret 服務） | §5.5 |
+| AC-07(e)：Vercel 未**設定** CWA 金鑰 | **未由 agent 驗證**——需 acceptor 讀取專案設定（F-3，acceptor-owned，本票未做） | §5.5、§7 |
+| R-DS-8 完整（含「單一 function 同時提供 API 與頁面」） | PASS（F-1 修正後六區 series 線上 200） | §5.1、§5.2 |
 | R-DS-9（公開不需登入；GET / 200 含標題；health 200） | PASS | §5.1 |
-| R-TC-7（本機指令） | PASS（正常＋失敗路徑自驗） | §5.5 |
-| INV-5（金鑰零外洩） | PASS | §5.4 H-1 掃描 |
-| INV-8（Python 3.12 三處一致） | 本機 3.12 ＋ pin 使 Vercel/CI 固定 3.12；#22 CI 另設 3.12 | §5.2 |
+| R-TC-7（本機指令；budget 強制） | PASS | §5.6 |
+| INV-2（Dashboard series ＝ 共用模組） | PASS（線上六區值＝data.db；離線 INV-2 測試） | §5.1、§5.2 |
+| INV-5（金鑰零外洩） | PASS | §5.5 |
+| INV-8（Python 3.12 三處一致） | 本機 3.12；Vercel 由 pin 固定；CI 屬 #22 | §5.3 |
 
-## 5. Verification（方法、結果、限制、evidence）
+## 5. Verification（受審 subject e27c1dc）
 
-### 5.1 AC-15 / R-DS-9 smoke（公開 preview，不需登入）
+### 5.1 F-1 closure — 線上六區 encoded series ＋ 渲染 ＋ AC-15 re-smoke ＋ commit 對應
+- **受審部署與 commit 對應（更正 F-4b）**：`e27c1dc` 的 Vercel build `success`，deployment
+  `dpl_2zcQ1r3NSXBYNhP5fwvFSuw81jB8`（commit status target `.../aiot-hw01-weather/2zcQ1r3NSXBYNhP5fwvFSuw81jB8`）。
+  GitHub deployment `6624687732` 的 immutable URL＝`https://aiot-hw01-weather-2bmr74dya-nchu-aiot-class.vercel.app`。
+  branch-preview 別名與該 immutable URL 的 `GET /` 都注入 `data-deployment-id="dpl_2zcQ1r3NSXBYNhP5fwvFSuw81jB8"`
+  ——三者一致，證明別名服務的就是 `e27c1dc`（2026-09-23T21:19–21:22Z）。
+- **六區 encoded `/api/regions/<encodeURIComponent(Region)>/series`（別名，2026-09-23T21:21Z）**：六個全部 **HTTP 200**、
+  每區 7 列、值等於本機 `weather_query.region_series(region, data.db)`（`values==data.db: True` × 6）。encoded 路徑例：
+  `/api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series`、`…%E4%B8%AD%E9%83%A8…`、`…%E5%8D%97%E9%83%A8…`、
+  `…%E6%9D%B1%E5%8C%97%E9%83%A8…`、`…%E6%9D%B1%E9%83%A8…`、`…%E6%9D%B1%E5%8D%97%E9%83%A8…`。
+- **AC-15 re-smoke（別名，2026-09-23T21:21:08Z）**：`GET /`→200 含標題、`GET /api/health`→200 `status:"ok"`；
+  `smoke.py` `SMOKE PASS`、exit 0、第一次嘗試 0.6s（遠在 90s 內）。
+- **真實瀏覽器渲染（headless Chrome，`--virtual-time-budget`）**：
+  - 別名 `/`（預設 Region 北部地區）：DOM 有 2 條 chart polyline（MaxT/MinT）、表格 7 列、heading
+    `Temperature Forecast – 北部地區`、**0** 個「not available in this snapshot」訊息。截圖
+    `doc/acceptance/screenshots/issue-21-dashboard-default.png`（可見折線圖與 7 列 `Date/MinT/MaxT`，值 23.3/31…24.6/30.3）。
+  - 別名 `/?region=中部地區`：截圖 `…issue-21-dashboard-central.png`（另一個 Region 亦正常渲染；線上該區 series 200＝data.db）。
 
-- **URL**：`https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app`
-- **curl（2026-09-23T20:37:37Z / 本地 2026-09-24T04:37:37+0800）**：
-  - `GET /` → **HTTP 200**；body 含 `Taiwan Weather Forecast`；`<title>Taiwan Weather Forecast</title>`。
-  - `GET /api/health` → **HTTP 200**；`{"forecast_day_count":7,"ingestion_time":"2026-09-24T02:24:50+08:00","region_count":6,"status":"ok"}`。
-  - `GET /api/regions` → **HTTP 200**；六個 Region 中文名，固定順序（北部/中部/南部/東北部/東部/東南部）。
-  - response header `server: Vercel`、`x-vercel-id: ...iad1...`（Vercel Python function 執行），無登入導向（curl 直接 200）。
-- **`smoke.py`（2026-09-23T20:40:33Z）**：CLI 參數與 `HW01_DEPLOY_URL` 兩路徑皆 `SMOKE PASS`、exit 0。
-- **對應受審 commit**：branch-preview 別名依 Vercel git 整合追蹤 branch head；push 本票 commit 為 head 後
-  rebuild 即服務該 commit。**限制**：公開端點無版本標記、Vercel API 無 team scope，無法從外部讀出「別名正服務的
-  commit SHA」；對應性依 Vercel「branch-preview 別名 ＝ branch head」契約 ＋ push HEAD 成立。因本票未改執行期
-  程式，別名服務 BASE 或本票 commit 的 smoke 結果相同。
+### 5.2 F-1 離線回歸守衛
+- `tests/test_vercel_path_decoding.py`：以 encoded `PATH_INFO` 呼叫 `api/index.py` 的 `app`，六區皆 200＋值＝data.db；
+  `/api/days/<date>` ASCII 與 encoded 皆 200；`/api/health`（ASCII）不受影響；`test_plain_app_404s_without_fix` 證明
+  plain app 對 encoded 路徑仍 404。
+- **Regression bar（revert-fails-check）**：暫時註銷 `api/index.py` 的 `app.wsgi_app = PercentDecodedPathInfo(...)` 一行，
+  `pytest tests/test_vercel_path_decoding.py` → **6 failed（六區 404≠200）, 3 passed**；還原後全數通過。確認移除修正即失敗。
+- **全套離線測試**（單元 `.venv`，Python 3.12.14）：`pytest -q` → **152 passed**（原 143 ＋ 新 9）。
 
-### 5.2 AC-23 / INV-8 Python 3.12
+### 5.3 AC-23 / INV-8 Python 3.12
+- 本機：`.venv/Scripts/python.exe --version` → **Python 3.12.14**。
+- Vercel：`.python-version`＝`3.12`（部署設定內的明確 runtime pin，git 可逐位元驗證）。含此 pin 的 `e27c1dc` build `success`。
+- 限制：無 team scope，無法取 build log 佐證實際執行版本（F-3，acceptor）。
 
-- **本機**：`home_work_01/.venv/Scripts/python.exe --version` → **Python 3.12.14**（uv `--python 3.12` 建立）。
-- **Vercel**：新增 `home_work_01/.python-version` ＝ `3.12`（deploy config 內的明確 runtime pin）。Vercel 文件
-  `functions/runtimes/python/python-version`：於 project root（＝ Root Directory ＝ `home_work_01`）放
-  `.python-version` 檔即固定 Python 版本；3.12 為支援版本（後端/Flask 文件 `requires-python = ">=3.12"`）。
-- **限制**：token 無 `nchu-aiot-class` scope，無法讀 build log 以獨立確認 rebuild 的 Python 版本與成功。
-  Ticket 允許以「部署設定中的明確 runtime pin」作 evidence，本項即以該 pin 為 AC-23 Vercel 部分之 evidence。
+### 5.4 AC-30 部署設定位置與 Root Directory
+- `home_work_01/` 內：`vercel.json`、`requirements.txt`、`.python-version`、`data.db`、`api/index.py`。
+- repo root 無本單元設定檔（`git ls-files` 的 `vercel.json`/`requirements.txt`/`.python-version` 僅在 `home_work_01/`；
+  其餘 `requirements.txt` 在 `.agents`/`.claude` skills 目錄，非本單元）。
+- Root Directory＝`home_work_01`：dashboard 截圖屬 acceptor 證據（F-3）；行為證據見 R1 §2（別名服務單元內容、`main` production 404）。
 
-### 5.3 AC-30 部署設定位置與 Root Directory
+### 5.5 AC-07(e) / INV-5 / H-1 無 secret（A-1 一節）
+- **觸及類別**：H-1（撰寫部署設定、撰寫文件；涵蓋位置含部署產物與 Vercel 環境變數）。
+- **核對**：`git ls-files` **無** `.env`；新增/修改檔（`.python-version`、`smoke.py`、`api/index.py`、
+  `test_vercel_path_decoding.py`、`README.md`）以金鑰格式搜尋 **0 筆**；部署產物與線上回應無金鑰、無 `CWA_API_KEY`、
+  無 `opendata.cwa`；`smoke.py` 只讀公開 URL 變數、不讀 `.env`、不被部署 import；middleware 不引入任何 HTTP client
+  或 secret（`from urllib.parse import unquote_to_bytes`，非 HTTP client，不觸發 R-SHR-5 靜態檢查）。
+- **結論**：agent 可觀察範圍內無洩漏，INV-5 成立。**「Vercel 專案未設定 CWA 金鑰」需 acceptor 確認**（F-3）；即使設定，
+  程式不讀取、線上回應無金鑰。
 
-- `home_work_01/vercel.json`、`home_work_01/requirements.txt`、`home_work_01/.python-version`、
-  `home_work_01/data.db` 皆在單元目錄內。
-- Root Directory ＝ `home_work_01`（acceptor 已設定；Orchestrator 偵察值，本票沿用，公開別名服務單元內容佐證）。
-- **repo root 無本單元設定檔**：`git ls-files` 追蹤的 `vercel.json`/`requirements.txt`/`.python-version` 僅位於
-  `home_work_01/`，root 無同名檔（見 §5 指令輸出）。
-
-### 5.4 AC-07(e) / INV-5 / H-1 無 secret
-
-- 部署以**無環境變數**服務：`/api/health` 200 且 `status:"ok"`，執行期未讀任何 secret（`server.py`、
-  `api/index.py` 皆不讀 env/secret；程式碼註解與 #19/#20 靜態檢查已涵蓋）。
-- H-1 掃描：`git ls-files` **無** `.env`；新增/修改檔（`.python-version`、`smoke.py`、`README.md`）以 CWA 金鑰格式
-  搜尋 **0 筆**；`smoke.py` 不含任何金鑰、不讀 `.env`。部署產物（`vercel.json`、`requirements.txt`、
-  `.python-version`、`api/index.py`、`server.py`）無金鑰字串。（A-1：本票觸及 H-1，已核對「部署產物與 Vercel
-  設定不含金鑰、Vercel 不需環境變數」，結果為零金鑰。）
-
-### 5.5 R-TC-7 `smoke.py` 自驗（正常＋失敗）
-
-- 正常：對公開別名 CLI 參數與 `HW01_DEPLOY_URL` 皆 PASS、exit 0。
-- 失敗：未給 URL → `error: no URL ...`、**exit 2**；`https://example.com`（200 但無標題、health 404）→
-  `SMOKE FAIL`、**exit 1**（確認標題與 health-status 內容檢查會判否，非僅測傳輸）；不可解析主機（傳輸錯誤）→
-  `SMOKE FAIL`、**exit 1**。
-- offline 測試套件（`pytest`，Python 3.12.14）：**143 passed**；`smoke.py` 不在靜態檢查
-  `_PYTHON_SIDE` 範圍（它是部署 client，非 presentation side），其 `urllib.request` import 不觸發 R-SHR-5 檢查。
-
-（§5.3 的指令輸出、§5.4 的掃描指令輸出留在 Executor 執行紀錄；本檔以引用方式記錄，避免複製全文。）
+### 5.6 R-TC-7 `smoke.py`（budget 強制，F-2）
+- 正常：別名 CLI 參數與 `HW01_DEPLOY_URL` 皆 `SMOKE PASS`、exit 0，輸出含 `(Xs elapsed)`。
+- Budget：不可解析主機、`--timeout 6 --interval 2` → 第 3 次嘗試（~4.1s）後 `SMOKE FAIL (no success within 6s)`、
+  exit 1、實測 wall 4s；不再於 budget 用完後才判 PASS。未給 URL → exit 2。
 
 ## 6. Audit status
 
-Formal Ticket → independent audit **required**（Bindings §5；A-1：本票觸及 H-1，R1 record 須明記 H-1 核對）。
-本票為 self-verification 完成；independent audit 由 Orchestrator/主 session 依 Bindings §3.5 另派 `gov-primary-reviewer`
-（非本 Executor context）。本 worklog 的 verification 為 self-verification，不記為 audit PASS。
+Formal Ticket → independent audit **required**。**R1**（`audit/issue-21-c1-r1.md`）verdict **BLOCKING (F-1)**。
+本 worklog 記錄 cycle-1 targeted correction（`e27c1dc`）與 closure evidence，交 **R2**（Primary Reviewer 續派，非本 Executor
+context）核對 F-1 closure、回歸與修正引入之風險。本 worklog 的 verification 為 self-verification，不記為 audit PASS。
 
-## 7. Remaining work / concerns
+## 7. Remaining work / concerns / required authority
 
-- **AC-23 build-log 確認（未解，非 blocker）**：本 session 的 Vercel token 無 `nchu-aiot-class` team scope，
-  無法讀 build log 獨立確認 rebuild 跑在 Python 3.12 且成功。Ticket 允許以明確 pin 作 evidence，故本項達 Ticket 的
-  evidence 門檻；但無 build-log 佐證。建議由 acceptor（或有該 Vercel scope 的 Reviewer）在 Vercel 儀表板確認
-  build log 顯示 Python 3.12；或於合併後 production build 一併surface 任何 pin 問題。`.python-version` ＝ `3.12`
-  為官方支援的標準 pin，破壞 build 的風險低。
-- **受審 commit 對應（未解，非 blocker）**：公開端點無版本標記，無法從外部讀出別名正服務的 commit SHA
-  （見 §5.1）。對應性依 Vercel branch-preview 契約成立。
-- **非 reserved boundary 命中**：公開 URL 不需登入（curl 直接 200），未遇 deployment protection；未動 Vercel 設定、
-  未付費、未合併 `main`——皆為 acceptor 動作且已就緒。故本票無 BLOCKED。
-- **Out of scope（本票）**：GitHub Actions CI/smoke workflow（#22）、README 端到端實跑（整合驗收票）、ENHANCED。
+- **F-3（Medium，non-blocking，acceptor-owned；本票未做）**：AC-23 build-log／設定截圖、AC-30 Root Directory 截圖、
+  AC-07(e)「Vercel 未設定 CWA 金鑰」——皆需 acceptor 讀取其 Vercel 專案（RB-3），Executor／Orchestrator 均 403。
+  由 Orchestrator 向 acceptor 取得，記入 `doc/acceptance/`，最晚於 #25 最終核對。worklog 的 AC-07(e) 已拆為「不需環境
+  變數 PASS」與「未設定金鑰 待 acceptor」（§4）。
+- **AC-23 殘餘不確定**：pin 證明「要求版本」，非「實際執行版本」；build log 可補強（F-3）。`.python-version` 為官方支援標準
+  pin，build 成功，風險低。
+- 無 reserved boundary 命中：公開 URL 不需登入；未動 Vercel 設定、未付費、未合併 `main`。本票無 BLOCKED。
+- **Out of scope（本票）**：CI/smoke workflow（#22）、README 端到端實跑（整合驗收票）、ENHANCED、F-3 的 acceptor 證據。
 
 ## 8. Change log（本 worklog）
 
 | 時間 | 事件 |
 | --- | --- |
-| 2026-09-23T20:xxZ | 建立 worklog；記錄 AC-15 smoke、Python 3.12 pin、AC-30/AC-07(e)、`smoke.py` 自驗、README。commit＋push 見 Executor return。 |
+| 2026-09-23T20:xxZ | d2c98fe：初次交付（Python 3.12 pin、smoke.py、README、worklog）。 |
+| 2026-09-23T21:2xZ | e27c1dc：cycle-1 correction（F-1 修正＋回歸守衛、F-2、F-4）；線上六區 200、AC-15 re-smoke、渲染截圖、152 passed、revert-fails-check。 |
