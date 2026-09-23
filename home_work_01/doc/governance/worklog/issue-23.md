@@ -124,7 +124,9 @@ Formal Ticket → independent audit required（Bindings §5；治理 §4.1）。
 
 ## Remaining work
 
-無 blocking 剩餘工作。targeted correction 與 self-verification 完成；committed 並 pushed（見 §CI-2）；CI 綠。
+無 blocking 剩餘工作。targeted correction 與 self-verification 完成；committed 並 pushed；CI 綠。
+
+**§CI-2（correction commit `fd654f3`）**：push run `35934994213`、pull_request run `35934995758` 皆 completed/**success**（sha fd654f3）。job「offline test suite + credential checks (Python 3.12)」全綠（152 passed）。BASE `39fbab7`；cycle-1 commit 序列：`610a797`（原實作）→ `84722c1`（CI 紀錄）→ `fd654f3`（targeted correction，受審 subject）。
 - 待 R2 closure review（Primary Reviewer）。
 - `Select Date` 控制項與 Taiwan Map 為 #24 範圍：本票只留標示清楚的 disabled placeholder，未實作；#24 在本版面加入地圖後須依 Cross-ticket invariants 重驗 AC-19。#24 之後新增的 `/api/days`、`/api/days/<date>` 請求適用 DR-19 §4.1 的 per-Region 規則。
 - AC-10（Dashboard）最終截圖重拍與 AC-02/03 `doc/acceptance/` 收錄由 #25 依 derivation record §11.1 進行；本票已提供對應證據截圖。
