@@ -168,11 +168,26 @@ img { max-width: 100%; }
 }
 .state--loading .state__body { color: var(--info-text); }
 .state--inline {
+  padding: 12px 14px;
+  margin: 0 0 14px;
+}
+/* Per-Region (inline) states are visually distinct from each other (DR-19 §4.2,
+   F-5b): loading = info blue, error = red, empty = neutral. */
+.state--inline-loading {
   background: var(--info-bg);
   border-color: var(--info-border);
   color: var(--info-text);
-  padding: 12px 14px;
-  margin: 0 0 14px;
+}
+.state--inline-error {
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error-text);
+  font-weight: 600;
+}
+.state--inline-empty {
+  background: var(--empty-bg);
+  border-color: var(--empty-border);
+  color: var(--muted);
 }
 
 .spinner {
@@ -293,8 +308,11 @@ img { max-width: 100%; }
 /* --- chart ------------------------------------------------------------------ */
 
 .chart { margin: 0; }
-.chart__canvas { position: relative; width: 100%; overflow-x: auto; }
-.chart__canvas svg { display: block; width: 100%; height: auto; min-width: 280px; }
+/* overflow is visible (not auto) so the hover tooltip is never clipped and no
+   inner scrollbar appears on hover (F-1). The SVG is drawn at the container's own
+   pixel width (see renderChart), so it never overflows horizontally. */
+.chart__canvas { position: relative; width: 100%; overflow: visible; }
+.chart__canvas svg { display: block; width: 100%; height: auto; }
 .chart__line--maxt { stroke: var(--maxt); }
 .chart__line--mint { stroke: var(--mint); }
 .chart__dot--maxt { fill: var(--maxt); }
@@ -308,9 +326,12 @@ img { max-width: 100%; }
 .chart__hit { fill: transparent; cursor: crosshair; }
 
 .chart-tooltip {
+  /* left/top are set in JS so the whole tooltip is clamped inside the chart box
+     and flips above/below the point — never clipped at the top edge, the first
+     date or the last date (F-1). No CSS transform offset. */
   position: absolute;
   top: 0; left: 0;
-  transform: translate(-50%, -110%);
+  max-width: 100%;
   background: var(--heading);
   color: var(--surface);
   border-radius: 8px;

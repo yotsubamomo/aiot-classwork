@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <div class="page">
+  <main class="page">
     <!-- Header. The <h1> keeps the teacher's concept word verbatim (H-2 / R-EN-2);
          the integrated layout name "Taiwan Weather Dashboard" (R-EN-7) is a subtitle
          and never replaces the concept word. -->
@@ -20,7 +20,10 @@
       </p>
     </header>
 
-    <!-- ERROR state (R-EN-1 item 5, R-DS-6): network failure / unexpected error.
+    <!-- ERROR state (R-EN-1 item 5, R-DS-6, DR-19): any FAILED request — a network
+         failure, an unparseable response, OR any non-2xx from /api/health or
+         /api/regions (503 missing/empty/incomplete, 500/502/504, 404). The server's
+         error message is surfaced below so missing/empty/incomplete stay distinct.
          role="alert" so it is announced. Never a blank page. Hidden until set. -->
     <div id="page-error" class="state state--error" role="alert" hidden>
       <span class="state__icon" aria-hidden="true">!</span>
@@ -37,8 +40,9 @@
       <p class="state__body">Loading the latest forecast…</p>
     </div>
 
-    <!-- EMPTY state (R-EN-1 item 5): the snapshot has no usable data
-         (missing / empty / incomplete → /api/health 503). Distinct from an error. -->
+    <!-- EMPTY state (R-EN-1 item 5, DR-19): a request SUCCEEDED (2xx) but there is
+         nothing to render — /api/regions returned an empty regions list. A failed
+         request or a 503 snapshot-unavailable is an ERROR, never empty (DR-19). -->
     <div id="page-empty" class="state state--empty" role="status" hidden>
       <span class="state__icon" aria-hidden="true">◌</span>
       <div>
@@ -138,7 +142,7 @@
       </section>
 
     </div>
-  </div>
+  </main>
 
   <script src="/static/app.js"></script>
 </body>

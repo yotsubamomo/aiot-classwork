@@ -9,18 +9,26 @@
  * data.db, and a weekly summary (lowest MinT / highest MaxT) derived in the
  * browser from the same /api/ series — no new business logic (INV-2, AC-04(b)).
  *
- * Three visible states cover every outcome (R-EN-1 item 5, R-DS-6):
- *   - loading  : the initial requests are in flight;
- *   - empty    : /api/health returns 503 (snapshot missing / empty / incomplete);
- *   - error    : a network failure or unexpected error.
- * A 404 / 503 on a per-Region request shows an inline message inside the chart
- * card rather than a blank chart.
+ * State mapping is DR-19 (decision-20260924-dashboard-state-mapping):
+ *   - loading : a request is in flight (page-level for /api/health -> /api/regions;
+ *               inline in the chart card for a per-Region request);
+ *   - error   : a request FAILED — a network failure, an unparseable response, OR
+ *               ANY non-2xx (503 missing/empty/incomplete, 500/502/504, 404). The
+ *               server's `error` message is surfaced so those causes stay distinct.
+ *               A snapshot-unavailable 503 is ALWAYS error, never empty;
+ *   - empty   : a request SUCCEEDED (2xx) but there is nothing to render —
+ *               /api/regions with an empty list (page-level), or /series with an
+ *               empty series (inline, shown as a message, never a blank card).
+ * One-line rule: empty only for "succeeded but nothing to show"; every failed
+ * request is error (R-DS-6, AC-10, R-EN-1 item 5).
  */
 "use strict";
 
 (function () {
   var els = {};
-  var chartState = null; // geometry + series for the hover tooltip
+  var chartState = null;   // geometry + series for the hover tooltip
+  var currentSeries = null; // last-rendered series, for responsive re-draw
+  var resizeTimer = null;
 
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
@@ -47,10 +55,16 @@
       loadRegion(els.regionSelect.value);
     });
 
-    // Reposition/redraw is not needed on resize because the SVG scales with the
-    // container; only the tooltip's pixel maths reads the live width, so hide any
-    // open tooltip on resize to avoid a stale position.
-    window.addEventListener("resize", hideTooltip);
+    // Redraw the chart at the new width on resize (the SVG is drawn at the
+    // container's own pixel width so its labels stay legible, F-3) and drop any
+    // open tooltip so its pixel maths never goes stale.
+    window.addEventListener("resize", function () {
+      hideTooltip();
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        if (currentSeries) renderChart(currentSeries);
+      }, 150);
+    });
 
     bootstrap();
   });
@@ -91,8 +105,9 @@
     fetchJson("/api/health")
       .then(function (res) {
         if (!res.ok) {
-          // 503: the snapshot is missing / empty / incomplete -> empty state.
-          showEmpty(reasonMessage(res.body));
+          // Any non-2xx (503 missing/empty/incomplete, 5xx, 404) is an error
+          // (DR-19); surface the server's message so the cause stays visible.
+          showError(reasonMessage(res.body));
           return;
         }
         showIngestionTime(res.body.ingestion_time);
@@ -108,11 +123,12 @@
   function loadRegions() {
     return fetchJson("/api/regions").then(function (res) {
       if (!res.ok) {
-        showEmpty(reasonMessage(res.body));
+        showError(reasonMessage(res.body)); // failed request -> error (DR-19)
         return;
       }
       var regions = (res.body && res.body.regions) || [];
       if (!regions.length) {
+        // Succeeded (2xx) but nothing to show -> empty (DR-19).
         showEmpty("No Regions are available in this snapshot.");
         return;
       }
@@ -142,32 +158,42 @@
   function loadRegion(region) {
     // Reveal the panel and set the heading up front so that EVERY outcome —
     // success, a 404/503 from /series, or a network error — renders inside a
-    // visible panel (finding F-1, R-DS-6), and show an inline loading message
-    // while the request is in flight.
+    // visible panel (finding F-1 of #20, R-DS-6), and show an inline loading
+    // state while the request is in flight (DR-19 per-Region loading).
     els.panel.hidden = false;
     els.panelHeading.textContent = "Temperature Forecast – " + region;
-    hideTooltip();
-    showChartStatus("Loading " + region + "…");
+    setChartStatus("Loading " + region + "…", "loading");
     fetchJson("/api/regions/" + encodeURIComponent(region) + "/series")
       .then(function (res) {
         if (!res.ok) {
+          // Failed request (404 / 503 / 5xx) -> inline error (DR-19).
           els.summary.hidden = true;
-          showChartStatus(
+          setChartStatus(
             res.status === 404
               ? "That Region is not available in this snapshot."
-              : reasonMessage(res.body)
+              : reasonMessage(res.body),
+            "error"
           );
           return;
         }
-        hideChartStatus();
         var series = (res.body && res.body.series) || [];
+        if (!series.length) {
+          // Succeeded but nothing to render -> inline empty, not a blank card.
+          els.summary.hidden = true;
+          setChartStatus("No forecast data for this Region yet.", "empty");
+          return;
+        }
+        hideChartStatus();
         renderSummary(series);
         renderChart(series);
         renderTable(series);
       })
       .catch(function () {
         els.summary.hidden = true;
-        showChartStatus("Cannot load this Region right now. Please try again.");
+        setChartStatus(
+          "Cannot load this Region right now. Please try again.",
+          "error"
+        );
       });
   }
 
@@ -212,8 +238,12 @@
   // --- inline-SVG line chart (MaxT red, MinT blue) with hover tooltip --------
 
   function renderChart(series) {
-    var W = 720;
-    var H = 340;
+    // Draw the SVG at the container's own pixel width so the render scale stays
+    // ~1 and the axis labels keep their real size at 375px too (F-3). The chart
+    // is re-drawn on resize. A taller box on narrow screens keeps it readable.
+    var cw = els.chart.clientWidth;
+    var W = Math.max(300, Math.round(cw || 700));
+    var H = cw && cw < 520 ? 300 : Math.round(W * 0.46);
     var m = { top: 18, right: 18, bottom: 46, left: 46 };
     var innerW = W - m.left - m.right;
     var innerH = H - m.top - m.bottom;
@@ -221,6 +251,7 @@
     els.chart.innerHTML = "";
     hideTooltip();
     chartState = null;
+    currentSeries = series;
     if (!series.length) {
       return;
     }
@@ -313,6 +344,8 @@
     });
 
     // Full-height transparent hit targets, one per date, drive the rich tooltip.
+    // Each carries its own <title> so the values remain reachable natively even
+    // though the hit rect sits above the dots (F-1 fallback).
     var half = n === 1 ? innerW / 2 : innerW / (n - 1) / 2;
     series.forEach(function (r, i) {
       var x0 = xAt(i) - half;
@@ -322,13 +355,17 @@
       var hit = svgEl("rect", {
         class: "chart__hit", x: x0, y: m.top, width: Math.max(w, 1), height: innerH,
       });
+      var hitTitle = svgEl("title", {});
+      hitTitle.textContent =
+        r.dataDate + " — MaxT " + formatTemp(r.maxt) + "°C, MinT " +
+        formatTemp(r.mint) + "°C";
+      hit.appendChild(hitTitle);
       hit.addEventListener("mouseenter", function () { showTooltip(i); });
       hit.addEventListener("mousemove", function () { showTooltip(i); });
       svg.appendChild(hit);
     });
 
-    var canvas = els.chart;
-    canvas.addEventListener("mouseleave", hideTooltip);
+    els.chart.addEventListener("mouseleave", hideTooltip);
 
     els.chart.appendChild(svg);
     chartState = {
@@ -358,6 +395,11 @@
   }
 
   // --- interactive hover tooltip ---------------------------------------------
+  // Positioned in JS and clamped inside the chart box so the WHOLE tooltip (Date,
+  // MaxT, MinT) is visible for every date at every width — it flips below the
+  // point when placing it above would clip the top edge, and never overhangs the
+  // first/last date (F-1). The canvas has overflow:visible and the SVG is drawn
+  // at container width, so there is no clipping and no inner scrollbar on hover.
 
   function showTooltip(i) {
     if (!chartState) return;
@@ -365,31 +407,44 @@
     var row = s.series[i];
     if (!row) return;
 
-    // Highlight the two dots for this date.
     clearActiveDots();
     if (s.maxtDots[i]) s.maxtDots[i].classList.add("chart__dot--active");
     if (s.mintDots[i]) s.mintDots[i].classList.add("chart__dot--active");
 
-    // Move the vertical guide line.
     var gx = s.xAt(i);
     s.guide.setAttribute("x1", gx);
     s.guide.setAttribute("x2", gx);
     s.guide.setAttribute("visibility", "visible");
 
-    // Fill and position the HTML tooltip. Convert SVG viewBox coords to canvas
-    // pixels using the live render scale (SVG width:100%, uniform aspect ratio).
     els.chartTooltip.innerHTML =
       '<div class="chart-tooltip__date">' + escapeHtml(row.dataDate) + "</div>" +
       '<div class="chart-tooltip__row"><span class="chart-tooltip__dot chart-tooltip__dot--maxt"></span>MaxT ' +
       escapeHtml(formatTemp(row.maxt)) + "°C</div>" +
       '<div class="chart-tooltip__row"><span class="chart-tooltip__dot chart-tooltip__dot--mint"></span>MinT ' +
       escapeHtml(formatTemp(row.mint)) + "°C</div>";
+    els.chartTooltip.hidden = false; // must be laid out before measuring
+
+    // Convert SVG viewBox coords to canvas pixels (scale ~1 by construction).
     var scale = (s.svg.clientWidth || s.W) / s.W;
-    var px = s.xAt(i) * scale;
-    var py = s.yAt(row.maxt) * scale;
-    els.chartTooltip.style.left = px + "px";
-    els.chartTooltip.style.top = py + "px";
-    els.chartTooltip.hidden = false;
+    var canvasW = s.svg.clientWidth || s.W * scale;
+    var canvasH = s.svg.clientHeight || s.H * scale;
+    var tipW = els.chartTooltip.offsetWidth;
+    var tipH = els.chartTooltip.offsetHeight;
+    var GAP = 10;
+
+    var pointX = s.xAt(i) * scale;
+    var maxtY = s.yAt(row.maxt) * scale;
+    var mintY = s.yAt(row.mint) * scale;
+
+    // Horizontal: centre on the point, clamp inside the box.
+    var left = clamp(pointX - tipW / 2, 0, Math.max(0, canvasW - tipW));
+    // Vertical: prefer above the MaxT dot; if that clips the top, drop below MinT.
+    var top = maxtY - tipH - GAP;
+    if (top < 0) top = mintY + GAP;
+    top = clamp(top, 0, Math.max(0, canvasH - tipH));
+
+    els.chartTooltip.style.left = left + "px";
+    els.chartTooltip.style.top = top + "px";
   }
 
   function hideTooltip() {
@@ -438,13 +493,18 @@
     return "The forecast data is currently unavailable.";
   }
 
-  function showChartStatus(message) {
+  // Inline (per-Region) status inside the chart card. `kind` is one of
+  // "loading" | "error" | "empty" and picks a visually distinct style (DR-19).
+  function setChartStatus(message, kind) {
     els.chartStatus.textContent = message;
+    els.chartStatus.className = "state state--inline state--inline-" + kind;
+    els.chartStatus.setAttribute("role", kind === "error" ? "alert" : "status");
     els.chartStatus.hidden = false;
     els.chart.innerHTML = "";
     els.tableBody.innerHTML = "";
     hideTooltip();
     chartState = null;
+    currentSeries = null;
   }
   function hideChartStatus() {
     els.chartStatus.hidden = true;
@@ -465,6 +525,10 @@
 
   function shortDate(d) {
     return typeof d === "string" && d.length >= 10 ? d.slice(5) : d;
+  }
+
+  function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(v, hi));
   }
 
   function escapeHtml(s) {
