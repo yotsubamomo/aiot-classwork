@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Show Python version (INV-8: 3.12 in CI)
+      - name: 'Show Python version (INV-8: 3.12 in CI)'
         run: python --version
 
       - name: Install pinned dependencies
