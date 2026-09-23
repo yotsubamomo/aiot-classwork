@@ -6,3 +6,8 @@ review-receipts/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Local secrets (API keys); commit .env.example templates instead
+.env
+.env.*
+!.env.example
