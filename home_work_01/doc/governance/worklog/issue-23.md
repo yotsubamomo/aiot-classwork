@@ -68,9 +68,13 @@
 
 `python -m pytest`（3.12，無網路、無 `.env`）：**152 passed**。含 Flask test client（AC-02/03/10 Dashboard 回歸、AC-16 health）、AC-04 靜態檢查、Streamlit `AppTest`、derive/DB/共用模組各類。
 
-### CI
+### CI（PASS）
 
-見下方「CI」段（push 後補）。
+Push `610a797` 觸發 `.github/workflows/home_work_01-ci.yml`（Python 3.12，offline pytest 全套＋憑證機械檢查 A-5）：
+- push run `35930941816` → completed/**success**（sha 610a797）
+- pull_request run `35930943558` → completed/**success**（sha 610a797）
+
+job「offline test suite + credential checks (Python 3.12)」全步驟綠（Show Python version 確認 3.12；full offline pytest；credential checks AC-07 b/c/d）。註記僅為 GitHub 對 Node20／ubuntu label 的 deprecation 提醒，非失敗。
 
 ## Audit status
 
@@ -78,4 +82,7 @@ Formal Ticket → independent audit required（Bindings §5；治理 §4.1）。
 
 ## Remaining work
 
-實作 static 三檔 → self-verification（pytest 全套、瀏覽器截圖五張、375px scrollWidth 量測、概念詞靜態檢查、app.py 未動確認）→ commit＋push → 確認 CI 綠。
+無 blocking 剩餘工作。實作與 self-verification 完成（DONE）；committed `610a797`、pushed；CI 綠。
+- 待 Orchestrator／主 session 依 Bindings §3.5 派 independent audit（Formal Ticket，觸及 H-2，R1 record 依 A-1 明記核對）。audit 不由 Executor 自派。
+- `Select Date` 控制項與 Taiwan Map 為 #24 範圍：本票只留標示清楚的 disabled placeholder，未實作；#24 在本版面加入地圖後須依 Cross-ticket invariants 重驗 AC-19。
+- 合併進 `main` 為 acceptor 的 release 動作（RB-1），非本票完成條件。
