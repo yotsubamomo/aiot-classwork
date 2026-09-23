@@ -1,6 +1,6 @@
 # Outcome Contract — HW10 Taiwan Weather Forecast（`home_work_01/`）
 
-- **狀態**：**DRAFT，尚未接受。** 阻擋項：治理採用前置作業（Bindings §8.2）待 acceptor 完成。範圍、資料來源（D2）與應用架構（A1–A4）皆已於 2026-09-23 簽核，本檔無 provisional 條款。
+- **狀態**：**ACCEPTED（2026-09-23）。** 接受紀錄見第 8 節；接受的 normative 內容為第 1–7 節於 commit `c45ec61` 的版本，未作任何內容變更。範圍、資料來源（D2）與應用架構（A1–A4）皆已於 2026-09-23 簽核，本檔無 provisional 條款。
 - **依據**：Minimal Operational Governance v2.0 §3.1 七項 properties；Project Bindings b1 §2.3。
 - **來源紀錄**：本檔由 2026-09-23 的 grill 收斂而成，事實與裁決細節見 [`../brief/BRIEF.md`](../brief/BRIEF.md)；詞彙見 [`../../CONTEXT.md`](../../CONTEXT.md)。
 - **Acceptor**：GitHub `yotsubamomo`（Bindings §2.1）。Agent 代寫的接受紀錄不等於取得授權；第 8 節由 acceptor 親自填寫。
@@ -112,14 +112,38 @@
 - 上位契約：`home_work_01/doc/requirement/`（同一 commit）。
 - 盤點：`home_work_01/doc/brief/BRIEF.md`（同一 commit）。
 
-## 8. 接受紀錄（由 acceptor 填寫）
+## 8. 接受紀錄
 
 | 欄位 | 內容 |
 | --- | --- |
-| 狀態 | **尚未接受**（阻擋：Bindings §8.2 前置） |
-| Acceptor 原始指示（引用原文） | _待填_ |
-| 日期 | _待填_ |
-| 接受的檔案 commit SHA | _待填_ |
+| 狀態 | **已接受**（2026-09-23） |
+| Acceptor | GitHub `yotsubamomo`（Bindings §2.1），於 Claude Code 對話中以下列原文接受 |
+| Acceptor 原始指示（引用原文） | 見第 8.2 節（逐字） |
+| 日期 | 2026-09-23 |
+| 接受的檔案 commit SHA | normative 內容（第 1–7 節）：`c45ec61`（`main`，2026-09-23 合併 PR #16）。本接受紀錄寫入後的 commit：待 commit 時填入 |
+| 隨接受生效的 derived contract | `home_work_01/doc/spec/SPEC.md` v1.1（derivation record：`doc/governance/decisions/derivation-SPEC.md`） |
+| 前置證據 | Bindings §8.2 #4 binding dry-run PASS：`docs/governance/binding-verification.md`（2026-09-23） |
+
+### 8.2 Acceptor 接受原文（2026-09-23，逐字）
+
+> 我接受 `home_work_01` 的 Outcome Contract。
+>
+> 接受範圍為目前 `c45ec61` 中第 1–7 節的 normative content，不做任何內容變更。
+>
+> 同時確認：
+>
+> 1. `home_work_01/doc/spec/SPEC.md` v1.1 為此 Outcome Contract 的有效 derived contract，隨本次接受生效；本次 acceptance record / metadata 的寫入不構成 normative content change，不需要重新 derive。
+>
+> 2. 我授權本單元所需的 RB-5 GitHub Actions 例外：
+>    - 可以在 repo root `.github/workflows/` 建立與維護只服務 `home_work_01` 的 workflow；
+>    - workflow 必須以 path filter 限定 `home_work_01/**` 以及該 workflow 檔案本身；
+>    - 此授權不延伸到其他 root 檔案、其他單元或其他用途的 workflow。
+>
+> 3. 其餘 reserved actions 維持原 governance 規則，不因本次接受而擴張。
+>
+> 請將以上原文寫入 Outcome Contract §8 acceptance record。
+
+寫入者：主 session（agent），依 acceptor 的明確指示逐字轉錄；接受與授權的效力來自上述 acceptor 原文，不來自本轉錄。
 
 ### 8.1 Grill 裁決紀錄（2026-09-23，acceptor 於對話中的原文摘錄，供接受時引用）
 
