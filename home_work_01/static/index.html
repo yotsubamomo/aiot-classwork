@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Taiwan Weather Forecast</title>
   <!-- Vendored Leaflet 1.9.4 (pinned, no key/account/payment — R-EN-6). Both the
-       CSS and JS are served same-origin from /static/vendor/; the map uses a
-       vendored Taiwan outline (a vector layer) and SVG circle markers, so it makes
-       no external tile/data request. -->
+       CSS and JS are served same-origin from /static/vendor/. The basemap is a
+       vendored vector layer loaded from /static/data/basemap.js (a same-origin
+       <script>, not a fetch), so the map makes NO external tile/data request. -->
   <link rel="stylesheet" href="/static/vendor/leaflet.css">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
@@ -20,8 +20,9 @@
       <p class="masthead__eyebrow">Taiwan Weather Dashboard</p>
       <h1 class="title">Taiwan Weather Forecast</h1>
       <p class="masthead__lead">
-        Six-region seven-day forecast — pick a region to see its temperature trend,
-        daily table and weekly summary.
+        Six-region seven-day forecast — read the derived map temperature for a day
+        on the Taiwan map, then pick a region below for its temperature trend, daily
+        table and weekly summary.
       </p>
     </header>
 
@@ -56,25 +57,99 @@
       </div>
     </div>
 
-    <!-- DASHBOARD content, revealed once a usable snapshot loads. -->
+    <!-- DASHBOARD content, revealed once a usable snapshot loads. Map-first: the
+         Taiwan Map card leads, then the Region controls, weekly summary and the
+         chart / table (R-EN-7 same-page integration). -->
     <div id="dashboard" class="dashboard" hidden>
 
-      <!-- Controls: Select Region (chart/table) and Select Date (Taiwan Map),
-           integrated on one page (R-EN-7). -->
+      <!-- Taiwan Map (R-EN-4..R-EN-7): a full-width, always-dark Leaflet map on a
+           vendored vector basemap. A floating info panel (top-left) carries the
+           Select Date control (R-EN-3), the day summary tiles and the selected
+           Region block; a floating legend (bottom-right) carries the four bands and
+           the derived-average caveat (R-EN-5). Markers are temperature pills whose
+           value and colour come straight from /api/days/<date> (H-3). -->
+      <section class="card map-card" aria-label="Taiwan map">
+        <div class="map-card__head">
+          <h2 class="section-heading">Taiwan Map</h2>
+          <p id="map-caption" class="caption caption--map"></p>
+        </div>
+
+        <div class="map-shell">
+          <!-- Floating info panel. On phones it becomes a row ABOVE the map (not
+               floating). Select Date lives here and stays visible/operable even
+               when the map shows an inline error/empty state (DR-19, P-7b). -->
+          <div class="map-panel map-panel--info">
+            <h3 class="map-panel__title">
+              Six-region forecast <span class="chip">DERIVED</span>
+            </h3>
+            <!-- Select Date (R-EN-3): the snapshot's seven Forecast Days, ascending,
+                 default first. Changing it recolours the pills and updates this
+                 panel to that day's values without resetting the map view (AC-18). -->
+            <div class="map-control">
+              <label class="map-control__label" for="date-select">Select Date</label>
+              <select id="date-select" class="map-select" aria-label="Select Date"></select>
+            </div>
+            <p class="map-meta">Forecast Day: <b id="map-forecast-day">–</b></p>
+            <p class="map-meta map-meta--source">
+              Source: CWA F-D0047-091 (county-level) → project-derived six-region values
+            </p>
+            <div class="map-tiles">
+              <div class="map-tile map-tile--max">
+                <span class="map-tile__label">Highest MaxT (this day)</span>
+                <span class="map-tile__value"><b id="tile-max-value">–</b><span class="map-tile__unit">°C</span></span>
+                <span class="map-tile__region" id="tile-max-region">–</span>
+              </div>
+              <div class="map-tile map-tile--min">
+                <span class="map-tile__label">Lowest MinT (this day)</span>
+                <span class="map-tile__value"><b id="tile-min-value">–</b><span class="map-tile__unit">°C</span></span>
+                <span class="map-tile__region" id="tile-min-region">–</span>
+              </div>
+            </div>
+            <div class="map-sel">
+              <p class="map-sel__name" id="sel-region">北部地區</p>
+              <div class="map-sel__row"><span>Date</span><span id="sel-date">–</span></div>
+              <div class="map-sel__row"><span>Min</span><span id="sel-min">–</span></div>
+              <div class="map-sel__row"><span>Max</span><span id="sel-max">–</span></div>
+              <p class="map-sel__derived">
+                Derived map temperature <b id="sel-derived">–</b>&thinsp;°C
+              </p>
+              <p class="map-sel__note">(derived, not an observed daily mean)</p>
+            </div>
+          </div>
+
+          <!-- Map frame. The inline status (DR-19) overlays ONLY the map, never the
+               info panel, so Select Date stays usable to switch to a working day. -->
+          <div id="map-frame" class="map-frame">
+            <div id="map" class="map" role="region"
+                 aria-label="Map of Taiwan with six Region markers coloured by the selected day's derived map temperature"></div>
+            <div id="map-status" class="map-status" role="status" hidden></div>
+          </div>
+
+          <!-- Floating legend (bottom-right; a row below the map on phones). Swatch
+               colours are set in JS from the same band→colour map the pills use, so
+               the legend always matches the marker colours (R-EN-5, AC-17). -->
+          <div class="map-panel map-panel--legend" aria-label="Derived map temperature colour legend">
+            <h4 class="map-legend__title">Derived map temperature</h4>
+            <ul class="map-legend__list">
+              <li><span class="band-swatch" data-band="blue"></span>&lt; 20&thinsp;°C</li>
+              <li><span class="band-swatch" data-band="green"></span>20 – &lt; 25&thinsp;°C</li>
+              <li><span class="band-swatch" data-band="yellow"></span>25 – &lt; 30&thinsp;°C</li>
+              <li><span class="band-swatch" data-band="red"></span>&ge; 30&thinsp;°C</li>
+            </ul>
+            <p class="map-legend__note">
+              Average = (MinT + MaxT) / 2, a derived value — not an observed daily mean.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Controls: Select Region (chart/table). Select Date now lives in the map
+           info panel above; the two presentations stay on one page (R-EN-7). -->
       <section class="controls card" aria-label="Forecast controls">
         <div class="control">
           <label class="control__label" for="region-select">Select Region</label>
           <select id="region-select" class="select" aria-label="Select Region"></select>
         </div>
-
-        <!-- Select Date (R-EN-3): the snapshot's seven Forecast Days, ascending,
-             default first. Changing it recolours the Taiwan Map markers and info
-             cards to that day's values (AC-18). Populated from /api/days. -->
-        <div class="control">
-          <label class="control__label" for="date-select">Select Date</label>
-          <select id="date-select" class="select" aria-label="Select Date"></select>
-        </div>
-
         <p id="ingestion-time" class="caption"></p>
       </section>
 
@@ -131,69 +206,14 @@
         </section>
       </div>
 
-      <!-- Taiwan Map (R-EN-4, R-EN-5, R-EN-7): a vendored Leaflet map centred on
-           Taiwan whose six Region markers are coloured by the selected day's
-           Derived Map Temperature band (from /api/days/<date>); an info card
-           (Region, Date, Min, Max, derived average to 1dp) and a four-band legend
-           with the "derived, not observed" note sit beside it. -->
-      <section class="card map-card" aria-label="Taiwan map">
-        <div class="map-card__head">
-          <h2 class="section-heading">Taiwan Map</h2>
-          <p id="map-caption" class="caption caption--map"></p>
-        </div>
-
-        <!-- Map status (DR-19 per-Region rule applied to the /api/days requests):
-             a 404/503/5xx/network/unparseable response shows an inline error here,
-             a 2xx-but-empty payload an inline empty message — never a blank card. -->
-        <div id="map-status" class="state state--inline" role="status" hidden></div>
-
-        <div id="map-layout" class="map-layout" hidden>
-          <div id="map" class="map" role="img"
-               aria-label="Map of Taiwan with six Region markers coloured by the selected day's derived map temperature"></div>
-
-          <aside class="map-side">
-            <!-- Info card (R-EN-4): updates on marker hover/click; the markers also
-                 carry a Leaflet tooltip (hover) and popup (click) with the same
-                 fields, so the info card is reachable both ways. -->
-            <div id="map-infocard" class="infocard" role="status" aria-live="polite">
-              <p class="infocard__hint">Hover or tap a marker to see a Region's values.</p>
-              <div id="infocard-body" class="infocard__body" hidden>
-                <p class="infocard__region" id="infocard-region"></p>
-                <p class="infocard__meta">Date: <span id="infocard-date"></span></p>
-                <div class="infocard__stats">
-                  <span class="infocard__stat infocard__stat--min">Min <b id="infocard-min">–</b><span class="infocard__unit">°C</span></span>
-                  <span class="infocard__stat infocard__stat--max">Max <b id="infocard-max">–</b><span class="infocard__unit">°C</span></span>
-                </div>
-                <p class="infocard__derived">
-                  Derived map temperature <b id="infocard-derived">–</b><span class="infocard__unit">°C</span>
-                  <span class="infocard__note">(derived, not an observed daily mean)</span>
-                </p>
-              </div>
-            </div>
-
-            <!-- Four-band legend + derived note (R-EN-5). Swatch colours are set in
-                 JS from the same band→colour map the markers use, so they match. -->
-            <div class="legend-bands" aria-label="Derived map temperature colour legend">
-              <p class="legend-bands__title">Derived map temperature</p>
-              <ul class="legend-bands__list">
-                <li><span class="band-swatch" data-band="blue"></span>&lt; 20&thinsp;°C</li>
-                <li><span class="band-swatch" data-band="green"></span>20 – &lt; 25&thinsp;°C</li>
-                <li><span class="band-swatch" data-band="yellow"></span>25 – &lt; 30&thinsp;°C</li>
-                <li><span class="band-swatch" data-band="red"></span>&ge; 30&thinsp;°C</li>
-              </ul>
-              <p class="legend-bands__note">
-                Average = (MinT + MaxT) / 2, a derived value — not an observed daily mean.
-              </p>
-            </div>
-          </aside>
-        </div>
-      </section>
-
     </div>
   </main>
 
-  <!-- Vendored Leaflet first so the global `L` exists before app.js runs. -->
+  <!-- Vendored Leaflet first so the global `L` exists, then the vendored vector
+       basemap (a same-origin <script> that sets window.TAIWAN_BASEMAP), then the
+       app. None of these makes a network request for map data. -->
   <script src="/static/vendor/leaflet.js"></script>
+  <script src="/static/data/basemap.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>

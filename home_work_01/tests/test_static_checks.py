@@ -74,8 +74,20 @@ _SQL_STATEMENT = re.compile(
 )
 
 # Absolute URLs found in the frontend, other than these known non-request
-# constants, are forbidden — data requests must be same-origin under /api/.
-_ALLOWED_FRONTEND_URLS = {"http://www.w3.org/2000/svg"}
+# constants, are forbidden — data requests must be same-origin under /api/. The
+# scan is recursive (see ``_static_files``), so it now also reads the vendored
+# Leaflet library and the vendored basemap under ``static/`` (#24 finding F-4).
+# The three vendored-Leaflet entries below are EXACT known non-request constants,
+# the same class as the SVG namespace: ``leafletjs.com`` is Leaflet's default
+# attribution link text and the two bug-tracker URLs are comments in
+# ``leaflet.css``. None is a fetch/tile target, so whitelisting the exact strings
+# does not weaken AC-04(b) — no request target is ever allowed (DR-20 P-3).
+_ALLOWED_FRONTEND_URLS = {
+    "http://www.w3.org/2000/svg",
+    "https://leafletjs.com",
+    "https://bugs.chromium.org/p/chromium/issues/detail?id=600120",
+    "https://bugzilla.mozilla.org/show_bug.cgi?id=888319",
+}
 _URL_RE = re.compile(r"https?://[^\s'\"`)]+")
 
 
@@ -192,7 +204,22 @@ def test_python_side_has_no_cwa_url_or_key_in_code() -> None:
 
 
 def _static_files() -> list[Path]:
-    return sorted(p for p in _STATIC_DIR.iterdir() if p.is_file())
+    """Every file served under ``static/``, RECURSIVELY.
+
+    Recursing into subdirectories (``static/data/``, ``static/vendor/``) closes
+    #24 finding F-4: the CWA-URL/key and external-absolute-URL scans now cover the
+    vendored Leaflet library and the vendored vector basemap, not just the
+    top-level frontend files.
+    """
+    return sorted(p for p in _STATIC_DIR.rglob("*") if p.is_file())
+
+
+def test_static_scan_is_recursive_over_subdirectories() -> None:
+    """Guard #24 F-4's fix: the frontend scan must reach ``static/`` subdirectories
+    (the vendored library and the vendored basemap), not just the top level."""
+    scanned = {p.relative_to(_STATIC_DIR).as_posix() for p in _static_files()}
+    assert "data/basemap.js" in scanned, "static/data/ is not scanned"
+    assert any(p.startswith("vendor/") for p in scanned), "static/vendor/ is not scanned"
 
 
 def test_frontend_has_no_cwa_url_or_key() -> None:

@@ -33,9 +33,27 @@
   --info-text: #1f4e79;
   --empty-bg: #f4f6fa;
   --empty-border: #dce0e8;
-  --map-sea: #d9e6f2;
   --shadow: 0 1px 2px rgba(16, 21, 31, .06), 0 6px 18px rgba(16, 21, 31, .05);
   --radius: 14px;
+
+  /* Taiwan Map card — ALWAYS dark, in both colour schemes (#28, DR-20 P-1). These
+     are NOT overridden in the dark block, so the map area reads the same whether
+     the page follows a light or dark system theme. */
+  --map-sea: #0f1927;
+  --map-surface: rgba(24, 33, 48, .94);
+  --map-surface-2: #1f2a3b;
+  --map-border: #2b3648;
+  --map-text: #e6eaf2;
+  --map-muted: #9aa4b6;
+  --map-heading: #f2f5fa;
+  --map-accent: #6ba6e8;
+  /* Four Derived Map Temperature band colours (R-SHR-4 blue/green/yellow/red).
+     The pills and the legend swatches are painted from these SAME tokens in JS so
+     they always match (R-EN-5, AC-17). */
+  --band-blue: #2b6cb0;
+  --band-green: #2f855a;
+  --band-yellow: #d69e2e;
+  --band-red: #c53030;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -61,7 +79,6 @@
     --info-text: #a9cdf2;
     --empty-bg: #1a2231;
     --empty-border: #2b3648;
-    --map-sea: #0f1927;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
   }
 }
@@ -351,7 +368,7 @@ img { max-width: 100%; }
 .table td:nth-child(2) { color: var(--mint); font-variant-numeric: tabular-nums; }
 .table td:nth-child(3) { color: var(--maxt); font-variant-numeric: tabular-nums; }
 
-/* --- Taiwan Map (Issue #24) -------------------------------------------------- */
+/* --- Taiwan Map (Issue #28): map-first, always-dark, floating panels --------- */
 
 .map-card__head {
   display: flex;
@@ -359,96 +376,247 @@ img { max-width: 100%; }
   align-items: baseline;
   justify-content: space-between;
   gap: 8px 16px;
+  margin-bottom: 12px;
 }
-.map-card__head .section-heading { margin-bottom: 6px; }
+.map-card__head .section-heading { margin-bottom: 0; }
 .caption--map { margin: 0; }
 
-.map-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin-top: 12px;
-}
-@media (min-width: 760px) {
-  .map-layout { grid-template-columns: 2fr 1fr; align-items: stretch; }
-}
+/* The shell is the positioning context for the floating panels on desktop. */
+.map-shell { position: relative; }
 
-/* The Leaflet container needs an explicit height. No tiles are used — the sea is
-   the container background and the land is the vendored GeoJSON layer. */
-.map {
-  height: 380px;
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+.map-frame {
+  position: relative;
+  border: 1px solid var(--map-border);
+  border-radius: 12px;
   overflow: hidden;
   background: var(--map-sea);
 }
-.leaflet-container {
+/* No tiles are used — the sea is the container background and the land is the
+   vendored GeoJSON basemap. Heights per DR-20 P-1: desktop 560 / tablet 440 /
+   375px 360. */
+.map {
+  height: 560px;
+  width: 100%;
   background: var(--map-sea);
-  font-family: inherit;
-  font-size: .9rem;
 }
+@media (max-width: 1023px) { .map { height: 440px; } }
+.leaflet-container { background: var(--map-sea); font-family: inherit; font-size: 13px; }
 
-.map-side {
+/* Leaflet zoom control + attribution on the dark map. */
+.leaflet-control-zoom { border: 1px solid var(--map-border) !important; box-shadow: 0 2px 8px rgba(0, 0, 0, .4) !important; }
+.leaflet-control-zoom a { background: var(--map-surface-2) !important; color: var(--map-text) !important; border-bottom-color: var(--map-border) !important; }
+.leaflet-control-attribution { background: rgba(15, 25, 39, .8) !important; color: var(--map-muted) !important; font-size: 12px; }
+.leaflet-control-attribution a { color: var(--map-accent) !important; }
+
+/* Inline map status: overlays ONLY the map frame; the info panel (with Select
+   Date) stays visible and operable so the user can switch to a working day
+   (DR-19, P-7b). The map is hidden (visibility, keeping its layout box) while a
+   status shows, so no stale map peeks through and ResizeObserver still measures a
+   non-zero size (init hardening, P-12). */
+.map-status {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  margin: 0;
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--map-sea);
+  color: var(--map-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.map-status.state--inline-error { background: #2a1414; color: #ffb4b4; }
+.map-status.state--inline-empty { background: #1a2331; color: var(--map-muted); }
+.map-status.state--inline-loading { background: #142033; color: #a9cdf2; }
+.map-frame--status .map { visibility: hidden; }
+
+/* Floating panels (info top-left, legend bottom-right). */
+.map-panel {
+  background: var(--map-surface);
+  color: var(--map-text);
+  border: 1px solid var(--map-border);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.map-panel--info {
+  position: absolute;
+  top: 14px; left: 14px;
+  z-index: 600;
+  width: 288px;
+  max-width: calc(100% - 28px);
+  padding: 12px 14px;
+}
+.map-panel--legend {
+  position: absolute;
+  right: 14px; bottom: 26px;
+  z-index: 600;
+  width: 240px;
+  max-width: calc(100% - 28px);
+  padding: 10px 12px;
+}
+.map-panel__title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: var(--map-heading);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #14304a;
+  color: #9ed0ff;
+  border: 1px solid #2c4a6b;
+  letter-spacing: .04em;
+}
+.map-control { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; }
+.map-control__label { font-size: 12px; color: var(--map-muted); white-space: nowrap; font-weight: 600; }
+.map-select {
+  flex: 1;
   min-width: 0;
+  min-height: 34px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--map-text);
+  background: var(--map-surface-2);
+  border: 1px solid var(--map-border);
+  border-radius: 8px;
+  padding: 4px 8px;
 }
+.map-select:disabled { opacity: .55; cursor: not-allowed; }
+.map-meta { font-size: 12px; color: var(--map-muted); margin: 0 0 4px; }
+.map-meta b { color: var(--map-text); font-weight: 600; }
+.map-meta--source { font-size: 12px; line-height: 1.4; }
 
-/* --- map info card ---------------------------------------------------------- */
-
-.infocard {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface-2);
-  padding: 14px 16px;
-}
-.infocard__hint { margin: 0; color: var(--muted); font-size: .9rem; }
-.infocard__region { margin: 0 0 6px; font-weight: 700; font-size: 1.05rem; color: var(--heading); }
-.infocard__meta { margin: 0 0 10px; color: var(--muted); font-size: .88rem; }
-.infocard__stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-.infocard__stat {
-  flex: 1 1 90px;
-  border: 1px solid var(--border);
+.map-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 10px; }
+.map-tile {
+  background: var(--map-surface-2);
+  border: 1px solid var(--map-border);
   border-radius: 10px;
   padding: 8px 10px;
-  font-size: .82rem;
-  color: var(--muted);
-  background: var(--surface);
+  display: flex;
+  flex-direction: column;
 }
-.infocard__stat b { display: block; font-size: 1.3rem; color: var(--heading); font-variant-numeric: tabular-nums; }
-.infocard__stat--min { border-left: 4px solid var(--mint); }
-.infocard__stat--max { border-left: 4px solid var(--maxt); }
-.infocard__unit { font-size: .8rem; color: var(--muted); font-weight: 600; margin-left: 2px; }
-.infocard__derived { margin: 0; font-size: .9rem; color: var(--text); }
-.infocard__derived b { font-variant-numeric: tabular-nums; }
-.infocard__note { color: var(--muted); font-size: .82rem; }
+.map-tile__label { font-size: 12px; color: var(--map-muted); }
+.map-tile__value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.map-tile__unit { font-size: 12px; font-weight: 400; color: var(--map-muted); margin-left: 2px; }
+.map-tile__region { font-size: 12px; color: var(--map-muted); }
+.map-tile--max .map-tile__value { color: #ff8f8f; }
+.map-tile--min .map-tile__value { color: #7fc0ff; }
 
-/* --- four-band legend + derived note (R-EN-5) ------------------------------- */
+.map-sel { border-top: 1px solid var(--map-border); padding-top: 8px; }
+.map-sel__name { font-size: 15px; font-weight: 700; color: var(--map-heading); margin: 0 0 4px; }
+.map-sel__row { font-size: 13px; display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.map-sel__row span:last-child { font-weight: 600; color: var(--map-text); }
+.map-sel__derived { margin: 4px 0 0; font-size: 13px; color: var(--map-text); }
+.map-sel__derived b { font-size: 16px; font-variant-numeric: tabular-nums; }
+.map-sel__note { font-size: 12px; color: var(--map-muted); margin: 2px 0 0; }
 
-.legend-bands {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  padding: 14px 16px;
-}
-.legend-bands__title { margin: 0 0 10px; font-weight: 700; font-size: .95rem; color: var(--heading); }
-.legend-bands__list { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 8px; }
-.legend-bands__list li { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--text); }
+/* Legend (R-EN-5). Not a continuous gradient — four discrete bands + the caveat. */
+.map-legend__title { margin: 0 0 6px; font-size: 13px; color: var(--map-heading); }
+.map-legend__list { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 3px; }
+.map-legend__list li { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--map-text); font-variant-numeric: tabular-nums; }
 .band-swatch {
   flex: none;
-  width: 18px; height: 18px;
-  border-radius: 5px;
-  border: 1px solid rgba(0, 0, 0, .25);
-  background: var(--surface-2); /* replaced by the band colour in JS */
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255, 255, 255, .7);
+  background: var(--map-surface-2); /* replaced by the band colour in JS */
 }
-.legend-bands__note { margin: 0; font-size: .82rem; color: var(--muted); line-height: 1.4; }
+.map-legend__note { font-size: 12px; color: var(--map-muted); margin: 6px 0 0; line-height: 1.4; }
 
-/* Leaflet tooltip / popup content (info card reached by hover / click). */
-.mapinfo__region { display: block; font-size: 1rem; margin-bottom: 3px; }
-.mapinfo__row { font-size: .86rem; line-height: 1.5; }
-.mapinfo__note { color: #888; }
+/* Temperature pill markers (L.marker + L.divIcon). Only the pill itself is
+   interactive: the wide transparent icon box and the Region label are
+   pointer-events:none so adjacent markers' boxes never intercept each other's
+   hover/click. The pill's ::before gives it a centred hit target of at least
+   44x44 (V-4) without enlarging the visible pill. */
+.leaflet-div-icon.pill-icon { background: transparent; border: 0; }
+.pill-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  min-height: 46px;
+  pointer-events: none;
+}
+.pill {
+  position: relative;
+  min-width: 58px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: var(--band-yellow);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .45);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform .12s ease;
+  pointer-events: auto;
+}
+/* >= 44x44 centred hit target (V-4), transparent, does not change the look. */
+.pill::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  min-width: 44px;
+  height: 44px;
+}
+.pill--blue { background: var(--band-blue); color: #fff; }
+.pill--green { background: var(--band-green); color: #fff; }
+.pill--yellow { background: var(--band-yellow); color: #1a2230; }
+.pill--red { background: var(--band-red); color: #fff; }
+.pill:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.pill-icon:hover .pill,
+.pill-icon:focus-within .pill,
+.pill-icon.is-active .pill { transform: scale(1.08); border-color: #9ed0ff; }
+.rlabel {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(15, 25, 39, .82);
+  padding: 1px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.map--labels-hidden .rlabel { display: none; }
+
+/* Marker hover tooltip (direction: top). */
+.leaflet-tooltip.map-tip {
+  background: var(--map-surface);
+  color: var(--map-text);
+  border: 1px solid var(--map-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+  font-size: 13px;
+  padding: 7px 9px;
+  white-space: nowrap;
+}
+.leaflet-tooltip.map-tip::before { border-top-color: var(--map-border); }
+.map-tip__region { display: block; font-size: 14px; margin-bottom: 2px; }
+.map-tip__row { display: block; font-size: 13px; line-height: 1.5; }
+.map-tip__note { color: var(--map-muted); }
 
 /* --- narrow screens (down to 375px) ----------------------------------------- */
 
@@ -458,5 +626,23 @@ img { max-width: 100%; }
   .card { padding: 15px; }
   .control { width: 100%; }
   .select { min-width: 0; width: 100%; }
-  .map { height: 320px; }
+}
+
+/* Phones (<= 640): the floating panels stop floating — the info panel (with
+   Select Date) becomes a row ABOVE the map and the legend a row BELOW it (P-7);
+   the map area stays dark. Height 360px (DR-20 P-1). */
+@media (max-width: 640px) {
+  .map-shell { display: flex; flex-direction: column; gap: 10px; }
+  .map-panel {
+    position: static;
+    width: auto;
+    max-width: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--map-surface-2);
+    box-shadow: none;
+  }
+  .map-panel--info { order: -1; }
+  .map { height: 360px; }
+  .leaflet-control-attribution { font-size: 12px; }
 }

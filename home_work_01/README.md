@@ -257,21 +257,41 @@ chart/table/summary. These are **enhanced, dashboard-only** features — the
 Streamlit Grading App deliberately has neither.
 
 - **`Select Date`** lists the snapshot's seven Forecast Days in ascending order and
-  defaults to the first day. Changing it recolours the map markers and updates the
-  info cards to that day's values (data from `GET /api/days` and
-  `GET /api/days/<date>`).
+  defaults to the first day. It lives **inside the Taiwan Map's floating info panel**
+  (top-left on wide screens; a row above the map on phones). Changing it recolours the
+  map markers and updates the panel to that day's values **without resetting the map
+  view** (data from `GET /api/days` and `GET /api/days/<date>`). The Region
+  chart/table's own **`Select Region`** control stays in the controls card below the
+  map — the two presentations remain on one page.
 - **Taiwan Map** is drawn with **Leaflet** (vendored locally under
-  [`static/vendor/`](static/vendor/), pinned to version 1.9.4). The base layer is a
-  small, **project-authored simplified Taiwan outline** rendered as a vector layer
-  (GeoJSON) — there is **no external tile server**, so the map makes no external
-  request and needs **no key, account or payment**. Both the Leaflet library and the
-  basemap are self-contained; the browser only ever calls this app's own
-  same-origin `/static/` and `/api/` URLs.
-- The map shows **six Region markers** at **project-defined representative points**
-  (their latitude/longitude are a project layout choice — a single point standing in
-  for each Region — **not** a CWA-published location or boundary). Each marker is
-  coloured by the selected day's **Derived Map Temperature** band and a click/hover
-  info card shows the Region, `Date`, `Min`, `Max` and the derived average.
+  [`static/vendor/`](static/vendor/), pinned to version 1.9.4) on a **vendored vector
+  basemap** loaded from [`static/data/basemap.js`](static/data/basemap.js) as a
+  same-origin `<script>` global (`window.TAIWAN_BASEMAP`) — **not** fetched. There is
+  **no external tile server**, so the map makes **no external request at runtime** and
+  needs **no key, account or payment**; the browser only ever calls this app's own
+  same-origin `/static/` and `/api/` URLs. The map area is dark in both light and dark
+  colour schemes.
+  - **Basemap sources and licences** (acquired 2026-09-24 at build time — both free,
+    no account, no payment; the geometry is simplified and carries no attributes, so it
+    is a backdrop only, not a data layer):
+    - Surrounding coastlines: **Natural Earth** 1:50m Admin 0 Countries
+      (`ne_50m_admin_0_countries`), **public domain**. Filtered to CHN/TWN/PHL/JPN/VNM/
+      HKG/MAC, bbox-clipped and Visvalingam-simplified.
+    - Taiwan county polygons: **內政部 (Ministry of the Interior) 直轄市、縣市界線
+      (TWD97經緯度)** open data, version 1140318 (2025-03-18), under the **Open
+      Government Data License (政府資料開放授權條款)** — attribution shown in the map's
+      attribution control. bbox-clipped and Visvalingam-simplified.
+  - Total vendored basemap ≤ 300 KB.
+- The map shows **six Region markers** as temperature **pills** at **project-defined
+  representative points** (their latitude/longitude are a project layout choice — a
+  single point standing in for each Region, within that Region's member counties —
+  **not** a CWA-published location or boundary). The northern and north-eastern points
+  are `北部地區 [25.12, 121.38]` and `東北部地區 [24.66, 121.80]` (nudged apart from
+  #24's `[25.03, 121.50]` / `[24.72, 121.74]` so the two pills never overlap at the
+  375px view); the other four are unchanged. Each pill's **text** is the selected day's
+  Derived Map Temperature (one decimal) and its **colour** is that day's band; a
+  hover tooltip and the panel's selected-Region block show the Region, `Date`, `Min`,
+  `Max` and the derived average.
 - **Derived Map Temperature** is a **derived value**: `(MinT + MaxT) / 2`, rounded
   half-up to one decimal place. It is **not** an observed daily mean. The colour
   bands (by the displayed one-decimal value) are `< 20` blue, `20 – < 25` green,

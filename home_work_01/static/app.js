@@ -1,4 +1,5 @@
-/* Taiwan Weather Forecast — dashboard frontend (Issues #23 UI/UX + #24 map).
+/* Taiwan Weather Forecast — dashboard frontend (Issues #23 UI/UX + #24 map,
+ * reworked in #28).
  *
  * All data comes from THIS application's own JSON API under the "/api/" prefix
  * (R-DS-5, R-SHR-5, AC-04(b)); the browser never calls CWA and holds no key.
@@ -9,13 +10,15 @@
  * data.db, and a weekly summary (lowest MinT / highest MaxT) derived in the
  * browser from the same /api/ series — no new business logic (INV-2, AC-04(b)).
  *
- * Issue #24 adds "Select Date" (the seven Forecast Days from /api/days, default
- * first) and a vendored-Leaflet Taiwan Map whose six Region markers are coloured
- * by the selected day's Derived Map Temperature band from /api/days/<date>. The
- * band and the derived value come straight from the shared module via the
- * endpoint; the frontend re-derives nothing (H-3 single-sourced, R-SHR-4). The
- * map uses a vendored Taiwan outline (a vector layer) and SVG circle markers, so
- * it makes no external tile/data request and needs no key (R-EN-6).
+ * "Select Date" (the seven Forecast Days from /api/days, default first) lives in
+ * the Taiwan Map's floating info panel (#28). The Taiwan Map is drawn with
+ * vendored Leaflet on a vendored VECTOR basemap (window.TAIWAN_BASEMAP, a
+ * same-origin <script>, no fetch, no tiles), so it makes no external request and
+ * needs no key (R-EN-6). Its six Region markers are temperature "pills" whose
+ * TEXT (the day's derivedMapTemperature to one decimal) and COLOUR (the day's
+ * colourBand) come straight from /api/days/<date>; the frontend re-derives
+ * nothing and re-bands nothing (H-3 single-sourced, R-SHR-4). oneDp/toFixed(1) is
+ * display formatting only.
  *
  * State mapping is DR-19 (decision-20260924-dashboard-state-mapping):
  *   - loading : a request is in flight (page-level for /api/health -> /api/regions;
@@ -30,9 +33,9 @@
  *               series (inline in the chart card), or /api/days[/<date>] with no
  *               days/values (inline in the map card) — always a message, never a
  *               blank card.
- * One-line rule: empty only for "succeeded but nothing to show"; every failed
- * request is error (R-DS-6, AC-10, R-EN-1 item 5). The /api/days requests follow
- * the same per-Region (inline, in the map card) rule (DR-19 for #24).
+ * The map-card inline status overlays ONLY the map, never the info panel, so
+ * "Select Date" stays visible and operable — the user can switch to a working day
+ * to recover from an inline error/empty (DR-19, #28 P-7b).
  */
 "use strict";
 
@@ -42,7 +45,7 @@
   var currentSeries = null; // last-rendered series, for responsive re-draw
   var resizeTimer = null;
 
-  // --- Taiwan Map (Issue #24, R-EN-3..R-EN-7) --------------------------------
+  // --- Taiwan Map (R-EN-3..R-EN-7) -------------------------------------------
   // The six Region names in the canonical order (matches /api/regions and the
   // shared module's R-SHR-2(b)); used to iterate markers deterministically.
   var REGION_ORDER = [
@@ -50,14 +53,16 @@
   ];
 
   // Project-defined representative points [lat, lng] for each Region marker
-  // (DR-1: coordinates are HOW; README notes they are project-defined, not a CWA
-  // authority). fitBounds over these keeps the map centred on Taiwan with all six
-  // markers visible (R-EN-4).
+  // (R-EN-4: coordinates are HOW; README notes they are project-defined, not a CWA
+  // authority). 北部 / 東北部 are nudged apart (vs. #24's 25.03,121.50 /
+  // 24.72,121.74) so the two pills never overlap at the 375px initial zoom. Each
+  // point lies within a member county of its Region. fitBounds over these keeps
+  // the map centred on Taiwan with all six markers visible (R-EN-4).
   var REGION_POINTS = {
-    "北部地區": [25.03, 121.50],
+    "北部地區": [25.12, 121.38],
     "中部地區": [24.15, 120.68],
     "南部地區": [22.85, 120.35],
-    "東北部地區": [24.72, 121.74],
+    "東北部地區": [24.66, 121.80],
     "東部地區": [23.98, 121.55],
     "東南部地區": [22.80, 121.10],
   };
@@ -65,42 +70,30 @@
   // Colour per Derived Map Temperature band. The band comes straight from the
   // /api/days/<date> endpoint (R-SHR-4 / DR-4 owns the derivation and banding in
   // the shared module); the frontend re-derives nothing (H-3 single-sourced) and
-  // only maps the band NAME to a fill colour. The legend swatches are painted
-  // from this same map so colours always agree (R-EN-5).
+  // only maps the band NAME to a fill colour. The legend swatches are painted from
+  // this same map so the legend always matches the pills (R-EN-5, AC-17). The four
+  // tokens are the blue / green / yellow / red family named by R-SHR-4.
   var BAND_COLOURS = {
     blue: "#2b6cb0",
-    green: "#2f9e44",
-    yellow: "#f2b705",
-    red: "#e03131",
+    green: "#2f855a",
+    yellow: "#d69e2e",
+    red: "#c53030",
+  };
+  // Pill text colour per band: the yellow band uses dark text for contrast, the
+  // rest use white (both meet WCAG AA against their band fill — see worklog V-2).
+  var BAND_TEXT = {
+    blue: "#ffffff",
+    green: "#ffffff",
+    yellow: "#1a2230",
+    red: "#ffffff",
   };
 
-  // A simplified outline of Taiwan's main island as a vector basemap (GeoJSON,
-  // [lng, lat]). It is a project-authored, simplified coastline used only as a
-  // backdrop for the markers — no tile server, no external request, so the map
-  // works offline and needs no key/account (R-EN-6). fitBounds is over the
-  // markers, not this outline.
-  var TAIWAN_OUTLINE = {
-    type: "Feature",
-    properties: { name: "Taiwan (simplified outline, project-authored)" },
-    geometry: {
-      type: "Polygon",
-      coordinates: [[
-        [121.53, 25.30], [121.66, 25.27], [121.83, 25.13], [121.94, 24.97],
-        [121.90, 24.82], [121.82, 24.68], [121.75, 24.45], [121.62, 24.10],
-        [121.52, 23.80], [121.43, 23.45], [121.35, 23.10], [121.24, 22.80],
-        [121.15, 22.62], [121.02, 22.40], [120.92, 22.20], [120.86, 22.00],
-        [120.84, 21.90], [120.76, 21.96], [120.68, 22.12], [120.55, 22.42],
-        [120.42, 22.72], [120.28, 22.98], [120.16, 23.25], [120.09, 23.55],
-        [120.12, 23.82], [120.22, 24.10], [120.40, 24.33], [120.58, 24.58],
-        [120.78, 24.82], [121.00, 25.02], [121.22, 25.14], [121.40, 25.23],
-        [121.53, 25.30],
-      ]],
-    },
-  };
-
-  var map = null;          // the Leaflet map, created once
-  var markers = {};        // Region name -> L.CircleMarker
-  var mapReqSeq = 0;       // latest /api/days/<date> request wins (F-3, out-of-order)
+  var map = null;          // the Leaflet map, created once (when the map has size)
+  var markers = {};        // Region name -> L.marker (pill divIcon)
+  var mapReqSeq = 0;       // latest /api/days/<date> request wins (out-of-order)
+  var selectedRegion = "北部地區"; // the Region shown in the info panel's selected block
+  var latestDay = null;    // {date, byRegion} for the day currently rendered/pending
+  var mapInitScheduled = false;
 
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
@@ -122,18 +115,21 @@
     els.chart = document.getElementById("chart");
     els.chartTooltip = document.getElementById("chart-tooltip");
     els.tableBody = document.getElementById("table-body");
-    // Select Date + Taiwan Map (#24).
+    // Select Date + Taiwan Map info panel (#28).
     els.dateSelect = document.getElementById("date-select");
     els.mapCaption = document.getElementById("map-caption");
     els.mapStatus = document.getElementById("map-status");
-    els.mapLayout = document.getElementById("map-layout");
-    els.infocardHint = document.querySelector("#map-infocard .infocard__hint");
-    els.infocardBody = document.getElementById("infocard-body");
-    els.infocardRegion = document.getElementById("infocard-region");
-    els.infocardDate = document.getElementById("infocard-date");
-    els.infocardMin = document.getElementById("infocard-min");
-    els.infocardMax = document.getElementById("infocard-max");
-    els.infocardDerived = document.getElementById("infocard-derived");
+    els.mapFrame = document.getElementById("map-frame");
+    els.mapForecastDay = document.getElementById("map-forecast-day");
+    els.tileMaxValue = document.getElementById("tile-max-value");
+    els.tileMaxRegion = document.getElementById("tile-max-region");
+    els.tileMinValue = document.getElementById("tile-min-value");
+    els.tileMinRegion = document.getElementById("tile-min-region");
+    els.selRegion = document.getElementById("sel-region");
+    els.selDate = document.getElementById("sel-date");
+    els.selMin = document.getElementById("sel-min");
+    els.selMax = document.getElementById("sel-max");
+    els.selDerived = document.getElementById("sel-derived");
 
     els.regionSelect.addEventListener("change", function () {
       loadRegion(els.regionSelect.value);
@@ -143,8 +139,8 @@
     });
 
     // Redraw the chart at the new width on resize (the SVG is drawn at the
-    // container's own pixel width so its labels stay legible, F-3) and drop any
-    // open tooltip so its pixel maths never goes stale.
+    // container's own pixel width so its labels stay legible) and drop any open
+    // tooltip so its pixel maths never goes stale. Also keep Leaflet in sync.
     window.addEventListener("resize", function () {
       hideTooltip();
       if (resizeTimer) clearTimeout(resizeTimer);
@@ -229,7 +225,7 @@
       var initial = regions.indexOf(wanted) >= 0 ? wanted : regions[0];
       els.regionSelect.value = initial;
       loadRegion(initial);
-      // Select Date + Taiwan Map load independently of the selected Region (#24).
+      // Select Date + Taiwan Map load independently of the selected Region.
       loadDays();
     });
   }
@@ -288,7 +284,7 @@
       });
   }
 
-  // --- Select Date + Taiwan Map (#24, R-EN-3..R-EN-7) ------------------------
+  // --- Select Date + Taiwan Map (R-EN-3..R-EN-7) -----------------------------
   // Independent of the selected Region. /api/days fills Select Date (seven days,
   // ascending, default first); /api/days/<date> gives the six Regions' values for
   // the chosen day, each already carrying the Derived Map Temperature and its
@@ -299,20 +295,26 @@
     return fetchJson("/api/days")
       .then(function (res) {
         if (failed(res)) {
-          setMapStatus(reasonMessage(res.body), "error"); // DR-19: failure -> error
+          // No days to list: the map card shows an inline error; Select Date has
+          // nothing to offer so it is disabled (DR-19, P-7b).
+          setDateSelectEnabled(false);
+          setMapStatus(reasonMessage(res.body), "error");
           return;
         }
         var days = (res.body && res.body.days) || [];
         if (!days.length) {
+          setDateSelectEnabled(false);
           setMapStatus("No Forecast Days are available in this snapshot.", "empty");
           return;
         }
         populateDates(days);
+        setDateSelectEnabled(true);
         var first = days[0];              // ascending; default the first day (R-EN-3)
         els.dateSelect.value = first;
         loadDay(first);
       })
       .catch(function () {
+        setDateSelectEnabled(false);
         setMapStatus(
           "Cannot load the map right now. Please try again.",
           "error"
@@ -330,10 +332,14 @@
     });
   }
 
+  function setDateSelectEnabled(enabled) {
+    if (els.dateSelect) els.dateSelect.disabled = !enabled;
+  }
+
   function loadDay(date) {
     // Tag this request; if the user picks another date before it resolves, a
     // later request bumps mapReqSeq and this (stale/out-of-order) response is
-    // ignored so it cannot overwrite the current day's markers/cards (F-3).
+    // ignored so it cannot overwrite the current day's pills/panel (#24 F-3).
     var seq = ++mapReqSeq;
     els.mapCaption.textContent = "Showing " + date;
     setMapStatus("Loading " + date + "…", "loading");
@@ -342,20 +348,20 @@
         if (seq !== mapReqSeq) return; // superseded by a newer Select Date request
         if (failed(res)) {
           // 404 / 503 / 5xx / unparseable -> inline error (DR-19 per-Region rule).
+          // The info panel (with Select Date) stays visible so the user can pick
+          // another day and recover (P-7b).
           setMapStatus(
             res.status === 404
               ? "That date is not available in this snapshot."
               : reasonMessage(res.body),
             "error"
           );
-          clearInfocard();
           return;
         }
         var values = (res.body && res.body.values) || [];
         if (!values.length) {
           // Succeeded but nothing to render -> inline empty (DR-19).
           setMapStatus("No values are available for this date yet.", "empty");
-          clearInfocard();
           return;
         }
         hideMapStatus();
@@ -367,170 +373,288 @@
           "Cannot load this date right now. Please try again.",
           "error"
         );
-        clearInfocard();
       });
   }
 
-  // Colour the six markers for `date` and (re)bind their hover tooltip, click
-  // popup and the side info card. Called only on a successful 2xx with values.
+  // Render `date`'s six values: recolour/relabel the pills, refresh their
+  // tooltips, and update the info panel (day tiles + selected-Region block).
+  // Called only on a successful 2xx with values. The map view is NOT reset when
+  // Select Date changes — only the pills/tooltips/panel update (AC-18, P-12).
   function applyDay(date, values) {
-    els.mapLayout.hidden = false;
-    if (!ensureMap()) {
-      // Leaflet failed to load (vendored script missing) — treat as an error so
-      // the card is never blank.
-      setMapStatus("The map library is unavailable.", "error");
-      return;
-    }
-
     var byRegion = {};
     values.forEach(function (v) { byRegion[v.regionName] = v; });
+    latestDay = { date: date, byRegion: byRegion };
 
+    // Bring up the map when its container actually has a non-zero size (init
+    // hardening, P-12) — then render this day onto the pills.
+    ensureMapSized(function () {
+      if (!initMap()) {
+        setMapStatus("The map library is unavailable.", "error");
+        return;
+      }
+      renderDay(latestDay.date, latestDay.byRegion);
+    });
+  }
+
+  function renderDay(date, byRegion) {
+    els.mapForecastDay.textContent = date;
+
+    // Day summary tiles: front-end max/min over the six endpoint values for the
+    // day (same pattern as the weekly summary — no new business logic, R-EN-1(3),
+    // R-SHR-1, INV-1). We compare the endpoint's own mint/maxt; nothing is derived.
+    var hi = null, lo = null;
+    REGION_ORDER.forEach(function (region) {
+      var v = byRegion[region];
+      if (!v) return;
+      if (hi === null || v.maxt > hi.maxt) hi = v;
+      if (lo === null || v.mint < lo.mint) lo = v;
+    });
+    if (hi) { els.tileMaxValue.textContent = oneDp(hi.maxt); els.tileMaxRegion.textContent = hi.regionName; }
+    if (lo) { els.tileMinValue.textContent = oneDp(lo.mint); els.tileMinRegion.textContent = lo.regionName; }
+
+    // Pills: TEXT = endpoint derivedMapTemperature (1dp display), COLOUR = endpoint
+    // colourBand. No re-derivation, no re-banding (H-3, R-SHR-4).
     REGION_ORDER.forEach(function (region) {
       var marker = markers[region];
       var v = byRegion[region];
       if (!marker || !v) return;
-      // Colour DIRECTLY by the endpoint's band (no re-derivation, H-3).
-      marker.setStyle({ fillColor: BAND_COLOURS[v.colourBand] || "#888888" });
-      var html = infoHtml(region, date, v);
-      // Update the tooltip/popup content IN PLACE. setPopupContent refreshes an
-      // ALREADY-OPEN popup live, so a click info card left open when the user
-      // changes Select Date shows the new day's Date/Min/Max/derived instead of
-      // the previous day's stale values (F-1 / AC-18); the first call binds them.
-      // autoPan off: every marker is already in view (fitBounds), so opening a
-      // popup should not jump the map.
-      if (marker.getTooltip()) {
-        marker.setTooltipContent(html);
-      } else {
-        marker.bindTooltip(html, { direction: "top", offset: [0, -6] });
-      }
-      if (marker.getPopup()) {
-        marker.setPopupContent(html);
-      } else {
-        marker.bindPopup(html, { autoPan: false });
-      }
+      paintPill(marker, region, date, v);
       marker._dayInfo = { region: region, date: date, value: v };
     });
 
-    // Seed the side info card with the first Region so it is never blank; hover
-    // or click updates it (and opens the marker's own tooltip/popup).
-    var firstValue = byRegion[REGION_ORDER[0]];
-    if (firstValue) updateInfocard(REGION_ORDER[0], date, firstValue);
-
-    map.invalidateSize();
+    highlightSelected();
+    updateSelectedBlock(date, byRegion);
   }
 
-  // Create the Leaflet map once: the Taiwan outline as a vector basemap and six
-  // circle markers, then fit the view to the markers (R-EN-4). Returns false if
-  // Leaflet is unavailable.
-  function ensureMap() {
+  // Update one marker's pill element (text/colour/aria) and its hover tooltip.
+  function paintPill(marker, region, date, v) {
+    var el = marker.getElement();
+    if (!el) return;
+    var band = v.colourBand;
+    var pill = el.querySelector(".pill");
+    if (pill) {
+      pill.textContent = oneDp(v.derivedMapTemperature) + "°";
+      pill.className = "pill pill--" + band;
+      pill.style.background = BAND_COLOURS[band] || "#888888";
+      pill.style.color = BAND_TEXT[band] || "#ffffff";
+      pill.setAttribute(
+        "aria-label",
+        region + " " + date +
+        " Min " + oneDp(v.mint) + "°C" +
+        " Max " + oneDp(v.maxt) + "°C" +
+        " derived " + oneDp(v.derivedMapTemperature) + "°C"
+      );
+    }
+    bindOrUpdateTip(marker, tooltipHtml(region, date, v));
+  }
+
+  // Pick a tooltip direction that keeps the WHOLE tooltip inside the Leaflet
+  // container: a marker near the top of the view opens its tooltip downward,
+  // everything else upward (V-3, so the north pill's tooltip is never clipped at
+  // the top edge — closes #24 N-1 without over-compressing the markers at 375px).
+  function tipDir(marker) {
+    if (!map) return "top";
+    var y = map.latLngToContainerPoint(marker.getLatLng()).y;
+    return y < 118 ? "bottom" : "top";
+  }
+
+  function bindOrUpdateTip(marker, html) {
+    var dir = tipDir(marker);
+    if (marker.getTooltip() && marker._tipDir === dir) {
+      marker.setTooltipContent(html); // refresh an already-open tooltip in place
+      return;
+    }
+    if (marker.getTooltip()) marker.unbindTooltip();
+    marker._tipDir = dir;
+    marker.bindTooltip(html, {
+      direction: dir,
+      offset: dir === "bottom" ? [0, 20] : [0, -20],
+      opacity: 1,
+      className: "map-tip",
+    });
+  }
+
+  function tooltipHtml(region, date, v) {
+    return (
+      '<b class="map-tip__region">' + escapeHtml(region) + "</b>" +
+      '<span class="map-tip__row">Date ' + escapeHtml(date) + "</span>" +
+      '<span class="map-tip__row">Min ' + escapeHtml(oneDp(v.mint)) +
+      "°C · Max " + escapeHtml(oneDp(v.maxt)) + "°C</span>" +
+      '<span class="map-tip__row">Derived ' + escapeHtml(oneDp(v.derivedMapTemperature)) +
+      '°C <span class="map-tip__note">(derived)</span></span>'
+    );
+  }
+
+  // The selected-Region block (Region, Date, Min, Max, Derived map temperature).
+  // Updates when a pill is clicked and on every Select Date change (F-1 / AC-18).
+  function updateSelectedBlock(date, byRegion) {
+    var v = byRegion[selectedRegion];
+    if (!v) return;
+    els.selRegion.textContent = selectedRegion;
+    els.selDate.textContent = date;
+    els.selMin.textContent = oneDp(v.mint) + " °C";
+    els.selMax.textContent = oneDp(v.maxt) + " °C";
+    els.selDerived.textContent = oneDp(v.derivedMapTemperature);
+  }
+
+  function highlightSelected() {
+    REGION_ORDER.forEach(function (region) {
+      var marker = markers[region];
+      if (!marker) return;
+      var el = marker.getElement();
+      if (el) el.classList.toggle("is-active", region === selectedRegion);
+    });
+  }
+
+  // Defer the callback until the map container reports a non-zero box, so Leaflet
+  // never initialises on a 0x0 element (which makes fitBounds compute an invalid
+  // zoom and the markers collapse to "Invalid LatLng (NaN, NaN)"). ResizeObserver
+  // fires when the container is laid out (e.g. the tab was hidden at load), and
+  // visibilitychange covers a background tab (P-12, init hardening).
+  function ensureMapSized(cb) {
+    var container = els.mapFrame ? document.getElementById("map") : null;
+    function sized() {
+      return container && container.clientWidth > 0 && container.clientHeight > 0;
+    }
+    if (sized()) { cb(); return; }
+    if (mapInitScheduled) return; // already waiting; latestDay carries the newest day
+    mapInitScheduled = true;
+    var done = false;
+    function fire() {
+      if (done || !sized()) return;
+      done = true;
+      cb();
+    }
+    if (typeof ResizeObserver !== "undefined" && container) {
+      var ro = new ResizeObserver(function () {
+        if (sized()) { ro.disconnect(); fire(); }
+      });
+      ro.observe(container);
+    }
+    document.addEventListener("visibilitychange", function onVis() {
+      if (!document.hidden && sized()) {
+        document.removeEventListener("visibilitychange", onVis);
+        fire();
+      }
+    });
+  }
+
+  // Create the Leaflet map once: the vendored vector basemap (surrounding
+  // coastlines under the Taiwan county polygons) and six pill markers, then fit
+  // the view to the markers ONCE (R-EN-4). Returns false if Leaflet is
+  // unavailable. Assumes the container already has a non-zero size (ensureMapSized).
+  function initMap() {
     if (map) return true;
     if (typeof L === "undefined") return false;
 
-    // The map container was just revealed (mapLayout.hidden = false in applyDay);
-    // force a synchronous reflow so it reports its real width before Leaflet reads
-    // it. Without this Leaflet caches a 0px size, fitBounds computes an infinite
-    // zoom, and the markers collapse to an invisible point until a later resize.
-    var container = document.getElementById("map");
-    void container.offsetWidth;
+    var basemap = window.TAIWAN_BASEMAP || {};
 
-    var palette = mapPalette();
-    // Initialise with a Taiwan-centred view BEFORE adding any layer: a vector
-    // layer added to a map with no view set has no pixel bounds and Leaflet's
-    // renderer throws. fitBounds over the markers refines this view below.
     map = L.map("map", {
-      zoomControl: true,
+      zoomControl: false,          // added at top-right below (R-EN-4, "zoomable")
       scrollWheelZoom: true,
       attributionControl: true,
       center: [23.75, 121.0],
       zoom: 7,
     });
+    L.control.zoom({ position: "topright" }).addTo(map);
+    map.attributionControl.setPrefix(false);
+    map.attributionControl.addAttribution(
+      "Coastlines: Natural Earth (public domain) · County boundaries: 內政部 open data"
+    );
 
-    L.geoJSON(TAIWAN_OUTLINE, {
-      style: {
-        color: palette.landStroke,
-        weight: 1,
-        fillColor: palette.land,
-        fillOpacity: 1,
-      },
-      interactive: false,
-    }).addTo(map);
+    // Surrounding coastline first (behind), then the Taiwan county polygons on
+    // top. Both are non-interactive backdrops (no county-level data semantics).
+    if (basemap.context) {
+      L.geoJSON(basemap.context, {
+        style: { color: "#2b3648", weight: 0.8, fillColor: "#1a2331", fillOpacity: 1 },
+        interactive: false,
+      }).addTo(map);
+    }
+    if (basemap.taiwan) {
+      L.geoJSON(basemap.taiwan, {
+        style: { color: "#44577a", weight: 0.9, fillColor: "#25324a", fillOpacity: 1 },
+        interactive: false,
+      }).addTo(map);
+    }
 
     var points = [];
     REGION_ORDER.forEach(function (region) {
       var latlng = REGION_POINTS[region];
-      var marker = L.circleMarker(latlng, {
-        radius: 11,
-        color: palette.markerStroke,
-        weight: 1.5,
-        fillColor: "#cccccc",
-        fillOpacity: 0.9,
+      var icon = L.divIcon({
+        className: "pill-icon",
+        html:
+          '<span class="pill" tabindex="0" role="button" aria-label="' +
+          escapeHtml(region) + '">–</span>' +
+          '<span class="rlabel">' + escapeHtml(region) + "</span>",
+        iconSize: [104, 52],
+        iconAnchor: [52, 16],
       });
-      marker.on("mouseover", function () {
-        var info = marker._dayInfo;
-        if (info) updateInfocard(info.region, info.date, info.value);
-      });
-      marker.on("click", function () {
-        var info = marker._dayInfo;
-        if (info) updateInfocard(info.region, info.date, info.value);
+      var marker = L.marker(latlng, { icon: icon, keyboard: true, title: region });
+      marker.on("add", function () {
+        var el = marker.getElement();
+        if (!el) return;
+        var pill = el.querySelector(".pill");
+        function select() { selectedRegion = region; onSelect(); }
+        el.addEventListener("click", select);
+        if (pill) {
+          pill.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+              e.preventDefault();
+              select();
+            }
+          });
+        }
       });
       marker.addTo(map);
       markers[region] = marker;
       points.push(latlng);
     });
 
-    // Recompute the size now that the container is laid out, THEN fit to the
-    // markers so the initial zoom is finite and the six markers are all visible.
+    // Hide the Region labels when zoomed far out so the pills stay uncluttered;
+    // the Region name is still reachable via the tooltip, panel and aria-label.
+    function syncZoomClass() {
+      var mapEl = document.getElementById("map");
+      if (mapEl) mapEl.classList.toggle("map--labels-hidden", map.getZoom() < 8);
+    }
+    // On zoom the markers move relative to the top edge, so re-pick each tooltip's
+    // direction (and refresh any open tooltip) to keep it unclipped (V-3).
+    map.on("zoomend", function () {
+      syncZoomClass();
+      REGION_ORDER.forEach(function (region) {
+        var m = markers[region];
+        if (m && m._dayInfo) {
+          bindOrUpdateTip(m, tooltipHtml(region, m._dayInfo.date, m._dayInfo.value));
+        }
+      });
+    });
+
+    // Now that the container is laid out, recompute size and fit to the markers
+    // ONCE so the initial zoom is finite and all six markers (and room for their
+    // tooltips) are visible. Generous top padding keeps the north pill's tooltip
+    // from clipping (P-6). fitBounds is never called again (Select Date must not
+    // reset the view, P-12).
     map.invalidateSize();
-    map.fitBounds(points, { padding: [26, 26] });
+    // Modest padding so the fit reaches ~zoom 7 (as the reference view does) and
+    // the six pills stay separated at 375px; tooltip clipping at the top edge is
+    // handled per-marker by tipDir() instead of by over-padding the top (V-3, V-4).
+    map.fitBounds(points, {
+      paddingTopLeft: [26, 52],
+      paddingBottomRight: [26, 44],
+      maxZoom: 8,
+    });
+    syncZoomClass();
     colourLegend();
     return true;
   }
 
-  // Marker/legend/basemap palette. Colours work in light and dark; the marker
-  // FILL colours (BAND_COLOURS) are the same in both so the legend stays valid.
-  function mapPalette() {
-    var dark =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches &&
-      document.documentElement.getAttribute("data-theme") !== "light";
-    if (document.documentElement.getAttribute("data-theme") === "dark") dark = true;
-    return dark
-      ? { land: "#243244", landStroke: "#3a4a60", markerStroke: "#0c0f14" }
-      : { land: "#e7eef6", landStroke: "#9fb2c4", markerStroke: "#1b1b1b" };
+  // A pill was clicked/activated: reflect the selection in the panel and pills.
+  function onSelect() {
+    highlightSelected();
+    if (latestDay) updateSelectedBlock(latestDay.date, latestDay.byRegion);
   }
 
-  function infoHtml(region, date, v) {
-    return (
-      '<div class="mapinfo">' +
-      '<strong class="mapinfo__region">' + escapeHtml(region) + "</strong>" +
-      '<div class="mapinfo__row">Date: ' + escapeHtml(date) + "</div>" +
-      '<div class="mapinfo__row">Min: ' + escapeHtml(formatTemp(v.mint)) +
-      "°C &nbsp;·&nbsp; Max: " + escapeHtml(formatTemp(v.maxt)) + "°C</div>" +
-      '<div class="mapinfo__row">Derived map temperature: ' +
-      escapeHtml(oneDp(v.derivedMapTemperature)) +
-      '°C <span class="mapinfo__note">(derived)</span></div>' +
-      "</div>"
-    );
-  }
-
-  function updateInfocard(region, date, v) {
-    els.infocardRegion.textContent = region;
-    els.infocardDate.textContent = date;
-    els.infocardMin.textContent = formatTemp(v.mint);
-    els.infocardMax.textContent = formatTemp(v.maxt);
-    els.infocardDerived.textContent = oneDp(v.derivedMapTemperature);
-    els.infocardHint.hidden = true;
-    els.infocardBody.hidden = false;
-  }
-
-  function clearInfocard() {
-    if (!els.infocardBody) return;
-    els.infocardBody.hidden = true;
-    els.infocardHint.hidden = false;
-  }
-
-  // Paint the legend swatches from the same band->colour map the markers use, so
-  // the legend always matches the marker colours (R-EN-5).
+  // Paint the legend swatches from the same band->colour map the pills use, so
+  // the legend always matches the pill colours (R-EN-5, AC-17).
   function colourLegend() {
     var swatches = document.querySelectorAll(".band-swatch");
     Array.prototype.forEach.call(swatches, function (el) {
@@ -540,21 +664,25 @@
   }
 
   // Inline status inside the Taiwan Map card. `kind` is "loading" | "error" |
-  // "empty"; the map layout is hidden while a status shows so the card is never
-  // blank and the status is never drawn over a stale map (DR-19 §4.1).
+  // "empty". The status overlays ONLY the map frame — the info panel (with Select
+  // Date) stays visible and operable so the user can switch to a working day
+  // (DR-19, P-7b). The map is hidden while a status shows so a stale map is never
+  // left behind an error message; it keeps its layout box (visibility, not
+  // display) so ResizeObserver still sees a non-zero size.
   function setMapStatus(message, kind) {
     if (!els.mapStatus) return;
     els.mapStatus.textContent = message;
-    els.mapStatus.className = "state state--inline state--inline-" + kind;
+    els.mapStatus.className = "map-status state--inline state--inline-" + kind;
     els.mapStatus.setAttribute("role", kind === "error" ? "alert" : "status");
     els.mapStatus.hidden = false;
-    if (els.mapLayout) els.mapLayout.hidden = true;
+    if (els.mapFrame) els.mapFrame.classList.add("map-frame--status");
   }
 
   function hideMapStatus() {
     if (!els.mapStatus) return;
     els.mapStatus.hidden = true;
     els.mapStatus.textContent = "";
+    if (els.mapFrame) els.mapFrame.classList.remove("map-frame--status");
   }
 
   function oneDp(v) {
@@ -604,8 +732,8 @@
 
   function renderChart(series) {
     // Draw the SVG at the container's own pixel width so the render scale stays
-    // ~1 and the axis labels keep their real size at 375px too (F-3). The chart
-    // is re-drawn on resize. A taller box on narrow screens keeps it readable.
+    // ~1 and the axis labels keep their real size at 375px too. The chart is
+    // re-drawn on resize. A taller box on narrow screens keeps it readable.
     var cw = els.chart.clientWidth;
     var W = Math.max(300, Math.round(cw || 700));
     var H = cw && cw < 520 ? 300 : Math.round(W * 0.46);
@@ -841,10 +969,8 @@
   function fetchJson(url) {
     // Read the body as text and parse it explicitly so a 2xx response whose body
     // is not valid JSON is reported as a PARSE FAILURE, not as empty content
-    // (DR-19 §4.1, fix N-1): an unparseable response is an ERROR. The earlier
-    // `.json().catch(() => ({}))` swallowed the parse failure and returned {},
-    // which then rendered as an empty state. `parseError` lets every caller treat
-    // that case as a failed request via `failed()`.
+    // (DR-19 §4.1): an unparseable response is an ERROR. `parseError` lets every
+    // caller treat that case as a failed request via `failed()`.
     return fetch(url, { headers: { Accept: "application/json" } }).then(
       function (response) {
         return response.text().then(function (text) {
