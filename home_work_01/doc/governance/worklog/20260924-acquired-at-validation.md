@@ -51,5 +51,7 @@
 
 ### Subject 與 CI
 
-- **Subject SHA**：（見下方 commit 後補記。）
-- **CI**：（push 後補記。）
+- **Subject SHA**：`bd52ede140233a9c4c5b568ffaf9ead1620a6ce0`（branch `home_work_01-hw10-implementation`，parent `cc29c7f`）。
+- **Diff-scope（`git diff --name-only cc29c7f..bd52ede`，排除 `doc/governance/**`）**：`README.md`、`doc/acceptance/ACCEPTANCE.md`、`doc/ticket/tickets.md`、`ingestion/acquisition_time.py`、`ingestion/pipeline.py`、`ingestion/provenance.py`、`tests/test_acquisition_time.py` — 全數落在 DR-22.2 B-1..B-7 allowlist。record-only（B-8）：DR-22 decision、本 worklog。`data.db`/raw JSON/sidecar 三個 blob 在 `cc29c7f` 與 `bd52ede` 之間相同（`687586991…`／`209eb76…`／`9edfd11…`）。
+- **CI**：push run `35979067273` 與 PR run `35979071769` 皆 **success**（headSha `bd52ede`，offline test suite + credential checks / Python 3.12）。
+- **狀態**：Executor 完成，DONE。未合併（RB-1）、未提交（RB-2）。closure 由 A-4 independent audit（fresh `gov-primary-reviewer` R1，涵蓋 DR-22.5(A) 整合重驗）判定；本紀錄不自證 closure。
