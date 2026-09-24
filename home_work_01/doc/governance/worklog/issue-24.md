@@ -159,6 +159,10 @@
 - F-1／F-3 為行為修正、F-2 移除未使用 CSS 與更正註解——UI 靜態外觀不變，故既有 12 張 AC 截圖（AC-17／18/19、狀態、band）維持有效；另新增兩張 F-1 closure 截圖。
 - AC-17／R-EN-3/5/6/7、AC-28 前端側、AC-14 第 6 項、DR-19／N-1、INV-2／INV-7／INV-9、AC-04(b)、H-2／H-3 維持 PASS（本次未觸及其判定依據；`app.py`／`server.py`／`weather_query.py`／`vercel.json`／vendored Leaflet 仍不在 diff）。
 
+### §CI-2（correction commit `386f30a`）
+
+BASE `8d46ead`；cycle-1 commit 序列：`4ec20b5`（原實作）→ `87acc97`（CI 紀錄，record-only）→ **`386f30a`**（targeted correction，受審 subject）。改動只在 `static/{app.js,index.html,styles.css}`、`tests/test_dashboard.py`（加強斷言）與 record-only 的 worklog／screenshots。`app.py`／`server.py`／`weather_query.py`／`vercel.json`／`static/vendor/*` 自 BASE 起仍未觸及。CI（`.github/workflows/home_work_01-ci.yml`，Python 3.12）於 `386f30a`：push run `35943197399`、pull_request run `35943204314` 皆 completed/**success**（offline pytest 152 passed；credential checks）。註記僅 Node20／ubuntu label deprecation。
+
 ## Audit status
 
 Formal Ticket → independent audit required（Bindings §5；治理 §4.1）。cycle 1 R1 = BLOCKING (F-1, F-2)；本次 targeted correction 已附 F-1、F-2 的 closure 證據與 F-3（non-blocking）的併修證據，交 **R2**（Primary Reviewer 延續其 R1 context、重讀修正後檔案與 diff）核對，範圍依 R1 §4 F-1／F-2 的 closure 條件；R2 須依 A-1 重述 H-3 的核對。R2 由 Orchestrator／主 session 依 Bindings §3.5 派工，不由 Executor 自派。本 Ticket 觸及 H-2／H-3，audit record 依 A-1 明記核對。原始 R1（含 self-verification 主張）記於本 worklog 上方各節。
