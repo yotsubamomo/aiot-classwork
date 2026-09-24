@@ -2,7 +2,7 @@
 
 本檔是本 repo 依 Minimal Operational Governance v2.0 §5.1 宣告的 Project Bindings：哪些範圍採用治理，以及採用範圍內的權限來源、角色與模型、lane、assurance、工具與紀錄位置。
 
-- **Bindings 版本**：b1（2026-09-23）
+- **Bindings 版本**：b2（2026-09-24）
 - **生效條件**：acceptor 把引入本檔的 PR 合併進 `main`，即代表接受並授權本檔全部內容（含第 2.5 節的 standing authorizations）。合併前本檔只是提案。
 - **優先順序**（治理 §5.3）：治理本文 ＞ 本檔 ＞ Accepted Work Contract ＞ Implementation Profile ＞ Orchestrator Contract ＞ Runtime 工具。Root `CLAUDE.md` 的其他規則在治理啟用的範圍內視為本檔的一部分；與治理 MUST 衝突時以治理為準。
 
@@ -27,7 +27,7 @@
 | Artifact | 採用版本 | Overrides | 本 repo 快照 |
 | --- | --- | --- | --- |
 | Minimal Operational Governance | v2.0（Adopted／Frozen 2026-09-22） | — | [`minimal-operational-governance-v2.0.md`](minimal-operational-governance-v2.0.md) |
-| Reference Model Profile | `default` `v2.2`（Adopted／Frozen 2026-09-23） | 見第 3 節（無 mapping override） | [`references/model-profile-default-v2.2.md`](references/model-profile-default-v2.2.md) |
+| Reference Model Profile | `default` `v2.2`（Adopted／Frozen 2026-09-23） | 見第 3 節（`executor` mapping override） | [`references/model-profile-default-v2.2.md`](references/model-profile-default-v2.2.md) |
 | Implementation Profile | `impl-default` `v2`（Adopted／Frozen 2026-09-22） | none | [`references/implementation-profile-impl-default-v2.md`](references/implementation-profile-impl-default-v2.md) |
 | Reference Orchestrator Contract | `orch-default` `v2`（Adopted／Frozen 2026-09-22） | none | [`references/orchestrator-contract-orch-default-v2.md`](references/orchestrator-contract-orch-default-v2.md) |
 
@@ -88,16 +88,19 @@ Root `CLAUDE.md` 的「不要自行補出老師沒有提出的要求」，在治
 
 ### 3.1 有效 mapping
 
-採用 `default` `v2.2`，**無 mapping override**。六個治理角色的 definition 放在 `.claude/agents/`：
+採用 `default` `v2.2`，唯一的 mapping override 是 `executor`（見表後說明）。六個治理角色的 definition 與 `executor` fallback 的 definition 放在 `.claude/agents/`：
 
 | Identifier | Definition | Model | Effort | Replacement |
 | --- | --- | --- | --- | --- |
 | `design_authority` | [`gov-design-authority`](../../.claude/agents/gov-design-authority.md) | `claude-fable-5-1` | `xhigh` | R-DA |
-| `executor` | [`gov-executor`](../../.claude/agents/gov-executor.md) | `claude-opus-4-8` | `high` | R-EX（不含 Codex，見 3.2） |
+| `executor` | [`gov-executor`](../../.claude/agents/gov-executor.md) | `claude-opus-5-5`（override） | `high` | override fallback，再 R-EX（不含 Codex，見 3.2） |
+| `executor`（fallback） | [`gov-executor-fallback`](../../.claude/agents/gov-executor-fallback.md) | `claude-opus-4-8` | `high` | 只在替代 `gov-executor` 時派工 |
 | `primary_reviewer` | [`gov-primary-reviewer`](../../.claude/agents/gov-primary-reviewer.md) | `claude-opus-5-5` | `xhigh` | R-PR（不含 Codex） |
 | `alternate_reviewer` | [`gov-alternate-reviewer`](../../.claude/agents/gov-alternate-reviewer.md) | `claude-fable-5-1` | `xhigh` | R-AR（不含 Codex） |
 | `final_adjudicator` | [`gov-final-adjudicator`](../../.claude/agents/gov-final-adjudicator.md) | `claude-fable-5-1` | `xhigh` | R-FA |
 | `orchestrator` | [`gov-orchestrator`](../../.claude/agents/gov-orchestrator.md) | `claude-opus-4-8` | `high` | R-OR |
+
+**`executor` override（b2）**：model 由 Profile 預設 `claude-opus-4-8` 改為 `claude-opus-5-5`，effort 維持 `high`。Override fallback 列只有 `claude-opus-4-8`／`high`，以 `gov-executor-fallback` 派工。依 Model Profile §3 共同規則 2，實際替代順序是 `claude-opus-4-8`／`high`，再接 Profile R-EX 列；R-EX 列中的 Opus 5.5 就是 primary 本身、Codex 未宣告（3.2），兩者略過，剩下 `claude-fable-5-1`／`high`。
 
 Replacement 順序與規則見 Model Profile §3：只能依當次錯誤或當下可用性證據替代，不得憑記憶或前次 session 的狀態跳過；每次替代記錄原 mapping、替代 mapping、證據與 model diversity 是否改變。沒有 reusable subagent 被宣告（Model Profile §7）。Mapping 變更 authority 為 acceptor。
 
@@ -176,7 +179,7 @@ EOF
   - 單元 `README.md` 的安裝與執行步驟已實際跑過，結果與證據記在 worklog。
   - 沒有追蹤中的機密：`git ls-files` 不含 `.env`，diff 內沒有金鑰字串。
 - **單 Ticket fast path**（治理 §4.7）：不採用；每份 Spec 都另派 Spec Integration Audit。
-- **Model diversity**：沿用 Model Profile §4 的 cross-model 預設（Executor `claude-opus-4-8`、Primary Reviewer `claude-opus-5-5`）。替代造成 diversity 消失時仍合法，須在 audit record 記錄 `diversity_lost`；本專案沒有要求恢復 diversity 才能 audit 的類別。
+- **Model diversity**：因第 3.1 節的 `executor` override，Executor 與 Primary Reviewer 預設同為 `claude-opus-5-5`，Model Profile §4 的 cross-model 預設在本專案不成立。依 Profile §4 這仍合法：diversity 是偏好，不是治理 §2.3 的 independence。Diversity 依該次實際的 Executor 與 Primary Reviewer model 判定，兩者相同時，須在 audit record 的 independence 說明（治理 §4.6）記錄 `diversity_lost`；Executor 改用 fallback `claude-opus-4-8` 時 diversity 恢復。本專案沒有要求恢復 diversity 才能 audit 的類別。
 
 ## 6. Skills and runtime
 
@@ -245,3 +248,4 @@ home_workNN/doc/
 | --- | --- | --- | --- | --- |
 | b1 | 2026-09-23 | 初版：`home_workNN/` 採用 Minimal Governance — Reusable Package v2.0，`weekNN/` 與 root 不採用；宣告第 1–8 節全部 bindings。 | acceptor 2026-09-23 指示：導入治理原則並以 flag 控制啟用，DIC 不使用，採用 Notion 的 Minimal Governance — Reusable Package v2.0。 | 待 acceptor 合併引入本檔的 PR 後生效 |
 | b1（合併前修訂） | 2026-09-23 | 第 2.4 節 scope 規則改為：MVM 必須完整滿足上位契約；acceptor 授權的 ENHANCED／OPTIONAL 可超出老師撰寫的需求，須明確標示且不得取代、弱化或冒充老師要求的行為。 | acceptor 2026-09-23 於 `home_work_01` grill 中裁決，並依 RB-5 授權此最小修改。 | 隨 b1 一同待合併 |
+| b2 | 2026-09-24 | 第 3.1 節 `executor` mapping override：model 由 `claude-opus-4-8` 改為 `claude-opus-5-5`（effort `high` 不變）；新增 override fallback `claude-opus-4-8`／`high` 與其 definition `gov-executor-fallback`；第 1 節 override 標示與第 5 節 model diversity 相應更新。其他角色 mapping、replacement policy、lane、assurance、audit flow 與 implementation method 不變。 | acceptor 2026-09-24 指示：「Primary Executor：Opus 4.8 → Opus 5.5」「Executor fallback：Opus 4.8」，其餘全部維持現狀；本輪只是 project configuration／model-mapping 調整，不觸發 implementation audit。 | 待 acceptor 合併引入本變更的 PR 後生效；不適用生效前已開始的 work item（治理 §5.3），變更時沒有 open 的 issue 或 PR。第一次以 b2 mapping 派 Executor 前，須完成 `binding-verification.md` b2 節的 dry-run |
