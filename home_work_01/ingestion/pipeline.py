@@ -22,6 +22,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from . import config, provenance
+from .acquisition_time import AcquisitionTimeError, validate_acquisition_time
 from .derive import DeriveError, derive_snapshot
 from .fetch import FetchError, fetch_raw, load_api_key
 from .persist import persist_snapshot
@@ -126,6 +127,12 @@ def run_online(
     api_key = load_api_key(env_path)
     data = fetch_raw(api_key)
     acquired_at = ingestion_timestamp()  # acquisition time = fetch-success time
+    # Guard against a regressed generator (e.g. wrong tz or added fractional
+    # seconds): validate before writing anything so a bad value never reaches the
+    # raw JSON, the sidecar, or the database (DR-22.3 AT-8(c)/AT-10).
+    acquired_at = validate_acquisition_time(
+        acquired_at, source="ingestion_timestamp()"
+    )
     saved = save_raw_json(data, raw_out)
     prov = provenance.write_provenance(saved, acquired_at, config.RESOURCE_ID)
     print(f"Saved raw JSON to {saved}")
@@ -148,10 +155,20 @@ def run_offline(
 
     The acquisition time is **not** taken from the clock (DR-17 §4.3): it comes
     from ``acquired_at`` when given, otherwise from the raw JSON's provenance
-    sidecar. If neither is available the run fails closed (no database write).
+    sidecar. Either way the value is validated against the exact acquisition-time
+    format **before** the raw JSON is read or derived (DR-22.3 AT-8(a)/AT-9/AT-10):
+    an explicit ``--acquired-at`` that is malformed fails closed and does **not**
+    fall back to the sidecar. If neither is available the run fails closed (no
+    database write).
     """
     if acquired_at is None:
         acquired_at = provenance.read_acquisition_time(json_path)
+    else:
+        acquired_at = validate_acquisition_time(
+            acquired_at,
+            source="--acquired-at",
+            hint="omit --acquired-at to read the provenance sidecar instead",
+        )
     try:
         data = json.loads(Path(json_path).read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
@@ -203,10 +220,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--acquired-at",
         dest="acquired_at",
-        metavar="ISO8601",
+        metavar="YYYY-MM-DDTHH:MM:SS+08:00",
         help=(
-            "offline mode: the acquisition time to record (ISO 8601 +08:00). "
-            "Overrides the provenance sidecar; required if no sidecar exists."
+            "offline mode: the acquisition time to record, exactly "
+            "YYYY-MM-DDTHH:MM:SS+08:00 (e.g. 2026-09-24T02:24:50+08:00). Overrides "
+            "the provenance sidecar; a malformed value fails closed and does not "
+            "fall back to the sidecar."
         ),
     )
     return parser
@@ -225,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
         return run_online(
             env_path=args.env_path, raw_out=args.raw_out, db_path=args.db_path
         )
-    except (FetchError, DeriveError, ProvenanceError) as exc:
+    except (FetchError, DeriveError, ProvenanceError, AcquisitionTimeError) as exc:
         # Messages are constructed to never contain the key.
         print(f"Ingestion failed: {exc}", file=sys.stderr)
         return 1

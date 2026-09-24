@@ -21,6 +21,7 @@ import json
 from pathlib import Path
 
 from . import config
+from .acquisition_time import validate_acquisition_time
 
 
 class ProvenanceError(RuntimeError):
@@ -63,8 +64,14 @@ def write_provenance(
 def read_acquisition_time(raw_path: str | Path) -> str:
     """Return the acquisition time recorded for a saved raw JSON.
 
-    Raises :class:`ProvenanceError` if the sidecar is missing or lacks a usable
-    ``acquiredAt`` value.
+    Raises :class:`ProvenanceError` if the sidecar is missing, unreadable, or has no
+    ``acquiredAt`` key (behaviour and messages unchanged — DR-22.3 AT-9). If the key
+    is present, its value is validated against the exact acquisition-time format
+    (DR-22.3 AT-1/AT-2): a non-string or malformed value is rejected — never coerced
+    with ``str()`` — and raises :class:`~ingestion.acquisition_time.AcquisitionTimeError`
+    naming the sidecar file, the ``acquiredAt`` field, and (for a non-string) the JSON
+    type. Both errors let the offline path fail closed (non-zero exit, no database
+    write) rather than record a malformed "last updated" value (DR-17 §4.3).
     """
     path = provenance_path(raw_path)
     if not path.is_file():
@@ -78,9 +85,11 @@ def read_acquisition_time(raw_path: str | Path) -> str:
         raise ProvenanceError(
             f"provenance record {path.name} could not be read: {exc}"
         ) from exc
-    acquired_at = record.get("acquiredAt") if isinstance(record, dict) else None
-    if not acquired_at:
+    if not isinstance(record, dict) or "acquiredAt" not in record:
         raise ProvenanceError(
             f"provenance record {path.name} has no 'acquiredAt' value"
         )
-    return str(acquired_at)
+    return validate_acquisition_time(
+        record["acquiredAt"],
+        source=f"the {path.name} 'acquiredAt' field",
+    )
