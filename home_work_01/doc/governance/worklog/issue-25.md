@@ -38,8 +38,13 @@ integrated subject, and prepares the Spec Integration Audit subject.
   `requirements.txt` (comment), `.github/workflows/home_work_01-smoke.yml` (comment),
   `tests/test_fetch.py` (unused-import removal), and `doc/acceptance/ACCEPTANCE.md`; no
   `app.py`/`server.py`/`weather_query.py`/`data.db`/`static/*` behaviour change.
-- **CI green** on the final subject: run `35948664254` (152 passed, Python 3.12.14,
-  credential scan passed) — see §6.
+- **Verification anchor**: `6407d8b` is the commit that carries all the correction
+  code/doc and was **CI-verified** (run `35948664254`, 152 passed, Python 3.12.14, credential
+  scan passed) and **deployment-smoked** (§5b). The **branch HEAD** is a documentation-only
+  **superset** of `6407d8b` — later `doc/` commits only fill the post-build smoke/CI evidence
+  values and refresh the AC-14 README line-citations — with no behaviour or verification-outcome
+  change. The Spec Integration Audit reviews the branch HEAD (behaviourally identical to, and a
+  doc-superset of, `6407d8b`).
 - **Correction history**: `fafcf2f` (initial #25 doc fixes) → `1396226`/`a571ccc` (initial
   ACCEPTANCE.md + worklog, R1-audited subject) → this targeted correction (R1 F-1..F-8).
 

@@ -15,11 +15,13 @@ is an entry point for the forthcoming **Spec Integration Audit** (governance §4
   (this file) is part of the subject, **not** record-only. The app / query / db / static /
   test behaviour is identical to `2f52766` (the #25 delta is documentation wording +
   `doc/` records + a test-only unused-import removal; no `app.py`/`server.py`/`weather_query.py`/
-  `data.db`/`static/*` behaviour change). `6407d8b` carries all the corrections + this
-  deliverable and is the CI-verified (run `35948664254`) and deployment-smoked commit (§8);
-  the branch HEAD is a subsequent record commit that only writes the post-build smoke/CI
-  evidence values into this file and the worklog — a doc delta over `6407d8b` with no
-  behaviour or verification-outcome change.
+  `data.db`/`static/*` behaviour change). `6407d8b` is the **verification anchor**: it
+  carries all the correction code/doc and was **CI-verified** (run `35948664254`, 152 passed)
+  and **deployment-smoked** (§8). The **branch HEAD** is a documentation-only **superset** of
+  `6407d8b` — later `doc/` commits only (a) write the post-build smoke/CI evidence values
+  into this file and the worklog, and (b) refresh the AC-14 README line-citations (§2) — with
+  **no behaviour and no verification-outcome change**. The Spec Integration Audit reviews the
+  branch HEAD, which is behaviourally identical to and a doc-superset of the anchor `6407d8b`.
 - **Environment**: clean Python **3.12.14** venv; deps from `requirements.txt`
   (Flask 3.1.2, pytest 8.3.3, streamlit 1.64.0, requests 2.32.3; pandas 3.0.6 transitive).
 - **Committed `data.db`** sha256 `9bbf05bc6cc803444c8760432d6b484699c597f751fa16cb58bfbb5a0dbf542b`
@@ -63,7 +65,7 @@ is `35948664254` (`6407d8b2d0f04523f5057b0880083f3bd836c6a8`), 152 passed, Pytho
 | **AC-22** | ENHANCED | PASS ((a)+(b) pre-merge; (c) PENDING-ACCEPTOR) | Per **DR-18**: (a) local `smoke.py` PASS vs audited preview — actual output (timestamp, URL, two status codes, `SMOKE PASS`, exit 0) in §8; (b) smoke workflow deliverable reviewed — `on: workflow_dispatch`, URL from `HW01_DEPLOY_URL` var / `url` input, reuses `smoke.py`, no secret, min permissions, action skeleton green in CI; (c) live `workflow_dispatch` run = **release evidence, pending RB-1** (`gh api .../home_work_01-smoke.yml` = 404, not on `main`). audit 22; DR-18 §4. |
 | **AC-23** | MVM | PASS | Local `python --version` 3.12.14 (wl25 §5); CI `home_work_01-ci.yml` `python-version: '3.12'`; Vercel `.python-version` = `3.12`. Vercel **build-log** confirmation = acceptor Vercel-dashboard item (RB-3, PENDING-ACCEPTOR). |
 | AC-24 | MVM | PASS | Both layers show last ingestion time == db value (`2026-09-24T02:24:50+08:00`); `TemperatureForecasts` DDL unchanged. `AppTest`, `test_dashboard.py`, `/api/health` live (wl25 §6). DR-17. |
-| **AC-25** | MVM | PASS | After ingestion, complete indented raw JSON in unit dir (no key); terminal prints fetch summary + 42-row preview; README documents F-D0047-091 structure + artifact locations. README "Observation artifacts" (lines 147–166) + "Response structure" block (line 152); wl25 §5. |
+| **AC-25** | MVM | PASS | After ingestion, complete indented raw JSON in unit dir (no key); terminal prints fetch summary + 42-row preview; README documents F-D0047-091 structure + artifact locations. README "Observation artifacts" (lines 149–167) + "Response structure" block (line 154); wl25 §5. |
 | AC-26 | MVM | PASS | `app.py` + imports carry no map/`Select Date`/folium; `requirements.txt` no folium (clean install had no folium). `test_static_checks.py`, `test_app.py`. Residual: INV-9 final self-check — see §3. |
 | **AC-27** | MVM | PASS (self-check; Reviewer to conclude) | R-DOC-5 four items self-checked: modules/functions carry docstrings; errors handled w/ clear messages & JSON `error`; no dead code (placeholder CSS removed #24 R2); structure = shared module → API → frontend. audit 20/24 R2 gave (1)(3)(4) + (2). Reviewer gives the formal AC-27 conclusion. |
 | AC-28 | ENHANCED | PASS | Derived Map Temperature + band cases: (20.1,25.2)→22.7; (19.9,20.0)→20.0 green; (24.9,25.0)→25.0 yellow; (29.9,30.0)→30.0 red; (15,24.8)→19.9 blue. `test_weather_query.py`. |
@@ -76,14 +78,14 @@ Citations are line numbers in the final `home_work_01/README.md`.
 
 | # | Item | Status | README citation |
 | --- | --- | --- | --- |
-| 1 | F-A0010-001 originally assigned + delisted (external constraint) | PASS | lines 23–26 ("Originally assigned dataset: CWA `F-A0010-001` … **CWA delisted it on 2026-07-01** … external constraint, not a project choice"). |
-| 2 | F-D0047-091 is a compatibility replacement | PASS | lines 27–29 ("Compatibility replacement: CWA `F-D0047-091` … a **project compatibility decision**, not a teacher instruction"). |
-| 3 | W1 window definition | PASS | lines 30–35 ("Forecast Day (W1 window) … **compatibility window, not a calendar day** … complete only when both periods are present"). |
-| 4 | Mapping labeled project-defined (not CWA) | PASS | lines 36–46 ("Region mapping is **project-defined**, not an authoritative CWA grouping" + member-county table + verbatim `臺` note). |
-| 5 | Region values labeled PROJECT-DERIVED COMPATIBILITY VALUES | PASS | lines 47–52 ("Region MinT / MaxT are `PROJECT-DERIVED COMPATIBILITY VALUES` … **never** a CWA-issued six-region forecast"). |
-| 6 | Derived Map Temperature labeled derived | PASS | lines 273–278 ("**Derived Map Temperature** is a **derived value**: `(MinT + MaxT) / 2` … **not** an observed daily mean … legend states the 'derived, not observed' caveat"). |
-| 7 | Streamlit positioning consistent with OC §2.4 | PASS | lines 192–203 ("required grading artefact … **not** the deployed runtime: the public deployment target (Vercel) cannot run a Streamlit server … a compatibility accommodation forced by that hosting constraint, **not** a sign that Streamlit was outside the assignment"). |
-| 8 | Nowhere states region values are CWA-published / mapping is a CWA division | PASS | Reviewed entire README: lead sentence lines 3–6 ("**derived from CWA county-level open data** (not a CWA-published six-region product)"); lines 19–21, 51–52; map representative points lines 268–270 ("**not** a CWA-published location or boundary"). No reverse wording found. |
+| 1 | F-A0010-001 originally assigned + delisted (external constraint) | PASS | lines 24–27 ("Originally assigned dataset: CWA `F-A0010-001` … **CWA delisted it on 2026-07-01** … external constraint, not a project choice"). |
+| 2 | F-D0047-091 is a compatibility replacement | PASS | lines 28–30 ("Compatibility replacement: CWA `F-D0047-091` … a **project compatibility decision**, not a teacher instruction"). |
+| 3 | W1 window definition | PASS | lines 31–36 ("Forecast Day (W1 window) … **compatibility window, not a calendar day** … complete only when both periods are present"). |
+| 4 | Mapping labeled project-defined (not CWA) | PASS | lines 37–47 ("Region mapping is **project-defined**, not an authoritative CWA grouping" + member-county table + verbatim `臺` note). |
+| 5 | Region values labeled PROJECT-DERIVED COMPATIBILITY VALUES | PASS | lines 48–53 ("Region MinT / MaxT are `PROJECT-DERIVED COMPATIBILITY VALUES` … **never** a CWA-issued six-region forecast"). |
+| 6 | Derived Map Temperature labeled derived | PASS | lines 275–280 ("**Derived Map Temperature** is a **derived value**: `(MinT + MaxT) / 2` … **not** an observed daily mean … legend states the 'derived, not observed' caveat"). |
+| 7 | Streamlit positioning consistent with OC §2.4 | PASS | lines 194–204 ("required grading artefact … **not** the deployed runtime: the public deployment target (Vercel) cannot run a Streamlit server … a compatibility accommodation forced by that hosting constraint, **not** a sign that Streamlit was outside the assignment"). |
+| 8 | Nowhere states region values are CWA-published / mapping is a CWA division | PASS | Reviewed entire README: lead sentence lines 3–6 ("**derived from CWA county-level open data** (not a CWA-published six-region product)"); lines 20–21, 52–53; map representative points lines 270–272 ("**not** a CWA-published location or boundary"). No reverse wording found. |
 
 ## 3. Invariants (INV-1 … INV-9) — final self-check
 
