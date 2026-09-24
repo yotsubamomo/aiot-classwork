@@ -1,8 +1,10 @@
 """Acquisition-time format validation (DR-22.3 AT-1..AT-12).
 
-A value is a **valid** acquisition time iff it is a *string* that exactly matches
-``^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+08:00$`` **and** denotes a real
-calendar instant (month/day/hour/minute/second ranges, incl. leap years). The
+A value is a **valid** acquisition time iff it is a *string* that matches
+``\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+08:00`` as a whole (``re.fullmatch``
+with ``re.ASCII``, so ``\\d`` is ASCII ``[0-9]`` only — a full-width or other
+Unicode digit is rejected) **and** denotes a real calendar instant
+(month/day/hour/minute/second ranges, incl. leap years). The
 offset must be exactly ``+08:00`` (``Z`` and every other offset are rejected,
 never normalized); the precision is exactly to the second (fractional seconds are
 rejected, never truncated); the date/time separator is an uppercase ``T``; there
@@ -29,10 +31,13 @@ REQUIRED_FORMAT = "YYYY-MM-DDTHH:MM:SS+08:00"
 #: A concrete valid example, included in failure messages.
 EXAMPLE = "2026-09-24T02:24:50+08:00"
 
-# ASCII digits only; uppercase ``T``; the literal ``+08:00`` offset; exactly to the
-# second (no fractional part); the whole string, anchored, so any leading/trailing
-# whitespace or extra character fails.
-_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$")
+# ASCII digits only (``re.ASCII`` restricts ``\d`` to ``[0-9]``, so a full-width or
+# other Unicode digit is rejected here, before strptime — DR-22.3 AT-2); uppercase
+# ``T``; the literal ``+08:00`` offset; exactly to the second (no fractional part).
+# The pattern is applied with ``fullmatch`` (below), so it matches the *whole*
+# string — a trailing newline or any leading/trailing whitespace fails at the
+# pattern, not only at strptime.
+_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00", re.ASCII)
 
 
 class AcquisitionTimeError(ValueError):
@@ -85,7 +90,7 @@ def is_valid_acquisition_time(value: object) -> bool:
     """
     if not isinstance(value, str):
         return False
-    if _PATTERN.match(value) is None:
+    if _PATTERN.fullmatch(value) is None:
         return False
     try:
         # The pattern already fixes the shape and the ``+08:00`` offset; strptime

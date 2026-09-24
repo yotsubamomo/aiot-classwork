@@ -29,7 +29,7 @@
 ### 實作（DR-22.2 allowlist 內）
 
 - **Validator（新模組，B-3）**：`ingestion/acquisition_time.py`
-  - `is_valid_acquisition_time(value)`：AT-1 型別（`isinstance str`）→ AT-2 文法（`re.fullmatch` 等效的 `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$`，anchored）→ AT-3 曆法有效（`datetime.strptime(value, "%Y-%m-%dT%H:%M:%S%z")`，pattern 已固定 offset 與精度）。三者皆成立才 True。不讀時鐘、不正規化。
+  - `is_valid_acquisition_time(value)`：AT-1 型別（`isinstance str`）→ AT-2 文法（`re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00", re.ASCII).fullmatch(value)`：`re.ASCII` 使 `\d` 只限 ASCII `[0-9]`、`fullmatch` 比對整串，非 ASCII 數字與尾隨換行都在 pattern 階段被拒）→ AT-3 曆法有效（`datetime.strptime(value, "%Y-%m-%dT%H:%M:%S%z")`，pattern 已固定 offset 與精度）。三者皆成立才 True。不讀時鐘、不正規化。（初版誤用 Unicode `\d`＋`re.match`＋`$`，於 A-4 R1 修正，見「Targeted correction（R1）」。）
   - `validate_acquisition_time(value, *, source, hint=None)`：合格回傳**原字串**（AT-12）；不合格丟 `AcquisitionTimeError`，訊息＝值（`repr`，>80 截斷，AT-11(a)）＋來源（AT-11(b)，非字串另附 `_json_type`）＋要求格式與例（AT-11(c)），選擇性 `hint`。訊息只由值/來源/格式組成，無金鑰/env/header（H-1）。
 - **三個套用點（AT-8）**：
   1. **CLI `--acquired-at`**：`ingestion/pipeline.py` `run_offline`，`acquired_at is not None`（含 `''`）時 `validate_acquisition_time(..., source="--acquired-at", hint="omit --acquired-at to read the provenance sidecar instead")`，**在讀 raw JSON／derive 之前**；失敗**不** fallback sidecar（AT-9）。
@@ -55,3 +55,33 @@
 - **Diff-scope（`git diff --name-only cc29c7f..bd52ede`，排除 `doc/governance/**`）**：`README.md`、`doc/acceptance/ACCEPTANCE.md`、`doc/ticket/tickets.md`、`ingestion/acquisition_time.py`、`ingestion/pipeline.py`、`ingestion/provenance.py`、`tests/test_acquisition_time.py` — 全數落在 DR-22.2 B-1..B-7 allowlist。record-only（B-8）：DR-22 decision、本 worklog。`data.db`/raw JSON/sidecar 三個 blob 在 `cc29c7f` 與 `bd52ede` 之間相同（`687586991…`／`209eb76…`／`9edfd11…`）。
 - **CI**：push run `35979067273` 與 PR run `35979071769` 皆 **success**（headSha `bd52ede`，offline test suite + credential checks / Python 3.12）。
 - **狀態**：Executor 完成，DONE。未合併（RB-1）、未提交（RB-2）。closure 由 A-4 independent audit（fresh `gov-primary-reviewer` R1，涵蓋 DR-22.5(A) 整合重驗）判定；本紀錄不自證 closure。
+
+## A-4 R1 findings — disposition (Orchestrator)
+
+- **R1 verdict**：`audit/issue-29-c1-r1.md` = **BLOCKING (F-1)**（reviewer `afd86af32279b362c`，binding `gov-primary-reviewer`／`claude-opus-5-5`／`xhigh`，§3.4 通過）。F-1 = validator 的 `\d` 收 Unicode 數字（全形 `２０２６` 被接受），違反 DR-22 AT-2「ASCII digits only」。
+- **F-1（blocking）＋ F-2／F-3（Low，同 footprint）**：交 Executor targeted correction（`re.ASCII`／`re.fullmatch`、offline-order 測試、comment/README 更正）。
+- **F-4（Low，process）**：commits `cc29c7f`、`bd52ede`、`b4b121f` 帶 `Co-Authored-By: Claude` trailer，違反 CLAUDE.md:98（該規則優先於工具 attribution 提示）。成因：Orchestrator 誤依 session attribution reminder。**Disposition（acceptor 2026-09-24 裁定）：leave for squash-merge** — 不改已 push 歷史（RB-6 destructive git 保留），後續所有 commit 一律不加任何 Claude 標記；合併 PR #27 時由 acceptor squash-merge，trailer 不進 `main`。已修正 Orchestrator 與 Executor 後續行為。
+- **F-5（Low，record）**：#29 binding 核對（§3.4，全部對照 model-profile-default-v2.2 通過）：
+  - Design Authority `a50b4ef41f367d729` = `gov-design-authority`／`claude-fable-5-1`／`xhigh`（DR-22 作者）
+  - Executor `a068f9df30c34349e` = `gov-executor`／`claude-opus-4-8`／`high`
+  - Primary Reviewer（R1，R2 續派）`afd86af32279b362c` = `gov-primary-reviewer`／`claude-opus-5-5`／`xhigh`
+
+## Targeted correction（R1）
+
+A-4 R1 audit（`doc/governance/audit/issue-29-c1-r1.md`，VERDICT: BLOCKING F-1）後的 targeted correction。只動 DR-22.2 allowlist（`ingestion/acquisition_time.py`、`tests/**`、README、註解）；驗證契約、三個套用點、`data.db`/raw/sidecar blob 皆不變。
+
+- **F-1（BLOCKING）— ASCII 數字**：`ingestion/acquisition_time.py` 的 pattern 從 `re.compile(r"^\d{4}-...$")`（Unicode `\d`）改為 `re.compile(r"\d{4}-...\+08:00", re.ASCII)`。原因：Python `\d` 匹配任意 Unicode 十進位數字，且 `int()`/`strptime %Y` 接受全形/阿拉伯-印度數字，故 `--acquired-at "２０２６-09-24T02:24:50+08:00"` 原本被接受並寫入，違反 AT-2「ASCII 數字」。修正後 6 種非 ASCII 數字變體（全形年/月/日/秒、阿拉伯-印度年、天城體年）在 pattern 階段即被拒。
+  - 證據：`test_non_ascii_digits_rejected_by_validator`（validator 層 6×）、`test_non_ascii_digits_fail_closed_via_cli`（CLI 6×：exit 1、快照不變、訊息含 `--acquired-at`）、`test_non_ascii_digits_fail_closed_via_sidecar`（sidecar 6×：exit 1、快照不變、訊息含 `resp.meta.json`）。
+- **F-3（Low）— 尾隨換行**：`_PATTERN.match(value)`＋`$` 會讓 `"...+08:00\n"` 溜過 regex（僅 strptime 抓到）。改用 `fullmatch`（無 `^`/`$`，整串比對），使 regex 本身即拒尾隨換行與任何尾綴；~L32 註解「ASCII digits only」與本 worklog「`re.fullmatch`」措辭於修正後為真。
+  - 證據：`test_pattern_rejects_trailing_newline`（`_PATTERN.fullmatch("...\n") is None`）；既有 `trailing_nl` 反例仍拒。
+- **F-2（Low，新增測試）— offline 驗證先於讀 raw JSON**：新增 `test_cli_validation_precedes_raw_json_read`：不良 `--acquired-at "yesterday"` ＋不存在的 raw JSON 路徑 → 必須以 acquisition-time 錯誤（來源 `--acquired-at`）失敗，而非「raw JSON not found」。**Mutant 驗證**：把 `validate_acquisition_time` 移到 `json.loads` 之後，該測試 **FAILED**（訊息變 `raw JSON not found`）；還原後 PASSED。既有斷言全部保留、未弱化。
+- **README**：ingestion 段「rejected」清單補「ASCII `0`-`9`（拒全形/其他 Unicode 數字）」與「尾隨空白/換行」。
+
+### 驗證（R1 correction，全部離線）
+
+- 全套離線：**259 passed**（前一 subject 239＋新增 20：非 ASCII 3×6＝18、pattern 換行 1、ordering 1）；既有 239 全保留、未弱化。DR-17 T-1..T-4 仍綠。
+- Blob 不變：`data.db`（`687586991…`）、raw JSON（`209eb76…`）、sidecar（`9edfd11…`）與 parent `cc29c7f` 逐位相同。
+- Diff-scope：僅 `ingestion/acquisition_time.py`、`tests/test_acquisition_time.py`、`README.md`（＋本 worklog record-only）；落在 B-1..B-8 allowlist，`home_work_01/` 外零變更。
+
+- **Correction subject SHA**：（見下方 commit 後補記。）
+- **CI**：（push 後補記。）

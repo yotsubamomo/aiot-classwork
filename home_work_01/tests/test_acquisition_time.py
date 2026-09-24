@@ -382,3 +382,89 @@ def test_committed_sidecar_value_is_valid():
     record = json.loads(sidecar.read_text(encoding="utf-8"))
     assert is_valid_acquisition_time(record["acquiredAt"])
     assert record["acquiredAt"] == "2026-09-24T02:24:50+08:00"
+
+
+# --- A-4 R1 F-1: ASCII-only digits (Unicode / full-width digits rejected) ------
+
+# Non-ASCII decimal digits: Unicode ``\d`` matches them and int()/strptime accept a
+# full-width or Arabic-Indic year, so before the re.ASCII fix a year in these digits
+# was accepted and stored. AT-2 is ASCII digits only, so all must fail closed.
+NON_ASCII_DIGITS = {
+    "fullwidth_year": "２０２６-09-24T02:24:50+08:00",
+    "arabic_indic_year": "٢٠٢٦-09-24T02:24:50+08:00",
+    "devanagari_year": "२०२६-09-24T02:24:50+08:00",
+    "fullwidth_month": "2026-０９-24T02:24:50+08:00",
+    "fullwidth_day": "2026-09-２４T02:24:50+08:00",
+    "fullwidth_second": "2026-09-24T02:24:５０+08:00",
+}
+
+
+@pytest.mark.parametrize("bad", NON_ASCII_DIGITS.values(), ids=list(NON_ASCII_DIGITS))
+def test_non_ascii_digits_rejected_by_validator(bad):
+    assert is_valid_acquisition_time(bad) is False
+    with pytest.raises(AcquisitionTimeError):
+        validate_acquisition_time(bad, source="--acquired-at")
+
+
+@pytest.mark.parametrize("bad", NON_ASCII_DIGITS.values(), ids=list(NON_ASCII_DIGITS))
+def test_non_ascii_digits_fail_closed_via_cli(tmp_path, capsys, sample_response, bad):
+    db_path = tmp_path / "data.db"
+    before = _seed(db_path, sample_response)
+    code = pipeline.main(
+        ["--from-json", str(FIXTURE_PATH), "--db", str(db_path), "--acquired-at", bad]
+    )
+    captured = capsys.readouterr()
+    assert code == 1
+    assert _signature(db_path) == before                # INV-3 unchanged
+    assert "--acquired-at" in captured.err              # source named
+
+
+@pytest.mark.parametrize("bad", NON_ASCII_DIGITS.values(), ids=list(NON_ASCII_DIGITS))
+def test_non_ascii_digits_fail_closed_via_sidecar(
+    tmp_path, capsys, sample_response, bad
+):
+    raw_path = _write_raw(tmp_path / "resp.json", sample_response)
+    _write_sidecar(raw_path, bad)
+    db_path = tmp_path / "data.db"
+    before = _seed(db_path, sample_response)
+    code = pipeline.main(["--from-json", str(raw_path), "--db", str(db_path)])
+    captured = capsys.readouterr()
+    assert code == 1
+    assert _signature(db_path) == before
+    assert "resp.meta.json" in captured.err             # sidecar file named
+
+
+# --- A-4 R1 F-3: the pattern itself (not just strptime) rejects a trailing NL ---
+
+
+def test_pattern_rejects_trailing_newline():
+    # re.fullmatch (not re.match + '$', which allows a trailing '\n') means the
+    # regex, not only strptime, rejects a trailing newline (and any tail).
+    from ingestion.acquisition_time import _PATTERN
+
+    assert _PATTERN.fullmatch("2026-09-24T02:24:50+08:00\n") is None
+    assert is_valid_acquisition_time("2026-09-24T02:24:50+08:00\n") is False
+
+
+# --- A-4 R1 F-2: offline validation runs BEFORE the raw JSON is read ------------
+
+
+def test_cli_validation_precedes_raw_json_read(tmp_path, capsys, sample_response):
+    # AT-10: a bad --acquired-at is rejected before the raw JSON is read/derived.
+    # With a nonexistent raw JSON the failure must still be the acquisition-time
+    # error (source --acquired-at), never a "raw JSON not found" error. This test
+    # FAILS if the validate call is moved after the raw-JSON read.
+    db_path = tmp_path / "data.db"
+    before = _seed(db_path, sample_response)
+    missing = tmp_path / "does-not-exist.json"
+    code = pipeline.main(
+        ["--from-json", str(missing), "--db", str(db_path),
+         "--acquired-at", "yesterday"]
+    )
+    captured = capsys.readouterr()
+    assert code == 1
+    assert _signature(db_path) == before
+    assert "--acquired-at" in captured.err              # validated first
+    assert "'yesterday'" in captured.err                # the offending value
+    assert "not found" not in captured.err.lower()      # NOT the missing-file error
+    assert "raw JSON" not in captured.err
