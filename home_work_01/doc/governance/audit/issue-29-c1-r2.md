@@ -84,7 +84,7 @@
 ## 6. H-1（憑證與機密）— A-1 重述
 
 - 訊息組成程式碼（`acquisition_time.py:117-128`）未改，只由值、來源、格式與 hint 組成。
-- 哨兵 `CWA-5E171E1A-0000-4B1D-8C0F-DEADBEEF0001` 放在 process env、匯出目錄的預設 `.env` 與 online 的 `--env` 檔。online 路徑確實由真實 `load_api_key` 讀入它。R1 harness 的 68 項檢查與非 ASCII 的 28 次執行，stdout＋stderr 都**不含**哨兵全文、片段、`CWA_API_KEY` 或 `Authorization`。
+- 哨兵 `〔哨兵金鑰值已遮蔽 — R-SEC/H-1〕` 放在 process env、匯出目錄的預設 `.env` 與 online 的 `--env` 檔。online 路徑確實由真實 `load_api_key` 讀入它。R1 harness 的 68 項檢查與非 ASCII 的 28 次執行，stdout＋stderr 都**不含**哨兵全文、片段、`CWA_API_KEY` 或 `Authorization`。
 - A-5（`ee84480`，542 個追蹤檔）：沒有追蹤 `.env`；本機真實金鑰的字面值 0 筆；金鑰格式 pattern 只命中文件化的佔位字串（6 個未改動的檔案）。`cc29c7f..ee84480`、`bd52ede..ee84480`、`ee84480..def4597` 的新增行都沒有金鑰格式字串，也沒有字面金鑰。`python -m tools.credential_scan` exit 0；CI 的 credential step 通過。
 - worklog 與本紀錄都不含金鑰。
 - **結果**：H-1 成立。
@@ -110,3 +110,6 @@ H-2：diff 未觸及。`data.db`、`config.py`、`persist.py` 的 blob 相同；
 - 沒有回歸：259 passed、blob 相同、boundary 成立、AC-12 byte-identical、CI 綠、H-1 與 H-3 成立。
 
 VERDICT: AUDIT CLOSURE
+
+
+> [Orchestrator R-SEC 遮蔽 2026-09-24] 上文原本寫出 A-4 H-1 測試用的哨兵金鑰字面值（CWA 格式，非真實金鑰）。為避免 tracked 內容含 CWA-金鑰格式字串觸發機械式 credential scan（`tools.credential_scan`；H-1／R-SEC-1），已將該字面值改為遮蔽佔位符。Reviewer 的 finding 與 verdict 不變。

@@ -87,7 +87,7 @@ Harness 總計：0 個非預期結果（F-1 重現段是刻意的探測）。Har
 | 核對項 | 結果 |
 | --- | --- |
 | 訊息組成（AT-11） | `validate_acquisition_time` 的訊息只由 `_render(value)`、`source`、`REQUIRED_FORMAT`、`EXAMPLE`、可選的 `hint` 組成（`acquisition_time.py:114-123`）；三個呼叫點的 `source`／`hint` 都是字面字串或 sidecar 檔名（`pipeline.py:133-135, 167-171`；`provenance.py:92-95`）。沒有路徑會把 env、標頭或 raw JSON 帶進訊息 |
-| **哨兵金鑰測試**（Reviewer 自跑） | 哨兵 `CWA-5E171E1A-0000-4B1D-8C0F-DEADBEEF0001` 放在三處：(a) process 環境變數 `CWA_API_KEY`；(b) 匯出目錄的預設 `.env`；(c) online 案例的 `--env` 檔。online 案例由真實 `load_api_key` 讀入，mock 的 `fetch_raw` 會確認拿到的就是哨兵（不是的話 exit 97），所以產生失敗訊息時，金鑰確實在 process 記憶體裡。掃描全部失敗執行（P1 28 次、P2 23 次、P3 9 次）的 stdout＋stderr，檢查哨兵全文、片段 `5E171E1A`、`CWA_API_KEY`、`Authorization`：**0 筆**。online 正向對照也是 0 筆 |
+| **哨兵金鑰測試**（Reviewer 自跑） | 哨兵 `〔哨兵金鑰值已遮蔽 — R-SEC/H-1〕` 放在三處：(a) process 環境變數 `CWA_API_KEY`；(b) 匯出目錄的預設 `.env`；(c) online 案例的 `--env` 檔。online 案例由真實 `load_api_key` 讀入，mock 的 `fetch_raw` 會確認拿到的就是哨兵（不是的話 exit 97），所以產生失敗訊息時，金鑰確實在 process 記憶體裡。掃描全部失敗執行（P1 28 次、P2 23 次、P3 9 次）的 stdout＋stderr，檢查哨兵全文、片段 `5E171E1A`、`CWA_API_KEY`、`Authorization`：**0 筆**。online 正向對照也是 0 筆 |
 | A-5：`git ls-files` | 沒有追蹤 `.env`（只有 `.env.example`） |
 | A-5：追蹤檔案（`bd52ede`，542 檔） | 本機真實金鑰的字面值（在記憶體內比對，沒有印出）：**0 筆**。金鑰格式 pattern 只命中 6 個本 diff 未改動的檔案，而且命中的都是文件化的佔位字串 `CWA-1234-5678-90ab-cdef`（4-4-4-4 形，不可能是真金鑰；見 `tools/credential_scan.py` 的 allowlist 說明） |
 | A-5：diff | `cc29c7f..bd52ede` 與 `bd52ede..b4b121f` 的新增行：沒有金鑰格式字串，沒有字面金鑰；`Authorization` 在新增行出現 3 次，都只是文字描述（DR-22 E-5、worklog）或測試斷言 `assert "Authorization" not in message` |
@@ -224,3 +224,6 @@ diff 未觸及。`data.db`（`6875869…`）、`ingestion/config.py`（DDL，`76
 - Non-blocking：F-2、F-3、F-4、F-5 已列出 disposition 與 owner，不延長本 cycle。
 
 VERDICT: BLOCKING (F-1)
+
+
+> [Orchestrator R-SEC 遮蔽 2026-09-24] 上文原本寫出 A-4 H-1 測試用的哨兵金鑰字面值（CWA 格式，非真實金鑰）。為避免 tracked 內容含 CWA-金鑰格式字串觸發機械式 credential scan（`tools.credential_scan`；H-1／R-SEC-1），已將該字面值改為遮蔽佔位符。Reviewer 的 finding 與 verdict 不變。
