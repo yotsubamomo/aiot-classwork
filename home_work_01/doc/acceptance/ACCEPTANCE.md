@@ -10,12 +10,16 @@ is an entry point for the forthcoming **Spec Integration Audit** (governance §4
 ## 0. Subject, environment, status legend
 
 - **Final subject**: branch `home_work_01-hw10-implementation`, commit
-  `__FINAL_SHA__` — **the commit that includes this `ACCEPTANCE.md` (R-DOC-4 deliverable)**.
+  `6407d8b2d0f04523f5057b0880083f3bd836c6a8` — **the commit that includes this `ACCEPTANCE.md` (R-DOC-4 deliverable)**.
   Per Bindings §7 only `doc/governance/**` paths are record-only, so `doc/acceptance/`
   (this file) is part of the subject, **not** record-only. The app / query / db / static /
   test behaviour is identical to `2f52766` (the #25 delta is documentation wording +
   `doc/` records + a test-only unused-import removal; no `app.py`/`server.py`/`weather_query.py`/
-  `data.db`/`static/*` behaviour change).
+  `data.db`/`static/*` behaviour change). `6407d8b` carries all the corrections + this
+  deliverable and is the CI-verified (run `35948664254`) and deployment-smoked commit (§8);
+  the branch HEAD is a subsequent record commit that only writes the post-build smoke/CI
+  evidence values into this file and the worklog — a doc delta over `6407d8b` with no
+  behaviour or verification-outcome change.
 - **Environment**: clean Python **3.12.14** venv; deps from `requirements.txt`
   (Flask 3.1.2, pytest 8.3.3, streamlit 1.64.0, requests 2.32.3; pandas 3.0.6 transitive).
 - **Committed `data.db`** sha256 `9bbf05bc6cc803444c8760432d6b484699c597f751fa16cb58bfbb5a0dbf542b`
@@ -29,7 +33,7 @@ Evidence shorthand: *tests* = offline `pytest` (152 passed); *cred-scan* =
 `python -m tools.credential_scan`; *shots* = `doc/acceptance/screenshots/`; *wl25* =
 `doc/governance/worklog/issue-25.md`; *audit N* = `doc/governance/audit/issue-N-c1-*.md`;
 *CI* = GitHub Actions `home_work_01-ci.yml` — latest green push run on the final subject
-is `__FINAL_CI__` (`__FINAL_SHA__`), 152 passed, Python 3.12.14, credential scan passed.
+is `35948664254` (`6407d8b2d0f04523f5057b0880083f3bd836c6a8`), 152 passed, Python 3.12.14, credential scan passed.
 
 ## 1. Acceptance Criteria (AC-01 … AC-30)
 
@@ -194,17 +198,17 @@ non-blocking (feature/UI/behaviour code change is out of #25 scope).
 
 ```
 $ python smoke.py https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app
-__SMOKE_LINE_1__
-__SMOKE_LINE_2__
+[2026-09-24T02:47:42Z] attempt 1  url=https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app  GET / -> 200  GET /api/health -> 200  (0.9s elapsed)  PASS
+[2026-09-24T02:47:42Z] SMOKE PASS  url=https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app  (0.9s)
 exit: 0
 ```
 
 - **URL**: `https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app`
 - **GET /** → **200** (body contains `Taiwan Weather Forecast`); **GET /api/health** → **200** (`status: "ok"`, 6 regions, 7 days).
-- **Deployment ↔ commit**: the alias served `data-deployment-id="__DPL_ID__"`, which is
-  GitHub deployment `__GH_DEPLOY_ID__` for commit **`__DEPLOYED_SHA__`** (Preview) —
+- **Deployment ↔ commit**: the alias served `data-deployment-id="dpl_5geV9Trc3cX1WGZiRKg1oNEHSqqZ"`, which is
+  GitHub deployment `6629046658` for commit **`6407d8b`** (Preview) —
   confirmed via `curl <alias>/` and `gh api repos/…/deployments`. The final subject
-  `__FINAL_SHA__` is a documentation-only delta over `__DEPLOYED_SHA__` (no
+  `6407d8b2d0f04523f5057b0880083f3bd836c6a8` is a documentation-only delta over `6407d8b` (no
   `app.py`/`server.py`/`weather_query.py`/`data.db`/`static/*` change), so the deployed
   dashboard build is byte-identical.
 - **AC-22(a)** uses this same output (DR-18 §4.1). **AC-22(c)** live `workflow_dispatch`

@@ -28,7 +28,7 @@ integrated subject, and prepares the Spec Integration Audit subject.
 
 - **Branch**: `home_work_01-hw10-implementation`.
 - **BASE for #25**: `2f52766c32412cc6cb7e1719a8ab0ce8a8e0c53d` (HEAD after #24 close).
-- **Final subject for the Spec Integration Audit**: `__FINAL_SHA__` — **the commit that
+- **Final subject for the Spec Integration Audit**: `6407d8b2d0f04523f5057b0880083f3bd836c6a8` — **the commit that
   INCLUDES `home_work_01/doc/acceptance/ACCEPTANCE.md`** (the R-DOC-4 deliverable) and this
   worklog. **Correction of the earlier error (R1 F-3)**: per Bindings §7 **only
   `doc/governance/**` paths are record-only**, so `doc/acceptance/` is part of the subject
@@ -38,7 +38,7 @@ integrated subject, and prepares the Spec Integration Audit subject.
   `requirements.txt` (comment), `.github/workflows/home_work_01-smoke.yml` (comment),
   `tests/test_fetch.py` (unused-import removal), and `doc/acceptance/ACCEPTANCE.md`; no
   `app.py`/`server.py`/`weather_query.py`/`data.db`/`static/*` behaviour change.
-- **CI green** on the final subject: run `__FINAL_CI__` (152 passed, Python 3.12.14,
+- **CI green** on the final subject: run `35948664254` (152 passed, Python 3.12.14,
   credential scan passed) — see §6.
 - **Correction history**: `fafcf2f` (initial #25 doc fixes) → `1396226`/`a571ccc` (initial
   ACCEPTANCE.md + worklog, R1-audited subject) → this targeted correction (R1 F-1..F-8).
@@ -161,19 +161,19 @@ Derived Forecast Snapshot preview:
 
 ```
 $ python smoke.py https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app
-__SMOKE_LINE_1__
-__SMOKE_LINE_2__
+[2026-09-24T02:47:42Z] attempt 1  url=https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app  GET / -> 200  GET /api/health -> 200  (0.9s elapsed)  PASS
+[2026-09-24T02:47:42Z] SMOKE PASS  url=https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app  (0.9s)
 exit: 0
 ```
 
-Deployment ↔ commit: the alias served `data-deployment-id="__DPL_ID__"` = GitHub
-deployment `__GH_DEPLOY_ID__` for commit `__DEPLOYED_SHA__` (Preview); the final subject
-`__FINAL_SHA__` is a documentation-only delta over `__DEPLOYED_SHA__`, so the deployed
+Deployment ↔ commit: the alias served `data-deployment-id="dpl_5geV9Trc3cX1WGZiRKg1oNEHSqqZ"` = GitHub
+deployment `6629046658` for commit `6407d8b` (Preview); the final subject
+`6407d8b2d0f04523f5057b0880083f3bd836c6a8` is a documentation-only delta over `6407d8b`, so the deployed
 build is byte-identical. Full detail + AC-22(a) in ACCEPTANCE.md §8.
 
 ## 6. Verification — final integrated subject
 
-**Subject**: `__FINAL_SHA__` — app / query / db / static / test behaviour identical to
+**Subject**: `6407d8b2d0f04523f5057b0880083f3bd836c6a8` — app / query / db / static / test behaviour identical to
 `2f52766`; the whole #25 delta is documentation wording (README, requirements.txt comment,
 smoke-workflow header comment), a test-only unused-import removal (`tests/test_fetch.py`),
 and `doc/` records incl. `doc/acceptance/ACCEPTANCE.md`. No `app.py`/`server.py`/
@@ -255,7 +255,7 @@ and `doc/` records incl. `doc/acceptance/ACCEPTANCE.md`. No `app.py`/`server.py`
 ## 9. Spec Integration Audit subject prep (impl-default §6)
 
 - **Final subject identity**: branch `home_work_01-hw10-implementation`, commit
-  `__FINAL_SHA__` — **the commit that includes `doc/acceptance/ACCEPTANCE.md`** (R-DOC-4).
+  `6407d8b2d0f04523f5057b0880083f3bd836c6a8` — **the commit that includes `doc/acceptance/ACCEPTANCE.md`** (R-DOC-4).
   Per Bindings §7 only `doc/governance/**` is record-only, so `doc/acceptance/` is part of
   the subject. App/query/db/static/test behaviour == `2f52766` (== #24-closure `386f30a`);
   the delta is documentation + a test-only unused-import removal.
@@ -265,7 +265,7 @@ and `doc/` records incl. `doc/acceptance/ACCEPTANCE.md`. No `app.py`/`server.py`
   `issue-25-c1-r1.md` (+ the #25 R2 closure record to follow).
 - **Integration evidence**: this worklog §5–§6 (incl. §5a AC-25 output, §5b smoke);
   `doc/acceptance/ACCEPTANCE.md` (AC-01..30, INV-1..9, AB-1..17 with evidence refs, §8 smoke
-  evidence); CI run `__FINAL_CI__` (152 passed); screenshots under
+  evidence); CI run `35948664254` (152 passed); screenshots under
   `doc/acceptance/screenshots/`.
 - **Decisions in force**: derivation-SPEC.md; DR-1..DR-19; high-risk A-1/A-2/A-6;
   unattended-run-policy.
