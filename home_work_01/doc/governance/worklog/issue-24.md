@@ -113,6 +113,15 @@
 
 `./.venv/Scripts/python -m pytest`（3.12，無網路、無 `.env`）：**152 passed**（BASE 亦 152；本票未新增／刪除 pytest 測試——前端為 JS，band→colour 與導出等價由既有共用模組測試涵蓋，AC-28 前端側走 endpoint-值著色記錄路徑）。
 
+### Subject 與 CI（PASS）
+
+- BASE = `8d46ead`；commit（受審 subject）＝ **`4ec20b5`**，已 push `origin/home_work_01-hw10-implementation`（SA-1）。改動：`static/{index.html,styles.css,app.js}` 修改、`static/vendor/{leaflet.js,leaflet.css}` 新增、`README.md`、`doc/acceptance/screenshots/issue-24-*.png`、`doc/governance/worklog/issue-24.md`。
+- 本機憑證機械檢查（`tools/credential_scan.py`）：passed（504 tracked files；無 `.env`；追蹤檔與歷史 diff 無 CWA 金鑰格式；fixture／raw JSON 無 Authorization 值）——含新 vendored Leaflet。
+- CI（`.github/workflows/home_work_01-ci.yml`，Python 3.12，offline pytest 全套＋憑證機械檢查）於 `4ec20b5`：
+  - push run `35940942570` → completed/**success**
+  - pull_request run `35940944706` → completed/**success**
+  - 全步驟綠（Show Python version 3.12；full offline pytest 152 passed；credential checks）。註記僅為 GitHub 對 Node20／ubuntu label 的 deprecation 提醒，非失敗。
+
 ## Audit status
 
 Formal Ticket → independent audit required（Bindings §5；治理 §4.1）。本 worklog 附 self-verification 與 H-3／H-2 核對，交 Primary Reviewer R1（由 Orchestrator／主 session 依 Bindings §3.5 派工，不由 Executor 自派）。
