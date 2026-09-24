@@ -4,10 +4,17 @@
 # check a maintainer runs locally -- so CI and local agree (R-TC-7).
 #
 # URL source: the HW01_DEPLOY_URL repository variable is the documented default
-# (set by the acceptor, RB-3). The optional `url` input overrides it, so the
-# workflow can be demonstrated against a live preview before the reserved merge
-# (RB-1) makes the production variable's URL live (DR-12). If neither yields a URL
-# the run fails with a clear message.
+# (set by the acceptor, RB-3). The optional `url` input overrides it when non-empty
+# (it falls back to the variable when left empty); if neither yields a URL the run
+# fails with a clear message.
+#
+# Dispatch availability: GitHub only dispatches a workflow_dispatch workflow that
+# exists on the default branch (main). This file lives only on the topic branch
+# until the reserved merge to main (RB-1), so it cannot be dispatched before that
+# merge -- run the identical check locally with `python smoke.py <preview-url>`
+# meanwhile. After the merge, the default dispatch uses the production
+# HW01_DEPLOY_URL variable and is the release evidence (DR-12, DR-18 (c)); the
+# `url` input then lets you smoke-check any other URL.
 name: home_work_01 deploy smoke
 
 on:

@@ -1,7 +1,9 @@
 # HW10 — Taiwan Weather Forecast (`home_work_01`)
 
-A one-week temperature forecast for six Taiwan Regions, taken from CWA open data,
-persisted to SQLite, and (in later tickets) shown in a web app.
+A one-week temperature forecast for six Taiwan Regions, **derived from CWA
+county-level open data** (not a CWA-published six-region product — see
+[Data source and labeling](#data-source-and-labeling-please-read)), persisted to
+SQLite, and shown in a web app.
 
 > **Scope of this README section.** This document covers the **ingestion** stage
 > (Issue #18: fetch → derive → persist), the **Streamlit Grading App**
@@ -414,10 +416,13 @@ public URL comes from the **`HW01_DEPLOY_URL`** repository variable — the docu
 default source, set by the repository owner (RB-3). The workflow also accepts an
 optional **`url`** input that **overrides** the variable when non-empty (it defaults
 to the variable when the input is left empty); if neither yields a URL the run fails
-with a clear message. Because `HW01_DEPLOY_URL` points at the **production** URL,
-which is live only after the reserved merge to `main`, demonstrate the workflow now
-by dispatching it with the `url` input set to the public **preview** alias; the
-production variable's own run validates after merge (release evidence).
+with a clear message. GitHub only dispatches a `workflow_dispatch` workflow that
+exists on the **default branch** (`main`); this workflow lives only on the topic
+branch until the reserved merge to `main` (RB-1), so it **cannot be dispatched
+before that merge** — run the identical check locally with
+`python smoke.py <preview-url>` meanwhile. After the merge, the default dispatch
+uses the production `HW01_DEPLOY_URL` variable and is **release evidence**
+(DR-12, DR-18); the `url` input then lets you smoke-check any other URL.
 
 ## Correspondence to the poster `HW10_Weather/` structure
 
