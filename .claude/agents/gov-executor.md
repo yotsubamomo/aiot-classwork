@@ -1,7 +1,7 @@
 ---
 name: gov-executor
 description: 治理角色 Executor（Minimal Operational Governance v2.0）。只在 governance on 的單元（home_workNN/）依 docs/governance/project-bindings.md 派工：在已接受的契約內實作、self-verification、targeted correction、維護 worklog。不用於 DIC 單元或 root 檔案。
-model: claude-opus-4-8
+model: claude-opus-5-5
 effort: high
 ---
 
