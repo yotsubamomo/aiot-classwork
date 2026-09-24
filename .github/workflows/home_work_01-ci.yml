@@ -1,0 +1,60 @@
+# CI for the home_work_01 unit only (Outcome Contract §8.2 RB-5 authorization;
+# Spec R-TC-6 / R-ENV-3; decision DR-13). The path filter limits every trigger to
+# this unit's tree and this workflow file itself, so a change to root files, other
+# units, or the smoke workflow never runs this job (AC-20 "no trigger without unit
+# changes"; AC-29 scope). The whole run is offline: no network, no .env, no secret.
+name: home_work_01 CI
+
+on:
+  push:
+    paths:
+      - 'home_work_01/**'
+      - '.github/workflows/home_work_01-ci.yml'
+  # R-TC-6 MAY: same unit-scoped filter on pull requests.
+  pull_request:
+    paths:
+      - 'home_work_01/**'
+      - '.github/workflows/home_work_01-ci.yml'
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: home_work_01
+
+jobs:
+  test:
+    name: offline test suite + credential checks (Python 3.12)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository (full history for the committed-diff secret scan)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 'Show Python version (INV-8: 3.12 in CI)'
+        run: python --version
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run the full offline pytest suite
+        # -v so the log shows every category was collected and passed: derive
+        # (test_derive), DB/persistence (test_persist), shared module
+        # (test_weather_query), Streamlit AppTest (test_app), Flask test client
+        # (test_dashboard) and static checks (test_static_checks). R-TC-5: offline.
+        run: python -m pytest -v
+
+      - name: Credential mechanical checks (AC-07 b/c/d; decision A-5; H-1)
+        # git ls-files has no .env; no CWA-key-format string in tracked files or
+        # committed history (the ignored .env is excluded); fixture + raw JSON have
+        # no Authorization value. Prints only findings, never a secret value.
+        run: python -m tools.credential_scan

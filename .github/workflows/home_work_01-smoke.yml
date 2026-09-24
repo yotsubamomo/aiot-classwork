@@ -1,0 +1,63 @@
+# Manual deployment smoke check for the home_work_01 dashboard (Spec R-TC-7;
+# AC-22; AB-17). Runs on demand only (workflow_dispatch); it never runs on push
+# and touches no other unit. It reuses this unit's smoke.py verbatim -- the same
+# check a maintainer runs locally -- so CI and local agree (R-TC-7).
+#
+# URL source: the HW01_DEPLOY_URL repository variable is the documented default
+# (set by the acceptor, RB-3). The optional `url` input overrides it when non-empty
+# (it falls back to the variable when left empty); if neither yields a URL the run
+# fails with a clear message.
+#
+# Dispatch availability: GitHub only dispatches a workflow_dispatch workflow that
+# exists on the default branch (main). This file lives only on the topic branch
+# until the reserved merge to main (RB-1), so it cannot be dispatched before that
+# merge -- run the identical check locally with `python smoke.py <preview-url>`
+# meanwhile. After the merge, the default dispatch uses the production
+# HW01_DEPLOY_URL variable and is the release evidence (DR-12, DR-18 (c)); the
+# `url` input then lets you smoke-check any other URL.
+name: home_work_01 deploy smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Public deployment base URL to smoke-check (overrides the HW01_DEPLOY_URL repository variable; leave empty to use it)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: home_work_01
+
+jobs:
+  smoke:
+    name: GET / and /api/health (retry <= 90 s)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Smoke-check the deployment
+        # Resolve the URL: the input wins when non-empty, otherwise the repository
+        # variable. Passed via env so neither value is interpolated into the shell.
+        # smoke.py uses only the standard library, so no dependency install is
+        # needed; it prints the two status codes and exits non-zero on failure.
+        env:
+          INPUT_URL: ${{ inputs.url }}
+          VAR_URL: ${{ vars.HW01_DEPLOY_URL }}
+        run: |
+          URL="${INPUT_URL:-$VAR_URL}"
+          if [ -z "$URL" ]; then
+            echo "error: no deployment URL: set the HW01_DEPLOY_URL repository variable or pass the 'url' input" >&2
+            exit 1
+          fi
+          echo "Smoke-checking: $URL"
+          python smoke.py "$URL"

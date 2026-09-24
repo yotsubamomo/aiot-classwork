@@ -1,0 +1,14 @@
+# Local virtual environment (created with: uv venv --python 3.12 .venv)
+.venv/
+venv/
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local secrets: the real key lives only in the untracked .env (root .gitignore
+# already ignores .env / .env.*). Repeated here for clarity within the unit.
+.env
+.env.*
+!.env.example

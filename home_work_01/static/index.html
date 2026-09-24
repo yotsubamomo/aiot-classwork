@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Taiwan Weather Forecast</title>
+  <!-- Vendored Leaflet 1.9.4 (pinned, no key/account/payment — R-EN-6). Both the
+       CSS and JS are served same-origin from /static/vendor/. The basemap is a
+       vendored vector layer loaded from /static/data/basemap.js (a same-origin
+       <script>, not a fetch), so the map makes NO external tile/data request. -->
+  <link rel="stylesheet" href="/static/vendor/leaflet.css">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="page">
+    <!-- Header. The <h1> keeps the teacher's concept word verbatim (H-2 / R-EN-2);
+         the integrated layout name "Taiwan Weather Dashboard" (R-EN-7) is a subtitle
+         and never replaces the concept word. -->
+    <header class="masthead">
+      <p class="masthead__eyebrow">Taiwan Weather Dashboard</p>
+      <h1 class="title">Taiwan Weather Forecast</h1>
+      <p class="masthead__lead">
+        Six-region seven-day forecast — read the derived map temperature for a day
+        on the Taiwan map, then pick a region below for its temperature trend, daily
+        table and weekly summary.
+      </p>
+    </header>
+
+    <!-- ERROR state (R-EN-1 item 5, R-DS-6, DR-19): any FAILED request — a network
+         failure, an unparseable response, OR any non-2xx from /api/health or
+         /api/regions (503 missing/empty/incomplete, 500/502/504, 404). The server's
+         error message is surfaced below so missing/empty/incomplete stay distinct.
+         role="alert" so it is announced. Never a blank page. Hidden until set. -->
+    <div id="page-error" class="state state--error" role="alert" hidden>
+      <span class="state__icon" aria-hidden="true">!</span>
+      <div>
+        <p class="state__title">Something went wrong</p>
+        <p id="page-error-text" class="state__body"></p>
+      </div>
+    </div>
+
+    <!-- LOADING state (R-EN-1 item 5): visible while the first requests are in
+         flight. role="status" so it is announced politely. -->
+    <div id="page-loading" class="state state--loading" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="state__body">Loading the latest forecast…</p>
+    </div>
+
+    <!-- EMPTY state (R-EN-1 item 5, DR-19): a request SUCCEEDED (2xx) but there is
+         nothing to render — /api/regions returned an empty regions list. A failed
+         request or a 503 snapshot-unavailable is an ERROR, never empty (DR-19). -->
+    <div id="page-empty" class="state state--empty" role="status" hidden>
+      <span class="state__icon" aria-hidden="true">◌</span>
+      <div>
+        <p class="state__title">No forecast data yet</p>
+        <p id="page-empty-text" class="state__body"></p>
+      </div>
+    </div>
+
+    <!-- DASHBOARD content, revealed once a usable snapshot loads. Map-first: the
+         Taiwan Map card leads, then the Region controls, weekly summary and the
+         chart / table (R-EN-7 same-page integration). -->
+    <div id="dashboard" class="dashboard" hidden>
+
+      <!-- Taiwan Map (R-EN-4..R-EN-7): a full-width, always-dark Leaflet map on a
+           vendored vector basemap. A floating info panel (top-left) carries the
+           Select Date control (R-EN-3), the day summary tiles and the selected
+           Region block; a floating legend (bottom-right) carries the four bands and
+           the derived-average caveat (R-EN-5). Markers are temperature pills whose
+           value and colour come straight from /api/days/<date> (H-3). -->
+      <section class="card map-card" aria-label="Taiwan map">
+        <div class="map-card__head">
+          <h2 class="section-heading">Taiwan Map</h2>
+          <p id="map-caption" class="caption caption--map"></p>
+        </div>
+
+        <div class="map-shell">
+          <!-- Floating info panel. On phones it becomes a row ABOVE the map (not
+               floating). Select Date lives here and stays visible/operable even
+               when the map shows an inline error/empty state (DR-19, P-7b). -->
+          <div class="map-panel map-panel--info">
+            <h3 class="map-panel__title">
+              Six-region forecast <span class="chip">DERIVED</span>
+            </h3>
+            <!-- Select Date (R-EN-3): the snapshot's seven Forecast Days, ascending,
+                 default first. Changing it recolours the pills and updates this
+                 panel to that day's values without resetting the map view (AC-18). -->
+            <div class="map-control">
+              <label class="map-control__label" for="date-select">Select Date</label>
+              <select id="date-select" class="map-select" aria-label="Select Date"></select>
+            </div>
+            <p class="map-meta">Forecast Day: <b id="map-forecast-day">–</b></p>
+            <p class="map-meta map-meta--source">
+              Source: CWA F-D0047-091 (county-level) → project-derived six-region values
+            </p>
+            <div class="map-tiles">
+              <div class="map-tile map-tile--max">
+                <span class="map-tile__label">Highest MaxT (this day)</span>
+                <span class="map-tile__value"><b id="tile-max-value">–</b><span class="map-tile__unit">°C</span></span>
+                <span class="map-tile__region" id="tile-max-region">–</span>
+              </div>
+              <div class="map-tile map-tile--min">
+                <span class="map-tile__label">Lowest MinT (this day)</span>
+                <span class="map-tile__value"><b id="tile-min-value">–</b><span class="map-tile__unit">°C</span></span>
+                <span class="map-tile__region" id="tile-min-region">–</span>
+              </div>
+            </div>
+            <div class="map-sel">
+              <p class="map-sel__name" id="sel-region">北部地區</p>
+              <div class="map-sel__row"><span>Date</span><span id="sel-date">–</span></div>
+              <div class="map-sel__row"><span>Min</span><span id="sel-min">–</span></div>
+              <div class="map-sel__row"><span>Max</span><span id="sel-max">–</span></div>
+              <p class="map-sel__derived">
+                Derived map temperature <b id="sel-derived">–</b>&thinsp;°C
+              </p>
+              <p class="map-sel__note">(derived, not an observed daily mean)</p>
+            </div>
+          </div>
+
+          <!-- Map frame. The inline status (DR-19) overlays ONLY the map, never the
+               info panel, so Select Date stays usable to switch to a working day. -->
+          <div id="map-frame" class="map-frame">
+            <div id="map" class="map" role="region"
+                 aria-label="Map of Taiwan with six Region markers coloured by the selected day's derived map temperature"></div>
+            <div id="map-status" class="map-status" role="status" hidden></div>
+          </div>
+
+          <!-- Floating legend (bottom-right; a row below the map on phones). Swatch
+               colours are set in JS from the same band→colour map the pills use, so
+               the legend always matches the marker colours (R-EN-5, AC-17). -->
+          <div class="map-panel map-panel--legend" aria-label="Derived map temperature colour legend">
+            <h4 class="map-legend__title">Derived map temperature</h4>
+            <ul class="map-legend__list">
+              <li><span class="band-swatch" data-band="blue"></span>&lt; 20&thinsp;°C</li>
+              <li><span class="band-swatch" data-band="green"></span>20 – &lt; 25&thinsp;°C</li>
+              <li><span class="band-swatch" data-band="yellow"></span>25 – &lt; 30&thinsp;°C</li>
+              <li><span class="band-swatch" data-band="red"></span>&ge; 30&thinsp;°C</li>
+            </ul>
+            <p class="map-legend__note">
+              Average = (MinT + MaxT) / 2, a derived value — not an observed daily mean.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Controls: Select Region (chart/table). Select Date now lives in the map
+           info panel above; the two presentations stay on one page (R-EN-7). -->
+      <section class="controls card" aria-label="Forecast controls">
+        <div class="control">
+          <label class="control__label" for="region-select">Select Region</label>
+          <select id="region-select" class="select" aria-label="Select Region"></select>
+        </div>
+        <p id="ingestion-time" class="caption"></p>
+      </section>
+
+      <!-- Summary (R-EN-1 item 3): the selected Region's weekly Min / Max, derived
+           in the browser from the /api/ series only (no new business logic). -->
+      <section id="summary" class="summary" aria-label="Weekly summary" hidden>
+        <h2 class="section-heading">Weekly summary</h2>
+        <div class="stat-row">
+          <div class="stat stat--min">
+            <p class="stat__label">Lowest MinT this week</p>
+            <p class="stat__value"><span id="summary-min-value">–</span><span class="stat__unit">°C</span></p>
+            <p id="summary-min-day" class="stat__meta"></p>
+          </div>
+          <div class="stat stat--max">
+            <p class="stat__label">Highest MaxT this week</p>
+            <p class="stat__value"><span id="summary-max-value">–</span><span class="stat__unit">°C</span></p>
+            <p id="summary-max-day" class="stat__meta"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main grid: chart (primary) beside the table (secondary) on wide screens,
+           stacked on narrow ones. -->
+      <div class="grid">
+        <section id="region-panel" class="card chart-card">
+          <h2 id="panel-heading" class="section-heading"></h2>
+
+          <!-- Per-region chart status: a 404/503 on the series endpoint or a
+               network error shows here rather than leaving a blank chart (R-DS-6). -->
+          <div id="chart-status" class="state state--inline" role="status" hidden></div>
+
+          <figure class="chart">
+            <div class="chart__canvas">
+              <div id="chart" aria-label="MaxT and MinT line chart"></div>
+              <div id="chart-tooltip" class="chart-tooltip" role="status" aria-live="polite" hidden></div>
+            </div>
+            <figcaption class="legend">
+              <span class="legend__item"><span class="swatch swatch--maxt"></span>MaxT</span>
+              <span class="legend__item"><span class="swatch swatch--mint"></span>MinT</span>
+            </figcaption>
+          </figure>
+        </section>
+
+        <section class="card table-card" aria-label="Daily forecast table">
+          <h2 class="section-heading">Daily forecast</h2>
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Date</th><th scope="col">MinT</th><th scope="col">MaxT</th></tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Vendored Leaflet first so the global `L` exists, then the vendored vector
+       basemap (a same-origin <script> that sets window.TAIWAN_BASEMAP), then the
+       app. None of these makes a network request for map data. -->
+  <script src="/static/vendor/leaflet.js"></script>
+  <script src="/static/data/basemap.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

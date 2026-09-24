@@ -1,0 +1,13 @@
+# HW10 Taiwan Weather Forecast — pinned dependencies (Python 3.12).
+# Ingestion (Issue #18): fetch + derive + persist + offline tests.
+# Grading App (Issue #19): the Streamlit app and the shared query module.
+# Dashboard (Issue #20): the Flask backend that serves the page and the /api/ JSON
+# and deploys to Vercel as a single function. Its static frontend needs no build
+# step and no extra runtime dependency (the chart is hand-drawn inline SVG).
+# The interactive Taiwan Map uses a vendored JavaScript library (Leaflet, in
+# static/vendor/), not a Python dependency; no Python map/plotting package is listed
+# here so the MVM apps do not depend on one (Spec R-ENV-1, R-GA-9).
+requests==2.32.3
+pytest==8.3.3
+streamlit==1.64.0
+flask==3.1.2

@@ -15,14 +15,14 @@
 
 | # | 票 | Scope class | High-risk | Blocked by | 狀態 | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
-| [#18](https://github.com/yotsubamomo/aiot-classwork/issues/18) | Ingestion：從 F-D0047-091 推導六 Region × 七 Forecast Day 的 Forecast Snapshot 並持久化到 `data.db` | MVM | H-1、H-2、H-3 | — | 待執行 | |
-| [#19](https://github.com/yotsubamomo/aiot-classwork/issues/19) | 共用查詢／領域模組與 Grading App（`app.py`）：Select Region、一週折線圖與表格 | MVM | H-2、H-3（H-1 靜態檢查） | #18 | 待執行 | |
-| [#20](https://github.com/yotsubamomo/aiot-classwork/issues/20) | Dashboard MVM：Flask `/api/` 與靜態頁面在本機提供相同的 Region 查詢行為 | MVM | H-1、H-2 | #19 | 待執行 | |
-| [#21](https://github.com/yotsubamomo/aiot-classwork/issues/21) | Dashboard 部署到 Vercel：公開 URL 與健康 endpoint smoke | MVM | H-1 | #20 | 待執行（acceptor 前置：Vercel 專案，RB-3） | |
-| [#22](https://github.com/yotsubamomo/aiot-classwork/issues/22) | 自動化測試整合與 GitHub Actions CI／smoke workflow | ENHANCED | H-1 | #20、#21 | 待執行（acceptor 前置：repository variable，RB-3；RB-5 僅限 §8.2 授權範圍） | |
-| [#23](https://github.com/yotsubamomo/aiot-classwork/issues/23) | Dashboard UI／UX 品質與響應式版面 | ENHANCED | H-2 | #21、#22 | 待執行 | |
-| [#24](https://github.com/yotsubamomo/aiot-classwork/issues/24) | Select Date 與 Leaflet Taiwan Map：依 Derived Map Temperature 著色 | ENHANCED | H-2、H-3 | #23 | 待執行 | |
-| [#25](https://github.com/yotsubamomo/aiot-classwork/issues/25) | 整合驗收：README 實跑、驗收文件、最終 smoke 與 Spec Integration Audit subject 準備 | INTEGRATION／FINAL VERIFICATION（非 scope class；含 ENHANCED 最終核對） | H-1、H-2、H-3 | #22、#24 | 待執行 | |
+| [#18](https://github.com/yotsubamomo/aiot-classwork/issues/18) | Ingestion：從 F-D0047-091 推導六 Region × 七 Forecast Day 的 Forecast Snapshot 並持久化到 `data.db` | MVM | H-1、H-2、H-3 | — | 已結案 | `7ee299c` |
+| [#19](https://github.com/yotsubamomo/aiot-classwork/issues/19) | 共用查詢／領域模組與 Grading App（`app.py`）：Select Region、一週折線圖與表格 | MVM | H-2、H-3（H-1 靜態檢查） | #18 | 已結案 | `0672020` |
+| [#20](https://github.com/yotsubamomo/aiot-classwork/issues/20) | Dashboard MVM：Flask `/api/` 與靜態頁面在本機提供相同的 Region 查詢行為 | MVM | H-1、H-2 | #19 | 已結案 | `0f5f00e` |
+| [#21](https://github.com/yotsubamomo/aiot-classwork/issues/21) | Dashboard 部署到 Vercel：公開 URL 與健康 endpoint smoke | MVM | H-1 | #20 | 已結案 | `f02a1df` |
+| [#22](https://github.com/yotsubamomo/aiot-classwork/issues/22) | 自動化測試整合與 GitHub Actions CI／smoke workflow | ENHANCED | H-1 | #20、#21 | 已結案（AC-22 (c) 待 RB-1 後 release evidence，DR-18） | `88b871e` |
+| [#23](https://github.com/yotsubamomo/aiot-classwork/issues/23) | Dashboard UI／UX 品質與響應式版面 | ENHANCED | H-2 | #21、#22 | 已結案 | `5312c6f` |
+| [#24](https://github.com/yotsubamomo/aiot-classwork/issues/24) | Select Date 與 Leaflet Taiwan Map：依 Derived Map Temperature 著色 | ENHANCED | H-2、H-3 | #23 | 已結案 | `f9f9f15` |
+| [#25](https://github.com/yotsubamomo/aiot-classwork/issues/25) | 整合驗收：README 實跑、驗收文件、最終 smoke 與 Spec Integration Audit subject 準備 | INTEGRATION／FINAL VERIFICATION（非 scope class；含 ENHANCED 最終核對） | H-1、H-2、H-3 | #22、#24 | 已結案 | `75389e6` |
 
 狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。Commit 欄填結案時的 subject SHA。
 
@@ -63,4 +63,15 @@ RB-5 GitHub Actions 例外已於 Outcome Contract §8.2 授權（只服務 `home
 
 ## 實作過程中的調整
 
-（執行後由 Orchestrator／Executor 依 worklog 補記；本節目前為空。）
+（執行後由 Orchestrator／Executor 依 worklog 補記。）
+
+## Post-baseline 追加 work item（合併前）
+
+| # | 票 | 類型 | High-risk | Blocked by | 狀態 | Commit |
+| --- | --- | --- | --- | --- | --- | --- |
+| [#28](https://github.com/yotsubamomo/aiot-classwork/issues/28) | Taiwan Map 視覺重做（map-first、vendored 向量深色底圖、溫度藥丸、浮動面板/圖例、Select Date 併入地圖） | POST-BASELINE ENHANCEMENT（**Lightweight**，DR-20） | H-2、H-3 | #24、#25 | 已結案（A-4 audit closure：R1 BLOCKING→R2 BLOCKING(N-1)→correction→**Alternate Review AUDIT CLOSURE** `audit/issue-28-c1-alt.md`；164 pytest 綠、CI 綠、preview smoke PASS、零外部請求；phase 增補 `decisions/phase-acceptance-SPEC-addendum-20260924-map-rework.md`） | `5136bd2` |
+| [#29](https://github.com/yotsubamomo/aiot-classwork/issues/29) | Ingestion 取得時間格式驗證（#18 R2 N-1）：`--acquired-at`、sidecar `acquiredAt`、online `ingestion_timestamp()` 三處依 DR-22.3 格式 fail-closed | POST-BASELINE ENHANCEMENT（**Lightweight**） | H-3（H-1 訊息） | #18 | 已結案（A-4：R1 BLOCKING(F-1 non-ASCII 數字)→correction→**R2 AUDIT CLOSURE** `audit/issue-29-c1-r2.md`；259 pytest 綠、CI 綠、blobs 不變、clean-export AC-12 重現；phase 增補 `decisions/phase-acceptance-SPEC-addendum-20260924-acquired-at-validation.md`） | `ee84480` |
+
+- Outcome Contract：acceptor 2026-09-24 指示（Bindings §4 第 3 列）。lane／boundary／HOW 採納：`doc/governance/decisions/decision-20260924-taiwan-map-rework.md`（DR-20）。
+- 不重開 #18–#25；不改 Spec／Outcome Contract。A-4 必做 independent audit（fresh Primary Reviewer）；audit `doc/governance/audit/issue-28-c<cycle>-<r1|r2|alt>.md`；worklog `doc/governance/worklog/20260924-taiwan-map-rework.md`。
+- 另一 acceptor 授權的獨立 Lightweight work item：#18 R2 N-1（`--acquired-at` 格式驗證）＝ **Issue #29**（2026-09-24 建立），獨立票、A-4 audit、不與地圖票混同一 commit。lane／boundary／驗證接受準則／H-3：`doc/governance/decisions/decision-20260924-acquired-at-validation.md`（**DR-22**）；worklog `doc/governance/worklog/20260924-acquired-at-validation.md`。
