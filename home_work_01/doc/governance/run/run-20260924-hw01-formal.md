@@ -93,11 +93,34 @@ Orchestrator run-to-completion record (orch-default §12; Bindings §7). Control
 
 ## Spec-level audit & phase acceptance
 
-- **All Tickets #18–#25 CLOSED** (2026-09-24). Spec Integration Audit subject = branch HEAD content `75389e6` (verification anchor `6407d8b`; `doc/governance/**` audit-record commits on top are record-only per Bindings §7 / orch-default §7 P7, excluded from subject identity). Per #25 R2 N-1, name the exact HEAD SHA as subject, not `6407d8b`.
-- Spec Integration Audit (governance §4.7): **dispatched** (fresh Primary Reviewer over the integrated subject).
-- DA phase acceptance (governance §3.8): pending (after Spec Integration Audit closure).
+- **All Tickets #18–#25 CLOSED** (2026-09-24). **Audited subject = branch HEAD `720c0a0`** (the Spec Integration Audit audited `720c0a0` directly; verification anchor for #25 content is `6407d8b`). `doc/governance/**` audit/decision/run/worklog records are record-only (Bindings §7); `doc/ticket/tickets.md` is the ticket index (control-plane bookkeeping, N-22) — SIA F-1 notes it is not strictly a record-only path, but the SIA audited `720c0a0` directly so coverage is unaffected.
+- Spec Integration Audit (governance §4.7): **CLOSURE** — record `audit/spec-SPEC-c1-r1.md`. **Binding (§3.4)**: agent `aedb258b6c79233ef` = `gov-primary-reviewer`, observed `claude-opus-5-5` / `xhigh` — matches; fresh context (distinct from all Ticket-audit contexts). All five §4.7 ranges hold on HEAD `720c0a0`: INV-1..9 (teacher SQL 6/7 on `data.db`; INV-3 re-derived 42/42; INV-5 key 0 occurrences; A-2 satisfied); AC-01..30 PASS covering AB-1..17 (last-Spec check); integration (3 sources identical, live alias serves `720c0a0`, smoke PASS); 152 tests + CI green; traceability/boundary complete. Findings: F-1 (Low — cite `720c0a0` as audited subject; `tickets.md` not record-only), F-2 (Low — name #18-N-1 owner in completion report). **Audited subject = `720c0a0`.**
+- DA phase acceptance (governance §3.8): **dispatched** (references the closed Spec Integration Audit record).
 - Tracked non-blocking (post-run / follow-up): **#18 R2 N-1** (offline acquisition-time format not validated — writes bad value; R-DB-5/DR-17, needs A-4 independent audit) → new post-#25 owner (acceptor to authorize a Lightweight follow-up); #25 R2 N-2 (ACCEPTANCE.md wording nits). Acceptor/post-merge release-evidence items: AC-22(c) live workflow_dispatch (DR-18), AC-15 production smoke (DR-12), #21-F-3 Vercel-dashboard items incl. "no CWA key set in Vercel env" (RB-3).
 
-## Terminus / completion report
+## Terminus / completion report (2026-09-24)
 
-- Pending. Run stops after #25 closure + Spec Integration Audit closure + DA phase acceptance. No merge to `main` (RB-1), no submission (RB-2).
+The run reached its **natural terminus** (governance §3.8; orch-default §8): all authorized work complete; remaining items are blocked only by genuine reserved boundaries (RB-1/RB-2/RB-3) and are recorded. The four completion levels are stated **separately** (§3.8):
+
+- **Work-item completion**: Tickets **#18–#25 all CLOSED**, each with an independent Ticket audit ending in CLOSURE (16 Ticket audit records; #18–#21,#23–#25 R1+R2, #22 R1 only). GitHub Issues #18–#25 closed with closure comments naming their subject SHAs.
+- **Phase acceptance**: **ACCEPTED** — DA record `decisions/phase-acceptance-SPEC.md` (binding `gov-design-authority`/fable-5-1/xhigh), referencing the closed Spec Integration Audit `audit/spec-SPEC-c1-r1.md` (§4.7, VERDICT CLOSURE).
+- **Run completion**: this Orchestrator run is **complete** at terminus. Final subject: branch `home_work_01-hw10-implementation` @ **`720c0a0`** (= `origin`), PR **#27** (open, draft). `origin/main` unchanged at `d42b1a7`.
+- **Release authorization**: **NOT authorized** — merge to `main` (RB-1) and submission (RB-2) remain the acceptor's actions; not performed.
+
+**Verification/audit status**: all Ticket audits CLOSURE; Spec Integration Audit CLOSURE (INV-1..9 hold; teacher SQL 6/7 on committed `data.db`; AC-01..30 PASS covering AB-1..17; 152 offline tests; CI green on `720c0a0`; live Vercel preview public + healthy). Every subagent assignment's binding was verified per-dispatch from the harness `subagents/` records and matched Bindings §3.1 (Executor opus-4-8/high; Primary Reviewer opus-5-5/xhigh; DA fable-5-1/xhigh); model diversity (Executor vs Reviewer) preserved throughout; no replacements, no `diversity_lost`.
+
+**Recovery/replacement/rollover events**: one recovery — #21 Executor's final turn ended parked on a rebuild watcher; re-grounded from authoritative records (commit pushed, worklog, live smoke), assignment confirmed complete, no dangling irreversible side effect (§1.5/§3.8). No model/agent replacements; no context rollover.
+
+**High-risk (A-1/A-2)**: H-1/H-2/H-3 checked in every touching Ticket audit and in the Spec Integration Audit (A-2: teacher SQL run on `data.db`, INV-3/4/5/7 verified). Key never entered any tracked file, log, fixture, saved JSON, doc, or evidence (INV-5, 0 occurrences).
+
+**Outstanding acceptor actions (recorded; none block phase/run completion)**:
+1. **RB-1** — merge `home_work_01-hw10-implementation` (PR #27) to `main` (the GitHub Pages / Vercel production release). Bindings §5 / A-6 gate material is present (all Ticket + Spec Integration Audit closures, phase acceptance, README run, no tracked secret).
+2. **RB-2** — submit the assignment.
+3. **AC-22(c)** (DR-18) — after RB-1, run the smoke workflow via `workflow_dispatch` on `main` (it registers only on the default branch); record the run URL + status codes as release evidence.
+4. **AC-15 production** (DR-12) — after RB-1, re-run smoke against `https://aiot-hw01-weather.vercel.app` as release evidence.
+5. **#21 F-3** (RB-3, acceptor Vercel dashboard) — capture the Python-3.12 build-log excerpt (AC-23), the Root-Directory screenshot (AC-30), and confirm no CWA key is set in the Vercel project env (AC-07(e)/H-1). (No agent can read this team's Vercel scope.)
+6. **#18 R2 N-1** (Medium, non-blocking follow-up) — offline ingestion does not validate the acquisition-time format; fixing it is a post-closure **Lightweight** work item (Bindings §4 row 3) that **requires an independent audit under A-4** (touches H-3/DR-17). Awaiting acceptor authorization; not a release precondition.
+
+**Known non-blocking residuals**: consolidated in `doc/acceptance/ACCEPTANCE.md §6` (incl. #25 R2 N-2 wording nits, map-edge popup clipping, snapshot expiry). None affect graded behavior or the acceptance boundary.
+
+Per acceptor activation and governance, the Orchestrator **STOPS here** after #25 + Spec Integration Audit + phase acceptance. No merge, no submission.
