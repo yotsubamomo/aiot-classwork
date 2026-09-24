@@ -25,8 +25,9 @@ is an entry point for the forthcoming **Spec Integration Audit** (governance §4
 Evidence shorthand: *tests* = offline `pytest` (152 passed); *cred-scan* =
 `python -m tools.credential_scan`; *shots* = `doc/acceptance/screenshots/`; *wl25* =
 `doc/governance/worklog/issue-25.md`; *audit N* = `doc/governance/audit/issue-N-c1-*.md`;
-*CI* = GitHub Actions `home_work_01-ci.yml` latest green push run (152 passed, Python
-3.12.14, credential scan passed).
+*CI* = GitHub Actions `home_work_01-ci.yml` — latest green push run on `1396226` is
+`35945880858` (https://github.com/yotsubamomo/aiot-classwork/actions/runs/35945880858),
+152 passed, Python 3.12.14, credential scan passed.
 
 ## 1. Acceptance Criteria (AC-01 … AC-30)
 

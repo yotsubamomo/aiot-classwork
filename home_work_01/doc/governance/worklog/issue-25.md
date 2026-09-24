@@ -28,6 +28,12 @@ integrated subject, and prepares the Spec Integration Audit subject.
 
 - **Branch**: `home_work_01-hw10-implementation`.
 - **BASE for #25**: `2f52766c32412cc6cb7e1719a8ab0ce8a8e0c53d` (HEAD after #24 close).
+- **Pushed**: branch HEAD `1396226856e19ec2b1e58c08e084d6381f027678` (record commit adding
+  this worklog + ACCEPTANCE.md; `fafcf2f..1396226` touches only `doc/` record-only paths,
+  Bindings §7). CI **green** on `1396226`: push run
+  `35945880858`, pull_request run `35945883204`
+  (https://github.com/yotsubamomo/aiot-classwork/actions/runs/35945880858) — 152 passed,
+  Python 3.12.14, credential scan passed.
 - **Final subject SHA (after #25 documentation work)**: `fafcf2f51ea6b001c7cedc14a93192b7b1d1537b`
   (app / query / db / test behaviour identical to `2f52766`; the #25 delta is
   documentation wording only — README lead sentence + README CI paragraph + the
