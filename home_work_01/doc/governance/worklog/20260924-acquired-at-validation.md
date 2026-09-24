@@ -83,5 +83,7 @@ A-4 R1 audit（`doc/governance/audit/issue-29-c1-r1.md`，VERDICT: BLOCKING F-1�
 - Blob 不變：`data.db`（`687586991…`）、raw JSON（`209eb76…`）、sidecar（`9edfd11…`）與 parent `cc29c7f` 逐位相同。
 - Diff-scope：僅 `ingestion/acquisition_time.py`、`tests/test_acquisition_time.py`、`README.md`（＋本 worklog record-only）；落在 B-1..B-8 allowlist，`home_work_01/` 外零變更。
 
-- **Correction subject SHA**：（見下方 commit 後補記。）
-- **CI**：（push 後補記。）
+- **Correction subject SHA**：`ee8448060be4204d87d938718d0b8b9719b69e2d`（parent `cc29c7f`；前一 subject `bd52ede`）。commit message 無任何 Claude attribution（CLAUDE.md:98 / git-commit-rules）。
+- **Diff-scope（`git diff --name-only cc29c7f..ee84480`，排除 `doc/governance/**`）**：`README.md`、`doc/acceptance/ACCEPTANCE.md`、`doc/ticket/tickets.md`、`ingestion/acquisition_time.py`、`ingestion/pipeline.py`、`ingestion/provenance.py`、`tests/test_acquisition_time.py` — 全數 B-1..B-7 allowlist；R1 correction 實際只動 `acquisition_time.py`、`tests/test_acquisition_time.py`、`README.md`（＋本 worklog record-only）。`data.db`/raw JSON/sidecar 三 blob 與 `cc29c7f` 逐位相同（IDENTICAL）。
+- **CI**：push run `35982002167` 與 PR run `35982005624` 皆 **success**（headSha `ee84480`）。
+- **狀態**：R1 targeted correction 完成，DONE。未合併（RB-1）、未提交（RB-2）。closure 由 R2 判定；本紀錄不自證 closure。`doc/governance/audit/issue-29-c1-r1.md`（Primary Reviewer 自寫，record-only）保留原樣由派工者提交，Executor 未改寫。
