@@ -94,6 +94,7 @@
   var selectedRegion = "北部地區"; // the Region shown in the info panel's selected block
   var latestDay = null;    // {date, byRegion} for the day currently rendered/pending
   var mapInitScheduled = false;
+  var lastFitWidth = null; // window width at the last fit; a height-only resize does not re-fit (#28 R2 N-2)
 
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
@@ -146,11 +147,20 @@
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
         if (currentSeries) renderChart(currentSeries);
-        // Re-fit the map: the panel/legend layout (floating vs stacked) and the
-        // reserved padding change with width, so the six markers must be re-fitted
-        // to stay clear of the panels at the new width (#28 F-1). Only resize
-        // re-fits — a Select Date change never does (P-12).
-        if (map) fitToMarkers();
+        if (map) {
+          if (window.innerWidth !== lastFitWidth) {
+            // The WIDTH changed, so the layout mode (floating >= 1180px vs stacked)
+            // and the reserved padding may differ — re-fit so the markers stay clear
+            // of the panels at the new width (#28 F-1). Only a width change re-fits;
+            // a Select Date change never does (P-12).
+            fitToMarkers();
+          } else {
+            // A height-only change (e.g. a mobile browser toolbar showing/hiding on
+            // scroll): keep Leaflet's size in sync WITHOUT re-fitting, so the user's
+            // zoom/pan is preserved (#28 R2 N-2).
+            map.invalidateSize();
+          }
+        }
       }, 150);
     });
 
@@ -670,6 +680,7 @@
       paddingBottomRight: pad.br,
       maxZoom: 8,
     });
+    lastFitWidth = window.innerWidth; // remember the width this fit was for (#28 R2 N-2)
   }
 
   // A pill was clicked/activated: reflect the selection in the panel and pills.

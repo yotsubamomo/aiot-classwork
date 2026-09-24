@@ -112,13 +112,13 @@ WCAG 2.x 相對亮度公式、token 值計算（與 DR-21 §7 及 R1 §2.4 一�
 - **文字句**（藥丸內文對藥丸填色 ≥ 4.5，黃色帶以深字計）：blue/white **5.42**、green/white **4.54**、yellow/`#1a2230` **6.68**、red/white **5.47** — 全 PASS。
 - **標記句**（每一色帶 b 與標記可能疊上的每個底圖色 c：CR(填色,c) ≥ 3 **或** CR(界定描邊,c) ≥ 3；界定描邊＝2 px 實線，適用每一狀態）：
 
-  | 底圖色 c | fill blue | fill green | fill yellow | fill red | 描邊 #fff（預設/hover） | 描邊 #9ed0ff（focus/選取） |
+  | 底圖色 c | fill blue | fill green | fill yellow | fill red | 描邊 #fff（**預設** default） | 描邊 #9ed0ff（**hover/focus/選取**） |
   | --- | --- | --- | --- | --- | --- | --- |
   | 海 `#0f1927` | 3.26 ✓ | 3.89 ✓ | 7.39 ✓ | 3.23 ✓ | 17.67 ✓ | 10.87 ✓ |
   | 台灣陸 `#25324a` | 2.37 | 2.83 | 5.38 ✓ | 2.35 | **12.85 ✓** | 7.91 ✓ |
   | 周邊陸 `#1a2331` | 2.92 | 3.48 ✓ | 6.62 ✓ | 2.89 | 15.81 ✓ | 9.72 ✓ |
 
-  每一色帶對每一底圖色都至少一項 ≥ 3：黃色帶填色本身即 ≥ 3；藍/綠/紅在台灣陸與周邊陸上以 2 px 白描邊（12.85／15.81）達成，作用態描邊 `#9ed0ff`（7.91／9.72）亦 ≥ 3。六個代表點皆落在台灣縣市多邊形內（藥丸相鄰底色是台灣陸 `#25324a`）。**只列「對海」的數字不足以證明 V-2**（DR-21.1 §3 明示；已同時列三個底圖色）。→ **V-2 PASS（DR-21.1）**；由 R2 自行核算後於 audit record 記錄。
+  描邊顏色依狀態（P-4）：**預設** = `#fff`（17.67／12.85／15.81），**hover/focus/選取** = `#9ed0ff`（10.87／7.91／9.72），兩者寬度皆 2 px 實線。每一色帶對每一底圖色都至少一項 ≥ 3：黃色帶填色本身即 ≥ 3；藍/綠/紅在台灣陸與周邊陸上，預設態以 2 px 白描邊（12.85／15.81）、作用態以 `#9ed0ff`（7.91／9.72）達成——每一狀態都 ≥ 3。六個代表點皆落在台灣縣市多邊形內（藥丸相鄰底色是台灣陸 `#25324a`）。**只列「對海」的數字不足以證明 V-2**（DR-21.1 §3 明示；已同時列三個底圖色）。→ **V-2 PASS（DR-21.1）**；由 R2 自行核算後於 audit record 記錄。
 
 ### 附帶改動（地圖卡以外）
 
@@ -146,3 +146,33 @@ WCAG 2.x 相對亮度公式、token 值計算（與 DR-21 §7 及 R1 §2.4 一�
 - **correction subject（R2 對象）**：commit **`ecdc793`**（branch `home_work_01-hw10-implementation`，pushed；SA-1）。前一 subject `b4549e5`（R1 對象）；`git diff --name-only b4549e5..ecdc793`（排除 `doc/governance/**`）落在 `static/{app.js,styles.css}`、`tests/test_map_frontend.py`、`README`未動、`doc/acceptance/**`、`doc/ticket/tickets.md`——仍在 DR-20 §3.5(A) diff-scope；`index.html`、`static/data/**`、`app.py`/`server.py`/`weather_query.py`/`api/`/`vercel.json`/`data.db` 未觸及。
 - **CI**：push run [35965840014](https://github.com/yotsubamomo/aiot-classwork/actions/runs/35965840014) = **success**；log `164 passed`（Python 3.12）＋ credential scan 通過（535 tracked files、無 `.env`、無 key）。
 - 本 worklog 的此 SHA 更新為其後的 record-only commit（不改受審 implementation delta）。
+
+## Orchestrator routing determination — R2 BLOCKING(N-1) → correction + one Alternate Review (2026-09-24)
+
+- **R2 verdict** (`issue-28-c1-r2.md`, reviewer `abca3f739e1523101`, binding `gov-primary-reviewer`/`claude-opus-5-5`/`xhigh`, verified §3.4): **BLOCKING (N-1)** on subject `ecdc793`. All R1 blocking findings (F-1/F-2/F-4/F-5) confirmed fixed; F-3 (Medium) fixed; DR-21 RS-1/RS-2 closed; H-2/H-3/INV-2/INV-9 intact; 164 offline tests + CI green; zero external requests.
+- **N-1 (blocking, objectively confirmed by Orchestrator md5):** `doc/acceptance/screenshots/issue-28-state-loading.png` (md5 `45ceda3a…`) is byte-identical to `issue-28-desktop-dark-ac17.png` — the re-capture overwrote the valid `b4549e5` loading shot (md5 `a7544ad0…`). AC-19 evidence for the loading state is therefore invalid. Not a product fault (loading renders correctly at all measured widths); pure evidence-packaging defect introduced by the correction.
+- **N-2 (Medium, non-blocking):** resize handler re-fits on any resize, so a height-only viewport change (mobile toolbar show/hide) discards the user's zoom. Fix: re-fit only when width/layout-mode changes.
+- **N-3 (Low, non-blocking):** worklog V-2 table lists hover under the white-border column; hover border is actually `#9ed0ff`. Conclusion unaffected.
+- **Routing (§4.4):** a blocking R2 MUST be followed by **exactly one Alternate Independent Review** (fresh context); no Primary R3/R4. The Alternate Review is terminal before Final Adjudication, so it closes on a corrected artifact. Therefore: (1) Executor performs a minimal targeted correction — N-1 (required) plus in-footprint N-2/N-3 — confined to `static/app.js`, screenshot, and worklog/ACCEPTANCE; then (2) the single mandated Alternate Independent Review verifies closure. This is an Orchestrator routing record, not a DA contract ruling; Primary and Orchestrator agree on the "one Alternate Review" vehicle, so no routing dispute → no Final Adjudication invoked at this step.
+
+---
+
+## Targeted correction（cycle 2）
+
+治理 §4.4：A-4 **R2** closure review 回 BLOCKING（N-1）＋ N-2（Med）／N-3（Low）。R2 已確認 cycle-1 的 F-1..F-5 修正良好、不得更動。本 cycle 只修下列三項，confined 到 ecdc793 footprint 內（`static/app.js`、loading 截圖、worklog）；**不改** token/顏色/幾何，不動 `index.html`／`static/data`／`styles.css`／`app.py`／`server.py`／`weather_query.py`／`api`／`vercel.json`。
+
+- **N-1（BLOCKING）— loading 截圖是重複檔**：`issue-28-state-loading.png` 原本與 `issue-28-desktop-dark-ac17.png` byte-identical（md5 `45ceda3aa14644c002027c3379d669ad`，cycle-1 重拍時被覆蓋成已載入的地圖）。**重拍真正的 loading 狀態**（delay `/api/days/<date>`，等 `#map-status` 顯示「Loading 2026-09-24…」後截圖，dark、1280×900、地圖卡）：地圖卡顯示 inline loading 訊息、`Select Date` 可見可操作、卡片不空白（DR-19）。新檔 md5 **`c301adf87c35cd9bd6e00cca39c39fdc`**，與 `desktop-dark-ac17`（45ceda…）、`state-empty`（9daa6f…）、`state-error`（ca069f…）及全部 `issue-28-*.png` 皆不同（`md5sum … | uniq -d` 無輸出＝無重複）。ACCEPTANCE.md AC-19 列與 worklog 重拍清單引用的檔名不變（指向已修正的檔），一致。
+- **N-2（Med）— resize 只在寬度／版面模式改變時 re-fit**：`static/app.js` resize handler 原本任何 resize 都呼叫 `fitToMarkers()`，使純高度變化（如手機瀏覽器工具列捲動顯示/隱藏）丟失使用者的 zoom/pan。改為追蹤 `lastFitWidth`：`window.innerWidth !== lastFitWidth` 才 `fitToMarkers()`（寬度變＝版面 floating≥1180/stacked 或 padding 變）；否則只 `map.invalidateSize()`（保留 zoom/pan）。`fitToMarkers()` 結尾記 `lastFitWidth = window.innerWidth`（init 呼叫時即設定）。**未動**初始 fit、1180 breakpoint、`invalidateSize()→fitBounds()` 次序、F-5 的 `ResizeObserver`／`visibilitychange` init guard。行為驗證（headless）：zoom-in 後純高度 resize（1280×900→1280×640）map-pane transform 不變（保留視野）；寬度 resize（1280→1000）transform 改變（re-fit）。
+- **N-3（Low）— worklog V-2 表格 hover 列標籤錯置**：hover/focus/選取態描邊實為 `#9ed0ff`（非 `#fff`）。修正欄標為「描邊 #fff（**預設** default）」與「描邊 #9ed0ff（**hover/focus/選取**）」，並補一句說明各狀態的描邊色；數值（預設 17.67/12.85/15.81；作用態 10.87/7.91/9.72）不變。V-2 結論（PASS，DR-21.1）不變。
+
+### 驗證（cycle 2）
+
+- **完整 offline pytest：164 passed**（無網路、無 `.env`）。**F-5 mutation 仍有效**：clean copy 三個 init 測試 PASS；(a) invalidateSize 移到 fitBounds 後 → `test_fittomarkers_invalidatesize_precedes_fitbounds` FAIL；(b) 移除 `if (sized())` guard → `test_ensuremapsized_guards_on_nonzero_container_size` FAIL。
+- **零外部請求**：載入＋七次切日，external=0。**H-3 七日 parity 未動**：七天×六 pill DOM 值/色 == endpoint，0 筆不符。
+- **N-1 md5**：`c301adf87c35cd9bd6e00cca39c39fdc`；`issue-28-*.png` 全部 md5 唯一。
+- **N-2**：純高度 resize 不 re-fit（保留視野）、寬度 resize re-fit（見上）。
+- 不動 `app.py`/`server.py`/`weather_query.py`/`api/`/`vercel.json`/`index.html`/`static/data`/`styles.css`（本 cycle diff：`static/app.js`＋`issue-28-state-loading.png`＋本 worklog）。
+
+### Subject / CI（cycle 2）
+
+- 新 subject SHA 與 CI run URL：見本節結尾補記（commit 後填）。
