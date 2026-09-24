@@ -73,7 +73,8 @@
 - 修改：`static/index.html`、`static/app.js`、`static/styles.css`、`tests/test_static_checks.py`、`README.md`、`doc/acceptance/ACCEPTANCE.md`、`doc/ticket/tickets.md`。
 - 截圖 `doc/acceptance/screenshots/`（依最終程式重截）：`issue-28-desktop-dark-ac17.png`、`issue-28-desktop-light-ac17.png`、`issue-28-desktop-dark-fullpage-ac19.png`、`issue-28-375-dark-ac19.png`、`issue-28-375-light-ac19.png`、`issue-28-desktop-hover-tooltip.png`、`issue-28-375-hover-tooltip.png`、`issue-28-desktop-date1-ac18.png`、`issue-28-desktop-date2-ac18.png`、`issue-28-state-error.png`、`issue-28-state-empty.png`、`issue-28-state-loading.png`。
 - 記錄（record-only）：本 worklog；`decision-20260924-taiwan-map-rework.md`（DR-20，DA 產出，Executor 未改）。
-- Subject SHA、CI run URL：見下方 commit/CI 段。
+- **Subject（A-4 audit 對象）**：commit `b4549e5`（branch `home_work_01-hw10-implementation`，pushed to `origin`；SA-1）。`git diff --name-only 720c0a0..b4549e5`（排除 `doc/governance/**`）僅落在 `static/**`（含新增 `static/data/`）、`tests/**`、`README.md`、`doc/acceptance/**`、`doc/ticket/tickets.md`——符合 DR-20 §3.5(A)-1 diff-scope。本 worklog 的 SHA 更新為其後的 record-only commit（不改受審 implementation delta）。
+- **CI**：push run [35960925910](https://github.com/yotsubamomo/aiot-classwork/actions/runs/35960925910) 與 PR run [35960928988](https://github.com/yotsubamomo/aiot-classwork/actions/runs/35960928988) 皆 **success**；log 顯示 `163 passed`（Python 3.12）＋ credential scan 通過（530 tracked files、無 `.env`、無 CWA key、無 Authorization 值）。
 
 ## Remaining work
 
