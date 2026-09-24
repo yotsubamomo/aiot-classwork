@@ -19,16 +19,20 @@
  *
  * State mapping is DR-19 (decision-20260924-dashboard-state-mapping):
  *   - loading : a request is in flight (page-level for /api/health -> /api/regions;
- *               inline in the chart card for a per-Region request);
+ *               inline in the chart card for a per-Region /series request, and
+ *               inline in the map card for the /api/days requests);
  *   - error   : a request FAILED — a network failure, an unparseable response, OR
  *               ANY non-2xx (503 missing/empty/incomplete, 500/502/504, 404). The
  *               server's `error` message is surfaced so those causes stay distinct.
  *               A snapshot-unavailable 503 is ALWAYS error, never empty;
  *   - empty   : a request SUCCEEDED (2xx) but there is nothing to render —
- *               /api/regions with an empty list (page-level), or /series with an
- *               empty series (inline, shown as a message, never a blank card).
+ *               /api/regions with an empty list (page-level), /series with an empty
+ *               series (inline in the chart card), or /api/days[/<date>] with no
+ *               days/values (inline in the map card) — always a message, never a
+ *               blank card.
  * One-line rule: empty only for "succeeded but nothing to show"; every failed
- * request is error (R-DS-6, AC-10, R-EN-1 item 5).
+ * request is error (R-DS-6, AC-10, R-EN-1 item 5). The /api/days requests follow
+ * the same per-Region (inline, in the map card) rule (DR-19 for #24).
  */
 "use strict";
 
@@ -96,6 +100,7 @@
 
   var map = null;          // the Leaflet map, created once
   var markers = {};        // Region name -> L.CircleMarker
+  var mapReqSeq = 0;       // latest /api/days/<date> request wins (F-3, out-of-order)
 
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
@@ -326,10 +331,15 @@
   }
 
   function loadDay(date) {
+    // Tag this request; if the user picks another date before it resolves, a
+    // later request bumps mapReqSeq and this (stale/out-of-order) response is
+    // ignored so it cannot overwrite the current day's markers/cards (F-3).
+    var seq = ++mapReqSeq;
     els.mapCaption.textContent = "Showing " + date;
     setMapStatus("Loading " + date + "…", "loading");
     return fetchJson("/api/days/" + encodeURIComponent(date))
       .then(function (res) {
+        if (seq !== mapReqSeq) return; // superseded by a newer Select Date request
         if (failed(res)) {
           // 404 / 503 / 5xx / unparseable -> inline error (DR-19 per-Region rule).
           setMapStatus(
@@ -352,6 +362,7 @@
         applyDay(date, values);
       })
       .catch(function () {
+        if (seq !== mapReqSeq) return; // superseded; do not clobber the current day
         setMapStatus(
           "Cannot load this date right now. Please try again.",
           "error"
@@ -381,10 +392,22 @@
       // Colour DIRECTLY by the endpoint's band (no re-derivation, H-3).
       marker.setStyle({ fillColor: BAND_COLOURS[v.colourBand] || "#888888" });
       var html = infoHtml(region, date, v);
-      marker.bindTooltip(html, { direction: "top", offset: [0, -6] });
+      // Update the tooltip/popup content IN PLACE. setPopupContent refreshes an
+      // ALREADY-OPEN popup live, so a click info card left open when the user
+      // changes Select Date shows the new day's Date/Min/Max/derived instead of
+      // the previous day's stale values (F-1 / AC-18); the first call binds them.
       // autoPan off: every marker is already in view (fitBounds), so opening a
       // popup should not jump the map.
-      marker.bindPopup(html, { autoPan: false });
+      if (marker.getTooltip()) {
+        marker.setTooltipContent(html);
+      } else {
+        marker.bindTooltip(html, { direction: "top", offset: [0, -6] });
+      }
+      if (marker.getPopup()) {
+        marker.setPopupContent(html);
+      } else {
+        marker.bindPopup(html, { autoPan: false });
+      }
       marker._dayInfo = { region: region, date: date, value: v };
     });
 

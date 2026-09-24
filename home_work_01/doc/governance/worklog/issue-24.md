@@ -122,9 +122,46 @@
   - pull_request run `35940944706` → completed/**success**
   - 全步驟綠（Show Python version 3.12；full offline pytest 152 passed；credential checks）。註記僅為 GitHub 對 Node20／ubuntu label 的 deprecation 提醒，非失敗。
 
+## Targeted correction — cycle 1（R1 BLOCKING F-1、F-2；併修 F-3）
+
+**輸入**：R1 audit `doc/governance/audit/issue-24-c1-r1.md`（VERDICT: BLOCKING (F-1, F-2)）。同一 work item、同一 worklog、同一 branch。治理 §4.4 targeted correction：只修 findings，不弱化測試、不擴大 scope（`app.py` 未動、資料只來自 `/api/`、DR-19／N-1 維持、AC-04(b) 靜態檢查與 vendored Leaflet 未動）。
+
+**新 subject**：`home_work_01-hw10-implementation`，correction commit（見 §CI-2）；改動只在 `static/{app.js,index.html,styles.css}` 與 `tests/test_dashboard.py`（新增 Select Date 斷言，加強覆蓋、未弱化）。
+
+### F-1（Medium, blocking；AC-18／R-EN-4）— 切換日期後開著的 popup 顯示舊值 → 已修
+
+- **成因**：`applyDay` 每次切換都 `marker.bindPopup(html)` 綁新 popup，但不更新目前開著的 popup。
+- **修法（HOW）**：`applyDay` 改為 `getPopup()`／`getTooltip()` 判斷——首次 `bindTooltip`／`bindPopup`（`autoPan:false`），其後 `setTooltipContent`／`setPopupContent` **就地更新**；`setPopupContent` 會即時刷新已開著的 popup，故切換日期時開著的 click 資訊卡改顯示新日期的 `Date`／`Min`／`Max`／導出值（不再殘留前一天）。
+- **closure 證據（headless CDP，真實資料）**：點北部地區 marker 開 popup，再把 `Select Date` 由 2026-09-24 切到 2026-09-28：
+  - 1280：popup `before`＝「北部地區 Date: 2026-09-24 Min: 23.3°C · Max: 31°C Derived map temperature: 27.2°C (derived)」→ `after`＝「…Date: 2026-09-28 Min: 24.4°C · Max: 32.4°C … 28.4°C (derived)」，popup 仍開著、值＝該日 endpoint。
+  - 375：同上（before 27.2 → after 28.4）。
+  - marker 顏色、側欄 info card、popup 三者一致。截圖 `issue-24-f1-popup-updates-1280.png`、`issue-24-f1-popup-updates-375.png`。七天切換既有行為無回歸（全套 152 passed）。
+
+### F-2（Medium, blocking；AC-27）— placeholder 死 CSS 與過時註解 → 已修
+
+- 移除 `styles.css` 的 `.control--reserved` 與整段 `.placeholder`／`.placeholder--inline`／`.placeholder--map`／`.placeholder__tag`／`.placeholder__note`（本票移除 placeholder 標記後已無元素使用）。
+- 更正 `index.html` controls 區塊註解（原「Select Date … NOT implemented here」→ 改為描述已整合的 Select Region／Select Date）。
+- 併修次要項：`app.js` 檔頭 DR-19 狀態說明補上地圖 inline 狀態（`/api/days[/<date>]` 的 loading／error／empty 在 map card 內）。
+- **closure 證據**：`grep -rn "placeholder\|control--reserved" static/`（排除 vendor）**0 筆**；`grep "NOT implemented|reserved|Coming soon"` static 前端 **0 筆**。只移除未使用規則，版面與 `scrollWidth`（375）不變（無渲染回歸）。
+
+### F-3（Medium, non-blocking；AC-18）— `/api/days/<date>` 回應亂序 → 已於同組函式併修
+
+- **修法（HOW）**：`loadDay` 以 `mapReqSeq` 序號標記每次請求（`var seq = ++mapReqSeq;`），回應（`.then`／`.catch`）先檢查 `seq === mapReqSeq`，否則丟棄——較舊／較晚到達的回應不會覆寫目前選取的日期。不擴大 scope（同組函式、同一 AC-18 性質；`loadRegion` 的相同模式屬 #20／#23 已結案程式，未觸及）。
+- **closure 證據（headless CDP，伺服器端延遲 `/api/days/2026-09-25` 2.5s）**：載入（24）→ 選 2026-09-25（慢）→ 立即選 2026-09-26（快，先完成、套用 26）→ 等延遲的 25 回應到達：最終 `caption="Showing 2026-09-26"`、`infocard-date=2026-09-26`、`date-select=2026-09-26`、`map-status` 隱藏——延遲的 25 回應被丟棄，未覆寫當前選取。
+
+### 併修的 optional（F-6，Low）
+
+`tests/test_dashboard.py::test_index_page_has_visible_teacher_text` 新增 `>Select Date</label>` 斷言（H-2 評分頁面文字的自動化回歸保護；加強覆蓋，未弱化任何測試）。F-4（AC-04(b) 不掃 vendor）依派工指示不動靜態檢查與 vendored Leaflet；F-5（375 popup 裁切等 UX 細節）不違反契約條款，未改。
+
+### 回歸與陳舊證據
+
+- 全套離線測試（3.12，無網路／無 `.env`）：**152 passed**（含新增的 Select Date 斷言）。
+- F-1／F-3 為行為修正、F-2 移除未使用 CSS 與更正註解——UI 靜態外觀不變，故既有 12 張 AC 截圖（AC-17／18/19、狀態、band）維持有效；另新增兩張 F-1 closure 截圖。
+- AC-17／R-EN-3/5/6/7、AC-28 前端側、AC-14 第 6 項、DR-19／N-1、INV-2／INV-7／INV-9、AC-04(b)、H-2／H-3 維持 PASS（本次未觸及其判定依據；`app.py`／`server.py`／`weather_query.py`／`vercel.json`／vendored Leaflet 仍不在 diff）。
+
 ## Audit status
 
-Formal Ticket → independent audit required（Bindings §5；治理 §4.1）。本 worklog 附 self-verification 與 H-3／H-2 核對，交 Primary Reviewer R1（由 Orchestrator／主 session 依 Bindings §3.5 派工，不由 Executor 自派）。
+Formal Ticket → independent audit required（Bindings §5；治理 §4.1）。cycle 1 R1 = BLOCKING (F-1, F-2)；本次 targeted correction 已附 F-1、F-2 的 closure 證據與 F-3（non-blocking）的併修證據，交 **R2**（Primary Reviewer 延續其 R1 context、重讀修正後檔案與 diff）核對，範圍依 R1 §4 F-1／F-2 的 closure 條件；R2 須依 A-1 重述 H-3 的核對。R2 由 Orchestrator／主 session 依 Bindings §3.5 派工，不由 Executor 自派。本 Ticket 觸及 H-2／H-3，audit record 依 A-1 明記核對。原始 R1（含 self-verification 主張）記於本 worklog 上方各節。
 
 ## Remaining work
 
