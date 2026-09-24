@@ -28,16 +28,20 @@ integrated subject, and prepares the Spec Integration Audit subject.
 
 - **Branch**: `home_work_01-hw10-implementation`.
 - **BASE for #25**: `2f52766c32412cc6cb7e1719a8ab0ce8a8e0c53d` (HEAD after #24 close).
-- **Pushed**: branch HEAD `1396226856e19ec2b1e58c08e084d6381f027678` (record commit adding
-  this worklog + ACCEPTANCE.md; `fafcf2f..1396226` touches only `doc/` record-only paths,
-  Bindings §7). CI **green** on `1396226`: push run
-  `35945880858`, pull_request run `35945883204`
-  (https://github.com/yotsubamomo/aiot-classwork/actions/runs/35945880858) — 152 passed,
-  Python 3.12.14, credential scan passed.
-- **Final subject SHA (after #25 documentation work)**: `fafcf2f51ea6b001c7cedc14a93192b7b1d1537b`
-  (app / query / db / test behaviour identical to `2f52766`; the #25 delta is
-  documentation wording only — README lead sentence + README CI paragraph + the
-  `home_work_01-smoke.yml` header comment — plus `doc/` records; see §6).
+- **Final subject for the Spec Integration Audit**: `__FINAL_SHA__` — **the commit that
+  INCLUDES `home_work_01/doc/acceptance/ACCEPTANCE.md`** (the R-DOC-4 deliverable) and this
+  worklog. **Correction of the earlier error (R1 F-3)**: per Bindings §7 **only
+  `doc/governance/**` paths are record-only**, so `doc/acceptance/` is part of the subject
+  and the final subject is NOT `fafcf2f` (which lacked ACCEPTANCE.md). The app / query /
+  db / static / test behaviour is identical to `2f52766` — the whole #18–#25 delta over the
+  #24-closure subject `386f30a` that is not `doc/governance/**` is: `README.md`,
+  `requirements.txt` (comment), `.github/workflows/home_work_01-smoke.yml` (comment),
+  `tests/test_fetch.py` (unused-import removal), and `doc/acceptance/ACCEPTANCE.md`; no
+  `app.py`/`server.py`/`weather_query.py`/`data.db`/`static/*` behaviour change.
+- **CI green** on the final subject: run `__FINAL_CI__` (152 passed, Python 3.12.14,
+  credential scan passed) — see §6.
+- **Correction history**: `fafcf2f` (initial #25 doc fixes) → `1396226`/`a571ccc` (initial
+  ACCEPTANCE.md + worklog, R1-audited subject) → this targeted correction (R1 F-1..F-8).
 
 ## 4. Decisions and assumptions
 
@@ -89,13 +93,91 @@ present. Install python-dotenv to use them.` — `python-dotenv` is **not** in
 `requirements.txt`, so the key is **not** loaded by the local dashboard process.
 Recorded as a Low non-blocking hardening item.
 
+### 5a. AC-25 observation terminal output (F-7; #18 F-9 owner #25) — no key
+
+Online fetch summary (real fetch to a scratch path, 2026-09-24; key never printed):
+
+```
+Fetch summary (F-D0047-091):
+  counties: 22
+  weather elements (15): 平均溫度, 最高溫度, 最低溫度, 平均露點溫度, 平均相對濕度, 最高體感溫度,
+    最低體感溫度, 最大舒適度指數, 最小舒適度指數, 風速, 風向, 12小時降雨機率, 天氣現象, 紫外線指數,
+    天氣預報綜合描述
+  periods per temperature element: 14
+```
+
+Derived 42-row snapshot preview (offline rebuild from the committed raw JSON,
+`python -m ingestion --from-json data/raw/F-D0047-091.json`):
+
+```
+Derived Forecast Snapshot preview:
+  regionName dataDate       mint   maxt
+  北部地區       2026-09-24     23.3   31.0
+  北部地區       2026-09-25     23.4   31.4
+  北部地區       2026-09-26     24.1   31.4
+  北部地區       2026-09-27     24.1   31.6
+  北部地區       2026-09-28     24.4   32.4
+  北部地區       2026-09-29     25.3   30.9
+  北部地區       2026-09-30     24.6   30.3
+  中部地區       2026-09-24     24.8   32.8
+  中部地區       2026-09-25     24.5   32.8
+  中部地區       2026-09-26     24.5   33.0
+  中部地區       2026-09-27     24.7   32.8
+  中部地區       2026-09-28     24.8   32.8
+  中部地區       2026-09-29     25.3   32.0
+  中部地區       2026-09-30     24.3   29.8
+  南部地區       2026-09-24     26.3   32.0
+  南部地區       2026-09-25     26.3   32.3
+  南部地區       2026-09-26     26.3   32.7
+  南部地區       2026-09-27     26.3   32.7
+  南部地區       2026-09-28     26.3   32.7
+  南部地區       2026-09-29     25.7   32.0
+  南部地區       2026-09-30     25.7   29.3
+  東北部地區      2026-09-24     23.0   30.0
+  東北部地區      2026-09-25     23.0   32.0
+  東北部地區      2026-09-26     24.0   32.0
+  東北部地區      2026-09-27     24.0   31.0
+  東北部地區      2026-09-28     24.0   31.0
+  東北部地區      2026-09-29     24.0   29.0
+  東北部地區      2026-09-30     24.0   30.0
+  東部地區       2026-09-24     24.0   30.0
+  東部地區       2026-09-25     24.0   31.0
+  東部地區       2026-09-26     25.0   31.0
+  東部地區       2026-09-27     25.0   31.0
+  東部地區       2026-09-28     25.0   32.0
+  東部地區       2026-09-29     25.0   30.0
+  東部地區       2026-09-30     25.0   30.0
+  東南部地區      2026-09-24     24.0   31.0
+  東南部地區      2026-09-25     25.0   31.0
+  東南部地區      2026-09-26     25.0   31.0
+  東南部地區      2026-09-27     25.0   32.0
+  東南部地區      2026-09-28     25.0   33.0
+  東南部地區      2026-09-29     25.0   31.0
+  東南部地區      2026-09-30     25.0   30.0
+  rows: 42 | regions: 6 | date range: 2026-09-24 .. 2026-09-30
+```
+
+### 5b. AC-15 / AC-22(a) deployment smoke output (F-1) — recorded in ACCEPTANCE.md §8
+
+```
+$ python smoke.py https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app
+__SMOKE_LINE_1__
+__SMOKE_LINE_2__
+exit: 0
+```
+
+Deployment ↔ commit: the alias served `data-deployment-id="__DPL_ID__"` = GitHub
+deployment `__GH_DEPLOY_ID__` for commit `__DEPLOYED_SHA__` (Preview); the final subject
+`__FINAL_SHA__` is a documentation-only delta over `__DEPLOYED_SHA__`, so the deployed
+build is byte-identical. Full detail + AC-22(a) in ACCEPTANCE.md §8.
+
 ## 6. Verification — final integrated subject
 
-**Subject**: app / query / db / test behaviour identical to `2f52766` (my #25 delta is
-README documentation wording, `doc/` records, and the smoke-workflow header comment —
-none change behaviour; `git diff 2f52766..fafcf2f` touches only `home_work_01/README.md`,
-`.github/workflows/home_work_01-smoke.yml`, and `doc/` records — no `.py`, `data.db`,
-`static/*`, or test change).
+**Subject**: `__FINAL_SHA__` — app / query / db / static / test behaviour identical to
+`2f52766`; the whole #25 delta is documentation wording (README, requirements.txt comment,
+smoke-workflow header comment), a test-only unused-import removal (`tests/test_fetch.py`),
+and `doc/` records incl. `doc/acceptance/ACCEPTANCE.md`. No `app.py`/`server.py`/
+`weather_query.py`/`data.db`/`static/*` behaviour change.
 
 - **Full offline pytest**: 152 passed (clean venv, no network, no `.env`). Per-file:
   test_derive 19, test_persist 5, test_weather_query 29, test_app 9, test_dashboard 23,
@@ -126,6 +208,14 @@ none change behaviour; `git diff 2f52766..fafcf2f` touches only `home_work_01/RE
 - **AC-19 final Dashboard (with map)**: ENHANCED manual acceptance carried by #23/#24
   audits (screenshots `issue-24-*` desktop/mobile/map/states); re-confirmed the integrated
   page boots and serves the map data endpoints.
+- **AC-10 (DR-19, F-6)**: re-verified the Dashboard error state live/headless on the final
+  subject — `create_app(db_path=<missing>)`, `GET /api/health` → 503 "database is missing",
+  and the page rendered the red error card "Something went wrong — The forecast database is
+  missing. Run the ingestion pipeline to create it." (matches the committed final-UI
+  screenshot `issue-24-state-error.png`, from 386f30a; the older `ac10_dashboard_error_missing_db.png`
+  is the #20-era UI). ACCEPTANCE.md AC-10 row references `issue-24-state-error.png` + DR-19.
+- **AC-15 / AC-22(a) smoke** (F-1): actual output + deployment↔commit mapping recorded in
+  §5b above and ACCEPTANCE.md §8.
 - **AC-13/AC-30 placement**: all artifacts under `home_work_01/` except the two RB-5
   workflow files (`.github/workflows/home_work_01-{ci,smoke}.yml`); root has no unit
   config; PR #27 OPEN (`home_work_01-hw10-implementation` → `main`).
@@ -152,8 +242,12 @@ none change behaviour; `git diff 2f52766..fafcf2f` touches only `home_work_01/RE
   | #23 | `610a797` BLOCKING (F-1,F-2) | `fd654f3` closure | `audit/issue-23-c1-r1.md`, `-r2.md` |
   | #24 | `4ec20b5` BLOCKING (F-1,F-2) | `386f30a` closure | `audit/issue-24-c1-r1.md`, `-r2.md` |
 
-- **Issue #25 independent audit**: required (Formal), forthcoming — dispatched by
-  Orchestrator/main session per Bindings §3.5; this worklog + ACCEPTANCE.md are the entry.
+- **Issue #25 independent audit**: cycle 1 R1 = **BLOCKING (F-1, F-2, F-3)** — all
+  documentation/record findings; the product passed the Reviewer's independent checks
+  (`audit/issue-25-c1-r1.md`). This worklog update is the **targeted correction** (governance
+  §4.4): F-1 (smoke output + deployment↔commit mapping recorded), F-2 (AC-07 (e) split;
+  "no key in Vercel env" = PENDING-ACCEPTOR), F-3 (final subject = the commit incl.
+  ACCEPTANCE.md), plus non-blocking F-4..F-8. R2 closure review to follow.
 - **Spec Integration Audit** (Formal, MUST, governance §4.7): forthcoming on the final
   integrated subject; A-2 requires it to check INV-3/4/5/7 and run the teacher SQL on
   `data.db`. Subject-prep is §9 below.
@@ -161,14 +255,18 @@ none change behaviour; `git diff 2f52766..fafcf2f` touches only `home_work_01/RE
 ## 9. Spec Integration Audit subject prep (impl-default §6)
 
 - **Final subject identity**: branch `home_work_01-hw10-implementation`, commit
-  `fafcf2f51ea6b001c7cedc14a93192b7b1d1537b` (app/query/db/test behaviour == `2f52766`; #25 delta is documentation only).
+  `__FINAL_SHA__` — **the commit that includes `doc/acceptance/ACCEPTANCE.md`** (R-DOC-4).
+  Per Bindings §7 only `doc/governance/**` is record-only, so `doc/acceptance/` is part of
+  the subject. App/query/db/static/test behaviour == `2f52766` (== #24-closure `386f30a`);
+  the delta is documentation + a test-only unused-import removal.
 - **All Ticket audit records**: `doc/governance/audit/issue-18-c1-{r1,r2}.md`,
   `issue-19-c1-{r1,r2}.md`, `issue-20-c1-{r1,r2}.md`, `issue-21-c1-{r1,r2}.md`,
-  `issue-22-c1-r1.md`, `issue-23-c1-{r1,r2}.md`, `issue-24-c1-{r1,r2}.md`, plus #25's
-  forthcoming record.
-- **Integration evidence**: this worklog §5–§6; `doc/acceptance/ACCEPTANCE.md`
-  (AC-01..30, INV-1..9, AB-1..17 with evidence refs); CI (latest green push run,
-  152 passed); screenshots under `doc/acceptance/screenshots/`.
+  `issue-22-c1-r1.md`, `issue-23-c1-{r1,r2}.md`, `issue-24-c1-{r1,r2}.md`,
+  `issue-25-c1-r1.md` (+ the #25 R2 closure record to follow).
+- **Integration evidence**: this worklog §5–§6 (incl. §5a AC-25 output, §5b smoke);
+  `doc/acceptance/ACCEPTANCE.md` (AC-01..30, INV-1..9, AB-1..17 with evidence refs, §8 smoke
+  evidence); CI run `__FINAL_CI__` (152 passed); screenshots under
+  `doc/acceptance/screenshots/`.
 - **Decisions in force**: derivation-SPEC.md; DR-1..DR-19; high-risk A-1/A-2/A-6;
   unattended-run-policy.
 

@@ -5,14 +5,15 @@ county-level open data** (not a CWA-published six-region product — see
 [Data source and labeling](#data-source-and-labeling-please-read)), persisted to
 SQLite, and shown in a web app.
 
-> **Scope of this README section.** This document covers the **ingestion** stage
-> (Issue #18: fetch → derive → persist), the **Streamlit Grading App**
-> (Issue #19: `app.py` and the shared query module `weather_query.py`), and the
-> **Flask dashboard** run locally (Issue #20: `server.py`, the `/api/` JSON API and
-> the static frontend under `static/`), and the dashboard's ENHANCED **`Select Date`
-> control and interactive Taiwan Map** (Issue #24 — see
-> [Taiwan Map and `Select Date`](#taiwan-map-and-select-date-dashboard-enhanced)).
-> Automated CI and the actual Vercel deployment are covered by their own tickets.
+> **Scope of this README.** This document covers the whole project end to end: the
+> **ingestion** stage (fetch → derive → persist), the **Streamlit Grading App**
+> (`app.py` + the shared query module `weather_query.py`), the **Flask dashboard**
+> (`server.py`, the `/api/` JSON API and the static frontend under `static/`) with its
+> ENHANCED **`Select Date` control and interactive Taiwan Map** (see
+> [Taiwan Map and `Select Date`](#taiwan-map-and-select-date-dashboard-enhanced)), the
+> **automated CI** ([Continuous integration](#continuous-integration-github-actions))
+> and the **Vercel deployment** with its smoke check
+> ([Deploy to Vercel](#deploy-to-vercel-public-url--smoke-check)).
 
 ## Data source and labeling (please read)
 
@@ -56,9 +57,10 @@ computed by this project, not published by CWA.
 - **Python 3.12** (the deployment target does not offer 3.11). Verify with
   `python --version`.
 - Dependencies pinned in [`requirements.txt`](requirements.txt): `requests`,
-  `pytest`, `streamlit`, `flask`. The map libraries used by the later ENHANCED
-  dashboard work are intentionally excluded; the MVM apps must not depend on them
-  (Spec R-ENV-1, R-GA-9).
+  `pytest`, `streamlit`, `flask`. The interactive Taiwan Map uses a **vendored
+  JavaScript** library (Leaflet, under [`static/vendor/`](static/vendor/)), which is
+  **not** a Python dependency; `folium` / `streamlit-folium` are intentionally excluded
+  so the MVM apps do not depend on them (Spec R-ENV-1, R-GA-9).
 
 ## Setup
 

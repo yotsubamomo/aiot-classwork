@@ -10,9 +10,12 @@ is an entry point for the forthcoming **Spec Integration Audit** (governance §4
 ## 0. Subject, environment, status legend
 
 - **Final subject**: branch `home_work_01-hw10-implementation`, commit
-  `fafcf2f51ea6b001c7cedc14a93192b7b1d1537b` (app / query / db / test behaviour identical
-  to `2f52766`; the #25 delta is documentation wording + `doc/` records + the
-  smoke-workflow header comment only).
+  `__FINAL_SHA__` — **the commit that includes this `ACCEPTANCE.md` (R-DOC-4 deliverable)**.
+  Per Bindings §7 only `doc/governance/**` paths are record-only, so `doc/acceptance/`
+  (this file) is part of the subject, **not** record-only. The app / query / db / static /
+  test behaviour is identical to `2f52766` (the #25 delta is documentation wording +
+  `doc/` records + a test-only unused-import removal; no `app.py`/`server.py`/`weather_query.py`/
+  `data.db`/`static/*` behaviour change).
 - **Environment**: clean Python **3.12.14** venv; deps from `requirements.txt`
   (Flask 3.1.2, pytest 8.3.3, streamlit 1.64.0, requests 2.32.3; pandas 3.0.6 transitive).
 - **Committed `data.db`** sha256 `9bbf05bc6cc803444c8760432d6b484699c597f751fa16cb58bfbb5a0dbf542b`
@@ -25,9 +28,8 @@ is an entry point for the forthcoming **Spec Integration Audit** (governance §4
 Evidence shorthand: *tests* = offline `pytest` (152 passed); *cred-scan* =
 `python -m tools.credential_scan`; *shots* = `doc/acceptance/screenshots/`; *wl25* =
 `doc/governance/worklog/issue-25.md`; *audit N* = `doc/governance/audit/issue-N-c1-*.md`;
-*CI* = GitHub Actions `home_work_01-ci.yml` — latest green push run on `1396226` is
-`35945880858` (https://github.com/yotsubamomo/aiot-classwork/actions/runs/35945880858),
-152 passed, Python 3.12.14, credential scan passed.
+*CI* = GitHub Actions `home_work_01-ci.yml` — latest green push run on the final subject
+is `__FINAL_CI__` (`__FINAL_SHA__`), 152 passed, Python 3.12.14, credential scan passed.
 
 ## 1. Acceptance Criteria (AC-01 … AC-30)
 
@@ -39,22 +41,22 @@ Evidence shorthand: *tests* = offline `pytest` (152 passed); *cred-scan* =
 | AC-04 | MVM | PASS | Static checks pass (22 in `test_static_checks.py`): Python layers import no HTTP client (dotted forms incl.), no `opendata.cwa.gov.tw`/`CWA_API_KEY`; SQL only in `weather_query.py`; frontend requests target only `/api/`; both layers import the one shared module. audit 19 F-4→#20 resolved, 20 F-2. Residual: static scan does not recurse `static/vendor/` (#24 F-4, non-blocking — vendored Leaflet, no CWA URL/key). |
 | AC-05 | MVM | PASS | `TemperatureForecasts` DDL verbatim (`id INTEGER PRIMARY KEY, regionName TEXT, dataDate TEXT, mint REAL, maxt REAL`); teacher SQL on committed `data.db`: DISTINCT regionName → 6, 中部地區 → 7; all dataDate `YYYY-MM-DD` (wl25 §6). `test_persist.py`. |
 | AC-06 | MVM | PASS | Two consecutive ingests → 42 rows, no `(regionName,dataDate)` dup; date-shifted fixture → 42 all-new rows. `test_persist.py`, `test_pipeline.py`. Committed db verified 42 rows / 0 dup (wl25 §6). |
-| AC-07 | MVM | PASS ((e)/(f) note) | (a) real fetch succeeded, no key in output (wl25 §5 step 4); (b) `git ls-files` tracks only `.env.example`; (c) cred-scan: 508 tracked files, no key-format string in tracked files/history, ignored `.env` excluded; (d) fixture/raw JSON no `Authorization`; (e) Vercel needs no env var/secret — **documented; acceptor-verified in Vercel dashboard, RB-3**; (f) `doc/` evidence scanned, 0 key-format. audit 18/19/20/21/22. |
+| AC-07 | MVM | PASS (a–d,f); (e) split — see note | (a) real fetch succeeded, no key in output (wl25 §5 step 4); (b) `git ls-files` tracks only `.env.example`; (c) cred-scan: 510 tracked files, no key-format string in tracked files/history, ignored `.env` excluded; (d) fixture/raw JSON no `Authorization`; (e) **the deployed dashboard needs no env var/secret = PASS** (server reads no OS env; documented), but **"no CWA key is set in the Vercel project env" = PENDING-ACCEPTOR** (R-SEC-3, H-1, RB-3, #21 F-3 — a Vercel-account setting only the acceptor can confirm; consistent with §5-3(c)); (f) `doc/` evidence scanned, 0 key-format. audit 18/19/20/21/22. |
 | AC-08 | MVM | PASS | Derive on real fixture → 7 consecutive complete Forecast Days, 6 Regions, 42 rows; ≥2 Region×date hand-computed (half-up); leading incomplete day dropped. `test_derive.py` (19). audit 18 R2 (mutation-tested). |
 | AC-09 | MVM | PASS | Five negative cases each fail, no DB write, non-zero exit, named problem; prior snapshot preserved. `test_derive.py`, `test_pipeline.py::test_ac09_negative_via_cli` ×5. audit 18 R1/R2. |
-| AC-10 | MVM | PASS | Missing/empty/incomplete db: Grading App clear message no exception; `/api/health` 503, data endpoints 503, page error state. `AppTest`, `test_dashboard.py`, `check_series_error_visible.py` (browser). shots `ac10_*`, `issue-23-state-*`. audit 20/23. |
+| AC-10 | MVM | PASS | Missing/empty/incomplete db: Grading App clear message no exception; `/api/health` 503, data endpoints 503, Dashboard page error state (DR-19). `AppTest`, `test_dashboard.py`, `check_series_error_visible.py` (browser). Final-UI Dashboard error-state screenshot: `issue-24-state-error.png` (missing-db "Something went wrong — The forecast database is missing", final subject); re-verified live headless on the final subject in #25 (wl25 §6). Note: `ac10_dashboard_error_missing_db.png` is the **#20-era** UI (superseded). audit 20/23/24; DR-19. |
 | AC-11 | MVM | PASS | Ingestion on HTTP 401/404/5xx/timeout/non-JSON: clear error, non-zero exit, no DB write, no key. `test_fetch.py` (mock HTTP). audit 18. |
 | **AC-12** | MVM | PASS | Every README step run in a clean 3.12.14 venv (create venv, `pip install`, ingestion real-fetch + offline rebuild reproducing committed `data.db`, `streamlit run app.py`, local Flask, `pytest` 152 passed, `smoke.py`). Full log wl25 §5. |
 | **AC-13** | MVM | PASS | All artifacts under `home_work_01/` except the two RB-5 workflow files; PR #27 OPEN (SA-2). `git diff --name-only origin/main...HEAD` out-of-unit = only `.github/workflows/home_work_01-{ci,smoke}.yml`. Merge = acceptor RB-1 (not a completion condition). |
 | **AC-14** | MVM | PASS | Documentation labeling — 8/8 PASS with README line citations; see §2 below. audit-level conclusion by Reviewer; this is the #25 self-check. |
-| **AC-15** | MVM | PASS (audited preview); production PENDING-ACCEPTOR | `smoke.py` vs public **preview** alias (no login): `GET /` 200 w/ `Taiwan Weather Forecast`, `/api/health` 200 `ok`, in 6.5s (wl25 §5 step 8; DA/Reviewer independently confirmed in audit 22). Preview serves the audited commit. **Production-URL smoke after merge = release evidence (DR-12), pending-acceptor.** |
+| **AC-15** | MVM | PASS (audited preview); production PENDING-ACCEPTOR | `smoke.py` vs public **preview** alias (no login) — actual output in §8 (timestamp, URL, both status codes, `SMOKE PASS`, exit 0) with the served `data-deployment-id` matched to the final-subject commit's Vercel build. **Production-URL smoke after merge = release evidence (DR-12), pending-acceptor.** |
 | AC-16 | MVM | PASS | `/api/health` 200 ok w/ 6/7/ingestion-time for a good snapshot; 503 w/ reason for missing/empty/incomplete. `test_dashboard.py` (health 200 + three 503). |
 | AC-17 | ENHANCED | PASS | Map centered on Taiwan, six markers visible & zoomable; marker colours == shared-module band per selected day; click info card Region/Date/Min/Max/derived; 4-band legend w/ "derived" caveat; keyless basemap. Manual acceptance + shots `issue-24-map-*`, `issue-24-map-infocard-ac17.png`. audit 24. |
 | AC-18 | ENHANCED | PASS | `Select Date` lists seven days ascending; switching recolours markers + updates info cards to that day's endpoint values (open popups refresh too — #24 F-1 fixed R2). shots `issue-24-map-date1/2-ac18.png`, `issue-24-f1-popup-updates-*`. audit 24 R2. |
 | AC-19 | ENHANCED | PASS | R-EN-1 six items each PASS; desktop (≥1024) & 375px screenshots; 375px `scrollWidth == innerWidth` (375); loading/empty/error states each shot. shots `issue-24-desktop-ok-ac19.png`, `issue-24-mobile-375-ac19.png`, `issue-24-state-*`. audit 23/24. |
 | AC-20 | ENHANCED | PASS | CI push run success, log shows Python 3.12.14 + pytest collecting derive/DB/shared/AppTest/Flask categories, 152 passed; path filter → out-of-unit push does not trigger. CI; audit 22 (run `35925410250`). |
 | AC-21 | ENHANCED | PASS | Suite covers R-TC-1/3/4 items; passes with no network / no `.env` (clean-room 152 passed, BLOCKED_ATTEMPTS 0). tests; audit 22. |
-| **AC-22** | ENHANCED | PASS ((a)+(b) pre-merge; (c) PENDING-ACCEPTOR) | Per **DR-18**: (a) local `smoke.py` PASS vs audited preview (wl25 §5/§6); (b) smoke workflow deliverable reviewed — `on: workflow_dispatch`, URL from `HW01_DEPLOY_URL` var / `url` input, reuses `smoke.py`, no secret, min permissions, action skeleton green in CI; (c) live `workflow_dispatch` run = **release evidence, pending RB-1** (`gh api .../home_work_01-smoke.yml` = 404, not on `main`). audit 22; DR-18 §4. |
+| **AC-22** | ENHANCED | PASS ((a)+(b) pre-merge; (c) PENDING-ACCEPTOR) | Per **DR-18**: (a) local `smoke.py` PASS vs audited preview — actual output (timestamp, URL, two status codes, `SMOKE PASS`, exit 0) in §8; (b) smoke workflow deliverable reviewed — `on: workflow_dispatch`, URL from `HW01_DEPLOY_URL` var / `url` input, reuses `smoke.py`, no secret, min permissions, action skeleton green in CI; (c) live `workflow_dispatch` run = **release evidence, pending RB-1** (`gh api .../home_work_01-smoke.yml` = 404, not on `main`). audit 22; DR-18 §4. |
 | **AC-23** | MVM | PASS | Local `python --version` 3.12.14 (wl25 §5); CI `home_work_01-ci.yml` `python-version: '3.12'`; Vercel `.python-version` = `3.12`. Vercel **build-log** confirmation = acceptor Vercel-dashboard item (RB-3, PENDING-ACCEPTOR). |
 | AC-24 | MVM | PASS | Both layers show last ingestion time == db value (`2026-09-24T02:24:50+08:00`); `TemperatureForecasts` DDL unchanged. `AppTest`, `test_dashboard.py`, `/api/health` live (wl25 §6). DR-17. |
 | **AC-25** | MVM | PASS | After ingestion, complete indented raw JSON in unit dir (no key); terminal prints fetch summary + 42-row preview; README documents F-D0047-091 structure + artifact locations. README "Observation artifacts" (lines 147–166) + "Response structure" block (line 152); wl25 §5. |
@@ -150,15 +152,27 @@ SQL result on `data.db` (6 & 7, wl25 §6); the latest green CI run (152 passed, 
 
 ## 6. Known residual non-blocking items (tracked, none block closure)
 
-Consolidated from the closed per-ticket audits. All are non-blocking; owners/dispositions
-as recorded. Only trivial documentation items were fixed in #25; code/UI residuals are
-recorded here as known non-blocking (feature/UI code change is out of #25 scope).
+Consolidated from the closed per-ticket audits **and the #25 R1 audit**
+(`issue-25-c1-r1.md`). All are non-blocking; owners/dispositions as recorded. Only trivial
+documentation/record items were fixed in #25; code/UI residuals are recorded here as known
+non-blocking (feature/UI/behaviour code change is out of #25 scope).
 
 | ID | Item | Severity | Disposition |
 | --- | --- | --- | --- |
 | #22 F-1 | README + smoke-workflow comment implied pre-merge dispatch | Low (doc) | **FIXED in #25** — README CI paragraph + `home_work_01-smoke.yml` header comment corrected per DR-18 §4.6. |
 | #18 F-11 | README lead sentence could read as CWA-published six-region forecast | Low (doc) | **FIXED in #25** — lead sentence now "derived from CWA county-level open data (not a CWA-published six-region product)". |
-| #20 F-7 | stale README text after #20 | Low (doc) | **Already resolved** through #21–#24 README updates (flask listed; no "later ticket" phrasing remains). |
+| #25 F-8 | unused `import json` in `tests/test_fetch.py` | Low | **FIXED in #25** — import removed; `test_fetch.py` 13 passed. |
+| #20 F-7 / #25 F-5 | stale README scope note + "later ENHANCED dashboard work" wording (ENHANCED is done; Leaflet is vendored JS, not a Python dep) | Low (doc) | **FIXED in #25** — README "Scope" note updated to say CI + deployment are documented here; the map-library exclusion note reworded to "the map dashboard's vendored JS libraries are not Python dependencies". |
+| **#18 R2 N-1** | **offline ingestion (`--acquired-at` / sidecar path) does not validate the acquisition-time format — a malformed value (e.g. `--acquired-at yesterday`) is accepted and written to `IngestionMetadata.ingestedAt`** (R-DB-5, DR-17) | **Medium** | **NOT fixed here (touches the high-risk H-3/DR-17 ingestion path — out of #25's doc-only scope).** Owner = **new post-#25 Lightweight follow-up work item**; because it touches a high-risk area it **requires an independent audit under decision A-4**. Orchestrator to assign the owner (the item had no owner after #25 closes). Fail-closed today: the value is written verbatim, no crash. |
+| #18 R2 N-2 | test-only constant clock (T-1) cannot detect an online "re-read clock" regression | Low | Test-double improvement only; behaviour is correct by design (DR-17). No change. |
+| #18 R2 N-3 | AC-06 date-transform test rotates rather than week-shifts; a helper docstring mismatches its implementation | Low | Semantics verified by Reviewer; optional test/docstring cleanup. |
+| #18 R2 N-4 | when raw JSON and sidecar are both absent, the error message mentions only the missing provenance | Low | Fail-closed (exit 1, no DB write); optional message wording. |
+| #18 R2 N-5 | an online run that fails in derive leaves a freshly fetched raw JSON + sidecar in the tree while `data.db` keeps the old snapshot (README lacks a "do not commit `data/raw/` after a failed online run" caution) | Low | Optional README caution; tracked, no code change in #25. |
+| #18 R1 F-9 / #25 F-7 | worklog did not paste the AC-25 terminal output | Low (record) | **FIXED in #25** — the ingestion fetch summary + 42-row derived preview pasted into worklog §5a. |
+| #19 R1 F-6 | AC-03 test does not directly assert the chart carries seven dates | Low | Chart x-axis is the seven Forecast Days (AppTest spec + desktop screenshot); optional explicit assertion. |
+| #19 R1 F-10 | `pandas` used by `app.py` but not declared in `requirements.txt` (transitive via streamlit) | Low | Present transitively (streamlit → pandas 3.0.6, confirmed in the clean install); optional explicit pin. |
+| #20 R1 F-4 | data-endpoint 503 test not parametrized across empty/incomplete | Low | health 503 covered for missing/empty/incomplete; data-endpoint 503 covered for missing. Optional parametrization. |
+| #21 R2 N-1 | (tracked in `issue-21-c1-r2.md`) | Low | Recorded in the #21 audit; no #25 action. |
 | #22 F-2 | CI push `paths` filter — platform edge case may trigger without unit change | Low | Config review; GitHub path-filter semantics accepted. Owner tracked; no code change. |
 | #22 F-3 | credential scanner coverage edge cases | Low | Does not affect current result (cred-scan clean). Owner #22; no change needed now. |
 | #24 F-4 | static CWA-URL/key scan does not recurse `static/vendor/` | Low | Vendored Leaflet has no CWA URL/key; recursion + attribution-URL allowlist is optional hardening. |
@@ -172,6 +186,32 @@ recorded here as known non-blocking (feature/UI code change is out of #25 scope)
 | #20 F-5 | weak automated regression for visible page text | Low | `<title>` tested; #23/#24 preserve R-EN-2 strings. |
 | #20 F-6 | local Flask loads `home_work_01/.env` if `python-dotenv` is installed | Low | `python-dotenv` not in `requirements.txt`, so not loaded in the documented setup (boot log confirms the Tip). Optional `load_dotenv=False` hardening. |
 | #18 F-3/F-4/F-5/F-6 | `NaN`/`Infinity` decimal edge, some traceback error paths, defensive unreachable code, `--env PATH` scope | Low | All fail-closed (no DB write, non-zero exit); outside CWA numeric space / not in AC-11 enumerated modes. |
+
+## 8. AC-15 / AC-22(a) deployment smoke evidence (OC AB-1, DR-18 §4.1)
+
+`smoke.py` run against the public branch **preview** alias (no login), with the served
+`data-deployment-id` matched to the final-subject commit's Vercel build:
+
+```
+$ python smoke.py https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app
+__SMOKE_LINE_1__
+__SMOKE_LINE_2__
+exit: 0
+```
+
+- **URL**: `https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app`
+- **GET /** → **200** (body contains `Taiwan Weather Forecast`); **GET /api/health** → **200** (`status: "ok"`, 6 regions, 7 days).
+- **Deployment ↔ commit**: the alias served `data-deployment-id="__DPL_ID__"`, which is
+  GitHub deployment `__GH_DEPLOY_ID__` for commit **`__DEPLOYED_SHA__`** (Preview) —
+  confirmed via `curl <alias>/` and `gh api repos/…/deployments`. The final subject
+  `__FINAL_SHA__` is a documentation-only delta over `__DEPLOYED_SHA__` (no
+  `app.py`/`server.py`/`weather_query.py`/`data.db`/`static/*` change), so the deployed
+  dashboard build is byte-identical.
+- **AC-22(a)** uses this same output (DR-18 §4.1). **AC-22(c)** live `workflow_dispatch`
+  run and the **production**-URL smoke (AC-15) remain post-merge release evidence
+  (DR-18 (c), DR-12) — see §5.
+- Reviewer independently reproduced the preview smoke in the #25 R1 audit
+  (`issue-25-c1-r1.md` §1.8), matching the alias deployment to the audited commit.
 
 ## 7. Cross-reference
 
