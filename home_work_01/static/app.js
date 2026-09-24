@@ -1,4 +1,4 @@
-/* Taiwan Weather Forecast — dashboard frontend (Issue #23, ENHANCED UI/UX).
+/* Taiwan Weather Forecast — dashboard frontend (Issues #23 UI/UX + #24 map).
  *
  * All data comes from THIS application's own JSON API under the "/api/" prefix
  * (R-DS-5, R-SHR-5, AC-04(b)); the browser never calls CWA and holds no key.
@@ -8,6 +8,14 @@
  * an interactive hover tooltip, a Date / MinT / MaxT table whose seven rows equal
  * data.db, and a weekly summary (lowest MinT / highest MaxT) derived in the
  * browser from the same /api/ series — no new business logic (INV-2, AC-04(b)).
+ *
+ * Issue #24 adds "Select Date" (the seven Forecast Days from /api/days, default
+ * first) and a vendored-Leaflet Taiwan Map whose six Region markers are coloured
+ * by the selected day's Derived Map Temperature band from /api/days/<date>. The
+ * band and the derived value come straight from the shared module via the
+ * endpoint; the frontend re-derives nothing (H-3 single-sourced, R-SHR-4). The
+ * map uses a vendored Taiwan outline (a vector layer) and SVG circle markers, so
+ * it makes no external tile/data request and needs no key (R-EN-6).
  *
  * State mapping is DR-19 (decision-20260924-dashboard-state-mapping):
  *   - loading : a request is in flight (page-level for /api/health -> /api/regions;
@@ -30,6 +38,65 @@
   var currentSeries = null; // last-rendered series, for responsive re-draw
   var resizeTimer = null;
 
+  // --- Taiwan Map (Issue #24, R-EN-3..R-EN-7) --------------------------------
+  // The six Region names in the canonical order (matches /api/regions and the
+  // shared module's R-SHR-2(b)); used to iterate markers deterministically.
+  var REGION_ORDER = [
+    "北部地區", "中部地區", "南部地區", "東北部地區", "東部地區", "東南部地區",
+  ];
+
+  // Project-defined representative points [lat, lng] for each Region marker
+  // (DR-1: coordinates are HOW; README notes they are project-defined, not a CWA
+  // authority). fitBounds over these keeps the map centred on Taiwan with all six
+  // markers visible (R-EN-4).
+  var REGION_POINTS = {
+    "北部地區": [25.03, 121.50],
+    "中部地區": [24.15, 120.68],
+    "南部地區": [22.85, 120.35],
+    "東北部地區": [24.72, 121.74],
+    "東部地區": [23.98, 121.55],
+    "東南部地區": [22.80, 121.10],
+  };
+
+  // Colour per Derived Map Temperature band. The band comes straight from the
+  // /api/days/<date> endpoint (R-SHR-4 / DR-4 owns the derivation and banding in
+  // the shared module); the frontend re-derives nothing (H-3 single-sourced) and
+  // only maps the band NAME to a fill colour. The legend swatches are painted
+  // from this same map so colours always agree (R-EN-5).
+  var BAND_COLOURS = {
+    blue: "#2b6cb0",
+    green: "#2f9e44",
+    yellow: "#f2b705",
+    red: "#e03131",
+  };
+
+  // A simplified outline of Taiwan's main island as a vector basemap (GeoJSON,
+  // [lng, lat]). It is a project-authored, simplified coastline used only as a
+  // backdrop for the markers — no tile server, no external request, so the map
+  // works offline and needs no key/account (R-EN-6). fitBounds is over the
+  // markers, not this outline.
+  var TAIWAN_OUTLINE = {
+    type: "Feature",
+    properties: { name: "Taiwan (simplified outline, project-authored)" },
+    geometry: {
+      type: "Polygon",
+      coordinates: [[
+        [121.53, 25.30], [121.66, 25.27], [121.83, 25.13], [121.94, 24.97],
+        [121.90, 24.82], [121.82, 24.68], [121.75, 24.45], [121.62, 24.10],
+        [121.52, 23.80], [121.43, 23.45], [121.35, 23.10], [121.24, 22.80],
+        [121.15, 22.62], [121.02, 22.40], [120.92, 22.20], [120.86, 22.00],
+        [120.84, 21.90], [120.76, 21.96], [120.68, 22.12], [120.55, 22.42],
+        [120.42, 22.72], [120.28, 22.98], [120.16, 23.25], [120.09, 23.55],
+        [120.12, 23.82], [120.22, 24.10], [120.40, 24.33], [120.58, 24.58],
+        [120.78, 24.82], [121.00, 25.02], [121.22, 25.14], [121.40, 25.23],
+        [121.53, 25.30],
+      ]],
+    },
+  };
+
+  var map = null;          // the Leaflet map, created once
+  var markers = {};        // Region name -> L.CircleMarker
+
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
     els.pageErrorText = document.getElementById("page-error-text");
@@ -50,9 +117,24 @@
     els.chart = document.getElementById("chart");
     els.chartTooltip = document.getElementById("chart-tooltip");
     els.tableBody = document.getElementById("table-body");
+    // Select Date + Taiwan Map (#24).
+    els.dateSelect = document.getElementById("date-select");
+    els.mapCaption = document.getElementById("map-caption");
+    els.mapStatus = document.getElementById("map-status");
+    els.mapLayout = document.getElementById("map-layout");
+    els.infocardHint = document.querySelector("#map-infocard .infocard__hint");
+    els.infocardBody = document.getElementById("infocard-body");
+    els.infocardRegion = document.getElementById("infocard-region");
+    els.infocardDate = document.getElementById("infocard-date");
+    els.infocardMin = document.getElementById("infocard-min");
+    els.infocardMax = document.getElementById("infocard-max");
+    els.infocardDerived = document.getElementById("infocard-derived");
 
     els.regionSelect.addEventListener("change", function () {
       loadRegion(els.regionSelect.value);
+    });
+    els.dateSelect.addEventListener("change", function () {
+      loadDay(els.dateSelect.value);
     });
 
     // Redraw the chart at the new width on resize (the SVG is drawn at the
@@ -63,6 +145,7 @@
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
         if (currentSeries) renderChart(currentSeries);
+        if (map) map.invalidateSize();
       }, 150);
     });
 
@@ -104,9 +187,10 @@
     showLoading();
     fetchJson("/api/health")
       .then(function (res) {
-        if (!res.ok) {
-          // Any non-2xx (503 missing/empty/incomplete, 5xx, 404) is an error
-          // (DR-19); surface the server's message so the cause stays visible.
+        if (failed(res)) {
+          // Any non-2xx (503 missing/empty/incomplete, 5xx, 404) or an
+          // unparseable body is an error (DR-19); surface the server's message so
+          // the cause stays visible.
           showError(reasonMessage(res.body));
           return;
         }
@@ -122,7 +206,7 @@
 
   function loadRegions() {
     return fetchJson("/api/regions").then(function (res) {
-      if (!res.ok) {
+      if (failed(res)) {
         showError(reasonMessage(res.body)); // failed request -> error (DR-19)
         return;
       }
@@ -140,6 +224,8 @@
       var initial = regions.indexOf(wanted) >= 0 ? wanted : regions[0];
       els.regionSelect.value = initial;
       loadRegion(initial);
+      // Select Date + Taiwan Map load independently of the selected Region (#24).
+      loadDays();
     });
   }
 
@@ -165,8 +251,8 @@
     setChartStatus("Loading " + region + "…", "loading");
     fetchJson("/api/regions/" + encodeURIComponent(region) + "/series")
       .then(function (res) {
-        if (!res.ok) {
-          // Failed request (404 / 503 / 5xx) -> inline error (DR-19).
+        if (failed(res)) {
+          // Failed request (404 / 503 / 5xx / unparseable) -> inline error (DR-19).
           els.summary.hidden = true;
           setChartStatus(
             res.status === 404
@@ -195,6 +281,262 @@
           "error"
         );
       });
+  }
+
+  // --- Select Date + Taiwan Map (#24, R-EN-3..R-EN-7) ------------------------
+  // Independent of the selected Region. /api/days fills Select Date (seven days,
+  // ascending, default first); /api/days/<date> gives the six Regions' values for
+  // the chosen day, each already carrying the Derived Map Temperature and its
+  // colour band from the shared module — the frontend re-derives nothing.
+
+  function loadDays() {
+    setMapStatus("Loading the map…", "loading");
+    return fetchJson("/api/days")
+      .then(function (res) {
+        if (failed(res)) {
+          setMapStatus(reasonMessage(res.body), "error"); // DR-19: failure -> error
+          return;
+        }
+        var days = (res.body && res.body.days) || [];
+        if (!days.length) {
+          setMapStatus("No Forecast Days are available in this snapshot.", "empty");
+          return;
+        }
+        populateDates(days);
+        var first = days[0];              // ascending; default the first day (R-EN-3)
+        els.dateSelect.value = first;
+        loadDay(first);
+      })
+      .catch(function () {
+        setMapStatus(
+          "Cannot load the map right now. Please try again.",
+          "error"
+        );
+      });
+  }
+
+  function populateDates(days) {
+    els.dateSelect.innerHTML = "";
+    days.forEach(function (date) {
+      var opt = document.createElement("option");
+      opt.value = date;
+      opt.textContent = date;
+      els.dateSelect.appendChild(opt);
+    });
+  }
+
+  function loadDay(date) {
+    els.mapCaption.textContent = "Showing " + date;
+    setMapStatus("Loading " + date + "…", "loading");
+    return fetchJson("/api/days/" + encodeURIComponent(date))
+      .then(function (res) {
+        if (failed(res)) {
+          // 404 / 503 / 5xx / unparseable -> inline error (DR-19 per-Region rule).
+          setMapStatus(
+            res.status === 404
+              ? "That date is not available in this snapshot."
+              : reasonMessage(res.body),
+            "error"
+          );
+          clearInfocard();
+          return;
+        }
+        var values = (res.body && res.body.values) || [];
+        if (!values.length) {
+          // Succeeded but nothing to render -> inline empty (DR-19).
+          setMapStatus("No values are available for this date yet.", "empty");
+          clearInfocard();
+          return;
+        }
+        hideMapStatus();
+        applyDay(date, values);
+      })
+      .catch(function () {
+        setMapStatus(
+          "Cannot load this date right now. Please try again.",
+          "error"
+        );
+        clearInfocard();
+      });
+  }
+
+  // Colour the six markers for `date` and (re)bind their hover tooltip, click
+  // popup and the side info card. Called only on a successful 2xx with values.
+  function applyDay(date, values) {
+    els.mapLayout.hidden = false;
+    if (!ensureMap()) {
+      // Leaflet failed to load (vendored script missing) — treat as an error so
+      // the card is never blank.
+      setMapStatus("The map library is unavailable.", "error");
+      return;
+    }
+
+    var byRegion = {};
+    values.forEach(function (v) { byRegion[v.regionName] = v; });
+
+    REGION_ORDER.forEach(function (region) {
+      var marker = markers[region];
+      var v = byRegion[region];
+      if (!marker || !v) return;
+      // Colour DIRECTLY by the endpoint's band (no re-derivation, H-3).
+      marker.setStyle({ fillColor: BAND_COLOURS[v.colourBand] || "#888888" });
+      var html = infoHtml(region, date, v);
+      marker.bindTooltip(html, { direction: "top", offset: [0, -6] });
+      // autoPan off: every marker is already in view (fitBounds), so opening a
+      // popup should not jump the map.
+      marker.bindPopup(html, { autoPan: false });
+      marker._dayInfo = { region: region, date: date, value: v };
+    });
+
+    // Seed the side info card with the first Region so it is never blank; hover
+    // or click updates it (and opens the marker's own tooltip/popup).
+    var firstValue = byRegion[REGION_ORDER[0]];
+    if (firstValue) updateInfocard(REGION_ORDER[0], date, firstValue);
+
+    map.invalidateSize();
+  }
+
+  // Create the Leaflet map once: the Taiwan outline as a vector basemap and six
+  // circle markers, then fit the view to the markers (R-EN-4). Returns false if
+  // Leaflet is unavailable.
+  function ensureMap() {
+    if (map) return true;
+    if (typeof L === "undefined") return false;
+
+    // The map container was just revealed (mapLayout.hidden = false in applyDay);
+    // force a synchronous reflow so it reports its real width before Leaflet reads
+    // it. Without this Leaflet caches a 0px size, fitBounds computes an infinite
+    // zoom, and the markers collapse to an invisible point until a later resize.
+    var container = document.getElementById("map");
+    void container.offsetWidth;
+
+    var palette = mapPalette();
+    // Initialise with a Taiwan-centred view BEFORE adding any layer: a vector
+    // layer added to a map with no view set has no pixel bounds and Leaflet's
+    // renderer throws. fitBounds over the markers refines this view below.
+    map = L.map("map", {
+      zoomControl: true,
+      scrollWheelZoom: true,
+      attributionControl: true,
+      center: [23.75, 121.0],
+      zoom: 7,
+    });
+
+    L.geoJSON(TAIWAN_OUTLINE, {
+      style: {
+        color: palette.landStroke,
+        weight: 1,
+        fillColor: palette.land,
+        fillOpacity: 1,
+      },
+      interactive: false,
+    }).addTo(map);
+
+    var points = [];
+    REGION_ORDER.forEach(function (region) {
+      var latlng = REGION_POINTS[region];
+      var marker = L.circleMarker(latlng, {
+        radius: 11,
+        color: palette.markerStroke,
+        weight: 1.5,
+        fillColor: "#cccccc",
+        fillOpacity: 0.9,
+      });
+      marker.on("mouseover", function () {
+        var info = marker._dayInfo;
+        if (info) updateInfocard(info.region, info.date, info.value);
+      });
+      marker.on("click", function () {
+        var info = marker._dayInfo;
+        if (info) updateInfocard(info.region, info.date, info.value);
+      });
+      marker.addTo(map);
+      markers[region] = marker;
+      points.push(latlng);
+    });
+
+    // Recompute the size now that the container is laid out, THEN fit to the
+    // markers so the initial zoom is finite and the six markers are all visible.
+    map.invalidateSize();
+    map.fitBounds(points, { padding: [26, 26] });
+    colourLegend();
+    return true;
+  }
+
+  // Marker/legend/basemap palette. Colours work in light and dark; the marker
+  // FILL colours (BAND_COLOURS) are the same in both so the legend stays valid.
+  function mapPalette() {
+    var dark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches &&
+      document.documentElement.getAttribute("data-theme") !== "light";
+    if (document.documentElement.getAttribute("data-theme") === "dark") dark = true;
+    return dark
+      ? { land: "#243244", landStroke: "#3a4a60", markerStroke: "#0c0f14" }
+      : { land: "#e7eef6", landStroke: "#9fb2c4", markerStroke: "#1b1b1b" };
+  }
+
+  function infoHtml(region, date, v) {
+    return (
+      '<div class="mapinfo">' +
+      '<strong class="mapinfo__region">' + escapeHtml(region) + "</strong>" +
+      '<div class="mapinfo__row">Date: ' + escapeHtml(date) + "</div>" +
+      '<div class="mapinfo__row">Min: ' + escapeHtml(formatTemp(v.mint)) +
+      "°C &nbsp;·&nbsp; Max: " + escapeHtml(formatTemp(v.maxt)) + "°C</div>" +
+      '<div class="mapinfo__row">Derived map temperature: ' +
+      escapeHtml(oneDp(v.derivedMapTemperature)) +
+      '°C <span class="mapinfo__note">(derived)</span></div>' +
+      "</div>"
+    );
+  }
+
+  function updateInfocard(region, date, v) {
+    els.infocardRegion.textContent = region;
+    els.infocardDate.textContent = date;
+    els.infocardMin.textContent = formatTemp(v.mint);
+    els.infocardMax.textContent = formatTemp(v.maxt);
+    els.infocardDerived.textContent = oneDp(v.derivedMapTemperature);
+    els.infocardHint.hidden = true;
+    els.infocardBody.hidden = false;
+  }
+
+  function clearInfocard() {
+    if (!els.infocardBody) return;
+    els.infocardBody.hidden = true;
+    els.infocardHint.hidden = false;
+  }
+
+  // Paint the legend swatches from the same band->colour map the markers use, so
+  // the legend always matches the marker colours (R-EN-5).
+  function colourLegend() {
+    var swatches = document.querySelectorAll(".band-swatch");
+    Array.prototype.forEach.call(swatches, function (el) {
+      var band = el.getAttribute("data-band");
+      if (BAND_COLOURS[band]) el.style.background = BAND_COLOURS[band];
+    });
+  }
+
+  // Inline status inside the Taiwan Map card. `kind` is "loading" | "error" |
+  // "empty"; the map layout is hidden while a status shows so the card is never
+  // blank and the status is never drawn over a stale map (DR-19 §4.1).
+  function setMapStatus(message, kind) {
+    if (!els.mapStatus) return;
+    els.mapStatus.textContent = message;
+    els.mapStatus.className = "state state--inline state--inline-" + kind;
+    els.mapStatus.setAttribute("role", kind === "error" ? "alert" : "status");
+    els.mapStatus.hidden = false;
+    if (els.mapLayout) els.mapLayout.hidden = true;
+  }
+
+  function hideMapStatus() {
+    if (!els.mapStatus) return;
+    els.mapStatus.hidden = true;
+    els.mapStatus.textContent = "";
+  }
+
+  function oneDp(v) {
+    var n = Number(v);
+    return isNaN(n) ? String(v) : n.toFixed(1);
   }
 
   // --- weekly summary (R-EN-1 item 3): lowest MinT / highest MaxT ------------
@@ -474,16 +816,42 @@
   // --- small helpers ---------------------------------------------------------
 
   function fetchJson(url) {
+    // Read the body as text and parse it explicitly so a 2xx response whose body
+    // is not valid JSON is reported as a PARSE FAILURE, not as empty content
+    // (DR-19 §4.1, fix N-1): an unparseable response is an ERROR. The earlier
+    // `.json().catch(() => ({}))` swallowed the parse failure and returned {},
+    // which then rendered as an empty state. `parseError` lets every caller treat
+    // that case as a failed request via `failed()`.
     return fetch(url, { headers: { Accept: "application/json" } }).then(
       function (response) {
-        return response
-          .json()
-          .catch(function () { return {}; })
-          .then(function (body) {
-            return { ok: response.ok, status: response.status, body: body };
-          });
+        return response.text().then(function (text) {
+          var body = {};
+          var parseError = false;
+          if (text) {
+            try {
+              body = JSON.parse(text);
+            } catch (e) {
+              parseError = true;
+            }
+          } else {
+            parseError = true; // an empty body is not a parseable JSON response
+          }
+          return {
+            ok: response.ok,
+            status: response.status,
+            body: body,
+            parseError: parseError,
+          };
+        });
       }
     );
+  }
+
+  // A request FAILED when the HTTP status is non-2xx OR the body could not be
+  // parsed as JSON (DR-19: both are errors, never empty). Callers use this so the
+  // one-line rule "empty only for succeeded-but-nothing-to-show" holds.
+  function failed(res) {
+    return !res.ok || res.parseError;
   }
 
   function reasonMessage(body) {

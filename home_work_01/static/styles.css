@@ -33,6 +33,7 @@
   --info-text: #1f4e79;
   --empty-bg: #f4f6fa;
   --empty-border: #dce0e8;
+  --map-sea: #d9e6f2;
   --shadow: 0 1px 2px rgba(16, 21, 31, .06), 0 6px 18px rgba(16, 21, 31, .05);
   --radius: 14px;
 }
@@ -60,6 +61,7 @@
     --info-text: #a9cdf2;
     --empty-bg: #1a2231;
     --empty-border: #2b3648;
+    --map-sea: #0f1927;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
   }
 }
@@ -381,13 +383,112 @@ img { max-width: 100%; }
 .table td:nth-child(2) { color: var(--mint); font-variant-numeric: tabular-nums; }
 .table td:nth-child(3) { color: var(--maxt); font-variant-numeric: tabular-nums; }
 
+/* --- Taiwan Map (Issue #24) -------------------------------------------------- */
+
+.map-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.map-card__head .section-heading { margin-bottom: 6px; }
+.caption--map { margin: 0; }
+
+.map-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+@media (min-width: 760px) {
+  .map-layout { grid-template-columns: 2fr 1fr; align-items: stretch; }
+}
+
+/* The Leaflet container needs an explicit height. No tiles are used — the sea is
+   the container background and the land is the vendored GeoJSON layer. */
+.map {
+  height: 380px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--map-sea);
+}
+.leaflet-container {
+  background: var(--map-sea);
+  font-family: inherit;
+  font-size: .9rem;
+}
+
+.map-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* --- map info card ---------------------------------------------------------- */
+
+.infocard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 14px 16px;
+}
+.infocard__hint { margin: 0; color: var(--muted); font-size: .9rem; }
+.infocard__region { margin: 0 0 6px; font-weight: 700; font-size: 1.05rem; color: var(--heading); }
+.infocard__meta { margin: 0 0 10px; color: var(--muted); font-size: .88rem; }
+.infocard__stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.infocard__stat {
+  flex: 1 1 90px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: .82rem;
+  color: var(--muted);
+  background: var(--surface);
+}
+.infocard__stat b { display: block; font-size: 1.3rem; color: var(--heading); font-variant-numeric: tabular-nums; }
+.infocard__stat--min { border-left: 4px solid var(--mint); }
+.infocard__stat--max { border-left: 4px solid var(--maxt); }
+.infocard__unit { font-size: .8rem; color: var(--muted); font-weight: 600; margin-left: 2px; }
+.infocard__derived { margin: 0; font-size: .9rem; color: var(--text); }
+.infocard__derived b { font-variant-numeric: tabular-nums; }
+.infocard__note { color: var(--muted); font-size: .82rem; }
+
+/* --- four-band legend + derived note (R-EN-5) ------------------------------- */
+
+.legend-bands {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 14px 16px;
+}
+.legend-bands__title { margin: 0 0 10px; font-weight: 700; font-size: .95rem; color: var(--heading); }
+.legend-bands__list { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 8px; }
+.legend-bands__list li { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--text); }
+.band-swatch {
+  flex: none;
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, .25);
+  background: var(--surface-2); /* replaced by the band colour in JS */
+}
+.legend-bands__note { margin: 0; font-size: .82rem; color: var(--muted); line-height: 1.4; }
+
+/* Leaflet tooltip / popup content (info card reached by hover / click). */
+.mapinfo__region { display: block; font-size: 1rem; margin-bottom: 3px; }
+.mapinfo__row { font-size: .86rem; line-height: 1.5; }
+.mapinfo__note { color: #888; }
+
 /* --- narrow screens (down to 375px) ----------------------------------------- */
 
 @media (max-width: 560px) {
   .controls { gap: 14px; }
   .caption { margin-left: 0; text-align: left; align-self: flex-start; }
   .card { padding: 15px; }
-  .placeholder--inline { min-width: 0; width: 100%; }
   .control { width: 100%; }
   .select { min-width: 0; width: 100%; }
+  .map { height: 320px; }
 }

@@ -7,8 +7,10 @@ persisted to SQLite, and (in later tickets) shown in a web app.
 > (Issue #18: fetch → derive → persist), the **Streamlit Grading App**
 > (Issue #19: `app.py` and the shared query module `weather_query.py`), and the
 > **Flask dashboard** run locally (Issue #20: `server.py`, the `/api/` JSON API and
-> the static frontend under `static/`). The Taiwan map, automated CI and the actual
-> Vercel deployment are added by later tickets and will extend this README.
+> the static frontend under `static/`), and the dashboard's ENHANCED **`Select Date`
+> control and interactive Taiwan Map** (Issue #24 — see
+> [Taiwan Map and `Select Date`](#taiwan-map-and-select-date-dashboard-enhanced)).
+> Automated CI and the actual Vercel deployment are covered by their own tickets.
 
 ## Data source and labeling (please read)
 
@@ -242,6 +244,38 @@ structure lives beside the code — `server.py` (the app), `api/index.py` (the
 serverless entry that imports `app`), `vercel.json` (routes every request to that
 one function) and `requirements.txt`; `data.db` is packaged next to the code and
 opened read-only, and no environment variable or secret is needed at runtime.
+
+### Taiwan Map and `Select Date` (dashboard, ENHANCED)
+
+The dashboard integrates a **`Select Date`** control and an interactive **Taiwan
+Map** on the same page (the "Taiwan Weather Dashboard"), alongside the Region
+chart/table/summary. These are **enhanced, dashboard-only** features — the
+Streamlit Grading App deliberately has neither.
+
+- **`Select Date`** lists the snapshot's seven Forecast Days in ascending order and
+  defaults to the first day. Changing it recolours the map markers and updates the
+  info cards to that day's values (data from `GET /api/days` and
+  `GET /api/days/<date>`).
+- **Taiwan Map** is drawn with **Leaflet** (vendored locally under
+  [`static/vendor/`](static/vendor/), pinned to version 1.9.4). The base layer is a
+  small, **project-authored simplified Taiwan outline** rendered as a vector layer
+  (GeoJSON) — there is **no external tile server**, so the map makes no external
+  request and needs **no key, account or payment**. Both the Leaflet library and the
+  basemap are self-contained; the browser only ever calls this app's own
+  same-origin `/static/` and `/api/` URLs.
+- The map shows **six Region markers** at **project-defined representative points**
+  (their latitude/longitude are a project layout choice — a single point standing in
+  for each Region — **not** a CWA-published location or boundary). Each marker is
+  coloured by the selected day's **Derived Map Temperature** band and a click/hover
+  info card shows the Region, `Date`, `Min`, `Max` and the derived average.
+- **Derived Map Temperature** is a **derived value**: `(MinT + MaxT) / 2`, rounded
+  half-up to one decimal place. It is **not** an observed daily mean. The colour
+  bands (by the displayed one-decimal value) are `< 20` blue, `20 – < 25` green,
+  `25 – < 30` yellow and `≥ 30` red, and the legend states the "derived, not
+  observed" caveat. The value and its band are computed **once** in the shared
+  module ([`weather_query.py`](weather_query.py)) and returned by
+  `GET /api/days/<date>`; the frontend colours directly by that band and re-derives
+  nothing.
 
 ## Deploy to Vercel (public URL & smoke check)
 

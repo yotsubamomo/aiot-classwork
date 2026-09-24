@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Taiwan Weather Forecast</title>
+  <!-- Vendored Leaflet 1.9.4 (pinned, no key/account/payment — R-EN-6). Both the
+       CSS and JS are served same-origin from /static/vendor/; the map uses a
+       vendored Taiwan outline (a vector layer) and SVG circle markers, so it makes
+       no external tile/data request. -->
+  <link rel="stylesheet" href="/static/vendor/leaflet.css">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
@@ -62,14 +67,12 @@
           <select id="region-select" class="select" aria-label="Select Region"></select>
         </div>
 
-        <!-- RESERVED PLACEHOLDER — Select Date control, delivered by Issue #24.
-             Rendered as a labelled, disabled slot so the layout already holds its
-             place; no behaviour is implemented here (R-EN-7 / out of scope). -->
-        <div class="control control--reserved" aria-hidden="true">
-          <span class="control__label">Select Date</span>
-          <div class="placeholder placeholder--inline">
-            <span class="placeholder__tag">Coming soon</span>
-          </div>
+        <!-- Select Date (R-EN-3): the snapshot's seven Forecast Days, ascending,
+             default first. Changing it recolours the Taiwan Map markers and info
+             cards to that day's values (AC-18). Populated from /api/days. -->
+        <div class="control">
+          <label class="control__label" for="date-select">Select Date</label>
+          <select id="date-select" class="select" aria-label="Select Date"></select>
         </div>
 
         <p id="ingestion-time" class="caption"></p>
@@ -128,22 +131,69 @@
         </section>
       </div>
 
-      <!-- RESERVED PLACEHOLDER — Taiwan Map, delivered by Issue #24. Labelled empty
-           slot only; the Leaflet map and its markers are NOT implemented here
-           (R-EN-7 / out of scope). -->
-      <section class="card map-card" aria-label="Taiwan map (coming soon)">
-        <h2 class="section-heading">Taiwan Map</h2>
-        <div class="placeholder placeholder--map">
-          <span class="placeholder__tag">Coming soon</span>
-          <p class="placeholder__note">
-            An interactive Taiwan map with a per-day region overview will appear here.
-          </p>
+      <!-- Taiwan Map (R-EN-4, R-EN-5, R-EN-7): a vendored Leaflet map centred on
+           Taiwan whose six Region markers are coloured by the selected day's
+           Derived Map Temperature band (from /api/days/<date>); an info card
+           (Region, Date, Min, Max, derived average to 1dp) and a four-band legend
+           with the "derived, not observed" note sit beside it. -->
+      <section class="card map-card" aria-label="Taiwan map">
+        <div class="map-card__head">
+          <h2 class="section-heading">Taiwan Map</h2>
+          <p id="map-caption" class="caption caption--map"></p>
+        </div>
+
+        <!-- Map status (DR-19 per-Region rule applied to the /api/days requests):
+             a 404/503/5xx/network/unparseable response shows an inline error here,
+             a 2xx-but-empty payload an inline empty message — never a blank card. -->
+        <div id="map-status" class="state state--inline" role="status" hidden></div>
+
+        <div id="map-layout" class="map-layout" hidden>
+          <div id="map" class="map" role="img"
+               aria-label="Map of Taiwan with six Region markers coloured by the selected day's derived map temperature"></div>
+
+          <aside class="map-side">
+            <!-- Info card (R-EN-4): updates on marker hover/click; the markers also
+                 carry a Leaflet tooltip (hover) and popup (click) with the same
+                 fields, so the info card is reachable both ways. -->
+            <div id="map-infocard" class="infocard" role="status" aria-live="polite">
+              <p class="infocard__hint">Hover or tap a marker to see a Region's values.</p>
+              <div id="infocard-body" class="infocard__body" hidden>
+                <p class="infocard__region" id="infocard-region"></p>
+                <p class="infocard__meta">Date: <span id="infocard-date"></span></p>
+                <div class="infocard__stats">
+                  <span class="infocard__stat infocard__stat--min">Min <b id="infocard-min">–</b><span class="infocard__unit">°C</span></span>
+                  <span class="infocard__stat infocard__stat--max">Max <b id="infocard-max">–</b><span class="infocard__unit">°C</span></span>
+                </div>
+                <p class="infocard__derived">
+                  Derived map temperature <b id="infocard-derived">–</b><span class="infocard__unit">°C</span>
+                  <span class="infocard__note">(derived, not an observed daily mean)</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Four-band legend + derived note (R-EN-5). Swatch colours are set in
+                 JS from the same band→colour map the markers use, so they match. -->
+            <div class="legend-bands" aria-label="Derived map temperature colour legend">
+              <p class="legend-bands__title">Derived map temperature</p>
+              <ul class="legend-bands__list">
+                <li><span class="band-swatch" data-band="blue"></span>&lt; 20&thinsp;°C</li>
+                <li><span class="band-swatch" data-band="green"></span>20 – &lt; 25&thinsp;°C</li>
+                <li><span class="band-swatch" data-band="yellow"></span>25 – &lt; 30&thinsp;°C</li>
+                <li><span class="band-swatch" data-band="red"></span>&ge; 30&thinsp;°C</li>
+              </ul>
+              <p class="legend-bands__note">
+                Average = (MinT + MaxT) / 2, a derived value — not an observed daily mean.
+              </p>
+            </div>
+          </aside>
         </div>
       </section>
 
     </div>
   </main>
 
+  <!-- Vendored Leaflet first so the global `L` exists before app.js runs. -->
+  <script src="/static/vendor/leaflet.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>
