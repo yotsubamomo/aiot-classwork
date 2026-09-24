@@ -209,10 +209,10 @@ exit: 0
 - **GET /** → **200** (body contains `Taiwan Weather Forecast`); **GET /api/health** → **200** (`status: "ok"`, 6 regions, 7 days).
 - **Deployment ↔ commit**: the alias served `data-deployment-id="dpl_5geV9Trc3cX1WGZiRKg1oNEHSqqZ"`, which is
   GitHub deployment `6629046658` for commit **`6407d8b`** (Preview) —
-  confirmed via `curl <alias>/` and `gh api repos/…/deployments`. The final subject
-  `6407d8b2d0f04523f5057b0880083f3bd836c6a8` is a documentation-only delta over `6407d8b` (no
+  confirmed via `curl <alias>/` and `gh api repos/…/deployments`. `6407d8b` is the
+  verification anchor (§0); the branch HEAD is a documentation-only superset of it (no
   `app.py`/`server.py`/`weather_query.py`/`data.db`/`static/*` change), so the deployed
-  dashboard build is byte-identical.
+  dashboard build is byte-identical across HEAD and `6407d8b`.
 - **AC-22(a)** uses this same output (DR-18 §4.1). **AC-22(c)** live `workflow_dispatch`
   run and the **production**-URL smoke (AC-15) remain post-merge release evidence
   (DR-18 (c), DR-12) — see §5.

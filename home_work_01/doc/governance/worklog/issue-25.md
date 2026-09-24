@@ -172,9 +172,10 @@ exit: 0
 ```
 
 Deployment ↔ commit: the alias served `data-deployment-id="dpl_5geV9Trc3cX1WGZiRKg1oNEHSqqZ"` = GitHub
-deployment `6629046658` for commit `6407d8b` (Preview); the final subject
-`6407d8b2d0f04523f5057b0880083f3bd836c6a8` is a documentation-only delta over `6407d8b`, so the deployed
-build is byte-identical. Full detail + AC-22(a) in ACCEPTANCE.md §8.
+deployment `6629046658` for commit `6407d8b` (Preview), confirmed against the immutable
+deployment URL. `6407d8b` is the verification anchor (§3); the branch HEAD is a
+documentation-only superset of it, so the deployed build is byte-identical across HEAD and
+`6407d8b`. Full detail + AC-22(a) in ACCEPTANCE.md §8.
 
 ## 6. Verification — final integrated subject
 
