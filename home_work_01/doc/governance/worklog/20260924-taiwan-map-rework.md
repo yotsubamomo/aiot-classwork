@@ -175,4 +175,7 @@ WCAG 2.x 相對亮度公式、token 值計算（與 DR-21 §7 及 R1 §2.4 一�
 
 ### Subject / CI（cycle 2）
 
-- 新 subject SHA 與 CI run URL：見本節結尾補記（commit 後填）。
+- **cycle-2 subject（R3/closure 對象）**：commit **`5136bd2`**（branch `home_work_01-hw10-implementation`，pushed；SA-1）。前一 subject `ecdc793`（R2 對象）。`git diff --name-only ecdc793..5136bd2`（排除 `doc/governance/**`）＝ `static/app.js`、`doc/acceptance/screenshots/issue-28-state-loading.png` 兩檔——仍在 DR-20 §3.5(A) diff-scope；`index.html`／`static/data`／`styles.css`／`tests`／`README`／`app.py`／`server.py`／`weather_query.py`／`api`／`vercel.json` 未觸及。
+- **CI**：push run [35968255009](https://github.com/yotsubamomo/aiot-classwork/actions/runs/35968255009) = **success**；log `164 passed`（Python 3.12）＋ credential scan 通過（536 tracked files、無 `.env`、無 key）。
+- **N-1 新 loading 截圖 md5**：`c301adf87c35cd9bd6e00cca39c39fdc`（唯一）。
+- 本 worklog 的此 SHA 更新為其後的 record-only commit（不改受審 implementation delta）。
