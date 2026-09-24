@@ -22,7 +22,7 @@
 | [#22](https://github.com/yotsubamomo/aiot-classwork/issues/22) | 自動化測試整合與 GitHub Actions CI／smoke workflow | ENHANCED | H-1 | #20、#21 | 已結案（AC-22 (c) 待 RB-1 後 release evidence，DR-18） | `88b871e` |
 | [#23](https://github.com/yotsubamomo/aiot-classwork/issues/23) | Dashboard UI／UX 品質與響應式版面 | ENHANCED | H-2 | #21、#22 | 已結案 | `5312c6f` |
 | [#24](https://github.com/yotsubamomo/aiot-classwork/issues/24) | Select Date 與 Leaflet Taiwan Map：依 Derived Map Temperature 著色 | ENHANCED | H-2、H-3 | #23 | 已結案 | `f9f9f15` |
-| [#25](https://github.com/yotsubamomo/aiot-classwork/issues/25) | 整合驗收：README 實跑、驗收文件、最終 smoke 與 Spec Integration Audit subject 準備 | INTEGRATION／FINAL VERIFICATION（非 scope class；含 ENHANCED 最終核對） | H-1、H-2、H-3 | #22、#24 | 待執行 | |
+| [#25](https://github.com/yotsubamomo/aiot-classwork/issues/25) | 整合驗收：README 實跑、驗收文件、最終 smoke 與 Spec Integration Audit subject 準備 | INTEGRATION／FINAL VERIFICATION（非 scope class；含 ENHANCED 最終核對） | H-1、H-2、H-3 | #22、#24 | 已結案 | `75389e6` |
 
 狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。Commit 欄填結案時的 subject SHA。
 
