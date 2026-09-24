@@ -37,34 +37,143 @@ def _app_js() -> str:
     return _APP_JS.read_text(encoding="utf-8")
 
 
+def _function_body(src: str, name: str) -> str:
+    """Return the body (between the outermost braces) of ``function <name>(...)``,
+    brace-matching while skipping string literals and comments so nested object
+    literals, comment braces and string braces do not fool the matcher."""
+    i = src.index("function " + name)
+    # skip the parameter list
+    p = src.index("(", i)
+    depth = 0
+    j = p
+    while j < len(src):
+        c = src[j]
+        if c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                break
+        j += 1
+    b = src.index("{", j)
+    depth = 0
+    k = b
+    instr = None
+    esc = False
+    while k < len(src):
+        c = src[k]
+        two = src[k:k + 2]
+        if instr is not None:
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == instr:
+                instr = None
+        elif two == "//":
+            k = src.index("\n", k)
+            continue
+        elif two == "/*":
+            k = src.index("*/", k) + 2
+            continue
+        elif c in "\"'`":
+            instr = c
+        elif c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return src[b + 1:k]
+        k += 1
+    raise AssertionError(f"unbalanced braces for function {name}")
+
+
+def _strip_comments(body: str) -> str:
+    out = []
+    i = 0
+    n = len(body)
+    instr = None
+    esc = False
+    while i < n:
+        c = body[i]
+        two = body[i:i + 2]
+        if instr is not None:
+            out.append(c)
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == instr:
+                instr = None
+            i += 1
+        elif two == "//":
+            i = body.index("\n", i) if "\n" in body[i:] else n
+        elif two == "/*":
+            i = body.index("*/", i) + 2
+        elif c in "\"'`":
+            instr = c
+            out.append(c)
+            i += 1
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
 # --- init hardening (the NaN / 0x0 hazard, P-12) -------------------------------
+# These are scoped to the actual function BODIES (comments stripped) so they FAIL
+# when the guard is removed or the invalidateSize()->fitBounds() order is broken —
+# i.e. they genuinely lock the hazard fix, not just the presence of some strings
+# (#28 F-5).
 
 
-def test_map_init_defers_until_container_has_nonzero_size() -> None:
-    """The map must only initialise once its container reports a non-zero box."""
+def test_ensuremapsized_guards_on_nonzero_container_size() -> None:
+    """ensureMapSized MUST early-return by calling the callback ONLY when the map
+    container already has a non-zero box, and otherwise defer (ResizeObserver +
+    visibilitychange). Removing the `if (sized())` guard so the callback runs
+    unconditionally must fail this test."""
+    body = _strip_comments(_function_body(_app_js(), "ensureMapSized"))
+    # a real non-zero-size predicate
+    assert "clientWidth > 0" in body and "clientHeight > 0" in body, (
+        "ensureMapSized has no non-zero-size predicate"
+    )
+    # the immediate-run path MUST be guarded by sized()
+    assert re.search(r"if\s*\(\s*sized\(\)\s*\)\s*\{\s*cb\(\)\s*;\s*return\s*;\s*\}", body), (
+        "ensureMapSized calls cb() without first checking sized() — 0x0 init hazard unguarded"
+    )
+    # the deferred path uses ResizeObserver and visibilitychange
+    assert "ResizeObserver" in body, "ensureMapSized does not observe the container size"
+    assert "visibilitychange" in body, "ensureMapSized does not handle a hidden tab"
+    # cb() is never called unconditionally: every cb() sits after a sized()/if guard
+    for m in re.finditer(r"cb\(\)", body):
+        pre = body[:m.start()]
+        assert "sized()" in pre, "an unguarded cb() precedes the size check"
+
+
+def test_fittomarkers_invalidatesize_precedes_fitbounds() -> None:
+    """Inside the single fit function, invalidateSize() MUST run before fitBounds()
+    so fitBounds measures real pixels (else infinite zoom -> NaN markers). Moving
+    invalidateSize() after fitBounds() must fail this test."""
+    body = _strip_comments(_function_body(_app_js(), "fitToMarkers"))
+    inv = body.find("invalidateSize()")
+    fit = body.find("fitBounds(")
+    assert inv != -1, "fitToMarkers does not call invalidateSize()"
+    assert fit != -1, "fitToMarkers does not call fitBounds()"
+    assert inv < fit, "invalidateSize() must run before fitBounds() in fitToMarkers"
+
+
+def test_init_path_is_wired_through_the_guard_and_single_fit() -> None:
+    """The day path reaches the map through the size guard and the single fit."""
     src = _app_js()
-    assert "ResizeObserver" in src, "no ResizeObserver: the 0x0 init hazard is unguarded"
-    assert "visibilitychange" in src, "no visibilitychange guard for a hidden tab"
-    # A real non-zero-size predicate on the map container.
-    assert "clientWidth > 0" in src and "clientHeight > 0" in src, (
-        "no non-zero-size guard before creating the map"
+    assert "ensureMapSized(function" in src, "applyDay must defer via ensureMapSized"
+    assert _function_body(src, "initMap").count("fitToMarkers()") >= 1, (
+        "initMap must fit via fitToMarkers()"
     )
 
 
-def test_map_invalidates_size_before_fitbounds() -> None:
-    """invalidateSize() must run before fitBounds() so fitBounds sees real pixels
-    (otherwise it computes an infinite zoom and the markers become NaN)."""
-    src = _app_js()
-    inv = src.find("invalidateSize()")
-    fit = src.find("fitBounds(")
-    assert inv != -1, "invalidateSize() is missing"
-    assert fit != -1, "fitBounds( is missing"
-    assert inv < fit, "invalidateSize() must be called before fitBounds()"
-
-
 def test_fitbounds_called_exactly_once() -> None:
-    """fitBounds is called once (at init). Changing Select Date must not reset the
-    view (AC-18 / P-12), so there must be no second fitBounds on the day path."""
+    """fitBounds has exactly one call site (fitToMarkers). Changing Select Date must
+    not reset the view (AC-18 / P-12); only init and resize re-fit."""
     assert _app_js().count("fitBounds(") == 1
 
 

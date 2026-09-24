@@ -69,7 +69,7 @@ RB-5 GitHub Actions 例外已於 Outcome Contract §8.2 授權（只服務 `home
 
 | # | 票 | 類型 | High-risk | Blocked by | 狀態 | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
-| [#28](https://github.com/yotsubamomo/aiot-classwork/issues/28) | Taiwan Map 視覺重做（map-first、vendored 向量深色底圖、溫度藥丸、浮動面板/圖例、Select Date 併入地圖） | POST-BASELINE ENHANCEMENT（**Lightweight**，DR-20） | H-2、H-3 | #24、#25 | 實作完成＋self-verified（163 pytest 綠、零外部請求、V-1..V-5、七日 parity）；待 A-4 independent audit | 見 worklog／PR |
+| [#28](https://github.com/yotsubamomo/aiot-classwork/issues/28) | Taiwan Map 視覺重做（map-first、vendored 向量深色底圖、溫度藥丸、浮動面板/圖例、Select Date 併入地圖） | POST-BASELINE ENHANCEMENT（**Lightweight**，DR-20） | H-2、H-3 | #24、#25 | A-4 R1 = BLOCKING（`audit/issue-28-c1-r1.md`）→ targeted correction 完成（F-1..F-5 fixed、DR-21.1/21.2 記錄修正、164 pytest 綠、F-5 mutation 證明）；**待 R2** | 見 worklog／PR |
 
 - Outcome Contract：acceptor 2026-09-24 指示（Bindings §4 第 3 列）。lane／boundary／HOW 採納：`doc/governance/decisions/decision-20260924-taiwan-map-rework.md`（DR-20）。
 - 不重開 #18–#25；不改 Spec／Outcome Contract。A-4 必做 independent audit（fresh Primary Reviewer）；audit `doc/governance/audit/issue-28-c<cycle>-<r1|r2|alt>.md`；worklog `doc/governance/worklog/20260924-taiwan-map-rework.md`。

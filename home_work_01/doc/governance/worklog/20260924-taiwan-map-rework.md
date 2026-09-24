@@ -25,6 +25,7 @@
 ## Audit status
 
 - **required（A-4）**：觸及 H-2（頁面概念詞逐字）與 H-3（藥丸值/色直接取 endpoint、導出/相容性標示）。fresh `gov-primary-reviewer` R1；R1 record 依 A-1 明記 H-2/H-3；range 依 DR-20 §3.5(A)。由 Orchestrator/主 session 依 Bindings §3.5 派工。**不得**記為「依 policy 未要求」。
+- **cycle 1 R1 結果：BLOCKING**（`doc/governance/audit/issue-28-c1-r1.md`，VERDICT: BLOCKING F-1、F-2、F-4、F-5）＋兩個 routing signals 由 DA 裁決（`decision-20260924-map-rework-rs1-rs2.md`，DR-21.1 RS-1／DR-21.2 RS-2）。已做 **targeted correction**（治理 §4.4）——見下方「## Targeted correction（cycle 1）」。等待 **R2**（同一 Primary Reviewer 續派）。
 
 ## Decisions and assumptions（HOW，DR-20 邊界內）
 
@@ -56,11 +57,9 @@
 - **零外部請求（INV-6）**：Playwright 攔截全部 request＝13 筆，external＝0，origin 只有 `http://127.0.0.1:5000`（含兩次 `Select Date` 切換）。前端無絕對 URL（`test_frontend_makes_no_external_absolute_url_requests` 遞迴後仍綠）、資料請求只到 `/api/`（AC-04b）。
 - **七日 endpoint parity（H-3）**：對 `/api/days` 七天各取 `/api/days/<date>`，六藥丸 DOM 內文＝`oneDp(derivedMapTemperature)`、class/底色＝`colourBand`，與 endpoint 逐筆一致。本快照七天六區皆 yellow band；值（2026-09-24 例）北27.2/中28.8/南29.2/東北26.5/東27.0/東南27.5，與 endpoint 相同。完整七日列於本 session 的 `/api/days/*` 擷取（DOM 藥丸 aria-label 亦含同值）。
 - **V-1（字級 ≥12 px 固定 px，地圖卡）**：藥丸 14、Region 標籤 12、圖例 list 12/title 13/note 12、面板 title 15/chip 12/control label 12/select 14/meta 12/source 12、tile label 12/value 22/unit 12/region 12、sel name 15/row 13/derived 13–16/note 12、tooltip 13、Leaflet attribution 12。全部 ≥12 px。（頁面其餘段落 ≥16 px 由 #23/#25 既驗，本卡不適用該規則，P-13。）
-- **V-2（對比，token 值計算，WCAG）**：
-  - 藥丸內文 vs 藥丸底（≥4.5）：blue #2b6cb0/#fff = **5.42**；green #2f855a/#fff = **4.54**；yellow #d69e2e/#1a2230 = **6.68**；red #c53030/#fff = **5.47**。全部 PASS。
-  - 四段色帶 vs 底圖（≥3）：vs 海 #0f1927 → blue **3.26**、green **3.89**、yellow **7.39**、red **3.23**（全 ≥3，PASS，海為地圖 base 背景）。vs 台灣陸 #25324a → blue 2.37、green 2.83、red 2.35、yellow 5.38（blue/green/red <3）；此三段以藥丸 **2 px 純白描邊**（#fff 對海與陸皆 ~10:1）界定標記與底圖的邊緣，滿足 WCAG 1.4.11 非文字對比 ≥3。記為 PASS with border rationale。
-- **V-3（tooltip 不裁切）**：desktop(1280) 與 375 各對六標記逐一開 tooltip，量測 tooltip rect 皆在 `.leaflet-container` 內（最小邊距 4.2 px，`clippedAny=false`）。上緣標記（北部/南部/東南部）以 `tipDir()` 向下開避免上緣裁切。
-- **V-4（可點區 ≥44×44）**：`.pill::before` 置中 44 px 高、≥44 px 寬透明 hit target；`.pill-icon`/`.rlabel` pointer-events:none，相鄰標記不互擋（Playwright 逐一 hover 六標記皆命中）。
+- **V-2（對比）→ 見「## Targeted correction（cycle 1）」的「### V-2（依 DR-21.1 / OR-V2 重寫）」。** 本行 R1 前的「PASS with border rationale」措辭**作廢**：DR-21.1 裁定 V-2 採「標記整體對底圖」讀法，判定為 **PASS（DR-21.1）**，並在該節列出填色與 2 px 描邊對海/台灣陸/周邊陸（含作用態）的完整數值。
+- **V-3（tooltip 不裁切）→ 以 correction 節為準。** 本行 R1 前只在 1280／375 量、未計浮動面板（R1 F-2 指出 1024–1150 南部 tooltip 被面板遮）。correction 後於 641→1920 各寬度六 tooltip 皆不裁切、不被面板/圖例遮（見 correction 節）。
+- **V-4（可點區 ≥44×44）→ 以 correction 節為準。** 本行 R1 前的「pointer-events:none，相鄰標記不互擋」敘述被 R1 F-4 推翻（Leaflet `.leaflet-interactive` 蓋過，未加 !important）。correction 後改 `!important` 並縮短 attribution，375/360 右緣點擊皆選到正確 Region（見 correction 節）。
 - **V-5（截圖）**：light＋dark × desktop(≥1024)＋375，含 hover；`issue-28-*`（見 Artifacts）。375 `document.documentElement.scrollWidth == innerWidth == 375`（無橫向捲動）；desktop 1280==1280。map 高度量測 desktop 560 / 375 360。
 - **DR-19 三狀態**：以 Playwright route 攔截 `/api/days/<date>` 造 503（error）、200 空 values（empty）、4s 延遲（loading）；三狀態下 `#date-select` 皆 `dateVisible=true`（可見可操作，P-7b），地圖卡不空白（狀態訊息覆蓋地圖框、面板/圖例仍在）。截圖 `issue-28-state-{error,empty,loading}.png`。
 - **AC-17/18/19 重驗**：見 ACCEPTANCE.md 對應列（PASS，附 #28 證據）。
@@ -82,3 +81,66 @@
 - 不合併 `main`（RB-1）、不繳交（RB-2）、不動 Vercel/repository variable（RB-3）。
 - 無未解 concern；無 BLOCKED（未觸及需外部 tile/CDN 的情況，底圖走 vendored 向量方案）。
 - V-2 唯一需 Reviewer 注意處：三段色帶 fill 對「台灣陸 #25324a」<3:1，靠藥丸 2 px 白描邊達成標記界定（對海 ≥3、white border ~10:1）；如 Reviewer 認為「底圖」須以陸地色計且不接受 border rationale，屬 boundary/驗收語義疑義 → route DA（不自行改 DR-20 P-2 的陸地色）。
+
+---
+
+## Targeted correction（cycle 1）
+
+治理 §4.4：只修 R1 blocking findings（F-1、F-2、F-4、F-5）＋ DA 記錄修正（DR-21.1 / DR-21.2），附 closure 與回歸證據；不弱化任何測試、不擴張 scope（仍只動地圖卡）、不改核定 token。順修的 Low findings 見末段。BASE 仍 `d23de58`；上一 subject `b4549e5`；本 correction 的新 subject SHA 見「Subject / CI（correction）」。
+
+### 修了什麼（實作，仍在 DR-20 §3.5(A) diff-scope 內）
+
+- **F-1 / F-2 / F-3（同一根因：浮動面板／圖例遮住 pill、tooltip、狀態訊息）**：
+  - `styles.css`：把「不浮動、堆疊」版面的 breakpoint 由 `max-width:640` 提高到 **`max-width:1179`**——375 px、平板、窄桌機（≤1179）都改成資訊面板在地圖上方、圖例在下方（`position:static`），完全不疊在地圖上；浮動版面（預設規則）只在 **≥1180 px** 生效。地圖高度分開處理（≤640 → 360）。
+  - `app.js`：新增唯一的 fit 函式 `fitToMarkers()`（取代 initMap 內的 `fitBounds`），依寬度算 padding——floating（≥1180）時 `paddingTopLeft:[392,64]`／`paddingBottomRight:[300,56]` 預留左上面板與右下圖例的空間，使六個標記與 tooltip 都落在面板外；<1180（堆疊）用 `[26,52]/[26,44]`。`fitToMarkers()` 在 init 與 resize 呼叫（resize 跨 1180 breakpoint 會重 fit），**切日不 fit**（view 不重設，P-12）；`fitBounds(` 全檔仍只一處（`test_fitbounds_called_exactly_once` 綠）。
+  - `styles.css`：floating（≥1180）時 `.map-status { padding-left:320px; padding-right:260px }`，讓置中的 DR-19 狀態訊息避開左上面板（F-3）；<1180 面板在地圖上方，訊息不會被遮。
+- **F-4（375 px 相鄰標記透明 icon box 攔截點擊，點南部右緣選到東南部）**：
+  - 根因是 Leaflet `.leaflet-marker-icon.leaflet-interactive { pointer-events:auto }`（specificity 0,2,0）蓋過我的 `.pill-icon{pointer-events:none}`（0,1,0）。改為 **`.pill-icon { pointer-events:none !important }`**（!important 勝過非 important），只有 `.pill`（＋其 `::before` 44×44 hit target）可互動；label pointer-events:none。click listener 掛在 `.pill` 上（仍冒泡）。
+  - 另把地圖 attribution 文字縮短為 `Natural Earth · 內政部 open data`（完整來源／授權在 README，P-2a），使 attribution control 不再橫跨到南部/東南部 pill 的 44×44 區。
+- **F-5（init hazard 回歸測試無偵測力）**：`tests/test_map_frontend.py` 重寫兩個測試為**限定函式本體**（`_function_body()` brace-match + `_strip_comments()`）：`test_ensuremapsized_guards_on_nonzero_container_size`（regex 要求 `if (sized()) { cb(); return; }` 存在，且每個 `cb()` 前都有 `sized()`）、`test_fittomarkers_invalidatesize_precedes_fitbounds`（`invalidateSize()` index < `fitBounds(` index）；另加 `test_init_path_is_wired_through_the_guard_and_single_fit`。
+- **順修 Low（clean，非必須）**：F-6（`colourLegend()` 移到 DOMContentLoaded，狀態下圖例已上色）、F-8（`L.marker keyboard:false`，只留 `.pill` 一個 tab stop）、F-9（補淺色 hover 截圖）。F-7/F-10/F-11 未改（SHOULD／判準外，記錄於 R1）。
+
+### DR-21 記錄修正
+
+- **DR-21.1 / OR-V2（V-2 採「標記整體對底圖」讀法；不改任何 token）**：見下方「### V-2（依 DR-21.1 / OR-V2 重寫）」。ACCEPTANCE.md V-2 列引用 DR-21.1。藥丸 **2 px 白色實線描邊在四種狀態（預設/hover/focus/選取）都保留**（hover/focus/選取改色為 `#9ed0ff`、寬度仍 2 px 實線；`styles.css`）。未加 halo、未改 P-2 陸地色、未改 P-4 色帶／文字色。
+- **DR-21.2（masthead 導言一句為附帶改動，在 boundary 內，不還原）**：見下方「### 附帶改動（地圖卡以外）」。
+
+### V-2（依 DR-21.1 / OR-V2 重寫）
+
+WCAG 2.x 相對亮度公式、token 值計算（與 DR-21 §7 及 R1 §2.4 一致）。**判定：PASS（DR-21.1）**。
+
+- **文字句**（藥丸內文對藥丸填色 ≥ 4.5，黃色帶以深字計）：blue/white **5.42**、green/white **4.54**、yellow/`#1a2230` **6.68**、red/white **5.47** — 全 PASS。
+- **標記句**（每一色帶 b 與標記可能疊上的每個底圖色 c：CR(填色,c) ≥ 3 **或** CR(界定描邊,c) ≥ 3；界定描邊＝2 px 實線，適用每一狀態）：
+
+  | 底圖色 c | fill blue | fill green | fill yellow | fill red | 描邊 #fff（預設/hover） | 描邊 #9ed0ff（focus/選取） |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | 海 `#0f1927` | 3.26 ✓ | 3.89 ✓ | 7.39 ✓ | 3.23 ✓ | 17.67 ✓ | 10.87 ✓ |
+  | 台灣陸 `#25324a` | 2.37 | 2.83 | 5.38 ✓ | 2.35 | **12.85 ✓** | 7.91 ✓ |
+  | 周邊陸 `#1a2331` | 2.92 | 3.48 ✓ | 6.62 ✓ | 2.89 | 15.81 ✓ | 9.72 ✓ |
+
+  每一色帶對每一底圖色都至少一項 ≥ 3：黃色帶填色本身即 ≥ 3；藍/綠/紅在台灣陸與周邊陸上以 2 px 白描邊（12.85／15.81）達成，作用態描邊 `#9ed0ff`（7.91／9.72）亦 ≥ 3。六個代表點皆落在台灣縣市多邊形內（藥丸相鄰底色是台灣陸 `#25324a`）。**只列「對海」的數字不足以證明 V-2**（DR-21.1 §3 明示；已同時列三個底圖色）。→ **V-2 PASS（DR-21.1）**；由 R2 自行核算後於 audit record 記錄。
+
+### 附帶改動（地圖卡以外）
+
+- **masthead 導言一句**（`static/index.html`，`.masthead__lead`）：由「…pick a region to see its temperature trend, daily table and weekly summary.」改寫為「…read the derived map temperature for a day on the Taiwan map, then pick a region below for its temperature trend, daily table and weekly summary.」，配合 map-first 版面描述頁面閱讀順序。DA 依 **DR-21.2** 判定此一句在本 work item boundary 內（附帶、與核定 map-first 方向一致，非 X-3「重做 masthead」）；概念詞 `Taiwan Weather Forecast`、eyebrow、`<h1>`、masthead 版面/CSS **一字/一處未動**。此為地圖卡以外的**唯一**附帶改動。
+
+### 驗證（correction；headless Chromium via Playwright，本機 Flask，無網路/無 .env）
+
+- **完整 offline pytest**：**164 passed**（新增 `test_init_path_is_wired_through_the_guard_and_single_fit`；F-5 兩個測試重寫）。
+- **F-5 mutation 證明**（scratchpad subject 副本）：(a) 把 `invalidateSize()` 移到 `fitBounds` 之後 → `test_fittomarkers_invalidatesize_precedes_fitbounds` **FAIL**；(b) 移除 `if (sized())` guard（`cb(); return;`）→ `test_ensuremapsized_guards_on_nonzero_container_size` **FAIL**；未突變的副本三個 init 測試 PASS。即測試在 hazard 重新引入時會 FAIL。
+- **F-1 / F-2（版面掃描，dark，寬度 641/700/768/800/820/834/880/900/960/1023/1024/1100/1179/1180/1280/1440/1920）**：每個寬度**六個 pill 皆不與資訊面板或圖例相交**（occludedPills=0）、**六個 tooltip 皆不被面板/圖例遮、不被容器裁切**（tooltip clip/occlude=0）。<1180 面板堆疊在地圖上方（`position:static`），≥1180 浮動且 padding 預留其空間。截圖：`issue-28-tablet-768-dark-ac17.png`（768 六 pill 全可見，對照 baseline 768 只見一顆）、`issue-28-desktop-1024-hover-south.png`（1024 南部 tooltip「南部地區」全名可見，F-2）。
+- **F-3（狀態訊息不被遮）**：1280（floating）error／empty 狀態，狀態文字 rect 與面板 rect 交集 **0 px²**（`padding-left:320`），`Select Date` 可見可操作、地圖卡不空白。截圖 `issue-28-state-error.png`（完整訊息「The forecast snapshot is incomplete — …」可見）、`issue-28-state-empty.png`、`issue-28-state-loading.png`。
+- **F-4（點擊選到正確 Region）**：捲動地圖入視窗後，641/768/1024/1100/375/414 每個 pill 可見範圍取樣（含右緣 fx=0.9）**全部命中該 pill**（wrongClick=0）；375 與 360 真實滑鼠點擊每個 pill 的**右緣**（fx=0.88）→ `#sel-region` 選到該 pill 自己的 Region（南部→南部地區、東南部→東南部地區…）。
+- **V-4 44×44 hit grid**（375、1280）：每個 pill 中心 44×44 取樣 210–225/225 命中自己，**0 個命中其他 Region**、**0 個被 attribution 攔截**（縮短 attribution 後 東南部由 180 → 210）；少數邊緣點落在 map/label（非互動、非誤選），hit area（`.pill::before` 58×44）≥ 44×44。
+- **V-3（tooltip 完整可見）**：上述掃描已含——六 tooltip 在 375→1920 全部不裁切、不被面板/圖例遮（`tipDir()` 讓上緣標記向下開）。**更正 R1 前 worklog／ACCEPTANCE 只在 1280 量、未計面板的敘述**：V-3 現於各寬度成立。
+- **七日 endpoint parity（H-3，未回歸）**：七天 × 六 pill DOM 文字＝`derivedMapTemperature.toFixed(1)+"°"`、class＝`pill--<colourBand>`，**0 筆不符**。
+- **零外部請求（未回歸）**：載入＋七次切日，全部 request origin 只有 `http://127.0.0.1:5000`，external=0。
+- **不回歸**：`fitBounds` 一處（切日不重設視野）、`mapReqSeq` 守衛、`>Select Date</label>`/`>Select Region</label>`/表頭字串、`app.py`/`server.py`/`weather_query.py`/`api/`/`vercel.json`/`data.db` 未觸及（INV-2/9）。375 `scrollWidth==innerWidth==375`。
+
+### 重拍的截圖（依 correction 後程式）
+
+`issue-28-desktop-dark-ac17`、`issue-28-desktop-light-ac17`、`issue-28-desktop-dark-fullpage-ac19`、`issue-28-tablet-768-dark-ac17`（新，F-1）、`issue-28-desktop-1024-hover-south`（新，F-2）、`issue-28-375-dark-ac19`、`issue-28-375-light-ac19`、`issue-28-desktop-hover-tooltip`、`issue-28-desktop-light-hover-tooltip`（新，F-9 淺色 hover）、`issue-28-375-hover-tooltip`、`issue-28-desktop-date1/2-ac18`、`issue-28-state-error/empty/loading`。
+
+### Subject / CI（correction）
+
+- 新 subject SHA 與 CI run URL：見本節結尾補記（commit 後填）。

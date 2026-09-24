@@ -433,6 +433,12 @@ img { max-width: 100%; }
 .map-status.state--inline-empty { background: #1a2331; color: var(--map-muted); }
 .map-status.state--inline-loading { background: #142033; color: #a9cdf2; }
 .map-frame--status .map { visibility: hidden; }
+/* At floating widths the info panel sits over the top-left of the map frame, so
+   centre the status message clear of it (the message must be fully visible —
+   #28 F-3). Below 1180px the panel is stacked above the map, so no offset. */
+@media (min-width: 1180px) {
+  .map-status { padding-left: 320px; padding-right: 260px; }
+}
 
 /* Floating panels (info top-left, legend bottom-right). */
 .map-panel {
@@ -541,6 +547,11 @@ img { max-width: 100%; }
    hover/click. The pill's ::before gives it a centred hit target of at least
    44x44 (V-4) without enlarging the visible pill. */
 .leaflet-div-icon.pill-icon { background: transparent; border: 0; }
+/* pointer-events:none MUST beat Leaflet's `.leaflet-marker-icon.leaflet-interactive
+   { pointer-events:auto }` (equal specificity, so !important is required) — else the
+   wide transparent 104x52 icon box of a neighbouring marker intercepts clicks meant
+   for the pill under it (#28 F-4). Only the pill (and its ::before hit area) stay
+   interactive, so a click always selects the pill actually under the cursor. */
 .pill-icon {
   display: flex;
   flex-direction: column;
@@ -548,7 +559,7 @@ img { max-width: 100%; }
   justify-content: center;
   min-width: 46px;
   min-height: 46px;
-  pointer-events: none;
+  pointer-events: none !important;
 }
 .pill {
   position: relative;
@@ -628,10 +639,14 @@ img { max-width: 100%; }
   .select { min-width: 0; width: 100%; }
 }
 
-/* Phones (<= 640): the floating panels stop floating — the info panel (with
-   Select Date) becomes a row ABOVE the map and the legend a row BELOW it (P-7);
-   the map area stays dark. Height 360px (DR-20 P-1). */
-@media (max-width: 640px) {
+/* Below 1180px the floating panels would overlap the marker cluster on the
+   narrower map, so they STOP floating and stack outside the map instead: the info
+   panel (with Select Date) becomes a row ABOVE the map and the legend a row BELOW
+   it (P-7 extends the 375px behaviour up to the width where floating is safe, so
+   all six markers/tooltips and the DR-19 status stay fully visible and clickable —
+   #28 F-1/F-2/F-3). Floating (default rules above) applies only at >= 1180px, where
+   fitToMarkers() also reserves the panel/legend footprint in the map padding. */
+@media (max-width: 1179px) {
   .map-shell { display: flex; flex-direction: column; gap: 10px; }
   .map-panel {
     position: static;
@@ -643,6 +658,10 @@ img { max-width: 100%; }
     box-shadow: none;
   }
   .map-panel--info { order: -1; }
+}
+
+/* Phones (<= 640): the map area is 360px tall (DR-20 P-1). */
+@media (max-width: 640px) {
   .map { height: 360px; }
   .leaflet-control-attribution { font-size: 12px; }
 }

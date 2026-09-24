@@ -146,9 +146,17 @@
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
         if (currentSeries) renderChart(currentSeries);
-        if (map) map.invalidateSize();
+        // Re-fit the map: the panel/legend layout (floating vs stacked) and the
+        // reserved padding change with width, so the six markers must be re-fitted
+        // to stay clear of the panels at the new width (#28 F-1). Only resize
+        // re-fits — a Select Date change never does (P-12).
+        if (map) fitToMarkers();
       }, 150);
     });
+
+    // Colour the legend swatches up front so they show the four band colours even
+    // before the first day loads / in the loading/empty/error states (#28 F-6).
+    colourLegend();
 
     bootstrap();
   });
@@ -558,9 +566,10 @@
     });
     L.control.zoom({ position: "topright" }).addTo(map);
     map.attributionControl.setPrefix(false);
-    map.attributionControl.addAttribution(
-      "Coastlines: Natural Earth (public domain) · County boundaries: 內政部 open data"
-    );
+    // Short on-map attribution so the control stays a small bottom-right corner and
+    // never overlaps a pill's tap target at 375px (#28 F-4); the full source and
+    // licence text is in the README (P-2a).
+    map.attributionControl.addAttribution("Natural Earth · 內政部 open data");
 
     // Surrounding coastline first (behind), then the Taiwan county polygons on
     // top. Both are non-interactive backdrops (no county-level data semantics).
@@ -577,7 +586,6 @@
       }).addTo(map);
     }
 
-    var points = [];
     REGION_ORDER.forEach(function (region) {
       var latlng = REGION_POINTS[region];
       var icon = L.divIcon({
@@ -589,13 +597,18 @@
         iconSize: [104, 52],
         iconAnchor: [52, 16],
       });
-      var marker = L.marker(latlng, { icon: icon, keyboard: true, title: region });
+      // keyboard:false so the marker's icon box is NOT a second tab stop — only
+      // the inner .pill is focusable (its own tabindex/role/keydown), which
+      // removes the nested-button that ignored Enter (#28 F-8).
+      var marker = L.marker(latlng, { icon: icon, keyboard: false, title: region });
       marker.on("add", function () {
         var el = marker.getElement();
         if (!el) return;
         var pill = el.querySelector(".pill");
         function select() { selectedRegion = region; onSelect(); }
-        el.addEventListener("click", select);
+        // The click listens on the pill (the only interactive element now, F-4);
+        // it still bubbles, so Leaflet's own marker handling is unaffected.
+        (pill || el).addEventListener("click", select);
         if (pill) {
           pill.addEventListener("keydown", function (e) {
             if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
@@ -607,44 +620,56 @@
       });
       marker.addTo(map);
       markers[region] = marker;
-      points.push(latlng);
     });
 
-    // Hide the Region labels when zoomed far out so the pills stay uncluttered;
-    // the Region name is still reachable via the tooltip, panel and aria-label.
-    function syncZoomClass() {
-      var mapEl = document.getElementById("map");
-      if (mapEl) mapEl.classList.toggle("map--labels-hidden", map.getZoom() < 8);
-    }
-    // On zoom the markers move relative to the top edge, so re-pick each tooltip's
-    // direction (and refresh any open tooltip) to keep it unclipped (V-3).
-    map.on("zoomend", function () {
-      syncZoomClass();
-      REGION_ORDER.forEach(function (region) {
-        var m = markers[region];
-        if (m && m._dayInfo) {
-          bindOrUpdateTip(m, tooltipHtml(region, m._dayInfo.date, m._dayInfo.value));
-        }
-      });
-    });
+    // On any move (zoom, or a resize re-fit) the markers shift relative to the
+    // edges, so refresh the zoom-label class and re-pick each tooltip's direction
+    // to keep it unclipped (V-3).
+    map.on("moveend", refreshMapChrome);
 
-    // Now that the container is laid out, recompute size and fit to the markers
-    // ONCE so the initial zoom is finite and all six markers (and room for their
-    // tooltips) are visible. Generous top padding keeps the north pill's tooltip
-    // from clipping (P-6). fitBounds is never called again (Select Date must not
-    // reset the view, P-12).
-    map.invalidateSize();
-    // Modest padding so the fit reaches ~zoom 7 (as the reference view does) and
-    // the six pills stay separated at 375px; tooltip clipping at the top edge is
-    // handled per-marker by tipDir() instead of by over-padding the top (V-3, V-4).
-    map.fitBounds(points, {
-      paddingTopLeft: [26, 52],
-      paddingBottomRight: [26, 44],
-      maxZoom: 8,
-    });
-    syncZoomClass();
+    // Now that the container is laid out, recompute size and fit to the markers.
+    // fitToMarkers() is the ONLY fitBounds call site — reused at init and on
+    // resize, never on a Select Date change (the view must not reset, P-12).
+    fitToMarkers();
+    refreshMapChrome();
     colourLegend();
     return true;
+  }
+
+  // Hide the Region labels when zoomed far out (the name is still in the tooltip,
+  // panel and aria-label) and re-pick every open tooltip's direction.
+  function refreshMapChrome() {
+    if (!map) return;
+    var mapEl = document.getElementById("map");
+    if (mapEl) mapEl.classList.toggle("map--labels-hidden", map.getZoom() < 8);
+    REGION_ORDER.forEach(function (region) {
+      var m = markers[region];
+      if (m && m._dayInfo) {
+        bindOrUpdateTip(m, tooltipHtml(region, m._dayInfo.date, m._dayInfo.value));
+      }
+    });
+  }
+
+  // Fit the view to the six markers. Padding depends on the layout: when the info
+  // panel and legend FLOAT over the map (>= 1180px), reserve their footprint (left
+  // for the top-left panel, right for the bottom-right legend) so no marker or its
+  // tooltip sits under them (P-7c, #28 F-1/F-2/F-3); below 1180px the panels are
+  // stacked OUTSIDE the map (CSS), so modest padding keeps the six pills separated
+  // and their tooltips inside the frame (V-3, V-4). Tooltip clipping at the top
+  // edge is handled per-marker by tipDir(). Called at init and on resize only.
+  function fitToMarkers() {
+    if (!map) return;
+    var points = REGION_ORDER.map(function (r) { return REGION_POINTS[r]; });
+    map.invalidateSize();
+    var floating = window.innerWidth >= 1180;
+    var pad = floating
+      ? { tl: [392, 64], br: [300, 56] }
+      : { tl: [26, 52], br: [26, 44] };
+    map.fitBounds(points, {
+      paddingTopLeft: pad.tl,
+      paddingBottomRight: pad.br,
+      maxZoom: 8,
+    });
   }
 
   // A pill was clicked/activated: reflect the selection in the panel and pills.
