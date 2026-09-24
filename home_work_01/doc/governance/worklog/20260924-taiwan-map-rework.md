@@ -25,7 +25,7 @@
 ## Audit status
 
 - **required（A-4）**：觸及 H-2（頁面概念詞逐字）與 H-3（藥丸值/色直接取 endpoint、導出/相容性標示）。fresh `gov-primary-reviewer` R1；R1 record 依 A-1 明記 H-2/H-3；range 依 DR-20 §3.5(A)。由 Orchestrator/主 session 依 Bindings §3.5 派工。**不得**記為「依 policy 未要求」。
-- **cycle 1 R1 結果：BLOCKING**（`doc/governance/audit/issue-28-c1-r1.md`，VERDICT: BLOCKING F-1、F-2、F-4、F-5）＋兩個 routing signals 由 DA 裁決（`decision-20260924-map-rework-rs1-rs2.md`，DR-21.1 RS-1／DR-21.2 RS-2）。已做 **targeted correction**（治理 §4.4）——見下方「## Targeted correction（cycle 1）」。等待 **R2**（同一 Primary Reviewer 續派）。
+- **cycle 1 R1 結果：BLOCKING**（`doc/governance/audit/issue-28-c1-r1.md`，VERDICT: BLOCKING F-1、F-2、F-4、F-5）＋兩個 routing signals 由 DA 裁決（`decision-20260924-map-rework-rs1-rs2.md`，DR-21.1 RS-1／DR-21.2 RS-2）。已做 **targeted correction**（治理 §4.4）——見下方「## Targeted correction（cycle 1）」。**Ladder 結果**：R2（同一 Primary Reviewer 續派）= BLOCKING(N-1，loading 截圖 evidence defect，`issue-28-c1-r2.md`) → cycle-2 correction（N-1/N-2/N-3）→ **Alternate Independent Review（`gov-alternate-reviewer`，`claude-fable-5-1`／`xhigh`）= AUDIT CLOSURE**（`issue-28-c1-alt.md`）。最終 subject `5136bd2`。
 
 ## Decisions and assumptions（HOW，DR-20 邊界內）
 

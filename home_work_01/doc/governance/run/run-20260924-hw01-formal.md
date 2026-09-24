@@ -124,3 +124,17 @@ The run reached its **natural terminus** (governance §3.8; orch-default §8): a
 **Known non-blocking residuals**: consolidated in `doc/acceptance/ACCEPTANCE.md §6` (incl. #25 R2 N-2 wording nits, map-edge popup clipping, snapshot expiry). None affect graded behavior or the acceptance boundary.
 
 Per acceptor activation and governance, the Orchestrator **STOPS here** after #25 + Spec Integration Audit + phase acceptance. No merge, no submission.
+
+## Post-baseline work item #28 — Taiwan Map 視覺重做（closure，2026-09-24）
+
+- **Lane**：Lightweight（DR-20）。High-risk H-2、H-3 → A-4 必做 independent audit。不重開 #18–#25；不改 Spec／Outcome Contract。
+- **A-4 audit ladder（§4.4）**：R1 = BLOCKING(F-1/F-2/F-4/F-5) → cycle-1 targeted correction（`ecdc793`）→ R2 = BLOCKING(N-1 loading-screenshot evidence defect) → cycle-2 targeted correction（`5136bd2`；N-1/N-2/N-3）→ **Alternate Independent Review = AUDIT CLOSURE**（`audit/issue-28-c1-alt.md`）。§4.4 唯一一次 Alternate，無 Primary R3/R4。
+- **Binding 核對（§3.4，全部對照 model-profile-default-v2.2 通過）**：
+  - Executor `a37f68bb30f67b595` = `gov-executor`／`claude-opus-4-8`／`high`
+  - Primary Reviewer（R1＋R2）`abca3f739e1523101` = `gov-primary-reviewer`／`claude-opus-5-5`／`xhigh`
+  - Alternate Reviewer `a54c21ed421c6f833` = `gov-alternate-reviewer`／`claude-fable-5-1`／`xhigh`
+- **Machine gates**：diff `720c0a0..5136bd2`（doc 外）僅 7 檔，全在 Taiwan Map 卡邊界；`app.py`/`server.py`/`weather_query.py`/`api`/`vercel.json`/`data.db` 未觸（INV-2/9）。offline `164 passed`；CI 綠（`5136bd2`、`5d8b169`）；金鑰掃描 0（536 tracked）；執行期零外部請求。
+- **Phase 增補（§3.5(B)，Orchestrator 自主）**：`decisions/phase-acceptance-SPEC-addendum-20260924-map-rework.md`。accepted phase subject 仍為 `720c0a0`；#28 `5136bd2` 疊加其上、未擾動 coverage。非新 phase acceptance、非 release authorization。
+- **Preview smoke（Orchestrator，branch alias）**：`/`=200、`/api/health`=200（6 區／7 日）、`/api/days`=200、`/api/days/2026-09-24`=200（六區 `derivedMapTemperature`+`colourBand`）、`/api/regions`=200、六區 `/api/regions/<region>/series` 全 200（編碼中文路徑，#21 修復完好）。`https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app`。
+- **STOP**：不合併（RB-1 保留 acceptor）、不提交（RB-2 保留 acceptor）。
+- **未做（另立票）**：#18 R2 N-1（`--acquired-at` 格式驗證）為獨立 Lightweight work item，自帶 A-4 audit，待建立。
