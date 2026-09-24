@@ -87,3 +87,7 @@ A-4 R1 audit（`doc/governance/audit/issue-29-c1-r1.md`，VERDICT: BLOCKING F-1�
 - **Diff-scope（`git diff --name-only cc29c7f..ee84480`，排除 `doc/governance/**`）**：`README.md`、`doc/acceptance/ACCEPTANCE.md`、`doc/ticket/tickets.md`、`ingestion/acquisition_time.py`、`ingestion/pipeline.py`、`ingestion/provenance.py`、`tests/test_acquisition_time.py` — 全數 B-1..B-7 allowlist；R1 correction 實際只動 `acquisition_time.py`、`tests/test_acquisition_time.py`、`README.md`（＋本 worklog record-only）。`data.db`/raw JSON/sidecar 三 blob 與 `cc29c7f` 逐位相同（IDENTICAL）。
 - **CI**：push run `35982002167` 與 PR run `35982005624` 皆 **success**（headSha `ee84480`）。
 - **狀態**：R1 targeted correction 完成，DONE。未合併（RB-1）、未提交（RB-2）。closure 由 R2 判定；本紀錄不自證 closure。`doc/governance/audit/issue-29-c1-r1.md`（Primary Reviewer 自寫，record-only）保留原樣由派工者提交，Executor 未改寫。
+
+## Closure
+
+A-4 ladder：R1 = BLOCKING(F-1 non-ASCII 數字) → R1 targeted correction（`ee84480`：`re.ASCII`+`fullmatch`、offline-order 測試、comment/README）→ **R2 = AUDIT CLOSURE**（`audit/issue-29-c1-r2.md`）。final subject `ee84480`；259 pytest 綠、CI 綠、data.db/raw/sidecar blobs 不變、clean-export AC-12 重現、H-3/H-1 維持。R2 獨立複核三個 binding 皆符。phase 增補：`decisions/phase-acceptance-SPEC-addendum-20260924-acquired-at-validation.md`（DR-22 §5(B)）。STOP：不合併（RB-1）、不提交（RB-2）。

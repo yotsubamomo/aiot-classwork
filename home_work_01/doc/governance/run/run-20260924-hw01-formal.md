@@ -138,3 +138,14 @@ Per acceptor activation and governance, the Orchestrator **STOPS here** after #2
 - **Preview smoke（Orchestrator，branch alias）**：`/`=200、`/api/health`=200（6 區／7 日）、`/api/days`=200、`/api/days/2026-09-24`=200（六區 `derivedMapTemperature`+`colourBand`）、`/api/regions`=200、六區 `/api/regions/<region>/series` 全 200（編碼中文路徑，#21 修復完好）。`https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app`。
 - **STOP**：不合併（RB-1 保留 acceptor）、不提交（RB-2 保留 acceptor）。
 - **未做（另立票）**：#18 R2 N-1（`--acquired-at` 格式驗證）為獨立 Lightweight work item，自帶 A-4 audit，待建立。
+
+## Post-baseline work item #29 — Ingestion 取得時間格式驗證（closure，2026-09-24）
+
+- **來源**：#18 R2 N-1（`audit/issue-18-c1-r2.md` §5，Medium）。acceptor 2026-09-24 授權為獨立 Lightweight work item（Issue #29），自帶 A-4 audit、獨立 commit。
+- **DA**：DR-22（`decisions/decision-20260924-acquired-at-validation.md`）—— lane Lightweight、boundary allowlist、驗證接受準則（`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$` ASCII + 真實曆法，exact `+08:00`、秒精度、不正規化、fail-closed）、H-3+H-1、兩段式整合證據。
+- **A-4 ladder**：R1 = BLOCKING(F-1：`\d` 收非 ASCII 數字) → correction（`ee84480`）→ **R2 = AUDIT CLOSURE**（`audit/issue-29-c1-r2.md`）。無 Alternate。
+- **Binding（§3.4，對照 model-profile）**：DA `a50b4ef4` fable-5-1/xhigh；Executor `a068f9df` opus-4-8/high；Primary Reviewer（R1+R2）`afd86af3` opus-5-5/xhigh。
+- **Machine gates**：diff `cc29c7f..ee84480`（doc 外）＝ `ingestion/{acquisition_time.py,pipeline.py,provenance.py}` + `tests/test_acquisition_time.py` + `README.md` + `ACCEPTANCE.md`，全在 DR-22.2 allowlist；`data.db`/raw/sidecar blobs 與 `cc29c7f` 逐位元相同；X-list 未觸。259 passed；CI 綠。
+- **Phase 增補（DR-22 §5(B)，Orchestrator 自主）**：`decisions/phase-acceptance-SPEC-addendum-20260924-acquired-at-validation.md`。accepted phase subject 仍 `720c0a0`；release 集合再加 #29 `ee84480`。無部署面變更 → 不另做 smoke。
+- **F-4（Orchestrator attribution 錯誤）**：`cc29c7f`/`bd52ede`/`b4b121f` 帶 `Co-Authored-By: Claude`（違反 CLAUDE.md:98）。acceptor 裁定 leave-for-squash；不改已 push 歷史（RB-6）；後續 commit 全部無 attribution；合併時 acceptor 需編輯 squash message。
+- **STOP**：不合併（RB-1）、不提交（RB-2）。
