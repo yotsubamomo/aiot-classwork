@@ -11,8 +11,9 @@ value it confirms:
   string in the CWA key format. The ignored ``home_work_01/.env`` is explicitly
   excluded from the scan (the requirement is "no key in *tracked* content", not
   "empty working tree", so the untracked local key file is never read);
-* **(d)** the committed fixture and saved raw observation JSON carry no non-empty
-  ``Authorization`` value (and no key-format string).
+* **(d)** the committed fixtures (including the V2 O-A0001-001 sample) and the
+  saved raw forecast JSON carry no non-empty ``Authorization`` value (and no
+  key-format string).
 
 Only the offending path and the *kind* of match are ever printed -- never the
 matched text -- so the CI log stays free of secrets (H-1). The key / Authorization
@@ -50,10 +51,14 @@ _ALLOWED_ENV_FILE = ".env.example"
 # belt-and-braces guard so the scan can never open it).
 _EXCLUDED_BASENAMES = {".env"}
 # AC-07(d): these committed artifacts must carry no Authorization value / key.
+# V2 (SPEC-V2 R-V2-SEC-5, AC-V2-17(a); Issue #35): the sanitised real
+# O-A0001-001 sample is added. Every tracked file -- including the V2 backend
+# code (server.py, api/index.py, observation.py) -- is already covered by (c).
 _AUTH_ARTIFACTS = (
     "home_work_01/tests/fixtures/F-D0047-091_sample.json",
     "home_work_01/data/raw/F-D0047-091.json",
     "home_work_01/data/raw/F-D0047-091.meta.json",
+    "home_work_01/tests/fixtures/O-A0001-001_sample.json",
 )
 # Documented, deliberately-fake example keys that are NOT secrets (see module
 # docstring). Removed before matching so they never trip the scan.

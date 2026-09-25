@@ -244,8 +244,11 @@ Add `?region=<name>` to deep-link a Region (for example `?region=中部地區`).
 data is unavailable the page shows a clear message instead of a blank page.
 
 All data comes from this application's own JSON API under the `/api/` prefix; the
-browser never calls CWA and holds no key. The backend reads `data.db` only through
-the shared module [`weather_query.py`](weather_query.py) and imports no HTTP client.
+browser never calls CWA and holds no key. The forecast endpoints read `data.db` only
+through the shared module [`weather_query.py`](weather_query.py) and never call CWA.
+The only server-side CWA access is the V2 Latest Observation endpoint (see
+[below](#latest-observation-endpoint-v2-core)), implemented in
+[`observation.py`](observation.py).
 
 ### `/api/` endpoints
 
@@ -262,7 +265,87 @@ Every error response is JSON carrying a human-readable `error` message. The Verc
 structure lives beside the code — `server.py` (the app), `api/index.py` (the
 serverless entry that imports `app`), `vercel.json` (routes every request to that
 one function) and `requirements.txt`; `data.db` is packaged next to the code and
-opened read-only, and no environment variable or secret is needed at runtime.
+opened read-only. The forecast endpoints and `/api/health` need no environment
+variable or secret; only the Latest Observation endpoint below reads `CWA_API_KEY`.
+
+### Latest Observation endpoint (V2 Core)
+
+`GET /api/observations/latest` returns the **Latest Observation**: CWA station
+observations from the dataset **O-A0001-001** (氣象觀測站-全測站逐時氣象資料;
+CWA describes it as hourly station data), fetched **server-side** with the
+maintainer's key, then normalised and trimmed. The response never contains the
+upstream JSON structure, the upstream URL or the key. Observation values are
+**CWA station observations, as published** — not forecasts and not project-derived
+values. The browser only ever calls this `/api/` path.
+
+**Success — `200` JSON** (`Cache-Control: no-store`):
+
+| Field | Meaning |
+| --- | --- |
+| `dataset` | `"O-A0001-001"` |
+| `observationTime` | Dataset-level **Observation Time**: the latest `ObsTime` among the valid stations, exactly as CWA published it (for example `2026-09-25T23:00:00+08:00`). |
+| `fetchedTime` | **Fetched Time**: the server clock when the upstream fetch succeeded and produced this body — ISO 8601, `+08:00`, to the second. This is not the forecast snapshot's acquisition time shown by the forecast dashboard. |
+| `validStationCount` | Number of valid stations in `stations`. |
+| `receivedStationCount` | Number of station records CWA returned (diagnostic; includes invalid ones). |
+| `stations[]` | One entry per **valid** station: `stationId` (the stable identity — names can repeat), `stationName`, `countyName`, `townName`, `latitude` / `longitude` (WGS84), `observationTime` (that station's `ObsTime`, as published), `airTemperature` (°C). Optional, `null` when missing or a sentinel: `relativeHumidity` (%), `windSpeed` (m/s), `windDirection` (degrees), `airPressure` (hPa), `precipitation` (the dataset's `Now.Precipitation` field: accumulated precipitation for the current day, mm), `weather` (text). |
+
+Numbers keep the published digits (no rounding, no unit conversion); a sentinel is
+never turned into a number.
+
+**Valid station.** A record is valid only if it has a non-empty `StationId`; an
+air temperature that is a finite number and not a sentinel; a finite WGS84
+latitude and longitude; a `CountyName` that is exactly one of the 22 counties
+(the 19 forecast-Region member counties plus 澎湖縣, 金門縣, 連江縣; `臺`, not
+`台`); and a published `ObsTime` that parses to a date with hour and minute (an
+`ObsTime` without an offset is read as `+08:00` for comparison only). Invalid
+records are left out of `stations`, the count and `observationTime`. The sentinel
+set is `X`, `-99`, `-98`, `T`, `990` (CWA data standard V1.05; matched as text and,
+for the numeric ones, by value such as `-99.0`); it is the `SENTINELS` constant in
+`observation.py`. Zero valid stations is a failure (`invalid_response`).
+
+**Failure — non-2xx JSON** `{ dataset, reason, error }` with exactly one `reason`:
+
+| `reason` | HTTP | When |
+| --- | --- | --- |
+| `key_not_configured` | `503` | The server has no `CWA_API_KEY` (no upstream request is made). |
+| `upstream_unreachable` | `504` | DNS / connection failure, or the upstream did not finish within the time bound. |
+| `upstream_error` | `502` | CWA answered with a non-2xx status (e.g. `401` / `403` auth, `429` quota, `500`); the numeric status is added as `upstreamStatus`. |
+| `invalid_response` | `502` | CWA answered 2xx but the body is not JSON, `success` is not `"true"`, the structure or dataset id is wrong, or no station is valid. |
+
+`error` is a fixed human-readable sentence per reason; it and the server log carry
+only the reason (and the numeric upstream status) — never the key, the upstream
+URL, request headers or the upstream body. The server never answers with old data
+after a failure: a response is either a success or a classified failure.
+
+**Time bound and reuse window.** The upstream request uses a 3 s connect timeout
+and a 5 s read timeout, and the whole upstream exchange is capped at **8 s**, after
+which the answer is `upstream_unreachable` — below Vercel's smallest default
+function duration (10 s), so a stalled CWA yields this JSON rather than a platform
+error page. A success is **reused for 300 s** (5 minutes; the contract ceiling is
+10 minutes): within that window every request gets the same body, including the
+same `observationTime` and `fetchedTime`; after it, the next request fetches again.
+Only successes are reused. The cache lives in the function's memory (no persistent
+server state). There is no polling and no automatic refresh; with CWA's general
+member quota (20,000 requests / day) the reuse window and the time bound are the
+only throttles, and an exhausted quota shows up as `upstream_error`.
+
+**Key — local run.** The key is read only from the process environment variable
+`CWA_API_KEY`, at request time. Locally its source is the untracked
+`home_work_01/.env` (see [Get a CWA key and create `.env`](#get-a-cwa-key-and-create-env)):
+`python server.py` copies `CWA_API_KEY` from that file into the environment
+before starting (it reads no other file and never prints the value). With
+`flask --app server run`, set `CWA_API_KEY` in the environment yourself. Without a
+key the endpoint answers `key_not_configured` and every forecast endpoint and
+`/api/health` keep working unchanged. On Vercel the same variable name is read from
+the project's environment variables, which only the repository owner fills in (the
+setup steps are part of the deployment section).
+
+**Sample.** [`tests/fixtures/O-A0001-001_sample.json`](tests/fixtures/O-A0001-001_sample.json)
+is one **real** O-A0001-001 response captured **2026-09-26 00:04:56 +08:00**
+(observation time 2026-09-25 23:00), **not reduced** (all 876 station records; only
+re-serialised as compact JSON). It was checked key-free before it was committed
+and is covered by the credential scans. The offline tests derive every
+counter-example from it.
 
 ### Taiwan Map and `Select Date` (dashboard, ENHANCED)
 
@@ -416,10 +499,18 @@ displayed ingestion time). For the Flask dashboard (Issue #20) it covers the
 backend via the Flask test client (`GET /` with the page text, `/api/health` 200
 and 503, and every data endpoint's normal / 404 / 503 responses) and the INV-2
 comparison that the API's series equals the shared module for all six Regions.
-Static checks confirm the Streamlit app and the Flask backend hold no SQL, import
-no HTTP client (dotted forms such as `from urllib import request` included), and
-carry no CWA URL / key, and that the frontend's data requests target only `/api/`;
-`app.py` also carries no map / `Select Date` / folium. (The browser-level check
+Static checks confirm the Streamlit app, the shared module and their unit-local
+import closure import no HTTP client (dotted forms such as
+`from urllib import request` included) and carry no CWA URL / key; that SQL lives
+only in the shared module (the Flask backend and `observation.py` hold none); and
+that every frontend request form targets only same-origin `/api/` or `/static/`;
+`app.py` also carries no map / `Select Date` / folium. For the V2 Latest
+Observation endpoint, `tests/test_observation.py` covers normalisation of the real
+sample, the valid-station rules and eight derived counter-examples, the four
+failure reasons with a sentinel key (asserted absent from responses, logs and
+console output), the reuse window with a controllable clock, the time bound
+against a stalled or slow loopback server, and the forecast endpoints answering
+unchanged with the network blocked and no key. (The browser-level check
 that the dashboard shows a visible message when `/series` fails on first load,
 [`tests/check_series_error_visible.py`](tests/check_series_error_visible.py), needs
 a real Chrome and so runs separately from the offline `pytest` suite.) The test fixture

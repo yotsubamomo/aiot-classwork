@@ -6,13 +6,14 @@ static ``index.html``) and the JSON **API** (everything under the ``/api/``
 prefix), plus the page's own static assets under ``/static/``. It is structured
 to deploy to Vercel as one Python serverless function (brief §5.2): ``api/index.py``
 imports ``app`` from here, ``vercel.json`` routes every request to that function,
-and ``data.db`` is packaged beside the code and opened read-only. No environment
-variable or secret is needed at runtime (R-SEC-3, high-risk H-1).
+and ``data.db`` is packaged beside the code and opened read-only. The forecast
+path needs no environment variable or secret (R-SEC-3 for the forecast path,
+INV-V2-1).
 
-Every piece of data comes through the shared :mod:`weather_query` module — the
-single owner of SQL and forecast business logic (R-DS-5, INV-1). This file
-therefore contains no SQL, imports no HTTP client, and references no CWA URL or
-API key (R-SHR-5, high-risk H-1 static check). The dashboard shows the same MVM
+Every piece of **forecast** data comes through the shared :mod:`weather_query`
+module — the single owner of SQL and forecast business logic (R-DS-5, INV-1).
+This file therefore contains no SQL, imports no HTTP client, and references no
+CWA URL or API key itself. The dashboard shows the same MVM
 behaviour as the Streamlit Grading App (INV-2): the title ``Taiwan Weather
 Forecast``, a ``Select Region`` control over the six Regions in the fixed order,
 and — for the selected Region — a ``MaxT`` / ``MinT`` seven-day line chart and a
@@ -25,6 +26,15 @@ data endpoint returns 503 when the snapshot is unavailable (missing / empty /
 incomplete) and 404 for an unknown Region or date. Error responses are JSON with
 a human-readable ``error`` message so the frontend never shows a blank page
 (R-DS-6).
+
+**V2 Latest Observation** (SPEC-V2 §2.2, §2.4; Issue #35). ``GET
+/api/observations/latest`` is the Now mode's observation path. It is served by
+:mod:`observation`, the backend's only CWA access: it reads the key from the
+``CWA_API_KEY`` process environment variable at request time and returns either
+a normalised success body or a classified non-2xx failure (``reason`` /
+``error``). The forecast endpoints above never touch it, so they stay CWA-free
+and key-free (INV-V2-1). For a local run, ``python server.py`` copies
+``CWA_API_KEY`` from the unit's untracked ``.env`` into the environment first.
 """
 
 from __future__ import annotations
@@ -33,6 +43,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, send_from_directory
 
+import observation
 import weather_query as wq
 
 PAGE_TITLE = "Taiwan Weather Forecast"
@@ -57,13 +68,20 @@ _UNAVAILABLE_REASON = {
 }
 
 
-def create_app(db_path: str | Path | None = None) -> Flask:
+def create_app(
+    db_path: str | Path | None = None,
+    observation_service: observation.LatestObservationService | None = None,
+) -> Flask:
     """Build the dashboard Flask app, reading ``data.db`` through the shared module.
 
     ``db_path`` defaults to the snapshot beside the shared module (the packaged
     ``data.db``) and is overridable so tests can point the app at alternative
     databases for the 503 states (R-SHR-3, AC-10). The path is resolved by
     :mod:`weather_query` relative to source, never the process working directory.
+
+    ``observation_service`` defaults to a :class:`observation.LatestObservationService`
+    reading the process environment; tests inject one with a controllable clock
+    and a simulated upstream.
     """
     app = Flask(
         __name__,
@@ -72,6 +90,12 @@ def create_app(db_path: str | Path | None = None) -> Flask:
     )
     app.config["DB_PATH"] = (
         wq.DEFAULT_DB_PATH if db_path is None else Path(db_path)
+    )
+
+    latest_observation_service = (
+        observation.LatestObservationService()
+        if observation_service is None
+        else observation_service
     )
 
     def _db() -> str | Path:
@@ -167,6 +191,22 @@ def create_app(db_path: str | Path | None = None) -> Flask:
         ]
         return jsonify(date=date, values=values)
 
+    # --- V2 Latest Observation (SPEC-V2 R-V2-OBS-1..13, Issue #35) -------------
+
+    @app.get("/api/observations/latest")
+    def latest_observation():
+        """Return the normalised Latest Observation, or a classified failure.
+
+        Success is 200; the four failure reasons are non-2xx JSON with ``reason``
+        and ``error``. ``Cache-Control: no-store`` keeps any intermediary cache
+        from reusing the body beyond the server's own reuse window (R-V2-OBS-9).
+        """
+        status, body = latest_observation_service.latest()
+        response = jsonify(body)
+        response.status_code = status
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
     return app
 
 
@@ -176,6 +216,9 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    # Local run: ``python server.py`` (or ``flask --app server run``). Vercel does
-    # not execute this block; it imports ``app`` through api/index.py.
+    # Local run: ``python server.py``. Vercel does not execute this block; it
+    # imports ``app`` through api/index.py and gets CWA_API_KEY from the project
+    # environment. Locally the key comes only from the unit's untracked .env
+    # (R-V2-SEC-3(b)); the value is never printed.
+    observation.load_local_env(Path(__file__).resolve().parent / ".env")
     app.run(host="127.0.0.1", port=5000, debug=False)

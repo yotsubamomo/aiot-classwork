@@ -1,5 +1,8 @@
 """AC-07(d): the committed fixture and raw observation JSON contain no CWA key
-and no Authorization value. Runs offline (no key needed) using the pattern scan."""
+and no Authorization value. Runs offline (no key needed) using the pattern scan.
+
+V2 extension (AC-V2-17(a), R-V2-SEC-5): the O-A0001-001 sample and the V2
+backend code are scanned as well."""
 
 from __future__ import annotations
 
@@ -14,6 +17,17 @@ ARTIFACTS = [
     UNIT_DIR / "tests" / "fixtures" / "F-D0047-091_sample.json",
     UNIT_DIR / "data" / "raw" / "F-D0047-091.json",
     UNIT_DIR / "data" / "raw" / "F-D0047-091.meta.json",  # provenance sidecar (DR-17 T-4)
+    # V2 sanitised real O-A0001-001 sample (SPEC-V2 R-V2-SEC-5, R-V2-TC-2; #35)
+    UNIT_DIR / "tests" / "fixtures" / "O-A0001-001_sample.json",
+]
+
+# V2 backend code that may hold server-side CWA access (R-V2-SEC-4(a') moved it
+# out of the static HTTP-client check); it must pass the credential scan instead.
+V2_CODE = [
+    UNIT_DIR / "server.py",
+    UNIT_DIR / "api" / "index.py",
+    UNIT_DIR / "observation.py",
+    UNIT_DIR / "tests" / "test_observation.py",
 ]
 
 
@@ -29,3 +43,15 @@ def test_scanner_flags_a_key_and_auth_value():
     assert scan_text('{"Authorization": "CWA-1234-5678-90ab-cdef"}')
     assert scan_text("token CWA-1234-5678-90ab-cdef here")
     assert scan_text('{"note": "no secrets here"}') == []
+
+
+@pytest.mark.parametrize("path", V2_CODE, ids=lambda p: p.name)
+def test_v2_code_has_no_secret(path):
+    assert path.is_file(), f"expected V2 code file {path}"
+    assert scan_file(path) == []
+
+
+def test_ci_credential_scan_covers_the_v2_sample():
+    from tools.credential_scan import _AUTH_ARTIFACTS
+
+    assert "home_work_01/tests/fixtures/O-A0001-001_sample.json" in _AUTH_ARTIFACTS
