@@ -1,0 +1,57 @@
+# Worklog — 2026-09-25 V2 Delta Spec derivation（Design Authority 派工）
+
+依 Minimal Operational Governance v2.0 §3.7 的八項 properties。Lightweight work item（Bindings §4：文件；acceptor 直接指示為其 Outcome Contract），產出是 V2 Formal 工作的 derived contract。
+
+## Work performed
+
+1. 主 session 核對狀態：`main` 為 `8c4667d4d20fd82718d6acb4a29392cc5679b516`；V2 Outcome Contract 已接受（normative candidate `69c5a049104b2fd96289d10ff938c2c8a6d59bd4`、接受紀錄 `f853bcbc69ed75a27b77aeb609daabe103c96a25`）；Bindings b3 已生效（PR #31，`0b42208`）；b2 `executor` binding dry-run PASS 已記入 `docs/governance/binding-verification.md`（PR #32，`588ef57`）；`doc/spec/SPEC-V2.md` 與 `doc/governance/decisions/derivation-SPEC-V2.md` 尚不存在。
+2. 從 `main` 建立 topic branch `home_work_01-v2-delta-spec`。
+3. 以 Agent tool 派工 `gov-design-authority`（fresh context，非 fork）。Bounded pack 只含：acceptor 的 derivation 指示原文、權威輸入的路徑與識別（治理、Bindings b3、V2 Outcome Contract、V2 Brief、V1 Spec v1.1、V1 derivation record、DR-1～DR-22、phase acceptance、V1 acceptance evidence、`CONTEXT.md`、上位契約、現行實作檔、非規範的 Portable SDD Interaction Guidance）、產出位置與邊界（只寫 `doc/spec/`、`doc/governance/decisions/`；不改任何既有檔、不建 Ticket、不 commit、不讀 `.env`）。未放入本 session 的結論或草案。
+4. Design Authority 自行讀取後寫出 Delta Spec v2.0 與 derivation record（見 Artifacts），並回報無需 STOP 的事項。
+5. 主 session 依 Bindings §3.4 核對 binding（見下）、確認變更路徑只有兩個新檔、掃描金鑰格式字串、抽查文件結構（第 1.2 節 delta 表、第 3 節 AC 表、第 5.3 節驗證儀器、derivation record 的裁決、高風險判定、self-review、未決事項）；寫本 worklog；commit、push、開 PR（SA-1、SA-2）。未 merge（無 RB-1 授權）。
+
+## Contract reference
+
+Acceptor 2026-09-25 於對話中的直接指示：「Proceed with V2 DELTA SPEC DERIVATION only … Do NOT: edit the V1 Spec; rewrite V1 requirements; create Tickets yet; implement; start the Orchestrator … Work on a topic branch. SA-1 / SA-2 remain available for: commit; push; PR. Do NOT merge.」上位的 accepted contract：V2 Outcome Contract（`outcome-contract-v2.md`，ACCEPTED 2026-09-25）。
+
+## Executing role and binding reference
+
+- 派工者：主 session（harness 紀錄 `claude-fable-5-1`／`xhigh`）；只做派工、核對與紀錄，未作任何設計裁決。
+- Design Authority：`agent-a813b9bb4bfbfd4cc`，`agentType = gov-design-authority`，observed `('claude-fable-5-1', 'xhigh')`（Bindings §3.4 指令輸出）。與 Bindings §3.1 的 `design_authority` mapping（`claude-fable-5-1`、`xhigh`）一致。無 replacement。
+
+## Decisions and assumptions
+
+- 全部設計裁決由 Design Authority 作出並自寫紀錄（derivation record §3.1 boundary items、§3.2 DV-1～DV-19、§6 高風險判定）；主 session 未改寫、未篩選。
+- Design Authority 回報：Delta Spec 全部在已接受的 V2 Outcome Contract boundary 內；沒有 contract change；未重開任何 Grill 裁決；未動 V1 normative 文字；不需新增高風險類別；沒有需要 STOP 的事項。
+- 主 session 注意到並如實轉達（不裁決）：Design Authority 在 Spec §5.3 選定了客觀驗收用的驗證儀器（與產品語義分開標示），其中雷達對齊 oracle 使單純的 Web Mercator `imageOverlay` 依設計會不通過（DA 估算約 3.8 km 偏移），重投影／CRS 選擇屬 HOW；既有 `tests/test_static_checks.py` 把 `server.py`／`api/index.py` 納入無 HTTP client 集合，須依 DV-15 re-scope。
+
+## Artifacts
+
+| 動作 | 路徑 | 作者 |
+| --- | --- | --- |
+| 新增 | `home_work_01/doc/spec/SPEC-V2.md`（**v2.0**，DERIVED；自 2026-09-25 起為 V2 Outcome Contract 的有效 derived contract，以參照繼承 V1 Spec v1.1） | Design Authority |
+| 新增 | `home_work_01/doc/governance/decisions/derivation-SPEC-V2.md` | Design Authority |
+| 新增 | 本檔 | 主 session |
+
+未修改 V1 Spec、V1／V2 Outcome Contract、Brief、`CONTEXT.md`、上位契約、任何實作、測試、資料或 root 檔案。未建 Ticket。
+
+## Verification
+
+- Binding：Bindings §3.4 指令輸出 `agent-a813b9bb4bfbfd4cc gov-design-authority [('claude-fable-5-1', 'xhigh')]`。
+- 變更範圍：派工後 `git status --short` 只列 `home_work_01/doc/spec/SPEC-V2.md` 與 `home_work_01/doc/governance/decisions/derivation-SPEC-V2.md`（另有本 session 前既存、未追蹤的 `grep.exe.stackdump`，不屬本工作）。
+- 機密：兩個新檔以 CWA 金鑰格式 regex 掃描命中 0；Design Authority 回報未讀取 `.env`、未使用任何金鑰、未呼叫 CWA。
+- 用語：兩檔只在「本專案不使用『V2 MVM』」的說明句出現該詞；Spec 檔頭明示以參照繼承 v1.1，第 1.1 節規定 V2 只在第 1.2 節明列範圍內優先於 V1。
+- 未執行任何程式碼測試（無實作）。
+
+## Audit status
+
+Not required：Spec derivation 是 Design Authority 的設計行為；其正式審查是 Formal run 中每張 Ticket 的 audit 與 Delta Spec 的 Spec Integration Audit（治理 §4.7），於實作後執行。如實標示「完成且依 policy 未要求 independent audit」。
+
+## Remaining work
+
+| 事項 | 阻擋原因 | 負責 |
+| --- | --- | --- |
+| Ticket derivation（Design Authority；derivation record §13 為非約束的分解草案） | 等 acceptor 指示 | acceptor → DA |
+| Orchestrator 主 session（`claude-opus-4-8`／`high`）啟動 | Ticket derivation 之後；acceptor 開 session | acceptor |
+| Vercel 專案環境變數填入 CWA 金鑰（preview 與 production） | 部署階段；RB-3；AC-V2 的部署驗證項在此之前為 BLOCKED，不是 FAIL | acceptor |
+| 本 PR 合併 | RB-1，本輪無授權 | acceptor |
