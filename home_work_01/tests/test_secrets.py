@@ -36,6 +36,9 @@ V2_CODE = [
     UNIT_DIR / "tests" / "check_modes_browser.py",
     UNIT_DIR / "static" / "app.js",
     UNIT_DIR / "static" / "index.html",
+    # Issue #37: Refresh / Stale / Unavailable guards and browser check.
+    UNIT_DIR / "tests" / "test_refresh_frontend.py",
+    UNIT_DIR / "tests" / "check_refresh_browser.py",
 ]
 
 

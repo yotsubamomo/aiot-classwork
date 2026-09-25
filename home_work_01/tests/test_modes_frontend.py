@@ -139,7 +139,10 @@ def test_observation_load_is_not_gated_on_health() -> None:
     assert re.search(r"\n    bootstrap\(\);\n", handler)
     for fn in ("bootstrap", "loadRegions", "showDashboard"):
         assert "loadObservation" not in _body(fn), f"{fn} gates the Now mode on the forecast"
-    assert '"/api/observations/latest"' in _body("loadObservation")
+    # #37 moved the request into requestObservation() (bounded in time), which
+    # loadObservation() calls; the endpoint literal is pinned there.
+    assert "requestObservation()" in _body("loadObservation")
+    assert 'fetch("/api/observations/latest"' in _body("requestObservation")
 
 
 def test_v1_page_states_are_scoped_to_the_forecast_section() -> None:

@@ -577,7 +577,9 @@ def scenario_forecast_ok(chrome: str, out: Path, checks: Checks, network: dict) 
                    and body2["observationTime"] == NEXT_HOUR
                    and after["time"] == fmt_time(body2["observationTime"], False)
                    and after["fetched"] == fmt_time(body2["fetchedTime"], True)
-                   and after["temp"] == fmt_temp(26.4) + " °C" and after["status"] == "",
+                   and after["temp"] == fmt_temp(26.4) + " °C"
+                   # #37: a newer result is announced next to Refresh
+                   and after["status"] == "Updated to a newer Latest Observation.",
                    {"after": after, "requests": requests_after - requests_before})
         b.screenshot(out / "desktop-now-after-refresh.png")
         view_before = b.js("__chk.markerPositions('.station-icon')")

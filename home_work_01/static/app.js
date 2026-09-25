@@ -16,7 +16,16 @@
  *     presented as a county value (R-V2-DD-2, INV-V2-5, H-3). The Now panel shows
  *     the verbatim labels "Observation Time" and "Fetched Time", the valid-station
  *     count and a "Refresh" control with a visible in-progress indicator
- *     (R-V2-OBS-4(c), R-V2-OBS-7(a)(c), R-V2-DD-10).
+ *     (R-V2-OBS-4(c), R-V2-OBS-7(a)(c), R-V2-DD-10). Every Refresh (the first
+ *     load included) ends, within a client-side time bound, in exactly one of
+ *     three results — newer (applied), not-newer (kept, "already the latest") or
+ *     failure — and the Now mode is then in one of the states success, Stale
+ *     (a failure while data is shown: the last successful data and both times
+ *     stay, labelled Stale with the failure's category) or Unavailable (a failure
+ *     with nothing to show). Stale is set only by a failure, never by the data's
+ *     age; the dataset Observation Time shown never decreases (R-V2-OBS-7, 8, 10,
+ *     12, 13; INV-V2-6; Issue #37). An observation failure touches only this
+ *     observation layer (R-V2-DEG-2, INV-V2-7).
  *   - Forecast mode: the V1 six-region seven-day map unchanged — Select Date,
  *     six Region pills coloured by the endpoint's band, the DERIVED panel and the
  *     four-band legend (R-V2-MODE-3, R-EN-3..R-EN-7, DR-20/DR-21).
@@ -149,7 +158,41 @@
   var stationMarkers = {};     // stationId -> L.marker (representative stations)
   var selectedStationId = null; // Now-mode selection, kept across mode switches
   var obsInFlight = false;     // a Refresh (or the first load) is in progress
+  var obsSeq = 0;              // tags each Refresh; only the current one may apply
+  // The Now mode's observation state (R-V2-OBS-10): "loading" until the first
+  // result, then "success", "stale" (a failure while data is shown) or
+  // "unavailable" (a failure with no data to show). Only a failure sets stale or
+  // unavailable, and only a success clears them — there is no timer and no age
+  // test anywhere (R-V2-OBS-10(d), INV-V2-6).
+  var obsState = "loading";
+  var obsFailure = null;       // the classified failure behind stale / unavailable
   var MISSING = "—";           // shown for any missing / sentinel value (R-V2-OBS-6)
+
+  // Client-side bound on one Refresh (R-V2-OBS-13, DV-7): if no usable answer has
+  // arrived after this long the request is aborted and counted as a failure, so
+  // the Refresh never stays in progress. It is above the server's own upstream
+  // bound (8 s, observation.py) so a classified server answer normally arrives
+  // first, and below the 30 s verification instrument (SPEC-V2 §5.3).
+  var OBS_TIMEOUT_MS = 20000;
+
+  // User-visible failure categories (R-V2-OBS-12): the four server reasons of
+  // /api/observations/latest (R-V2-OBS-11, DV-6), each with its own fixed text,
+  // plus two client-side categories for a request that never got a classified
+  // answer (no answer in time / network failure, and a platform-level or other
+  // non-classified response such as an HTML 502 page). The text is fixed here:
+  // nothing from a response body is ever shown, so no key, upstream URL or
+  // upstream body can reach the page (H-1).
+  var OBS_FAILURE_TEXT = {
+    key_not_configured: "the server has no CWA API key configured",
+    upstream_unreachable: "the CWA service could not be reached in time",
+    upstream_error: "the CWA service answered with an error status",
+    invalid_response: "the CWA response was not usable",
+    no_response: "this site's server did not answer in time or could not be reached",
+    unexpected_response: "this site's server gave an unexpected answer",
+  };
+  var OBS_SERVER_REASONS = [
+    "key_not_configured", "upstream_unreachable", "upstream_error", "invalid_response",
+  ];
 
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
@@ -196,6 +239,13 @@
     els.obsCount = document.getElementById("obs-count");
     els.refreshButton = document.getElementById("refresh-button");
     els.obsStatus = document.getElementById("obs-status");
+    // Stale / Unavailable presentation (#37).
+    els.obsStateChip = document.getElementById("obs-state-chip");
+    els.obsState = document.getElementById("obs-state");
+    els.obsStateTitle = document.getElementById("obs-state-title");
+    els.obsStateBody = document.getElementById("obs-state-body");
+    els.obsStateReason = document.getElementById("obs-state-reason");
+    els.obsMapState = document.getElementById("obs-map-state");
     els.obsSelected = document.getElementById("obs-selected");
     els.obsSelName = document.getElementById("obs-sel-name");
     els.obsSelPlace = document.getElementById("obs-sel-place");
@@ -514,26 +564,40 @@
 
   // --- Latest Observation (Now mode) -------------------------------------------
   // GET /api/observations/latest answers a normalised success body or a
-  // classified non-2xx failure {reason, error} (Issue #35). This ticket (#36)
-  // renders the success path and the in-progress indicator; the three Refresh
-  // results and the Stale / Unavailable states are completed by #37. Until then a
-  // failure keeps any displayed data and shows the server's non-secret message.
+  // classified non-2xx failure {reason, error} (Issue #35). #36 renders the
+  // success path and the in-progress indicator; #37 completes the Refresh
+  // semantics:
+  //   - one Refresh at a time: a trigger while one is in progress is ignored, and
+  //     only the current request may apply its result (R-V2-OBS-7(e));
+  //   - bounded time: requestObservation() always settles within OBS_TIMEOUT_MS,
+  //     whatever the network or the platform does (R-V2-OBS-13);
+  //   - three results (R-V2-OBS-7(d), R-V2-OBS-8, DV-4): newer (the response's
+  //     dataset Observation Time is >= the one shown and it is not the same body
+  //     again -> applied: data, Observation Time and Fetched Time together);
+  //     not-newer (its Observation Time is older, or its Fetched Time equals the
+  //     one shown, i.e. the server's reuse window -> nothing changes, the user is
+  //     told it is already the latest; this is NOT Stale); failure;
+  //   - failure -> Stale when data is shown (kept with both times), Unavailable
+  //     otherwise; any later success clears them (R-V2-OBS-10).
 
   function loadObservation() {
     // A second trigger while one is in progress is ignored (R-V2-OBS-7(e)).
     if (obsInFlight) return;
     obsInFlight = true;
+    var seq = ++obsSeq;
     setObsBusy(true);
-    fetchJson("/api/observations/latest")
-      .then(function (res) {
-        if (failed(res)) {
-          applyObservationFailure(res.body);
-          return;
+    requestObservation()
+      .then(function (result) {
+        if (seq !== obsSeq) return; // not the current Refresh: never applied
+        if (result.ok) {
+          applyObservation(result.body);
+        } else {
+          applyObservationFailure(result);
         }
-        applyObservation(res.body);
       })
-      .catch(function () {
-        applyObservationFailure(null);
+      .then(null, function () {
+        // A rendering error must still end the Refresh in a terminal state.
+        applyObservationFailure({ ok: false, category: "unexpected_response" });
       })
       .then(function () {
         obsInFlight = false;
@@ -541,34 +605,183 @@
       });
   }
 
-  function applyObservation(body) {
-    if (!body || !Array.isArray(body.stations) || !body.observationTime) {
-      applyObservationFailure(null);
-      return;
-    }
-    // A response whose dataset Observation Time is OLDER than the one displayed
-    // never replaces it (R-V2-OBS-8(b), INV-V2-6); the not-newer notice is #37.
-    if (obs && instant(body.observationTime) < instant(obs.observationTime)) {
-      setObsStatus("", "idle");
-      return;
-    }
-    obs = body;
-    obsById = {};
-    body.stations.forEach(function (s) { obsById[s.stationId] = s; });
-    var reps = representativeIds();
-    if (selectedStationId && reps.indexOf(selectedStationId) < 0) {
-      selectedStationId = null; // the selected station is no longer a marker
-    }
-    renderObservationPanel();
-    setObsStatus("", "idle");
-    bringUpMap();
+  // One GET of the Latest Observation, settled exactly once and within
+  // OBS_TIMEOUT_MS: {ok: true, body} for a usable success body, otherwise
+  // {ok: false, category[, upstreamStatus][, httpStatus]}. When the bound
+  // passes, the request is aborted and a late answer is ignored (settle()).
+  function requestObservation() {
+    return new Promise(function (resolve) {
+      var settled = false;
+      var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      var timer = setTimeout(function () {
+        if (controller) controller.abort();
+        settle({ ok: false, category: "no_response" });
+      }, OBS_TIMEOUT_MS);
+      function settle(result) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(result);
+      }
+      fetch("/api/observations/latest", {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+        signal: controller ? controller.signal : undefined,
+      })
+        .then(function (response) {
+          return response.text().then(function (text) {
+            settle(classifyObservationResponse(response, text));
+          });
+        })
+        .then(null, function () {
+          settle({ ok: false, category: "no_response" }); // network failure / aborted
+        });
+    });
   }
 
-  function applyObservationFailure(body) {
-    var reason = body && body.error
-      ? body.error
-      : "Latest Observation is unavailable: the server could not be reached.";
-    setObsStatus(obs ? "Refresh failed. " + reason : reason, "error");
+  // Classify one HTTP answer. A 2xx is a success only when its body is a usable
+  // Latest Observation; a non-2xx is one of the four server reasons only when it
+  // is JSON naming one of them — anything else (an HTML 502 page from the
+  // platform, an empty or unparseable body, an unknown reason) is the
+  // "unexpected_response" failure, never a stuck Refresh (R-V2-OBS-13).
+  function classifyObservationResponse(response, text) {
+    var body = null;
+    try {
+      body = text ? JSON.parse(text) : null;
+    } catch (e) {
+      body = null;
+    }
+    if (response.ok) {
+      return usableObservation(body)
+        ? { ok: true, body: body }
+        : { ok: false, category: "unexpected_response", httpStatus: response.status };
+    }
+    var reason = body && typeof body.reason === "string" &&
+      OBS_SERVER_REASONS.indexOf(body.reason) >= 0 ? body.reason : null;
+    if (!reason) {
+      return { ok: false, category: "unexpected_response", httpStatus: response.status };
+    }
+    var failure = { ok: false, category: reason };
+    if (reason === "upstream_error" && isHttpStatus(body.upstreamStatus)) {
+      failure.upstreamStatus = body.upstreamStatus; // a number only (DV-6, non-secret)
+    }
+    return failure;
+  }
+
+  // A success body the page can show and compare: stations, and an Observation
+  // Time and a Fetched Time that parse to instants (so the replacement rule can
+  // never compare against NaN and let an older body through).
+  function usableObservation(body) {
+    return !!body && Array.isArray(body.stations) &&
+      typeof body.observationTime === "string" && isFinite(instant(body.observationTime)) &&
+      typeof body.fetchedTime === "string" && isFinite(instant(body.fetchedTime));
+  }
+
+  function isHttpStatus(v) {
+    return typeof v === "number" && Math.floor(v) === v && v >= 100 && v <= 599;
+  }
+
+  // A successful answer: apply it (newer) or keep what is shown (not-newer).
+  // Either way the result is a success, so any Stale / Unavailable is cleared
+  // (R-V2-OBS-10(c)).
+  function applyObservation(body) {
+    var previousState = obsState;
+    var message;
+    if (obs && body.fetchedTime === obs.fetchedTime) {
+      // The very body already shown (the server's reuse window): not-newer.
+      message = "Already the latest: no newer Latest Observation than the one shown.";
+      setRefreshResult("not-newer");
+    } else if (obs && instant(body.observationTime) < instant(obs.observationTime)) {
+      // An OLDER dataset Observation Time never replaces the one displayed; data
+      // and both times stay unchanged (R-V2-OBS-8(b), INV-V2-6).
+      message = "Already the latest: no newer Latest Observation than the one shown.";
+      setRefreshResult("not-newer");
+    } else {
+      // Newer, or the same Observation Time fetched again (>= applies, DV-4):
+      // data, Observation Time and Fetched Time are replaced together.
+      var sameHour = !!obs && instant(body.observationTime) === instant(obs.observationTime);
+      obs = body;
+      obsById = {};
+      body.stations.forEach(function (s) { obsById[s.stationId] = s; });
+      var reps = representativeIds();
+      if (selectedStationId && reps.indexOf(selectedStationId) < 0) {
+        selectedStationId = null; // the selected station is no longer a marker
+      }
+      if (previousState === "loading") {
+        message = ""; // the page's first load: the data itself is the result
+      } else if (previousState === "unavailable") {
+        message = "Loaded the Latest Observation.";
+      } else if (sameHour) {
+        message = "Updated: fetched again; the Observation Time is unchanged.";
+      } else {
+        message = "Updated to a newer Latest Observation.";
+      }
+      setRefreshResult("newer");
+      bringUpMap();
+    }
+    obsFailure = null;
+    obsState = "success";
+    renderObservationPanel();
+    renderObsState();
+    setObsStatus(message, message ? "done" : "idle");
+  }
+
+  // A failed Refresh (R-V2-OBS-10(a)(b)): with data shown -> Stale, keeping the
+  // last successful data and its Observation Time / Fetched Time; with nothing
+  // shown -> Unavailable. The mode never changes and Refresh stays usable.
+  function applyObservationFailure(failure) {
+    obsFailure = failure;
+    obsState = obs ? "stale" : "unavailable";
+    setRefreshResult("failure");
+    renderObservationPanel();
+    renderObsState();
+    setObsStatus(obs ? "Refresh failed: data is Stale." : "Latest Observation unavailable.", "error");
+  }
+
+  // The last Refresh result, exposed as a data attribute for verification.
+  function setRefreshResult(result) {
+    els.nowPanel.setAttribute("data-refresh-result", result);
+  }
+
+  // The failure's user-visible category: fixed text, the reason code for the
+  // four server reasons, and a numeric HTTP status where known (R-V2-OBS-12).
+  function failureText(failure) {
+    if (!failure) return "";
+    var category = OBS_FAILURE_TEXT.hasOwnProperty(failure.category)
+      ? failure.category : "unexpected_response";
+    var text = OBS_FAILURE_TEXT[category];
+    if (failure.upstreamStatus) text += " (HTTP " + failure.upstreamStatus + ")";
+    else if (failure.httpStatus) text += " (HTTP " + failure.httpStatus + ")";
+    if (OBS_SERVER_REASONS.indexOf(category) >= 0) text += " — " + category;
+    return text + ".";
+  }
+
+  // Show the Now mode's state (R-V2-OBS-10(e)): success shows no state label;
+  // Stale and Unavailable each have their own chip, explanation, category reason,
+  // on-map notice and look, so they are distinct from success and from each
+  // other in text and visually.
+  function renderObsState() {
+    var stale = obsState === "stale";
+    var unavailable = obsState === "unavailable";
+    var shown = stale || unavailable;
+    els.nowPanel.setAttribute("data-obs-state", obsState);
+    els.obsStateChip.hidden = !shown;
+    els.obsStateChip.textContent = stale ? "STALE" : "UNAVAILABLE";
+    els.obsStateChip.className = "chip chip--" + (stale ? "stale" : "unavailable");
+    els.obsState.hidden = !shown;
+    els.obsState.className = "obs-state obs-state--" + (stale ? "stale" : "unavailable");
+    els.obsStateTitle.textContent = stale ? "Stale" : "Latest Observation unavailable";
+    els.obsStateBody.textContent = stale
+      ? "The last Refresh failed. Shown: the last successful Latest Observation " +
+        "and its own times."
+      : "No Latest Observation to show. Use Refresh to try again.";
+    els.obsStateReason.textContent = shown ? "Reason: " + failureText(obsFailure) : "";
+    els.obsMapState.hidden = !shown;
+    els.obsMapState.className = "obs-map-state obs-map-state--" + (stale ? "stale" : "unavailable");
+    els.obsMapState.textContent = stale
+      ? "Stale · last successful Latest Observation"
+      : "Latest Observation unavailable";
+    if (els.mapEl) els.mapEl.classList.toggle("map--obs-stale", stale);
   }
 
   function representativeIds() {

@@ -65,13 +65,24 @@
              THIS server fetched the observations and is labelled and placed apart
              from the forecast snapshot's acquisition time in the dashboard below
              (R-V2-MODE-6(d), DR-17 unchanged). -->
-        <div id="now-panel" class="map-panel map-panel--info map-panel--now" data-mode="now">
+        <div id="now-panel" class="map-panel map-panel--info map-panel--now" data-mode="now" data-obs-state="loading">
           <h3 class="map-panel__title">
             Latest Observation <span class="chip chip--obs">OBSERVED</span>
+            <span id="obs-state-chip" class="chip chip--stale" hidden>STALE</span>
           </h3>
           <p class="map-meta map-meta--source">
             CWA station observations (O-A0001-001, hourly), shown as published.
           </p>
+          <!-- Stale / Unavailable (R-V2-OBS-10, R-V2-OBS-12; Issue #37). Shown only
+               after a failed Refresh: Stale while the last successful data is still
+               shown, Unavailable when there is none. It carries the failure's
+               category (fixed text, never a server or upstream message). Only a
+               failure shows it and only a success hides it — never the data's age. -->
+          <div id="obs-state" class="obs-state" hidden>
+            <p id="obs-state-title" class="obs-state__title"></p>
+            <p id="obs-state-body" class="obs-state__body"></p>
+            <p id="obs-state-reason" class="obs-state__reason"></p>
+          </div>
           <dl class="obs-times">
             <div class="obs-times__row">
               <dt>Observation Time</dt>
@@ -156,6 +167,11 @@
           <div id="map" class="map" role="region"
                aria-label="Map of Taiwan with one representative weather station per county and its latest observed air temperature"></div>
           <div id="map-status" class="map-status" role="status" hidden></div>
+          <!-- Now mode on-map notice for Stale / Unavailable (#37). It never
+               covers the map or takes the pointer; the wrapper carries the mode. -->
+          <div class="obs-map-state-wrap" data-mode="now">
+            <p id="obs-map-state" class="obs-map-state" hidden></p>
+          </div>
         </div>
 
         <!-- Forecast-mode legend (bottom-right; a row below the map on phones).

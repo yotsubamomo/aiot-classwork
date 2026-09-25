@@ -346,7 +346,9 @@ after a failure: a response is either a success or a classified failure.
 and a 5 s read timeout, and the whole upstream exchange is capped at **8 s**, after
 which the answer is `upstream_unreachable` — below Vercel's smallest default
 function duration (10 s), so a stalled CWA yields this JSON rather than a platform
-error page. A success is **reused for 300 s** (5 minutes; the contract ceiling is
+error page. The page itself waits at most 20 s for this endpoint and treats no
+answer, or a non-JSON / unclassified answer, as a failure (see the Now mode's
+**Time bound**). A success is **reused for 300 s** (5 minutes; the contract ceiling is
 10 minutes): within that window every request gets the same body, including the
 same `observationTime` and `fetchedTime`; after it, the next request fetches again.
 Only successes are reused. The cache lives in the function's memory (no persistent
@@ -426,10 +428,47 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   button.
 - **`Refresh`.** Only a manual Refresh loads newer data; the page never updates by
   itself. While a Refresh runs, a spinner and "Refreshing the Latest Observation…"
-  are shown and further presses are ignored. A successful Refresh with newer data
-  updates the markers and both times; data with an older Observation Time never
-  replaces newer data already shown. If a Refresh fails, the data shown stays and the
-  server's reason is shown next to the button.
+  are shown and further presses are ignored (only one request is ever in flight, and
+  only its answer is applied). Every Refresh — and the page's first load — ends in
+  exactly one of three results, shown next to the button:
+  - **newer** — the answer's Observation Time is the same as or later than the one
+    shown and it is a new fetch: the markers, `Observation Time` and `Fetched Time`
+    all update together ("Updated to a newer Latest Observation", or "Updated:
+    fetched again; the Observation Time is unchanged");
+  - **not-newer** — the answer's Observation Time is older than the one shown, or it
+    is the very answer already shown (same `Fetched Time`, the server's reuse window):
+    nothing changes and the page says "Already the latest". This is not Stale —
+    nothing failed. An older Observation Time never replaces a newer one, so the
+    Observation Time shown never goes back while the page is open;
+  - **failure** — see Stale and Unavailable below.
+- **Time bound.** The page waits at most **20 s** for an answer. The server itself
+  answers within about 8 s even when CWA stalls (`upstream_unreachable`, see the
+  endpoint section), so the page normally gets a classified answer first. If no
+  answer arrives in 20 s (the network is down, or the platform holds the request),
+  the request is abandoned and the Refresh counts as a failure; an answer that is not
+  a usable JSON answer — such as the hosting platform's own HTML error page — counts
+  as a failure as soon as it arrives. A Refresh never stays in progress.
+- **Stale and Unavailable.** A failed Refresh while data is shown makes the Now mode
+  **Stale**: the last successful data stays on the map with its own `Observation Time`
+  and `Fetched Time`, a `STALE` label and a "Stale" note with the reason appear in the
+  panel and on the map, and the markers are drawn with a dashed border. A failure with
+  no data to show (for example on first load) makes it **Unavailable**: the map and the
+  county boundaries stay visible, both times show "—", no station value is shown, and
+  an `UNAVAILABLE` label and a "Latest Observation unavailable" note give the reason.
+  In both, `Refresh` stays usable, the page stays in Now mode (it never switches to
+  Forecast mode by itself), and the mode switch, Forecast mode and the forecast
+  dashboard below keep working — an observation failure affects only the Now mode's
+  observation layer. The next successful Refresh (newer or not-newer) clears Stale or
+  Unavailable. Stale is decided **only by a failure, never by the data's age**: data
+  that is hours old but was fetched successfully is not Stale.
+- **Failure reasons.** The reason is a fixed category text, never a server or CWA
+  message: "the server has no CWA API key configured" (`key_not_configured`), "the
+  CWA service could not be reached in time" (`upstream_unreachable`), "the CWA
+  service answered with an error status" with its HTTP status (`upstream_error`),
+  "the CWA response was not usable" (`invalid_response`), and two for answers that
+  never got a classified reason: "this site's server did not answer in time or
+  could not be reached" and "this site's server gave an unexpected answer" (with the
+  HTTP status, e.g. a platform `502` page).
 - **Markers.** Each marker shows one representative station's air temperature in °C
   (the published value, shown with at least one decimal). Its station name is shown
   under it when zoomed in; hovering or focusing it shows the station name, county and
@@ -647,15 +686,25 @@ and derived samples, and `tests/test_modes_frontend.py` holds static guards on t
 frontend source (the page opens in Now mode; the labelled mode buttons; the Now
 mode loads without waiting for `/api/health`; each mode's controls and legend; the
 verbatim labels; no colour shared between observation markers and derived bands; the
-map size guard on the mode-switch path). (Two browser-level checks need a real
-Chrome and so run separately from the offline `pytest` suite: the check that the
-dashboard shows a visible message when `/series` fails on first load,
-[`tests/check_series_error_visible.py`](tests/check_series_error_visible.py), and the
+map size guard on the mode-switch path), and `tests/test_refresh_frontend.py` holds
+static guards on the Refresh semantics (the page's time bound between the server's
+bound and 30 s; no polling; one Refresh at a time; the not-newer rules; Stale and
+Unavailable set only by a failure, with no clock or age test; fixed, distinct texts
+for the failure reasons and no response text ever displayed). (Three browser-level
+checks need a real Chrome and so run separately from the offline `pytest` suite: the
+check that the dashboard shows a visible message when `/series` fails on first load,
+[`tests/check_series_error_visible.py`](tests/check_series_error_visible.py); the
 Now mode / Forecast mode check
 [`tests/check_modes_browser.py`](tests/check_modes_browser.py), which runs the app
 on loopback with the sample-fed observation path and the forecast OK or unavailable,
-drives both modes at 1280 px and 375 px, and records every browser request —
-`python tests/check_modes_browser.py`; it also needs the `websocket-client` package.)
+drives both modes at 1280 px and 375 px, and records every browser request; and the
+Refresh check [`tests/check_refresh_browser.py`](tests/check_refresh_browser.py),
+which drives the three Refresh results, Stale and Unavailable for each failure
+reason, a stalled upstream, a platform `502` page and a held request, a page clock
+moved two hours ahead, and the rest of the page while the observation fails, with a
+sentinel key that must not appear in the page, the console or the server log —
+`python tests/check_modes_browser.py`, `python tests/check_refresh_browser.py`; they
+also need the `websocket-client` package.)
 The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two
