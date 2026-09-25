@@ -94,10 +94,9 @@ not create duplicate logical records; missing County data is an error, never a s
 mean's denominator.
 _Avoid_: Sync, ETL job, crawler
 
-**Refresh**:
-Running Ingestion again so the persisted Forecast Snapshot becomes a newer one. Optional; the
-minimum product ships a prepared snapshot.
-_Avoid_: Live data, real-time update
+**Re-ingestion**:
+（原「Refresh」詞條改名）重跑 Ingestion 使持久化的 Forecast Snapshot 更新；OPTIONAL。
+_Avoid_: refresh（V2 起）
 
 ## Application
 
@@ -121,10 +120,16 @@ plus the enhanced ones — improved UI/UX, responsive layout, Select Date and th
 _Avoid_: Web App (when only this layer is meant), homepage, frontend
 
 **Taiwan Map**:
-The enhanced view, in the Dashboard only, that places the six Regions on a map of Taiwan, colours
-each by its Derived Map Temperature for a selected Forecast Day, and shows that Region's MinT/MaxT
-on request.
-_Avoid_: Heatmap, station map, weather map
+Dashboard 的地圖（沿用），現有兩個模式：Now mode、Forecast mode。
+_Avoid_: weather map（泛稱）、station map
+
+**Now mode**:
+Taiwan Map 的預設模式：顯示 Latest Observation、縣／測站下鑽、Refresh、Radar。
+_Avoid_: live mode、realtime
+
+**Forecast mode**:
+Taiwan Map 的 V1 六區七日預報模式：語義、Select Date、導出色帶不變。
+_Avoid_: old map
 
 **Derived Map Temperature**:
 `(MinT + MaxT) / 2` for one Region on one Forecast Day, shown to one decimal place. It is derived
@@ -137,6 +142,32 @@ _Avoid_: Daily mean, observed average, mean temperature
 The two user controls named by the teacher: choosing the Region for the chart and table, and
 choosing the Forecast Day for the Taiwan Map.
 _Avoid_: Filter, dropdown (as a concept name)
+
+## Latest Observation (V2)
+
+**Latest Observation**:
+伺服器最近一次成功自 CWA O-A0001-001 取得的測站觀測集合（CWA 發布值，非專案推導）。
+_Avoid_: realtime data、live data、current forecast
+
+**Observation Time**:
+所顯示觀測資料的 CWA 觀測時刻（ObsTime）。
+_Avoid_: updated at、data time
+
+**Fetched Time**:
+伺服器取得該資料的時刻。
+_Avoid_: last updated（單獨使用）
+
+**Refresh**:
+Now mode 的使用者動作：要求顯示最新的 Latest Observation（bounded staleness）。
+_Avoid_: reload、sync
+
+**Stale**:
+最近一次 Refresh／上游取得失敗，介面仍顯示上一次成功的觀測資料；純失敗基準。
+_Avoid_: outdated（年齡意義）
+
+**Unavailable**:
+沒有可顯示的有效 Latest Observation。
+_Avoid_: error（泛稱）
 
 ## Scope
 

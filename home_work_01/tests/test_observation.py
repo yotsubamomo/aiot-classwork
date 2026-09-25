@@ -235,8 +235,11 @@ def test_every_station_has_the_contract_fields(sample) -> None:
 def test_response_carries_no_upstream_structure(sample) -> None:
     _, body = latest(sample)
     assert_no_upstream_structure(body)
+    # Issue #36 adds exactly one derived top-level field, the representative
+    # station ids (R-V2-DD-3); the key set stays exact.
     assert set(body) == {"dataset", "observationTime", "fetchedTime",
-                         "validStationCount", "receivedStationCount", "stations"}
+                         "validStationCount", "receivedStationCount", "stations",
+                         "representativeStationIds"}
 
 
 def test_values_are_as_published_not_rounded(sample) -> None:

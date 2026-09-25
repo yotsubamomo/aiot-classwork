@@ -28,6 +28,14 @@ V2_CODE = [
     UNIT_DIR / "api" / "index.py",
     UNIT_DIR / "observation.py",
     UNIT_DIR / "tests" / "test_observation.py",
+    # Issue #36: representative-station rule and its tests, the Now/Forecast
+    # mode frontend guards and the reproducible browser check.
+    UNIT_DIR / "representative.py",
+    UNIT_DIR / "tests" / "test_representative.py",
+    UNIT_DIR / "tests" / "test_modes_frontend.py",
+    UNIT_DIR / "tests" / "check_modes_browser.py",
+    UNIT_DIR / "static" / "app.js",
+    UNIT_DIR / "static" / "index.html",
 ]
 
 

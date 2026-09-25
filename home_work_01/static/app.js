@@ -1,41 +1,70 @@
 /* Taiwan Weather Forecast — dashboard frontend (Issues #23 UI/UX + #24 map,
- * reworked in #28).
+ * reworked in #28; V2 Now mode / Forecast mode in #36).
  *
  * All data comes from THIS application's own JSON API under the "/api/" prefix
- * (R-DS-5, R-SHR-5, AC-04(b)); the browser never calls CWA and holds no key.
- * The page bootstraps from /api/health, populates "Select Region" from
- * /api/regions, and for the selected Region draws a MaxT / MinT seven-day line
- * chart (hand-drawn inline SVG, no chart library) with a legend, axis labels and
- * an interactive hover tooltip, a Date / MinT / MaxT table whose seven rows equal
- * data.db, and a weekly summary (lowest MinT / highest MaxT) derived in the
- * browser from the same /api/ series — no new business logic (INV-2, AC-04(b)).
+ * (R-DS-5, R-SHR-5, AC-04(b), R-V2-SEC-1); the browser never calls CWA and holds
+ * no key.
  *
- * "Select Date" (the seven Forecast Days from /api/days, default first) lives in
- * the Taiwan Map's floating info panel (#28). The Taiwan Map is drawn with
- * vendored Leaflet on a vendored VECTOR basemap (window.TAIWAN_BASEMAP, a
- * same-origin <script>, no fetch, no tiles), so it makes no external request and
- * needs no key (R-EN-6). Its six Region markers are temperature "pills" whose
- * TEXT (the day's derivedMapTemperature to one decimal) and COLOUR (the day's
- * colourBand) come straight from /api/days/<date>; the frontend re-derives
- * nothing and re-bands nothing (H-3 single-sourced, R-SHR-4). oneDp/toFixed(1) is
- * display formatting only.
+ * TAIWAN MAP — two modes on one Leaflet map (SPEC-V2 §2.1, Issue #36):
+ *   - Now mode (the default: the page opens in it with no user action and
+ *     whatever the forecast snapshot does, R-V2-MODE-1). It loads the Latest
+ *     Observation from /api/observations/latest on its own — NOT gated on
+ *     /api/health (R-V2-DEG-1, INV-V2-7) — and shows at most one marker per
+ *     county: the air temperature of the county's representative station, chosen
+ *     server-side by the documented rule (representative.py, R-V2-DD-3). A marker
+ *     is a station value and is labelled with the station's name; it is never
+ *     presented as a county value (R-V2-DD-2, INV-V2-5, H-3). The Now panel shows
+ *     the verbatim labels "Observation Time" and "Fetched Time", the valid-station
+ *     count and a "Refresh" control with a visible in-progress indicator
+ *     (R-V2-OBS-4(c), R-V2-OBS-7(a)(c), R-V2-DD-10).
+ *   - Forecast mode: the V1 six-region seven-day map unchanged — Select Date,
+ *     six Region pills coloured by the endpoint's band, the DERIVED panel and the
+ *     four-band legend (R-V2-MODE-3, R-EN-3..R-EN-7, DR-20/DR-21).
+ * Mode-owned elements carry data-mode="now" / "forecast" and are shown only in
+ * their mode, so the observation and the derived semantics never share a panel,
+ * legend or colour scale (R-V2-MODE-4, R-V2-MODE-6). Switching modes keeps the
+ * geographic context (R-V2-MODE-5, DV-8): the Now view and selection are saved on
+ * leaving Now mode and restored on return; on entering Forecast mode the view is
+ * kept when all six Region markers are already in the clear map area, otherwise
+ * it is widened just enough to include them.
  *
- * State mapping is DR-19 (decision-20260924-dashboard-state-mapping):
- *   - loading : a request is in flight (page-level for /api/health -> /api/regions;
- *               inline in the chart card for a per-Region /series request, and
- *               inline in the map card for the /api/days requests);
+ * FORECAST SECTION (below the map) — unchanged V1 behaviour: the page bootstraps
+ * the forecast from /api/health, populates "Select Region" from /api/regions, and
+ * for the selected Region draws a MaxT / MinT seven-day line chart (hand-drawn
+ * inline SVG, no chart library) with a legend, axis labels and an interactive
+ * hover tooltip, a Date / MinT / MaxT table whose seven rows equal data.db, and a
+ * weekly summary (lowest MinT / highest MaxT) derived in the browser from the
+ * same /api/ series — no new business logic (INV-2, AC-04(b)).
+ *
+ * The Forecast mode's six Region markers are temperature "pills" whose TEXT (the
+ * day's derivedMapTemperature to one decimal) and COLOUR (the day's colourBand)
+ * come straight from /api/days/<date>; the frontend re-derives nothing and
+ * re-bands nothing (H-3 single-sourced, R-SHR-4). oneDp/toFixed(1) is display
+ * formatting only. The map is drawn on a vendored VECTOR basemap
+ * (window.TAIWAN_BASEMAP, a same-origin <script>, no fetch, no tiles), so it
+ * makes no external request and needs no key (R-EN-6, INV-V2-3).
+ *
+ * State mapping is DR-19 (decision-20260924-dashboard-state-mapping), scoped in
+ * V2 to the FORECAST SECTION instead of the whole page (R-V2-DEG-3, DV-17):
+ *   - loading : a request is in flight (section-level for /api/health ->
+ *               /api/regions; inline in the chart card for a per-Region /series
+ *               request, and inline in the Forecast mode map for the /api/days
+ *               requests);
  *   - error   : a request FAILED — a network failure, an unparseable response, OR
  *               ANY non-2xx (503 missing/empty/incomplete, 500/502/504, 404). The
  *               server's `error` message is surfaced so those causes stay distinct.
- *               A snapshot-unavailable 503 is ALWAYS error, never empty;
+ *               A snapshot-unavailable 503 is ALWAYS error, never empty. A failed
+ *               bootstrap also shows the error inline in the Forecast mode map and
+ *               disables Select Date; Now mode and the mode switch stay usable;
  *   - empty   : a request SUCCEEDED (2xx) but there is nothing to render —
- *               /api/regions with an empty list (page-level), /series with an empty
- *               series (inline in the chart card), or /api/days[/<date>] with no
- *               days/values (inline in the map card) — always a message, never a
- *               blank card.
- * The map-card inline status overlays ONLY the map, never the info panel, so
+ *               /api/regions with an empty list (section-level), /series with an
+ *               empty series (inline in the chart card), or /api/days[/<date>] with
+ *               no days/values (inline in the Forecast mode map) — always a
+ *               message, never a blank card.
+ * The Forecast mode inline status overlays ONLY the map, never the info panel, so
  * "Select Date" stays visible and operable — the user can switch to a working day
- * to recover from an inline error/empty (DR-19, #28 P-7b).
+ * to recover from an inline error/empty (DR-19, #28 P-7b). It is shown only in
+ * Forecast mode; Now mode's map is never covered by a forecast status.
  */
 "use strict";
 
@@ -45,7 +74,16 @@
   var currentSeries = null; // last-rendered series, for responsive re-draw
   var resizeTimer = null;
 
-  // --- Taiwan Map (R-EN-3..R-EN-7) -------------------------------------------
+  // --- modes (R-V2-MODE-1..6) -------------------------------------------------
+  var MODE_NOW = "now";
+  var MODE_FORECAST = "forecast";
+  // The page opens in Now mode before any request is made (R-V2-MODE-1).
+  var mode = MODE_NOW;
+  var appliedMode = null;  // the mode whose layer is currently on the map
+  var nowView = null;      // {center, zoom} saved when leaving Now mode (R-V2-MODE-5)
+  var forecastCaption = "";
+
+  // --- Taiwan Map, Forecast mode (R-EN-3..R-EN-7) -----------------------------
   // The six Region names in the canonical order (matches /api/regions and the
   // shared module's R-SHR-2(b)); used to iterate markers deterministically.
   var REGION_ORDER = [
@@ -67,12 +105,18 @@
     "東南部地區": [22.80, 121.10],
   };
 
+  // Now mode's initial view: the whole main island plus 澎湖 (SPEC-V2 §5.3
+  // instrument for R-V2-MAP-4), [[south, west], [north, east]].
+  var NOW_INITIAL_BOUNDS = [[21.85, 119.25], [25.35, 122.05]];
+
   // Colour per Derived Map Temperature band. The band comes straight from the
   // /api/days/<date> endpoint (R-SHR-4 / DR-4 owns the derivation and banding in
   // the shared module); the frontend re-derives nothing (H-3 single-sourced) and
   // only maps the band NAME to a fill colour. The legend swatches are painted from
   // this same map so the legend always matches the pills (R-EN-5, AC-17). The four
-  // tokens are the blue / green / yellow / red family named by R-SHR-4.
+  // tokens are the blue / green / yellow / red family named by R-SHR-4. They are
+  // used ONLY by the Forecast mode; the Now mode's station markers use their own
+  // neutral style and no colour scale (R-V2-MODE-6(b)).
   var BAND_COLOURS = {
     blue: "#2b6cb0",
     green: "#2f855a",
@@ -89,12 +133,23 @@
   };
 
   var map = null;          // the Leaflet map, created once (when the map has size)
+  var forecastLayer = null; // L.layerGroup of the six Region pills (Forecast mode)
+  var nowLayer = null;     // L.layerGroup of the representative stations (Now mode)
   var markers = {};        // Region name -> L.marker (pill divIcon)
   var mapReqSeq = 0;       // latest /api/days/<date> request wins (out-of-order)
   var selectedRegion = "北部地區"; // the Region shown in the info panel's selected block
   var latestDay = null;    // {date, byRegion} for the day currently rendered/pending
   var mapInitScheduled = false;
   var lastFitWidth = null; // window width at the last fit; a height-only resize does not re-fit (#28 R2 N-2)
+
+  // --- Latest Observation, Now mode (R-V2-OBS-*, R-V2-DD-2/3/10) ----------------
+  var obs = null;              // the displayed success body of /api/observations/latest
+  var obsById = {};            // stationId -> station of `obs`
+  var renderedObs = null;      // the body whose stations are currently the markers
+  var stationMarkers = {};     // stationId -> L.marker (representative stations)
+  var selectedStationId = null; // Now-mode selection, kept across mode switches
+  var obsInFlight = false;     // a Refresh (or the first load) is in progress
+  var MISSING = "—";           // shown for any missing / sentinel value (R-V2-OBS-6)
 
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
@@ -121,6 +176,7 @@
     els.mapCaption = document.getElementById("map-caption");
     els.mapStatus = document.getElementById("map-status");
     els.mapFrame = document.getElementById("map-frame");
+    els.mapEl = document.getElementById("map");
     els.mapForecastDay = document.getElementById("map-forecast-day");
     els.tileMaxValue = document.getElementById("tile-max-value");
     els.tileMaxRegion = document.getElementById("tile-max-region");
@@ -131,12 +187,39 @@
     els.selMin = document.getElementById("sel-min");
     els.selMax = document.getElementById("sel-max");
     els.selDerived = document.getElementById("sel-derived");
+    // Mode switch + Now mode panel (#36).
+    els.modeButtons = document.querySelectorAll("[data-mode-target]");
+    els.modeOwned = document.querySelectorAll("[data-mode]");
+    els.nowPanel = document.getElementById("now-panel");
+    els.obsTime = document.getElementById("obs-time");
+    els.obsFetched = document.getElementById("obs-fetched");
+    els.obsCount = document.getElementById("obs-count");
+    els.refreshButton = document.getElementById("refresh-button");
+    els.obsStatus = document.getElementById("obs-status");
+    els.obsSelected = document.getElementById("obs-selected");
+    els.obsSelName = document.getElementById("obs-sel-name");
+    els.obsSelPlace = document.getElementById("obs-sel-place");
+    els.obsSelTemp = document.getElementById("obs-sel-temp");
+    els.obsSelRh = document.getElementById("obs-sel-rh");
+    els.obsSelWind = document.getElementById("obs-sel-wind");
+    els.obsSelWeather = document.getElementById("obs-sel-weather");
+    els.obsSelTime = document.getElementById("obs-sel-time");
 
     els.regionSelect.addEventListener("change", function () {
       loadRegion(els.regionSelect.value);
     });
     els.dateSelect.addEventListener("change", function () {
       loadDay(els.dateSelect.value);
+    });
+    // The mode buttons are real <button>s: click, Enter and Space all activate
+    // them natively, so the switch is keyboard-operable (R-V2-MODE-2(d)).
+    Array.prototype.forEach.call(els.modeButtons, function (button) {
+      button.addEventListener("click", function () {
+        setMode(button.getAttribute("data-mode-target"));
+      });
+    });
+    els.refreshButton.addEventListener("click", function () {
+      loadObservation();
     });
 
     // Redraw the chart at the new width on resize (the SVG is drawn at the
@@ -150,9 +233,9 @@
         if (map) {
           if (window.innerWidth !== lastFitWidth) {
             // The WIDTH changed, so the layout mode (floating >= 1180px vs stacked)
-            // and the reserved padding may differ — re-fit so the markers stay clear
-            // of the panels at the new width (#28 F-1). Only a width change re-fits;
-            // a Select Date change never does (P-12).
+            // and the reserved padding may differ — re-fit the current mode's view
+            // so the markers stay clear of the panels at the new width (#28 F-1).
+            // Only a width change re-fits; a Select Date change never does (P-12).
             fitToMarkers();
           } else {
             // A height-only change (e.g. a mobile browser toolbar showing/hiding on
@@ -168,10 +251,130 @@
     // before the first day loads / in the loading/empty/error states (#28 F-6).
     colourLegend();
 
+    // Now mode first: show its chrome, bring the map up as soon as it has a size,
+    // and load the Latest Observation. The forecast bootstrap runs independently;
+    // the Now mode never waits for, or depends on, /api/health (R-V2-DEG-1).
+    renderModeChrome();
+    bringUpMap();
+    loadObservation();
     bootstrap();
   });
 
-  // --- top-level page states -------------------------------------------------
+  // --- mode switch (R-V2-MODE-1..5) --------------------------------------------
+
+  function setMode(next) {
+    if (next !== MODE_NOW && next !== MODE_FORECAST) return;
+    if (next === mode) return;
+    // Leaving Now mode: remember its view so a round trip restores it (DV-8).
+    if (map && appliedMode === MODE_NOW) {
+      nowView = { center: map.getCenter(), zoom: map.getZoom() };
+    }
+    mode = next;
+    renderModeChrome();
+    // The mode-switch path goes through the same non-zero-size guard as page load
+    // (R-V2-MAP-5): the map is only touched once its container has a real size.
+    bringUpMap();
+  }
+
+  // Show the current mode's controls/panels/legend and hide the other mode's; mark
+  // the pressed mode button; set the caption and the map's accessible name.
+  function renderModeChrome() {
+    Array.prototype.forEach.call(els.modeButtons, function (button) {
+      var on = button.getAttribute("data-mode-target") === mode;
+      button.setAttribute("aria-pressed", on ? "true" : "false");
+      button.classList.toggle("is-current", on);
+    });
+    Array.prototype.forEach.call(els.modeOwned, function (el) {
+      el.hidden = el.getAttribute("data-mode") !== mode;
+    });
+    renderMapStatus();
+    renderCaption();
+    if (els.mapEl) {
+      els.mapEl.setAttribute(
+        "aria-label",
+        mode === MODE_NOW
+          ? "Map of Taiwan with one representative weather station per county and its latest observed air temperature"
+          : "Map of Taiwan with six Region markers coloured by the selected day's derived map temperature"
+      );
+    }
+  }
+
+  function renderCaption() {
+    if (!els.mapCaption) return;
+    els.mapCaption.textContent = mode === MODE_NOW
+      ? "Latest Observation · one representative station per county"
+      : forecastCaption;
+  }
+
+  // Bring the map up (once its container has a non-zero size) and bring it in line
+  // with the current state: mode layer, view, observation markers, forecast pills.
+  // Every caller uses this same deferred step, so a call dropped while the map
+  // waits for a size is covered by the one that fires (it reads current state).
+  function bringUpMap() {
+    ensureMapSized(function () {
+      if (!initMap()) {
+        setMapStatus("The map library is unavailable.", "error");
+        setObsStatus("The map library is unavailable.", "error");
+        return;
+      }
+      syncMap();
+    });
+  }
+
+  function syncMap() {
+    if (appliedMode !== mode) {
+      // Mode-switch path (R-V2-MAP-5): recompute the container's real pixel size
+      // BEFORE any view change, so no view is computed on a stale/0x0 size.
+      map.invalidateSize();
+      if (mode === MODE_FORECAST) {
+        map.removeLayer(nowLayer);
+        forecastLayer.addTo(map);
+        showSixRegions();
+      } else {
+        map.removeLayer(forecastLayer);
+        nowLayer.addTo(map);
+        restoreNowView();
+      }
+      appliedMode = mode;
+    }
+    renderStations();
+    if (latestDay) renderDay(latestDay.date, latestDay.byRegion);
+    refreshMapChrome();
+  }
+
+  // Back to Now mode: restore the view it had when it was left (R-V2-MODE-5(c)).
+  function restoreNowView() {
+    if (nowView) {
+      map.setView(nowView.center, nowView.zoom, { animate: false });
+    } else {
+      fitToMarkers(); // Now mode was never shown on a sized map: its initial view
+    }
+  }
+
+  // Entering Forecast mode (R-V2-MODE-5(b), DV-8, AC-17): keep the view when all
+  // six Region markers are already inside the map area not covered by the
+  // Forecast mode's panels; otherwise widen the view just enough to include them.
+  function showSixRegions() {
+    var clear = clearArea(fitPadding(MODE_FORECAST));
+    var points = regionPoints();
+    var allIn = points.every(function (p) { return clear.contains(p); });
+    if (!allIn) fitToMarkers(L.latLngBounds(points).extend(clear));
+  }
+
+  // The lat/lng box of the map container minus the given panel padding.
+  function clearArea(pad) {
+    var size = map.getSize();
+    return L.latLngBounds(
+      map.containerPointToLatLng(L.point(pad.tl[0], pad.tl[1])),
+      map.containerPointToLatLng(L.point(size.x - pad.br[0], size.y - pad.br[1]))
+    );
+  }
+
+  function regionPoints() {
+    return REGION_ORDER.map(function (r) { return REGION_POINTS[r]; });
+  }
+
+  // --- top-level forecast-section states (DR-19, scoped by R-V2-DEG-3) ---------
 
   function showLoading() {
     els.pageLoading.hidden = false;
@@ -185,6 +388,10 @@
     els.pageLoading.hidden = true;
     els.pageEmpty.hidden = true;
     els.dashboard.hidden = true;
+    // The Forecast mode map shows the same failure inline; there are no days to
+    // list, so Select Date is disabled (DR-19 per-Region rule, DV-17).
+    setDateSelectEnabled(false);
+    setMapStatus(message, "error");
   }
   function showEmpty(message) {
     els.pageEmptyText.textContent = message;
@@ -192,6 +399,8 @@
     els.pageLoading.hidden = true;
     els.pageError.hidden = true;
     els.dashboard.hidden = true;
+    setDateSelectEnabled(false);
+    setMapStatus(message, "empty");
   }
   function showDashboard() {
     els.dashboard.hidden = false;
@@ -200,10 +409,11 @@
     els.pageEmpty.hidden = true;
   }
 
-  // --- bootstrap: health -> regions -> first region --------------------------
+  // --- forecast bootstrap: health -> regions -> first region -------------------
 
   function bootstrap() {
     showLoading();
+    setMapStatus("Loading the forecast…", "loading");
     fetchJson("/api/health")
       .then(function (res) {
         if (failed(res)) {
@@ -302,7 +512,250 @@
       });
   }
 
-  // --- Select Date + Taiwan Map (R-EN-3..R-EN-7) -----------------------------
+  // --- Latest Observation (Now mode) -------------------------------------------
+  // GET /api/observations/latest answers a normalised success body or a
+  // classified non-2xx failure {reason, error} (Issue #35). This ticket (#36)
+  // renders the success path and the in-progress indicator; the three Refresh
+  // results and the Stale / Unavailable states are completed by #37. Until then a
+  // failure keeps any displayed data and shows the server's non-secret message.
+
+  function loadObservation() {
+    // A second trigger while one is in progress is ignored (R-V2-OBS-7(e)).
+    if (obsInFlight) return;
+    obsInFlight = true;
+    setObsBusy(true);
+    fetchJson("/api/observations/latest")
+      .then(function (res) {
+        if (failed(res)) {
+          applyObservationFailure(res.body);
+          return;
+        }
+        applyObservation(res.body);
+      })
+      .catch(function () {
+        applyObservationFailure(null);
+      })
+      .then(function () {
+        obsInFlight = false;
+        setObsBusy(false);
+      });
+  }
+
+  function applyObservation(body) {
+    if (!body || !Array.isArray(body.stations) || !body.observationTime) {
+      applyObservationFailure(null);
+      return;
+    }
+    // A response whose dataset Observation Time is OLDER than the one displayed
+    // never replaces it (R-V2-OBS-8(b), INV-V2-6); the not-newer notice is #37.
+    if (obs && instant(body.observationTime) < instant(obs.observationTime)) {
+      setObsStatus("", "idle");
+      return;
+    }
+    obs = body;
+    obsById = {};
+    body.stations.forEach(function (s) { obsById[s.stationId] = s; });
+    var reps = representativeIds();
+    if (selectedStationId && reps.indexOf(selectedStationId) < 0) {
+      selectedStationId = null; // the selected station is no longer a marker
+    }
+    renderObservationPanel();
+    setObsStatus("", "idle");
+    bringUpMap();
+  }
+
+  function applyObservationFailure(body) {
+    var reason = body && body.error
+      ? body.error
+      : "Latest Observation is unavailable: the server could not be reached.";
+    setObsStatus(obs ? "Refresh failed. " + reason : reason, "error");
+  }
+
+  function representativeIds() {
+    return obs && Array.isArray(obs.representativeStationIds)
+      ? obs.representativeStationIds
+      : [];
+  }
+
+  function renderObservationPanel() {
+    els.obsTime.textContent = obs ? formatObsTime(obs.observationTime, false) : MISSING;
+    els.obsFetched.textContent = obs ? formatObsTime(obs.fetchedTime, true) : MISSING;
+    els.obsCount.textContent = obs ? String(obs.validStationCount) : MISSING;
+    renderSelectedStation();
+  }
+
+  // Show the in-progress indicator while a Refresh is running (R-V2-OBS-7(c)).
+  // The button stays focusable (aria-disabled, not disabled) so keyboard focus is
+  // not lost; a click while busy is ignored by loadObservation().
+  function setObsBusy(busy) {
+    els.refreshButton.setAttribute("aria-disabled", busy ? "true" : "false");
+    els.nowPanel.setAttribute("aria-busy", busy ? "true" : "false");
+    if (busy) {
+      setObsStatus(obs ? "Refreshing the Latest Observation…" : "Loading the Latest Observation…", "busy");
+    }
+  }
+
+  function setObsStatus(message, kind) {
+    els.obsStatus.className = "obs-status obs-status--" + kind;
+    els.obsStatus.textContent = "";
+    if (kind === "busy") {
+      var spin = document.createElement("span");
+      spin.className = "spinner spinner--sm";
+      spin.setAttribute("aria-hidden", "true");
+      els.obsStatus.appendChild(spin);
+    }
+    if (message) els.obsStatus.appendChild(document.createTextNode(message));
+  }
+
+  // Rebuild the representative-station markers when a new body is displayed.
+  // One marker per id in representativeStationIds (at most one per county,
+  // chosen server-side by the README rule); the marker shows the station's own
+  // air temperature and name — never a county value (R-V2-DD-2, H-3).
+  function renderStations() {
+    if (!nowLayer) return;
+    if (renderedObs !== obs) {
+      nowLayer.clearLayers();
+      stationMarkers = {};
+      renderedObs = obs;
+      representativeIds().forEach(function (id) {
+        var s = obsById[id];
+        if (!s) return;
+        var lat = Number(s.latitude);
+        var lng = Number(s.longitude);
+        // Never hand Leaflet a non-finite position (the NaN-marker hazard).
+        if (!isFinite(lat) || !isFinite(lng)) return;
+        var marker = L.marker([lat, lng], {
+          icon: stationIcon(s),
+          keyboard: false,
+          title: stationName(s) + " (" + s.countyName + ")",
+        });
+        marker.on("add", function () { wireStationMarker(marker, id); });
+        marker._tipHtml = stationTipHtml(s);
+        bindOrUpdateTip(marker, marker._tipHtml);
+        nowLayer.addLayer(marker);
+        stationMarkers[id] = marker;
+      });
+    }
+    highlightStations();
+  }
+
+  function stationIcon(s) {
+    return L.divIcon({
+      className: "station-icon",
+      html:
+        '<span class="spill" tabindex="0" role="button" aria-label="' +
+        escapeHtml(stationLabel(s)) + '">' + escapeHtml(formatObsTemp(s.airTemperature)) +
+        "°</span>" +
+        '<span class="slabel">' + escapeHtml(stationName(s)) + "</span>",
+      iconSize: [96, 48],
+      iconAnchor: [48, 14],
+    });
+  }
+
+  // Each time the marker's element is (re)created on the map, bind click and
+  // Enter/Space on its pill and re-apply the selection highlight.
+  function wireStationMarker(marker, id) {
+    var el = marker.getElement();
+    if (!el) return;
+    var pill = el.querySelector(".spill");
+    function select() {
+      selectedStationId = id;
+      highlightStations();
+      renderSelectedStation();
+    }
+    (pill || el).addEventListener("click", select);
+    if (pill) {
+      pill.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+          e.preventDefault();
+          select();
+        }
+      });
+    }
+    el.classList.toggle("is-active", id === selectedStationId);
+  }
+
+  function highlightStations() {
+    Object.keys(stationMarkers).forEach(function (id) {
+      var el = stationMarkers[id].getElement();
+      if (el) el.classList.toggle("is-active", id === selectedStationId);
+    });
+  }
+
+  // The selected-station block of the Now panel: the station's own values, with
+  // any missing / sentinel value shown as "—" (R-V2-OBS-6).
+  function renderSelectedStation() {
+    var s = selectedStationId ? obsById[selectedStationId] : null;
+    if (!s) {
+      els.obsSelected.hidden = true;
+      return;
+    }
+    els.obsSelName.textContent = stationName(s) + " station";
+    els.obsSelPlace.textContent = s.countyName + (s.townName ? " · " + s.townName : "");
+    els.obsSelTemp.textContent = withUnit(formatObsTemp(s.airTemperature), " °C");
+    els.obsSelRh.textContent = withUnit(published(s.relativeHumidity), " %");
+    els.obsSelWind.textContent = withUnit(published(s.windSpeed), " m/s");
+    els.obsSelWeather.textContent = s.weather ? String(s.weather) : MISSING;
+    els.obsSelTime.textContent = formatObsTime(s.observationTime, false);
+    els.obsSelected.hidden = false;
+  }
+
+  function stationName(s) {
+    return s.stationName ? String(s.stationName) : MISSING;
+  }
+
+  function stationLabel(s) {
+    return stationName(s) + " station, " + s.countyName + ": air temperature " +
+      formatObsTemp(s.airTemperature) + " °C (Latest Observation, station value)";
+  }
+
+  function stationTipHtml(s) {
+    return (
+      '<b class="map-tip__region">' + escapeHtml(stationName(s)) + " station</b>" +
+      '<span class="map-tip__row">' + escapeHtml(s.countyName) +
+      (s.townName ? " · " + escapeHtml(s.townName) : "") + "</span>" +
+      '<span class="map-tip__row">Air temperature ' +
+      escapeHtml(formatObsTemp(s.airTemperature)) + " °C</span>" +
+      '<span class="map-tip__row">Observation Time ' +
+      escapeHtml(formatObsTime(s.observationTime, false)) + "</span>" +
+      '<span class="map-tip__row map-tip__note">Station value, not a county value</span>'
+    );
+  }
+
+  // A published temperature for display: the /api/ number unchanged (never
+  // rounded), shown with at least one decimal ("25" -> "25.0").
+  function formatObsTemp(v) {
+    var n = Number(v);
+    if (v === null || v === undefined || v === "" || !isFinite(n)) return MISSING;
+    var text = String(n);
+    return /[.e]/.test(text) ? text : n.toFixed(1);
+  }
+
+  function published(v) {
+    if (v === null || v === undefined || v === "") return MISSING;
+    var n = Number(v);
+    return isFinite(n) ? String(n) : MISSING;
+  }
+
+  function withUnit(text, unit) {
+    return text === MISSING ? MISSING : text + unit;
+  }
+
+  // Display an ISO time exactly as published, to the minute (Observation Time)
+  // or the second (Fetched Time), with its UTC offset. The string is re-laid-out,
+  // never converted through the browser clock or time zone (R-V2-OBS-4).
+  function formatObsTime(text, withSeconds) {
+    if (!text) return MISSING;
+    var m = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(:\d{2})?(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/.exec(String(text));
+    if (!m) return String(text);
+    return m[1] + " " + m[2] + (withSeconds && m[3] ? m[3] : "") + (m[4] ? " " + m[4] : "");
+  }
+
+  function instant(text) {
+    return Date.parse(String(text));
+  }
+
+  // --- Select Date + Taiwan Map, Forecast mode (R-EN-3..R-EN-7) ----------------
   // Independent of the selected Region. /api/days fills Select Date (seven days,
   // ascending, default first); /api/days/<date> gives the six Regions' values for
   // the chosen day, each already carrying the Derived Map Temperature and its
@@ -359,7 +812,8 @@
     // later request bumps mapReqSeq and this (stale/out-of-order) response is
     // ignored so it cannot overwrite the current day's pills/panel (#24 F-3).
     var seq = ++mapReqSeq;
-    els.mapCaption.textContent = "Showing " + date;
+    forecastCaption = "Showing " + date;
+    renderCaption();
     setMapStatus("Loading " + date + "…", "loading");
     return fetchJson("/api/days/" + encodeURIComponent(date))
       .then(function (res) {
@@ -394,24 +848,19 @@
       });
   }
 
-  // Render `date`'s six values: recolour/relabel the pills, refresh their
-  // tooltips, and update the info panel (day tiles + selected-Region block).
-  // Called only on a successful 2xx with values. The map view is NOT reset when
-  // Select Date changes — only the pills/tooltips/panel update (AC-18, P-12).
+  // Keep `date`'s six values and render them: the info panel (day tiles +
+  // selected-Region block) always, the pills whenever the Forecast mode layer is
+  // on the map. Called only on a successful 2xx with values. The map view is NOT
+  // reset when Select Date changes — only the pills/tooltips/panel update
+  // (AC-18, P-12).
   function applyDay(date, values) {
     var byRegion = {};
     values.forEach(function (v) { byRegion[v.regionName] = v; });
     latestDay = { date: date, byRegion: byRegion };
-
+    renderDay(date, byRegion);
     // Bring up the map when its container actually has a non-zero size (init
-    // hardening, P-12) — then render this day onto the pills.
-    ensureMapSized(function () {
-      if (!initMap()) {
-        setMapStatus("The map library is unavailable.", "error");
-        return;
-      }
-      renderDay(latestDay.date, latestDay.byRegion);
-    });
+    // hardening, P-12) — syncMap() then paints this day onto the pills.
+    bringUpMap();
   }
 
   function renderDay(date, byRegion) {
@@ -431,7 +880,9 @@
     if (lo) { els.tileMinValue.textContent = oneDp(lo.mint); els.tileMinRegion.textContent = lo.regionName; }
 
     // Pills: TEXT = endpoint derivedMapTemperature (1dp display), COLOUR = endpoint
-    // colourBand. No re-derivation, no re-banding (H-3, R-SHR-4).
+    // colourBand. No re-derivation, no re-banding (H-3, R-SHR-4). A pill that is
+    // not on the map (Now mode) has no element yet; it is painted when the
+    // Forecast mode layer is added.
     REGION_ORDER.forEach(function (region) {
       var marker = markers[region];
       var v = byRegion[region];
@@ -528,19 +979,21 @@
   // never initialises on a 0x0 element (which makes fitBounds compute an invalid
   // zoom and the markers collapse to "Invalid LatLng (NaN, NaN)"). ResizeObserver
   // fires when the container is laid out (e.g. the tab was hidden at load), and
-  // visibilitychange covers a background tab (P-12, init hardening).
+  // visibilitychange covers a background tab (P-12, init hardening). Page load,
+  // data arrival and the mode switch all reach the map through here (R-V2-MAP-5).
   function ensureMapSized(cb) {
     var container = els.mapFrame ? document.getElementById("map") : null;
     function sized() {
       return container && container.clientWidth > 0 && container.clientHeight > 0;
     }
     if (sized()) { cb(); return; }
-    if (mapInitScheduled) return; // already waiting; latestDay carries the newest day
+    if (mapInitScheduled) return; // already waiting; the pending step reads current state
     mapInitScheduled = true;
     var done = false;
     function fire() {
       if (done || !sized()) return;
       done = true;
+      mapInitScheduled = false;
       cb();
     }
     if (typeof ResizeObserver !== "undefined" && container) {
@@ -558,9 +1011,12 @@
   }
 
   // Create the Leaflet map once: the vendored vector basemap (surrounding
-  // coastlines under the Taiwan county polygons) and six pill markers, then fit
-  // the view to the markers ONCE (R-EN-4). Returns false if Leaflet is
-  // unavailable. Assumes the container already has a non-zero size (ensureMapSized).
+  // coastlines under the Taiwan county polygons), the Forecast mode's six pill
+  // markers in their own layer group, and an (initially empty) layer group for
+  // the Now mode's station markers; only the current mode's group is on the map.
+  // Then fit the current mode's initial view ONCE (R-EN-4, R-V2-MAP-4). Returns
+  // false if Leaflet is unavailable. Assumes the container already has a non-zero
+  // size (ensureMapSized).
   function initMap() {
     if (map) return true;
     if (typeof L === "undefined") return false;
@@ -596,6 +1052,9 @@
       }).addTo(map);
     }
 
+    forecastLayer = L.layerGroup();
+    nowLayer = L.layerGroup();
+
     REGION_ORDER.forEach(function (region) {
       var latlng = REGION_POINTS[region];
       var icon = L.divIcon({
@@ -611,6 +1070,8 @@
       // the inner .pill is focusable (its own tabindex/role/keydown), which
       // removes the nested-button that ignored Enter (#28 F-8).
       var marker = L.marker(latlng, { icon: icon, keyboard: false, title: region });
+      // "add" fires each time the Forecast mode layer puts the marker on the map
+      // (a fresh element each time), so the listeners are bound to that element.
       marker.on("add", function () {
         var el = marker.getElement();
         if (!el) return;
@@ -628,26 +1089,30 @@
           });
         }
       });
-      marker.addTo(map);
+      forecastLayer.addLayer(marker);
       markers[region] = marker;
     });
+
+    (mode === MODE_FORECAST ? forecastLayer : nowLayer).addTo(map);
+    appliedMode = mode;
 
     // On any move (zoom, or a resize re-fit) the markers shift relative to the
     // edges, so refresh the zoom-label class and re-pick each tooltip's direction
     // to keep it unclipped (V-3).
     map.on("moveend", refreshMapChrome);
 
-    // Now that the container is laid out, recompute size and fit to the markers.
-    // fitToMarkers() is the ONLY fitBounds call site — reused at init and on
-    // resize, never on a Select Date change (the view must not reset, P-12).
+    // Now that the container is laid out, recompute size and fit the current
+    // mode's initial view. fitToMarkers() is the ONLY fitBounds call site — used
+    // at init, on a width resize and when entering Forecast mode needs a wider
+    // view; never on a Select Date change (the view must not reset, P-12).
     fitToMarkers();
     refreshMapChrome();
     colourLegend();
     return true;
   }
 
-  // Hide the Region labels when zoomed far out (the name is still in the tooltip,
-  // panel and aria-label) and re-pick every open tooltip's direction.
+  // Hide the marker labels when zoomed far out (the name is still in the tooltip,
+  // panel and aria-label) and re-pick every tooltip's direction.
   function refreshMapChrome() {
     if (!map) return;
     var mapEl = document.getElementById("map");
@@ -658,24 +1123,42 @@
         bindOrUpdateTip(m, tooltipHtml(region, m._dayInfo.date, m._dayInfo.value));
       }
     });
+    Object.keys(stationMarkers).forEach(function (id) {
+      var m = stationMarkers[id];
+      if (m._tipHtml) bindOrUpdateTip(m, m._tipHtml);
+    });
   }
 
-  // Fit the view to the six markers. Padding depends on the layout: when the info
-  // panel and legend FLOAT over the map (>= 1180px), reserve their footprint (left
-  // for the top-left panel, right for the bottom-right legend) so no marker or its
-  // tooltip sits under them (P-7c, #28 F-1/F-2/F-3); below 1180px the panels are
-  // stacked OUTSIDE the map (CSS), so modest padding keeps the six pills separated
-  // and their tooltips inside the frame (V-3, V-4). Tooltip clipping at the top
-  // edge is handled per-marker by tipDir(). Called at init and on resize only.
-  function fitToMarkers() {
-    if (!map) return;
-    var points = REGION_ORDER.map(function (r) { return REGION_POINTS[r]; });
-    map.invalidateSize();
+  // Map padding that keeps markers clear of the mode's panels. When the info
+  // panel (and, in Forecast mode, the legend) FLOAT over the map (>= 1180px),
+  // reserve their footprint (left for the top-left panel, right for the
+  // bottom-right legend) so no marker or its tooltip sits under them (P-7c, #28
+  // F-1/F-2/F-3); below 1180px the panels are stacked OUTSIDE the map (CSS), so
+  // modest padding keeps the pills separated and their tooltips inside the frame
+  // (V-3, V-4). The Forecast mode values are the V1 ones unchanged.
+  function fitPadding(forMode) {
     var floating = window.innerWidth >= 1180;
-    var pad = floating
-      ? { tl: [392, 64], br: [300, 56] }
-      : { tl: [26, 52], br: [26, 44] };
-    map.fitBounds(points, {
+    if (forMode === MODE_FORECAST) {
+      return floating
+        ? { tl: [392, 64], br: [300, 56] }
+        : { tl: [26, 52], br: [26, 44] };
+    }
+    return floating
+      ? { tl: [330, 24], br: [24, 24] }
+      : { tl: [24, 24], br: [24, 24] };
+  }
+
+  // Fit the view: to `bounds` when given, otherwise to the current mode's initial
+  // view (Forecast mode: the six Region markers, as in V1; Now mode: the main
+  // island plus 澎湖). Tooltip clipping at the top edge is handled per-marker by
+  // tipDir(). invalidateSize() always runs first so fitBounds measures real
+  // pixels (else an infinite zoom -> NaN markers).
+  function fitToMarkers(bounds) {
+    if (!map) return;
+    map.invalidateSize();
+    var pad = fitPadding(mode);
+    var target = bounds || (mode === MODE_FORECAST ? regionPoints() : NOW_INITIAL_BOUNDS);
+    map.fitBounds(target, {
       paddingTopLeft: pad.tl,
       paddingBottomRight: pad.br,
       maxZoom: 8,
@@ -699,26 +1182,39 @@
     });
   }
 
-  // Inline status inside the Taiwan Map card. `kind` is "loading" | "error" |
-  // "empty". The status overlays ONLY the map frame — the info panel (with Select
-  // Date) stays visible and operable so the user can switch to a working day
-  // (DR-19, P-7b). The map is hidden while a status shows so a stale map is never
-  // left behind an error message; it keeps its layout box (visibility, not
-  // display) so ResizeObserver still sees a non-zero size.
+  // Inline status of the Forecast mode map. `kind` is "loading" | "error" |
+  // "empty". It is kept as state and shown ONLY in Forecast mode; it overlays
+  // ONLY the map frame — the info panel (with Select Date) stays visible and
+  // operable so the user can switch to a working day (DR-19, P-7b). The map is
+  // hidden while a status shows so a stale map is never left behind an error
+  // message; it keeps its layout box (visibility, not display) so ResizeObserver
+  // still sees a non-zero size.
+  var forecastMapStatus = null;
+
   function setMapStatus(message, kind) {
-    if (!els.mapStatus) return;
-    els.mapStatus.textContent = message;
-    els.mapStatus.className = "map-status state--inline state--inline-" + kind;
-    els.mapStatus.setAttribute("role", kind === "error" ? "alert" : "status");
-    els.mapStatus.hidden = false;
-    if (els.mapFrame) els.mapFrame.classList.add("map-frame--status");
+    forecastMapStatus = { message: message, kind: kind };
+    renderMapStatus();
   }
 
   function hideMapStatus() {
+    forecastMapStatus = null;
+    renderMapStatus();
+  }
+
+  function renderMapStatus() {
     if (!els.mapStatus) return;
-    els.mapStatus.hidden = true;
-    els.mapStatus.textContent = "";
-    if (els.mapFrame) els.mapFrame.classList.remove("map-frame--status");
+    var st = mode === MODE_FORECAST ? forecastMapStatus : null;
+    if (!st) {
+      els.mapStatus.hidden = true;
+      els.mapStatus.textContent = "";
+      if (els.mapFrame) els.mapFrame.classList.remove("map-frame--status");
+      return;
+    }
+    els.mapStatus.textContent = st.message;
+    els.mapStatus.className = "map-status state--inline state--inline-" + st.kind;
+    els.mapStatus.setAttribute("role", st.kind === "error" ? "alert" : "status");
+    els.mapStatus.hidden = false;
+    if (els.mapFrame) els.mapFrame.classList.add("map-frame--status");
   }
 
   function oneDp(v) {

@@ -43,6 +43,11 @@ README section "Latest Observation endpoint"):
   status — never the key, the request headers, the upstream URL, the upstream
   body or an exception message (which could contain the URL).
 
+* **Representative stations** (R-V2-DD-3, Issue #36): the success body also lists
+  ``representativeStationIds`` — at most one valid station per county, chosen by
+  the documented rule in :mod:`representative` — for the Now mode's
+  Taiwan-wide view.
+
 The module holds no SQL and does not touch ``data.db``; the forecast path
 (``weather_query``, ``app.py``, the forecast ``/api/`` endpoints) does not import
 it, so the forecast path stays CWA-free and key-free (INV-V2-1).
@@ -63,6 +68,8 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 import requests
+
+import representative
 
 logger = logging.getLogger(__name__)
 
@@ -575,6 +582,11 @@ class LatestObservationService:
                 "validStationCount": len(dataset.stations),
                 "receivedStationCount": dataset.received_station_count,
                 "stations": dataset.stations,
+                # At most one representative valid station per county for the
+                # Now mode's Taiwan-wide view (R-V2-DD-3; rule in representative.py).
+                "representativeStationIds": representative.select_representatives(
+                    dataset.stations
+                ),
             }
             self._cached = (fetched_at, body)
             logger.info(

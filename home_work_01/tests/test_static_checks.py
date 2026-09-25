@@ -74,7 +74,9 @@ _OBSERVATION = _UNIT_DIR / "observation.py"
 # Python files that must contain no SQL and must not open the database directly
 # (AC-04(c)/(d), R-V2-SEC-4(c)): everything on the presentation side except the
 # single SQL owner (the shared module), including the V2 observation module.
-_NON_SHARED_PYTHON = (_APP, _SERVER, _API_ENTRY, _OBSERVATION)
+# Issue #36 adds the pure representative-station rule module to the same set.
+_REPRESENTATIVE = _UNIT_DIR / "representative.py"
+_NON_SHARED_PYTHON = (_APP, _SERVER, _API_ENTRY, _OBSERVATION, _REPRESENTATIVE)
 
 # HTTP client top-level packages that must never appear on the presentation side
 # (R-SHR-5). Dotted modules are matched exactly as well.

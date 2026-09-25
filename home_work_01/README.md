@@ -9,8 +9,11 @@ SQLite, and shown in a web app.
 > **ingestion** stage (fetch → derive → persist), the **Streamlit Grading App**
 > (`app.py` + the shared query module `weather_query.py`), the **Flask dashboard**
 > (`server.py`, the `/api/` JSON API and the static frontend under `static/`) with its
-> ENHANCED **`Select Date` control and interactive Taiwan Map** (see
-> [Taiwan Map and `Select Date`](#taiwan-map-and-select-date-dashboard-enhanced)), the
+> interactive **Taiwan Map** in two modes — the V2 **Now mode** (Latest Observation of
+> CWA stations; see [Taiwan Map modes](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core))
+> and the **Forecast mode**, which is the Part A bonus six-region map with its ENHANCED
+> **`Select Date`** control (see
+> [Forecast mode](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)), the
 > **automated CI** ([Continuous integration](#continuous-integration-github-actions))
 > and the **Vercel deployment** with its smoke check
 > ([Deploy to Vercel](#deploy-to-vercel-public-url--smoke-check)).
@@ -234,14 +237,18 @@ python server.py            # serves http://127.0.0.1:5000/
 flask --app server run
 ```
 
-Open <http://127.0.0.1:5000/>. The page is the same MVM experience as the
+Open <http://127.0.0.1:5000/>. The Taiwan Map at the top opens in **Now mode**
+(see [Taiwan Map modes](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core)); its
+**Forecast** button switches to the six-region forecast map. Below the map, the page
+is the same MVM experience as the
 Grading App — `Taiwan Weather Forecast`, a `Select Region` control over the six
 Regions in the fixed order, and, for the selected Region, a `MaxT` / `MinT`
 seven-day line chart and a `Date` / `MinT` / `MaxT` table equal to `data.db`,
 plus the snapshot's acquisition time. It is a static HTML/CSS/JS frontend (no
 build step) whose chart is drawn with plain inline SVG (no chart library, no key).
 Add `?region=<name>` to deep-link a Region (for example `?region=中部地區`). If the
-data is unavailable the page shows a clear message instead of a blank page.
+forecast data is unavailable the forecast section (and the Forecast mode map) shows a
+clear message instead of a blank page, while the Now mode keeps working.
 
 All data comes from this application's own JSON API under the `/api/` prefix; the
 browser never calls CWA and holds no key. The forecast endpoints read `data.db` only
@@ -288,6 +295,8 @@ values. The browser only ever calls this `/api/` path.
 | `validStationCount` | Number of valid stations in `stations`. |
 | `receivedStationCount` | Number of station records CWA returned (diagnostic; includes invalid ones). |
 | `stations[]` | One entry per **valid** station: `stationId` (the stable identity — names can repeat), `stationName`, `countyName`, `townName`, `latitude` / `longitude` (WGS84), `observationTime` (that station's `ObsTime`, as published), `airTemperature` (°C). Optional, `null` when missing or a sentinel: `relativeHumidity` (%), `windSpeed` (m/s), `windDirection` (degrees), `airPressure` (hPa), `precipitation` (the dataset's `Now.Precipitation` field: accumulated precipitation for the current day, mm), `weather` (text). |
+| `representativeStationIds` | The `stationId` of each county's **representative station** for the Now mode's Taiwan-wide view — at most one per county, in a fixed county order (north to south, east coast, then 澎湖縣, 金門縣, 連江縣); see [Representative station rule](#representative-station-rule). |
+
 
 Numbers keep the published digits (no rounding, no unit conversion); a sentinel is
 never turned into a number.
@@ -363,12 +372,118 @@ re-serialised as compact JSON). It was checked key-free before it was committed
 and is covered by the credential scans. The offline tests derive every
 counter-example from it.
 
-### Taiwan Map and `Select Date` (dashboard, ENHANCED)
+### Taiwan Map modes: Now mode and Forecast mode (V2 Core)
 
-The dashboard integrates a **`Select Date`** control and an interactive **Taiwan
-Map** on the same page (the "Taiwan Weather Dashboard"), alongside the Region
-chart/table/summary. These are **enhanced, dashboard-only** features — the
-Streamlit Grading App deliberately has neither.
+The **Taiwan Map** at the top of the dashboard has exactly two modes, switched with
+the **Now** and **Forecast** buttons in the map's header (real buttons: click them, or
+Tab to them and press Enter or Space; the filled one is the current mode). The page
+always opens in **Now mode**, whatever the state of the forecast snapshot. Both modes
+are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
+
+| | **Now mode** (default) | **Forecast mode** (Part A bonus map, [below](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)) |
+| --- | --- | --- |
+| Shows | The **Latest Observation**: CWA station air temperatures, **as published by CWA** | The six-region seven-day forecast: **project-derived** values |
+| Data | `GET /api/observations/latest` | `GET /api/days`, `GET /api/days/<date>` |
+| Markers | At most one **representative station** per county, a neutral light marker with the station's temperature and name | Six Region pills coloured by the derived band |
+| Panel and controls | `Observation Time`, `Fetched Time`, valid-station count, `Refresh` | `Select Date`, the `DERIVED` panel, the four-band legend |
+| Never shown | `Select Date`, the derived legend, any forecast value | Any observation value, `Refresh` |
+
+- **Two meanings kept apart.** An observation value is a CWA station observation, as
+  published — not a forecast, not a project-derived value, and never an average of a
+  county. A forecast value is a project-derived compatibility value (see
+  [Data source and labeling](#data-source-and-labeling-please-read)). The two modes
+  never share a panel, a legend or a colour scale: the Now mode's markers have no
+  colour scale at all.
+- **`Fetched Time` is not the forecast's "Last updated".** In the Now panel,
+  `Fetched Time` is when this server fetched the Latest Observation from CWA. The
+  line `Last updated (data fetched from CWA): …` beside `Select Region` below the map
+  is the time the **forecast snapshot** was acquired. They are different times, with
+  different labels, in different places.
+- **Switching keeps your place.** Leaving Now mode remembers its view (zoom and
+  position) and the selected station; coming back restores both. Entering Forecast
+  mode keeps the current view when all six Region markers are already visible clear
+  of the panels, and otherwise widens it just enough to show them.
+- **Independent of the forecast.** The Now mode loads on its own and never waits for
+  `/api/health`. If the forecast snapshot is unavailable, the forecast section below
+  the map and the Forecast mode map show the forecast's error message (the V1 error
+  states, now limited to the forecast part of the page), while the Now mode and the
+  mode switch keep working.
+- Both modes use the same vendored map and make **no external request**: the page
+  only calls this app's own `/static/` and `/api/` URLs.
+
+#### Now mode — Latest Observation
+
+- **Source and cadence.** CWA open data **O-A0001-001** (氣象觀測站-全測站逐時氣象資料),
+  which CWA describes as hourly data from its weather stations. The server fetches it
+  (see [Latest Observation endpoint](#latest-observation-endpoint-v2-core)); the
+  browser never contacts CWA. When CWA publishes a new hour is up to CWA, so the
+  **Observation Time** shown is the CWA observation time of the data, not the time
+  you are looking at the page.
+- **Panel.** The *Latest Observation* panel (tagged `OBSERVED`) shows
+  **`Observation Time`** — the latest station `ObsTime` in the data, to the minute,
+  with its UTC offset as published — **`Fetched Time`** — when the server fetched the
+  data, to the second — the number of **valid stations**, and the **`Refresh`**
+  button.
+- **`Refresh`.** Only a manual Refresh loads newer data; the page never updates by
+  itself. While a Refresh runs, a spinner and "Refreshing the Latest Observation…"
+  are shown and further presses are ignored. A successful Refresh with newer data
+  updates the markers and both times; data with an older Observation Time never
+  replaces newer data already shown. If a Refresh fails, the data shown stays and the
+  server's reason is shown next to the button.
+- **Markers.** Each marker shows one representative station's air temperature in °C
+  (the published value, shown with at least one decimal). Its station name is shown
+  under it when zoomed in; hovering or focusing it shows the station name, county and
+  town, its temperature and its Observation Time; clicking it (or pressing Enter)
+  selects it and the panel lists that station's values, with "—" for any missing
+  value. A marker is always a **station value**: it is never presented as "the
+  county's temperature", and no county average is computed.
+
+#### Representative station rule
+
+The Now mode's Taiwan-wide view shows at most one marker per county. Anyone can
+recompute the choice by hand from a `GET /api/observations/latest` response (the
+rule is implemented in [`representative.py`](representative.py) and its result is the
+response's `representativeStationIds`):
+
+1. **Candidates.** For a county, take the entries of `stations[]` with that
+   `countyName` whose `latitude` is within **21.2 – 26.7** and `longitude` within
+   **117.6 – 122.9** (the useful Taiwan map range, including 金門, 連江, 澎湖, 蘭嶼 and
+   綠島). Every entry of `stations[]` is already a valid station.
+2. **Preferred station.** If the county's preferred station is a candidate, it is the
+   representative.
+3. **Fallback.** Otherwise the candidate with the **smallest `stationId`**, comparing
+   the characters by code (digits before capital letters, e.g.
+   `"466910" < "466930" < "A0A010" < "C0A980"`), is the representative.
+4. **No candidate, no marker.** A county without any candidate has no marker; that
+   is not an error.
+
+The preferred stations are **project data, not a contract**: the constant
+`PREFERRED_STATION` in `representative.py` names, for each county, a lowland station
+in the county's seat or named after the county or its seat — the CWA manned weather
+station when there is one (for example 臺北 for 臺北市), otherwise an automatic
+station in the seat's town (for example 太保 for 嘉義縣). They are listed only in
+that file. Worked examples with the committed sample:
+
+- **臺北市** — the preferred station 臺北 (`466920`) is valid, so it is the marker.
+- **臺北市, if 臺北 had an invalid temperature** — the candidates start 鞍部 `466910`,
+  陽明山 `466930`, 臺灣大學 `A0A010`, …; the smallest id, 鞍部, would be the marker.
+- **高雄市, if its preferred station were invalid** — 東沙島 (`468100`, longitude
+  116.73) is outside the map range and never a candidate; the smallest remaining id,
+  `72V140` (高改旗南分場), would be the marker.
+- **連江縣, if none of its stations were valid** — no marker for 連江縣.
+
+The offline tests ([`tests/test_representative.py`](tests/test_representative.py))
+check the rule on the sample and on derived samples (the preferred station of three
+counties made invalid, an out-of-range station, a county with no valid station).
+
+### Forecast mode — the Part A bonus map: six-region Taiwan Map and `Select Date`
+
+**Forecast mode** is the V1 six-region seven-day Taiwan Map, unchanged: press
+**Forecast** in the map's header to see it. It is the **Part A bonus map**. The
+dashboard integrates its **`Select Date`** control and the map on the same page (the
+"Taiwan Weather Dashboard"), alongside the Region chart/table/summary. These are
+**enhanced, dashboard-only** features — the Streamlit Grading App deliberately has
+neither.
 
 - **`Select Date`** lists the snapshot's seven Forecast Days in ascending order and
   defaults to the first day. It lives **inside the Taiwan Map's floating info panel**
@@ -526,10 +641,22 @@ sample, the valid-station rules and eight derived counter-examples, the four
 failure reasons with a sentinel key (asserted absent from responses, logs and
 console output), the reuse window with a controllable clock, the time bound
 against a stalled or slow loopback server, and the forecast endpoints answering
-unchanged with the network blocked and no key. (The browser-level check
-that the dashboard shows a visible message when `/series` fails on first load,
-[`tests/check_series_error_visible.py`](tests/check_series_error_visible.py), needs
-a real Chrome and so runs separately from the offline `pytest` suite.) The test fixture
+unchanged with the network blocked and no key. For the Taiwan Map's two modes,
+`tests/test_representative.py` checks the representative station rule on the sample
+and derived samples, and `tests/test_modes_frontend.py` holds static guards on the
+frontend source (the page opens in Now mode; the labelled mode buttons; the Now
+mode loads without waiting for `/api/health`; each mode's controls and legend; the
+verbatim labels; no colour shared between observation markers and derived bands; the
+map size guard on the mode-switch path). (Two browser-level checks need a real
+Chrome and so run separately from the offline `pytest` suite: the check that the
+dashboard shows a visible message when `/series` fails on first load,
+[`tests/check_series_error_visible.py`](tests/check_series_error_visible.py), and the
+Now mode / Forecast mode check
+[`tests/check_modes_browser.py`](tests/check_modes_browser.py), which runs the app
+on loopback with the sample-fed observation path and the forecast OK or unavailable,
+drives both modes at 1280 px and 375 px, and records every browser request —
+`python tests/check_modes_browser.py`; it also needs the `websocket-client` package.)
+The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two
 temperature weather elements per county (structure preserved); the negative cases
