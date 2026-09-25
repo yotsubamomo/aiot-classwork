@@ -48,12 +48,22 @@ agent-af34869b0082a2554 gov-orchestrator [('claude-opus-4-8', 'high')]
 - **方法**：同上方 b1，依 Bindings §3.4 對 definition 各派一次不做事的任務，再以 §3.4 核對指令讀 harness 紀錄。
 - **前提**：Bindings §6 規定修改 definition 後要重開 session 才會載入，所以 dry-run 必須在修改後新開的 session 執行。
 
-## 預期
+## 預期與結果（dry-run 2026-09-25，session `652a0fb2-378e-42d6-9537-6c55bb12edb5`）
 
-| Identifier | Definition（`agentType`） | 預期 model／effort | 結果 |
-| --- | --- | --- | --- |
-| `executor` | `gov-executor` | `claude-opus-5-5` ／ `high` | 待辦 |
-| `executor`（fallback） | `gov-executor-fallback` | `claude-opus-4-8` ／ `high` | 待辦 |
+| Identifier | Definition（`agentType`） | agentId | 預期 model／effort | 觀測 model／effort | 回覆 | Tool uses | 結果 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `executor` | `gov-executor` | `a79fde8213e723dc9` | `claude-opus-5-5` ／ `high` | `claude-opus-5-5` ／ `high` | `binding dry-run ack: executor` | 0 | **PASS** |
+| `executor`（fallback） | `gov-executor-fallback` | `adc84fb5d25b63ffc` | `claude-opus-4-8` ／ `high` | `claude-opus-4-8` ／ `high` | `binding dry-run ack: executor-fallback` | 0 | **PASS** |
+
+**總判定：PASS**（2／2；無 replacement）。Session 於 2026-09-25 開啟（b2 合併 `0af4f2d` 之後），載入的是 b2 版本的 definitions；派工由 acceptor 於 2026-09-25 明確授權。§3.4 核對指令對該 session 的輸出如下（同一 session 內另有一個非治理角色的 `general-purpose` 研究 agent，與 binding 核對無關，只為完整列出）：
+
+```text
+agent-a569854ac76965f6a general-purpose [('claude-fable-5-1', 'xhigh')]
+agent-a79fde8213e723dc9 gov-executor [('claude-opus-5-5', 'high')]
+agent-adc84fb5d25b63ffc gov-executor-fallback [('claude-opus-4-8', 'high')]
+```
+
+Model diversity（Bindings §5）：b2 下 Executor `claude-opus-5-5` 與 Primary Reviewer `claude-opus-5-5` 相同，正式 audit 時依 Bindings §5 在 audit record 記 `diversity_lost`；改派 fallback `claude-opus-4-8` 時恢復。
 
 ## 修改當下 session 的觀察（2026-09-24，不計為結果）
 
@@ -66,4 +76,4 @@ agent-af34869b0082a2554 gov-orchestrator [('claude-opus-4-8', 'high')]
 agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 ```
 
-這不是 binding FAIL，只證明 b2 的 dry-run 須在新 session 執行。新 session 完成 dry-run 後，把 agentId、觀測值與核對指令輸出填入上表。
+這不是 binding FAIL，只證明 b2 的 dry-run 須在新 session 執行。新 session 完成 dry-run 後，把 agentId、觀測值與核對指令輸出填入上表（已於 2026-09-25 完成，見上表）。
