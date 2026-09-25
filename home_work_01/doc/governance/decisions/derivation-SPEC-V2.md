@@ -264,3 +264,130 @@
 | SPEC-V2 v2.0／本紀錄初版 | 2026-09-25 | acceptor 派工「Proceed with V2 DELTA SPEC DERIVATION only」 | 初版 derive。 | 治理 §1.2 derived contract；§5.3 第 2 類 |
 | SPEC-V2 v2.1／本紀錄修訂 | 2026-09-25 | acceptor 指示「Perform a focused DA correction pass on SPEC-V2 v2.0 and its derivation record. The accepted V2 Outcome Contract is NOT being changed.」（三項實質修正＋一項 HOW 清理＋一項比例性複核；PR #34 不合併、不 derive Tickets） | (1) R-V2-MAP-2、AC-V2-13(c)、§5.3：移除「E 全部／22 縣市同時在視窗內」的下限 PASS 條件；下限只以本島 ≥ 25% 視窗高＋圍欄判準驗證；`minZoom` 6 保留為儀器。(2) R-V2-MAP-1、AC-V2-13(b)、§5.3：pan oracle 改為「中心在 E 內＋逐軸視窗 ⊆ E 或 E ⊆ 視窗」，金門／連江以截圖證明可達；儀器對照 vendored Leaflet `maxBounds` 行為。(3) R-V2-RAD-3、AC-V2-18、R-V2-DOC-1(9)、AC-V2-21(10)：移除「Refresh MUST 一併重取雷達」；觸發方式為 HOW（使用者動作、不輪詢、狀態獨立、README 記載）。(4) R-V2-TC-1、§6.1、AC-V2-02／06／07／09／15／16／19／23 證據欄：框架中立的證據類別用語；V1 既有工具只作既有事實命名；oracle 未弱化。(5) DV-13 補充：1 km 對齊 oracle 比例性複核，保留。本紀錄同步更新：header、§1 效力、§3 總判定、B-4、B-10、DV-9（用語）、DV-11、DV-12、DV-13 補充、未採用的解讀、§4、§9 第 3／4／5／6 列、§10 evidence、§12。 | 治理 §5.3 第 2 類：不改變 V2 OC 的 intent、scope、constraints 或 acceptance semantics；不改變 V1 任何文字；無進行中 work item、無 Ticket、無既有 V2 evidence 受影響；B-4／B-10 的 boundary determination 維持「在 boundary 內」且修正後更貼近 accepted 語義。項目 3 與 5 經 DA 判定不需 acceptor 決定（B-10、DV-13 補充）。 |
 | SPEC-V2 v2.2／本紀錄修訂 | 2026-09-25 | acceptor 指示「Valid-station Observation Time consistency … correct this without changing accepted product semantics」（v2.1 committed at `4efe777`；OC-V2 不重開） | R-V2-OBS-2 新增 (e)：有效測站 MUST 有 CWA 發布且可解析為明確觀測時刻的 `ObsTime`（如發布、不正規化；解析 HOW；新舊不影響有效性），缺少或無法解析者不進氣溫圖層、代表測站選取、縣統計與 dataset-level Observation Time；R-V2-OBS-4(a) 明示最大值只取有效測站、成功回應下恆有定義；AC-V2-05 新增反例 (7)（含最新 `ObsTime` 的站改壞 → 最大值落到其餘有效站）與 (8)（全部壞 → `invalid_response`），對應欄加 OBS-4，FAIL 例補充；R-V2-TC-1 涵蓋範圍同步；§10 加 v2.2 列。本紀錄同步更新：header、§1 效力、§3 總判定、B-18、DV-2 補充、DV-3 修訂、§4、§9 第 2 列與 v2.2 聚焦複核段、§10 evidence、§12。 | 治理 §5.3 第 2 類：derived-contract 一致性修正；不改變 V2 OC 的 intent、scope、constraints、acceptance semantics（S-1、S-2、S-5 不變）；不改變 V1 任何文字；無進行中 work item、無 Ticket、無既有 V2 evidence 受影響；不需 acceptor 決定。 |
+| Tickets（V2）／本紀錄 §15 | 2026-09-25 | acceptor 指示「Proceed with V2 Ticket derivation using Matt's `to_tickets` skill … Do not create new: product semantics; acceptance criteria; invariants; architecture; verification oracles」（baseline `main` `b0642f8`；SPEC-V2 v2.2） | 新增 §15：Issues #35–#41（七張垂直切片，一條 blocking 鏈）、分配、覆蓋矩陣（AC-V2-01～23、INV-V2-1～9、§6.3 全部列、A-1～A-7）、boundary determination TB-V2-1～TB-V2-12、derivation-quality check（八項）、evidence。索引 `doc/ticket/tickets-v2.md`；SPEC-V2 只改標頭「Issue tracker」列與 §10 metadata 列（版本仍 v2.2）。 | 治理 §1.2、§3.4：Tickets 為 derived contracts，不需 acceptor 逐張核准；未新增任何 requirement、AC、invariant、架構或 oracle。 |
+| Tickets（V2）依賴圖修正／本紀錄 §15 | 2026-09-25 | acceptor 指示「do not encode Bindings parallelism=1 as a false technical dependency … The current edge: #37 -> #38 is not required by the authoritative Spec」（PR #42 合併前；Ticket set、scope、AC／INV／high-risk ownership、SPEC-V2 不變） | 移除 blocked-by edge 38←37、新增 41←37（GitHub 原生 dependencies、#38 與 #41 的 `Blocked by` 段、索引 `tickets-v2.md`、本紀錄 §15.1／15.2／TB-V2-2／15.5 第 5 項／15.6 四方同步）；偏好執行順序改記為並行度 1 的排程偏好而非 edge；provenance（`/to-tickets` skill 未安裝）維持原文；八項 derivation-quality check 重跑皆 PASS。 | 治理 §5.3 第 2 類：只修正 Ticket 之間的依賴表示，不改任何 Ticket 的 What to build、AC、INV、High-risk 或 Spec 內容；不需 acceptor 逐張核准。 |
+
+## 15. Tickets（V2，2026-09-25 derive）
+
+### 15.1 依據、識別與方法
+
+- **依據**：V2 Outcome Contract ACCEPTED（candidate `69c5a04`；§4 授權「derive Spec／Tickets」）；SPEC-V2 **v2.2**（DERIVED；`main` `b0642f8fec359090c772f26d37cade1438628881` 已合併 PR #34）；本紀錄 §1–§14；Bindings b3（§4 Formal、§5 assurance、§6 並行度 1、§7 紀錄）；`docs/agents/issue-tracker.md`、`docs/agents/triage-labels.md`；V1 先例 `tickets.md`、`derivation-SPEC.md` §11、Issue #24 的 issue 形狀。
+- **派工指示**：acceptor 2026-09-25「Proceed with V2 Ticket derivation using Matt's `to_tickets` skill … Keep the Ticket set lean and coherent … There is NO required Ticket count … Do not create new: product semantics; acceptance criteria; invariants; architecture; verification oracles … Tickets must remain model-agnostic … Keep the Vercel credential dependency late … Radar alignment ownership must be explicit … Forecast preservation must be explicit」（全文見派工內容）。
+- **方法**：repo 指定的 `/to-tickets`（Bindings §6；`docs/agents/issue-tracker.md`）。DA 核對本環境：`.claude/skills/` 只有設計類 skills、使用者層只安裝 `ui-ux-pro-max` plugin，**`/to-tickets` 的 skill 檔案未安裝**（與 V1 derivation record §9 對 `/to-spec` 的情形相同）；因此依 repo 文件與派工內容轉錄的同一方法執行——tracer-bullet 垂直切片（每張票是穿過所有層、可獨立驗證的窄路徑，大小以一個 fresh context window 為度）、prefactoring 先行、每票宣告 blocking edges、固定 issue 範本（Parent／What to build／Acceptance criteria 引用 Spec ID／Blocked by）、label `ready-for-agent`——不是另行發明的流程。
+- **索引**：[`../../ticket/tickets-v2.md`](../../ticket/tickets-v2.md)。Tickets 本體在 GitHub Issues **#35–#41**（`yotsubamomo/aiot-classwork`），依依賴順序建立，GitHub 原生 issue dependencies **7 條邊**（36←35、37←36、38←36、39←38、40←39、41←37、41←40；2026-09-25 依 acceptor 指示修正：移除 38←37、新增 41←37），票內 `Blocked by` 段為權威。
+- **Spec 對應版本**：v2.2（本次只改 SPEC-V2 標頭「Issue tracker」列與 §10 一列 metadata；語義、R、AC、INV、儀器不變）。
+
+### 15.2 Ticket 清單與分配
+
+| # | 票 | Class | 分配的 AC-V2 | 分配的 AB-V2 | INV-V2 | High-risk | Blocked by |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| #35 | 伺服器端 Latest Observation 路徑：`/api/` 觀測回應、四類失敗分類與安全邊界 re-scope | V2 Core | 03（離線／API）、04（API）、05、06（API）、07（觀測）、16（靜態＋封網）、17(a)(b)(d)、20（範圍） | 2、3、4、5（API）、10、11（部分） | 1、2、4、6（伺服器）、8 | H-1、H-2、H-3 | — |
+| #36 | Now mode 與 Forecast mode：預設 Now、模式切換、全臺代表測站的 Latest Observation 與 Observation Time／Fetched Time | V2 Core | 01、02、03（瀏覽器抽樣）、04（UI success）、09(a)＋API 面、11、15（模式切換）、16（network log）、20（範圍）、21(13)、23（除 Back to Taiwan） | 1、2、5（部分）、6（代表規則）、11、12（部分） | 3、5、7（預報失敗）、8、9 | H-2、H-3 | #35 |
+| #37 | Refresh 與狀態語義：newer／not-newer／failure、Stale／Unavailable、觀測失敗只影響 Now mode | V2 Core | 04（UI stale／unavailable）、06（UI）、08、09(b)、20（範圍） | 3、4、5（部分） | 6、7（觀測失敗） | H-1、H-3 | #36 |
+| #38 | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | 10、12、16（縣界圖層）、20（範圍）、23（Back to Taiwan） | 6、8（鍵盤路徑）、10（部分） | 3、5 | H-3、H-2 | #36 |
+| #39 | 地圖圍欄與響應式可用性：pan／zoom 圍欄、初始視野、375 px 底部資訊面、44×44、768 px 破版檢查 | V2 Core | 13、14、15（完整）、20（範圍） | 7、8 | 8、9 | H-2 | #38 |
+| #40 | Radar overlay：`/api/` 代理、顯示／隱藏、雷達時間戳、獨立狀態與 1 km 地理對齊 oracle | V2 Radar | 07（雷達）、09(c)、16（雷達 URL／log）、17(a)(e)（雷達）、18、19、20（範圍）；13、15 只在改變 CRS 時重驗 | 9、5（雷達）、10（部分） | 2、3、7（雷達） | H-1、H-3 | #39 |
+| #41 | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class；V1 #25 先例） | 03（preview）、16（最終 log）、17(c)(e)、20（完整）、21（全部）、22 | 10、11、12、13；全部 AB-V2 最終對照 | 1～9 最終自我核對 | H-1、H-2、H-3 | #37、#40 |
+
+### 15.3 覆蓋矩陣（自我核對）
+
+**AC-V2 → owner**（每條至少一張票；「部分」以票內範圍說明為準）：
+
+| AC-V2 | Owner |
+| --- | --- |
+| 01 | #36 |
+| 02 | #36 |
+| 03 | #35（離線／API）、#36（瀏覽器抽樣）、#41（preview） |
+| 04 | #35（API）、#36（UI success）、#37（UI stale／unavailable） |
+| 05 | #35 |
+| 06 | #35（API）、#37（UI） |
+| 07 | #35（觀測路徑）、#40（雷達路徑） |
+| 08 | #37 |
+| 09 | #36（(a)＋`/api/health` 回歸與 smoke 不變）、#37（(b)）、#40（(c)） |
+| 10 | #38 |
+| 11 | #36 |
+| 12 | #38 |
+| 13 | #39（#40 只在改變 CRS 時重驗） |
+| 14 | #39 |
+| 15 | #36（模式切換路徑）、#39（完整；#40 只在改變 CRS 時重驗） |
+| 16 | #35（靜態檢查 re-scope＋封網）、#36（Now／Forecast network log）、#38（縣界圖層）、#40（雷達 URL 與 log）、#41（最終 log） |
+| 17 | #35（(a)(b)(d)）、#40（(a)(e) 雷達）、#41（(c)、(e) 全部 evidence） |
+| 18 | #40 |
+| 19 | #40 |
+| 20 | 每票在自己範圍維持（CI 全綠、V1 產物不變）；#41 完整（blob／diff、§6.3 彙整） |
+| 21 | #36（第 13 項 `CONTEXT.md`）、#41（十四項全部） |
+| 22 | #41（觀測部分 BLOCKED until RB-3） |
+| 23 | #36（全部錨點，除 Back to Taiwan）、#38（Back to Taiwan） |
+
+**INV-V2 → accountable coverage**（全部仍由 Spec Integration Audit 逐項核對，本表只是實作期的責任票）：
+
+| INV-V2 | 責任票 |
+| --- | --- |
+| 1 預報路徑 CWA-free、key-free | #35（靜態＋封網）；#41 最終 |
+| 2 金鑰零外洩、兩個位置 | #35、#40、#41 |
+| 3 瀏覽器只呼叫 `/api/`、零外部請求 | #36、#38、#40、#41 |
+| 4 `/api/health`、smoke、預報 endpoint 不變 | #35、#36、#41 |
+| 5 兩種語義分開、觀測不聚合 | #36、#38（#37 的 Stale／Unavailable 標示） |
+| 6 新鮮度單調 | #35（伺服器回應形態）、#37（UI 取代規則、Stale 只以失敗為基準） |
+| 7 三條路徑獨立降級 | #36（預報失敗）、#37（觀測失敗）、#40（雷達失敗） |
+| 8 V1 不變量與產物不變 | #35、#36、#39、#41（blob／diff） |
+| 9 Scope class 分明 | #36、#39、#41 |
+
+**§6.3 定向 V1 重驗 → owner**：AC-17、AC-18 → #36；AC-19 → #39；AC-02／AC-03／AC-24（Dashboard 側）→ #36；AC-04 → #35；AC-07(b)(c)(d)(f) 與 (e) supersede → #35（記述 #41）；AC-10（Dashboard 側）→ #36；AC-14 → #41；AC-15、AC-16、AC-22(a) → #41（AC-16 API 回歸亦於 #35、#36）；AC-26／INV-9 → #41（每票維持）；標題與 masthead → #36。其餘 V1 AC 依 Spec §6.3 末段以 CI 全綠與 blob／diff 證明（每票維持、#41 彙整）。
+
+**A-1～A-7 → 承接**：A-1（觸及 H-1／H-2／H-3 的票，R1 record 明記核對段）→ #35～#41 全部（每票的 High-risk 段已標示類別）；A-2（Spec Integration Audit 逐項核 INV-V2-2／5／8 與 V1 兩句 SQL）→ Spec Integration Audit instance，不是票；A-3（高風險 blocking finding 不得由 FA 單獨 deferred）→ 全部票的 adjudication；A-4 → 不適用（Formal）；A-5（CI 機械檢查延伸）→ #35（延伸）、#41（最終執行）；A-6（release gate 材料）→ #41；A-7（diversity 記錄）→ Orchestrator 於各 audit record。
+
+**R-V2 群組覆蓋**：MODE → #36（MODE-6(c) 另 #37）；OBS-1～6、9、11～13 → #35，OBS-4(c)、7、8、10、12（UI）、13（UI）→ #36／#37；DD-2、3、10 → #36，DD-1、4～9、11 → #38；SEC-1～7 → #35（雷達面 #40；SEC-3(c)(d)、SEC-5 最終 #41）；DEG-1、3、5 → #36（DEG-5 API 面 #35），DEG-2 → #37，DEG-4 → #40；MAP-1～4 → #39，MAP-5 → #36／#39；RSP-1～8 → #39（RSP-4 #36、RSP-6 部分 #38）；RAD-1～6 → #40；DOC-1 → #35 (6)(7)、#36 (1)(2)(3)、#38 (3)、#39 (8)、#40 (5)(9)、#41 全部；DOC-2 → #40、#41；DOC-3 → #41；DOC-4 → #36；DOC-5 → #36、#41；DOC-6 → 全部；TC-1 → #35（各票對自己的自動化）；TC-2 → #35（雷達樣本 #40）；TC-3 → #35、#41；TC-4 → #36～#40；ENV-1 → #41；ENV-2 → #35（文件）、#41。全部 73 條 R-V2 至少出現在一張票的 Traceability。
+
+**缺口：無。** AB-V2-1～13 每條至少一張票（AB-1 #36；AB-2 #35／#36／#41；AB-3 #35／#37；AB-4 #35／#37；AB-5 #35／#36／#37／#40；AB-6 #36／#38；AB-7 #39；AB-8 #38／#39；AB-9 #40；AB-10 #35／#38／#40／#41；AB-11 #35／#36／#41；AB-12 #36／#41；AB-13 #41）。
+
+### 15.4 Boundary determination（TB-V2）
+
+| # | 判定 | 依據 |
+| --- | --- | --- |
+| TB-V2-1 | 七張票的 What to build 與 Acceptance criteria 全部引用 SPEC-V2 v2.2 既有的 R／AC／INV／§6.3 項目；票內只以「範圍說明」限定該票承接的部分，不重述、不改寫任何 PASS／FAIL oracle；沒有新增 requirement、AC、invariant、架構決定或 oracle（治理 §3.4）。 | Spec §2–§6 |
+| TB-V2-2 | 技術 blocking edges 共 7 條（35→36、36→37、36→38、38→39、39→40、37→41、40→41），在 #36 之後分為兩條分支、#41 等待兩者；每條邊反映 Spec 要求的真實前置（#36 需觀測 `/api/`；#37 需 Now mode 骨架；#38 需 Now mode 基礎與代表測站，**不需** #37 的 Refresh／Stale／Unavailable 語義完成；#39 需縣／測站面板為資訊面內容；#40 排在圍欄儀器之後並在改變 CRS 時重驗 AC-V2-13／15；#41 需兩條分支全部結案）。Bindings §6 的並行度 1 只決定排程：偏好順序 #35、#36、#37、#38、#39、#40、#41 是排程偏好，**不**編成 blocked-by edge（初版曾以 38←37 表示此偏好，2026-09-25 依 acceptor 指示移除）。 | Bindings §6；Spec §2.3、§2.5、§5.3 |
+| TB-V2-3 | Ticket 不指定 Executor 模型，不含 Opus／Fable／Codex 等字樣；模型與 binding 依 Bindings §3.1／§3.4 由 Orchestrator 處理。 | 派工指示 5；Bindings §3 |
+| TB-V2-4 | 驗證比例性：每票只擁有與其切片實質相關的 AC／INV 證據；AC-V2-20 每票只在自身範圍維持、#41 彙整；沒有票重跑全部 AC-V2-01～23；#41 對 §6.3 以引用各票證據為主，不重做。 | 派工指示 6；Spec §6 |
+| TB-V2-5 | 憑證依賴最後：#35～#40 以 A-3 的本機 `.env` 與離線樣本完成；需要 Vercel 金鑰的 preview 證據只在 #41 的 AC-V2-17(c)／AC-V2-22 觀測部分，且 RB-3 前記 BLOCKED（不是 FAIL）。沒有票要求 Agent 填入金鑰。 | 派工指示 7；OC-V2 A-2、A-3；Spec §9 |
+| TB-V2-6 | UI／UX 附錄 A 未成為任何票的需求；#36／#39 明列其為 advisory。 | 派工指示 8；B-20 |
+| TB-V2-7 | Radar 對齊由 #40 明確擁有（R-V2-RAD-5、AC-V2-19、1 km oracle、DV-13）；改變 CRS 時的 AC-V2-13／15 重驗亦在 #40。 | 派工指示 9 |
+| TB-V2-8 | Forecast 保留由 #36 明確擁有（AC-17／AC-18 重驗、Forecast mode 原樣、預報區段層級降級、下方 dashboard 不變）；V1 產物不變的證明由 #35（後端 blob／diff）與 #41（最終）承接。 | 派工指示 10；Δ-5、Δ-7 |
+| TB-V2-9 | 沒有新增人為 gate：唯一的 acceptor 動作是 Spec §9 已列的 RB-3 金鑰填入（只擋 #41 的兩個子項）與既有的部署可匿名存取、Orchestrator 主 session；RB-1／RB-2 維持 release 動作。 | 治理 §1.5；Bindings §2.6 |
+| TB-V2-10 | 票標題與內文使用 `CONTEXT.md`／BRIEF-V2 §9 詞彙；不含程式碼；檔案路徑只限老師指定的名稱（`app.py`、`weather_query.py`、`data.db`、README、`CONTEXT.md`）與 Bindings §7 要求的 Spec／worklog／decision／索引路徑（V1 TB-6 同一規則）；內文無金鑰格式字串、無 `.env` 內容。 | CLAUDE.md；Bindings §7；H-1 |
+| TB-V2-11 | #41 分類為 INTEGRATION／FINAL VERIFICATION（非 scope class），沿用 V1 #25 的 TB-8 先例：不新增需求，只做整合驗證、文件與部署證據；合法地依賴全部實作票。 | derivation-SPEC.md TB-8 |
+| TB-V2-12 | `/to-tickets` skill 檔案未安裝於本環境（15.1）；依 repo 文件與派工內容轉錄的同一方法執行，未發明替代流程；此為方法（HOW）事實，不影響 Tickets 作為 derived contracts 的效力（治理 §3.4：Skills 屬 HOW，不取得設計權）。 | Bindings §6；V1 derivation record §9 先例 |
+
+沒有發現 Spec 矛盾；未重開任何 Spec、OC 或 Grill 決定。
+
+### 15.5 Derivation-quality check（acceptor 指示的八項）
+
+| # | 檢查 | 結果 | 說明 |
+| --- | --- | --- | --- |
+| 1 | 每條 AC-V2-01～23 有 owner | PASS | 15.3 AC 表；23／23。 |
+| 2 | 每條 INV-V2-1～9 有責任票且仍在 Spec Integration Audit | PASS | 15.3 INV 表；Spec §6.4 與本紀錄 §6 A-2 維持 SIA 逐項核對。 |
+| 3 | 定向 V1 重驗有 owner | PASS | 15.3 §6.3 段；十列全部分配。 |
+| 4 | H-1／H-2／H-3 覆蓋可發現 | PASS | 每票 High-risk 段標示類別並引用 A-1；15.2 表彙整（H-1：#35、#37、#40、#41；H-2：#35、#36、#38、#39、#41；H-3：#35、#36、#37、#38、#40、#41）。 |
+| 5 | 依賴圖一致 | PASS | 7 條邊（35→36、36→37、36→38、38→39、39→40、37→41、40→41）、無環、blocker 編號皆小於被阻擋票、無把排程偏好編成的假依賴；票內 `Blocked by`、GitHub 原生 dependencies、索引、15.2 表四方一致（修正後 DA 以 `gh api` 逐票重新核對：#35 []、#36 [35]、#37 [36]、#38 [36]、#39 [38]、#40 [39]、#41 [37, 40]）。 |
+| 6 | 未引入不必要的人為 gate | PASS | TB-V2-9。 |
+| 7 | 無 Ticket 創造的語義 | PASS | TB-V2-1；AC 清單只引用 Spec ID 與範圍說明。 |
+| 8 | 無票數膨脹或重複證據負擔 | PASS | 七張（V1 為八張）；TB-V2-4；每張為可獨立驗證的垂直切片；未依 R／AC 編號機械拆分。 |
+
+### 15.6 Evidence（DA 自行執行；未印出任何金鑰）
+
+- `git rev-parse HEAD` ＝ `b0642f8fec359090c772f26d37cade1438628881`（branch `home_work_01-v2-tickets`；`git status --porcelain` 只有工具殘留 `grep.exe.stackdump`）。
+- 讀取：SPEC-V2 v2.2 全文（§1.2、§2、§3、§4、§5.3、§6、§7、§9）；本紀錄 §6、§11、§13、§14；OC-V2 §3、§4、§8；Bindings b3 §4–§7；`docs/agents/issue-tracker.md`、`triage-labels.md`；V1 `tickets.md`、`derivation-SPEC.md` §11.1、`worklog/20260924-ticket-derivation.md`；`gh issue view 24`（body、label、`dependencies/blocked_by` ＝ [23]）。
+- Skill 核對：`.claude/skills/` ＝ banner-design、brand、design、design-system、slides、ui-styling、ui-ux-pro-max；`~/.claude/skills`、`~/.claude/commands` 不存在；`installed_plugins.json` 只有 `ui-ux-pro-max`；repo 內無 `to-tickets` 檔案。
+- `gh issue create` ×7 → #35～#41（label `ready-for-agent`，body 以完整內容取代，0 個殘留 placeholder）；`gh api -X POST …/issues/<n>/dependencies/blocked_by` ×6；`GET …/dependencies/blocked_by`：#35 []、#36 [35]、#37 [36]、#38 [37]、#39 [38]、#40 [39]、#41 [40]。
+- 依賴圖修正（2026-09-25，acceptor 指示；branch 於 `ba973686f4544cd565b0c45ce010c4b99495add0`）：`gh api -X DELETE …/issues/38/dependencies/blocked_by/<#37 的 issue id>`、`gh api -X POST …/issues/41/dependencies/blocked_by`（#37）；#38 與 #41 的 body 只改 `## Blocked by` 段（DA 以 diff 證明段落外零變更）；修正後 `GET …/dependencies/blocked_by`：#35 []、#36 [35]、#37 [36]、#38 [36]、#39 [38]、#40 [39]、#41 [37, 40]。Ticket scope、AC／INV／high-risk 分配與 SPEC-V2 未變。
+- 七份 issue body 的金鑰格式掃描 0 命中；本節、索引與 SPEC-V2 的 metadata 修改亦不含金鑰。
+- 本次未實作、未呼叫 CWA、未部署、未啟動 run、未 commit、未動 Vercel 或 repository variables。
+
+### 15.7 需要 acceptor 的事項（Ticket 層）
+
+| # | 事項 | 影響的票 | Authority |
+| --- | --- | --- | --- |
+| 1 | 在 Vercel 專案填入 `CWA_API_KEY`（preview 與 production 環境） | #41 的 AC-V2-17(c)、AC-V2-22 觀測部分（其餘先完成；BLOCKED 不是 FAIL） | acceptor（RB-3，b3） |
+| 2 | 受審 commit 的部署不需登入可存取 | #41 | acceptor（RB-3） |
+| 3 | 開符合 `orchestrator` mapping 的主 session 啟動 Formal run | 全部 | acceptor（Bindings §3.3） |
+| 4 | 合併（RB-1）、繳交（RB-2） | #41 之後 | acceptor |
