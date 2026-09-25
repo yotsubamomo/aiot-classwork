@@ -1,6 +1,6 @@
 # Outcome Contract V2 — HW01 Weather Map V2（`home_work_01/`）
 
-- **狀態**：**DRAFT（待 acceptor 接受）。** 接受前只是討論輸入；接受紀錄見第 9 節，由 acceptor 親自填寫。Agent 代寫的接受紀錄不等於取得授權（治理 §1.2、§5.3）。
+- **狀態**：**ACCEPTED（2026-09-25）。** 接受的 normative 內容為第 1–8 節於 candidate commit `69c5a049104b2fd96289d10ff938c2c8a6d59bd4` 的版本，未作任何內容變更；接受紀錄見第 9 節（acceptor 原文逐字）。Agent 代寫的接受紀錄不等於取得授權（治理 §1.2、§5.3）；效力來自第 9.1 節的 acceptor 原文。
 - **性質**：V1 Outcome Contract（[`outcome-contract.md`](outcome-contract.md)，ACCEPTED 2026-09-23）之上的 **新工作、新 Outcome Contract**（治理 §5.3：「需要獨立接受的新增工作，以新的 Outcome Contract 承載」）。V1 Outcome Contract 與 Spec v1.1 **normatively 不變**，作為 inherited baseline；本檔只描述 V2 delta，並在第 2.4 節逐條列出其適用範圍被延伸、re-scope 或 supersede 的 V1 條款。
 - **依據**：Minimal Operational Governance v2.0 §3.1 七項 properties；Project Bindings b2（[`../../../docs/governance/project-bindings.md`](../../../docs/governance/project-bindings.md)）§2.3、§2.4、§4、§5、§7。
 - **來源紀錄**：2026-09-25 V2 Grill（acceptor 裁決 D-1～D-19、defaults P-1～P-36）；盤點見 [`../brief/BRIEF-V2.md`](../brief/BRIEF-V2.md)。
@@ -148,12 +148,32 @@ V2 是 acceptor 明確授權、超出老師 Part A 需求的 ENHANCED 延伸（B
 
 | 欄位 | 內容 |
 | --- | --- |
-| 狀態 | **DRAFT — 未接受** |
-| Acceptor | GitHub `yotsubamomo`（Bindings §2.1） |
-| Acceptor 原始指示（引用原文） | （待 acceptor 於對話中給出接受原文後逐字轉錄） |
-| 日期 | — |
-| 接受的檔案 commit SHA | — |
-| RB-5 workflows 准駁 | — |
-| 前置證據 | Bindings b3 生效的 commit；b2 dry-run 紀錄 |
+| 狀態 | **已接受**（2026-09-25） |
+| Acceptor | GitHub `yotsubamomo`（Bindings §2.1），於 Claude Code 對話中以第 9.1 節原文接受 |
+| Acceptor 原始指示（引用原文） | 見第 9.1 節（逐字） |
+| 日期 | 2026-09-25 |
+| 接受的 normative candidate commit SHA | `69c5a049104b2fd96289d10ff938c2c8a6d59bd4`（branch `home_work_01-v2-brief-outcome-contract`：`doc/brief/BRIEF-V2.md` 與本檔第 1–8 節於該 commit 的版本，未作任何內容變更）。本接受紀錄寫入後的 commit：緊接其後、只改本節與檔頭狀態列的 follow-up commit |
+| RB-5 workflows 准駁 | **已授權（窄範圍）**：acceptor 2026-09-25 依 RB-5 給予、記於第 4 節 A-4 的原文（只在為本 V2 工作保留或延伸驗證所必要時修改既有 HW01 CI／smoke workflow 檔，變更限於 home_work_01 行為；不含無關 root 檔案、無關 workflow、整體 CI 重設計；不需要就不改）；acceptor 於接受原文確認「the narrow V2 RB-5 workflow authorization is accepted as recorded」 |
+| 前置證據 | Bindings **b3** 已生效：PR #31 merge commit `0b422080d5060fa11c081e3e598ee06363d7c793`（含 `c6f0500c080b9ca44d0e18ebe3a6ef8d11177b1f`）。b2 `executor` binding dry-run **PASS** 已記入 `docs/governance/binding-verification.md`：PR #32 merge commit `588ef5710a415bc28deef2be5049f7e2236ccfc1`（含 `0cf679ba04919b77521f636a74fa4225aff55e72`）。第 8 節第 1–3 列據此視為已滿足；表內「待辦」字樣為 candidate 當時的狀態，依「不改變已接受 normative 內容」原則保留 |
+| RB-1（本次特定授權） | acceptor 2026-09-25 明確授權 push、開 PR 與 **merge** 三個既定項目——b3（`c6f0500`）、dry-run 紀錄（`0cf679b`）、本 branch（candidate `69c5a04` ＋ 本接受紀錄 follow-up commit）——依此順序、採保留 candidate commit identity 的 merge commit（不 squash、不改寫）。不構成 standing merge authority；不涵蓋其他 PR／branch、其他治理變更、Delta Spec／Ticket／實作變更 |
 
-寫入者：待接受時由主 session 依 acceptor 的明確指示逐字轉錄；接受與授權的效力來自 acceptor 原文，不來自轉錄。
+### 9.1 Acceptor 接受原文（2026-09-25，逐字）
+
+> I ACCEPT the V2 Brief / Outcome Contract candidate at:
+>
+> 69c5a049104b2fd96289d10ff938c2c8a6d59bd4
+>
+> Acceptance basis:
+>
+> - BRIEF-V2.md and outcome-contract-v2.md at that candidate SHA;
+> - V1 normative artifacts remain untouched;
+> - V2 is a delta over the inherited V1 baseline;
+> - the corrected conservative O-A0001-001 cadence wording is accepted;
+> - CWA attribution remains an external licence/compliance documentation obligation;
+> - the narrow V2 RB-5 workflow authorization is accepted as recorded;
+> - no additional scope beyond the candidate SHA is authorized by this acceptance.
+>
+> This acceptance authorizes the V2 work within the accepted Outcome Contract
+> boundary, subject to its activation preconditions.
+
+寫入者：主 session（agent），依 acceptor 的明確指示逐字轉錄；接受與授權的效力來自上述 acceptor 原文，不來自本轉錄。第 1–8 節未變更。
