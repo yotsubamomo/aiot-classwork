@@ -298,10 +298,26 @@ latitude and longitude; a `CountyName` that is exactly one of the 22 counties
 (the 19 forecast-Region member counties plus 澎湖縣, 金門縣, 連江縣; `臺`, not
 `台`); and a published `ObsTime` that parses to a date with hour and minute (an
 `ObsTime` without an offset is read as `+08:00` for comparison only). Invalid
-records are left out of `stations`, the count and `observationTime`. The sentinel
-set is `X`, `-99`, `-98`, `T`, `990` (CWA data standard V1.05; matched as text and,
-for the numeric ones, by value such as `-99.0`); it is the `SENTINELS` constant in
-`observation.py`. Zero valid stations is a failure (`invalid_response`).
+records are left out of `stations`, the count and `observationTime`. Zero valid
+stations is a failure (`invalid_response`).
+
+**Sentinel codes, per field** (CWA data standard V1.05; matched as text and, for
+the numeric ones, by value such as `-99.0`). A code is applied only to the fields
+it is defined for; anywhere else the published value is a real reading and is
+returned as published — for example a station pressure or rainfall of `990.0`.
+
+| Code | Meaning | Applied to |
+| --- | --- | --- |
+| `X` | instrument failure | every field |
+| `-99` | missing / abnormal | every field (including the WGS84 coordinates) |
+| `T` | trace of rain | `precipitation` |
+| `-98` | continuous no precipitation | `precipitation` |
+| `990` | variable wind direction | `windDirection` |
+| all five | — | air-temperature validity (a station with any of them is not valid) |
+
+A code that applies turns an optional field into `null` (shown as "—"), never a
+number. The mapping is the `FIELD_SENTINELS` constant in `observation.py` and can
+be replaced through `LatestObservationService(field_sentinels=...)`.
 
 **Failure — non-2xx JSON** `{ dataset, reason, error }` with exactly one `reason`:
 

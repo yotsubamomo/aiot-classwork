@@ -179,6 +179,15 @@ EXPECTED_STATIONS = {
         "relativeHumidity": 90, "windSpeed": 0.8, "windDirection": 10.0,
         "airPressure": 1003.1, "precipitation": 0.0, "weather": "晴",
     },
+    # a real published air pressure of 990.0 hPa (not a sentinel for this field;
+    # 990 is the variable-wind-direction code only — audit #35 F-1)
+    "C0F9I0": {
+        "stationId": "C0F9I0", "stationName": "神岡", "countyName": "臺中市",
+        "townName": "神岡區", "latitude": 24.272481, "longitude": 120.658314,
+        "observationTime": SAMPLE_OBS_TIME, "airTemperature": 25.2,
+        "relativeHumidity": 88, "windSpeed": 1.1, "windDirection": 332.0,
+        "airPressure": 990.0, "precipitation": 0.0, "weather": "晴",
+    },
     # densest county 臺北市
     "C0AH70": {
         "stationId": "C0AH70", "stationName": "松山", "countyName": "臺北市",
@@ -214,9 +223,12 @@ def test_every_station_has_the_contract_fields(sample) -> None:
     for s in body["stations"]:
         assert set(s) == required | optional
         assert isinstance(s["airTemperature"], (int, float))
-        assert s["airTemperature"] not in (-99, -98, 990)
+        assert s["airTemperature"] not in (-99, -98, 990)  # whole set (R-V2-OBS-2(b))
         for field in optional:
-            assert s[field] is None or s[field] not in (-99, -98, 990, "-99", "X", "T")
+            # the generic missing codes never survive in any optional field
+            assert s[field] is None or s[field] not in (-99, "-99", "X")
+        assert s["windDirection"] != 990  # 風向不定 is the wind-direction code
+        assert s["precipitation"] not in (-98, "T")  # 連續無降水 / 雨跡
     assert {s["countyName"] for s in body["stations"]} == obs.COUNTIES  # 22 incl. islands
 
 
@@ -236,6 +248,61 @@ def test_values_are_as_published_not_rounded(sample) -> None:
     got = by_id(body)["C0TB40"]
     assert got["airTemperature"] == 25.46
     assert got["observationTime"] == "2026-09-25 23:00"
+
+
+def test_real_990_air_pressure_is_kept_as_published(sample) -> None:
+    """F-1: the sample's two real 990.0 hPa readings survive as numbers."""
+    _, body = latest(sample)
+    stations = by_id(body)
+    assert station(sample, "C0F9I0")["WeatherElement"]["AirPressure"] == "990.0"
+    assert station(sample, "CAF030")["WeatherElement"]["AirPressure"] == "990.0"
+    assert stations["C0F9I0"]["airPressure"] == 990.0
+    assert stations["CAF030"]["airPressure"] == 990.0
+
+
+@pytest.mark.parametrize(
+    "upstream_field, published, response_field, expected",
+    [
+        ("AirPressure", "990.0", "airPressure", 990.0),
+        ("AirPressure", "990", "airPressure", 990),
+        ("Precipitation", "990.0", "precipitation", 990.0),
+        ("WindDirection", "990", "windDirection", None),
+        ("WindDirection", "990.0", "windDirection", None),
+        ("Precipitation", "T", "precipitation", None),
+        ("Precipitation", "-98", "precipitation", None),
+        ("Precipitation", "-98.0", "precipitation", None),
+        ("RelativeHumidity", "-99", "relativeHumidity", None),
+        ("WindSpeed", "X", "windSpeed", None),
+        ("AirPressure", "-99", "airPressure", None),
+        ("Weather", "-99", "weather", None),
+        ("Weather", "X", "weather", None),
+    ],
+)
+def test_sentinel_applies_only_to_its_fields(
+    sample, upstream_field, published, response_field, expected
+) -> None:
+    """Derived from the sample: a code nulls only the fields it is defined for;
+    the station stays valid either way."""
+    elements = station(sample, "C0TB40")["WeatherElement"]
+    if upstream_field == "Precipitation":
+        elements["Now"]["Precipitation"] = published
+    else:
+        elements[upstream_field] = published
+    status, body = latest(sample)
+    assert status == 200
+    got = by_id(body)["C0TB40"][response_field]
+    assert got == expected
+    if expected is not None:
+        assert type(got) is type(expected)
+    assert body["validStationCount"] == SAMPLE_VALID
+
+
+def test_field_sentinels_are_configurable(sample) -> None:
+    custom = dict(obs.FIELD_SENTINELS, airPressure=frozenset({"X", "-99", "990"}))
+    svc = service(FakeUpstream(ok(sample)), field_sentinels=custom)
+    assert by_id(svc.latest()[1])["C0F9I0"]["airPressure"] is None
+    with pytest.raises(ValueError):
+        obs.LatestObservationService(field_sentinels={"airTemperature": obs.SENTINELS})
 
 
 # --- AC-V2-04 Observation Time and Fetched Time -----------------------------------
@@ -841,15 +908,51 @@ def test_load_local_env_does_not_override_and_tolerates_absence(tmp_path) -> Non
 @pytest.mark.parametrize(
     "value, expected",
     [("25.5", 25.5), ("82", 82), ("259.0", 259.0), ("0.0", 0.0), ("-3.2", -3.2),
-     ("-99", None), ("-99.0", None), ("-98", None), ("990", None), ("990.0", None),
-     ("X", None), ("T", None), ("", None), ("  ", None), ("abc", None), ("NaN", None),
-     ("Infinity", None), (None, None), (True, None), (25.5, 25.5), (-99, None), ([], None)],
+     ("-99", None), ("-99.0", None), ("X", None), ("", None), ("  ", None),
+     ("abc", None), ("NaN", None), ("Infinity", None), (None, None), (True, None),
+     (25.5, 25.5), (-99, None), ([], None),
+     # not generic missing codes: kept as published unless the field defines them
+     ("990.0", 990.0), ("990", 990), ("-98", -98)],
 )
-def test_parse_published_number(value, expected) -> None:
+def test_parse_published_number_generic_codes(value, expected) -> None:
+    """Default (and every field): only X / -99 are missing-value codes."""
     result = obs.parse_published_number(value)
     assert result == expected
     if expected is not None:
         assert type(result) is type(expected)
+
+
+@pytest.mark.parametrize(
+    "field, value, expected",
+    [
+        ("airTemperature", "990", None), ("airTemperature", "990.0", None),
+        ("airTemperature", "-98", None), ("airTemperature", "T", None),
+        ("airTemperature", "-99", None), ("airTemperature", "25.2", 25.2),
+        ("windDirection", "990", None), ("windDirection", "990.0", None),
+        ("windDirection", "-99", None), ("windDirection", "332.0", 332.0),
+        ("precipitation", "T", None), ("precipitation", "-98", None),
+        ("precipitation", "-98.0", None), ("precipitation", "-99", None),
+        ("precipitation", "990.0", 990.0), ("precipitation", "0.5", 0.5),
+        ("airPressure", "990.0", 990.0), ("airPressure", "990", 990),
+        ("airPressure", "-99", None), ("airPressure", "1010.8", 1010.8),
+        ("relativeHumidity", "-99", None), ("relativeHumidity", "82", 82),
+        ("windSpeed", "-99", None), ("windSpeed", "1.1", 1.1),
+    ],
+)
+def test_per_field_sentinel_sets(field, value, expected) -> None:
+    """Each code applies only to the fields the data standard defines it for."""
+    assert obs.parse_published_number(value, obs.FIELD_SENTINELS[field]) == expected
+
+
+def test_field_sentinel_sets_match_the_data_standard() -> None:
+    assert obs.MISSING_CODES == {"X", "-99"}
+    assert obs.PRECIPITATION_CODES == {"T", "-98"}
+    assert obs.WIND_DIRECTION_CODES == {"990"}
+    assert obs.FIELD_SENTINELS["airTemperature"] == {"X", "-99", "-98", "T", "990"}
+    for field in ("relativeHumidity", "windSpeed", "airPressure", "weather", "coordinates"):
+        assert obs.FIELD_SENTINELS[field] == {"X", "-99"}, field
+    assert obs.FIELD_SENTINELS["windDirection"] == {"X", "-99", "990"}
+    assert obs.FIELD_SENTINELS["precipitation"] == {"X", "-99", "T", "-98"}
 
 
 def test_county_set_is_v1_members_plus_three_islands() -> None:

@@ -24,6 +24,10 @@ README section "Latest Observation endpoint"):
   ``CountyName`` verbatim one of the 22 counties; a published ``ObsTime`` that
   parses to a date plus hour and minute. Invalid records never reach the
   response's station list, count or dataset Observation Time.
+* **Per-field sentinels** (data standard V1.05, BRIEF-V2 §3.2): ``X`` / ``-99``
+  apply to every field; ``T`` / ``-98`` only to precipitation; ``990`` (variable
+  wind direction) only to wind direction; the whole set to air-temperature
+  validity (R-V2-OBS-2(b)). See ``FIELD_SENTINELS``.
 * **Values as published** (H-3): numbers are parsed from the published decimal
   strings without rounding or unit conversion; ``ObsTime`` strings are returned
   exactly as CWA published them; a sentinel never becomes a number (``null``).
@@ -87,11 +91,32 @@ COUNTIES: frozenset[str] = frozenset(
     }
 )
 
-# Documented sentinel set (R-V2-OBS-2(b); CWA data standard V1.05). A published
-# value equal to one of these — as text, or numerically for the numeric ones —
-# is "no valid value": it makes the air temperature invalid and turns an optional
-# field into ``null``. Configurable by passing ``sentinels=`` to the service.
-SENTINELS: frozenset[str] = frozenset({"X", "-99", "-98", "T", "990"})
+# Sentinel codes of the CWA data standard V1.05 (BRIEF-V2 §3.2), grouped by the
+# fields they are defined for. A published value equal to a code that applies to
+# its field — as text, or numerically for the numeric codes (``-99.0``) — is "no
+# valid value": it makes the air temperature invalid (station excluded) and
+# turns an optional field into ``null``. A code is NOT applied to a field it is
+# not defined for, so e.g. a published air pressure or rainfall of ``990.0`` is a
+# real reading and is returned as published (H-3; audit #35 F-1).
+MISSING_CODES: frozenset[str] = frozenset({"X", "-99"})  # 儀器故障; 缺值／異常 — any field
+PRECIPITATION_CODES: frozenset[str] = frozenset({"T", "-98"})  # 雨跡; 連續無降水
+WIND_DIRECTION_CODES: frozenset[str] = frozenset({"990"})  # 風向不定
+
+# R-V2-OBS-2(b) names the whole set for air-temperature validity.
+SENTINELS: frozenset[str] = MISSING_CODES | PRECIPITATION_CODES | WIND_DIRECTION_CODES
+
+# The per-field sentinel sets actually applied (configurable via the service's
+# ``field_sentinels=``; documented in the README).
+FIELD_SENTINELS: dict[str, frozenset[str]] = {
+    "airTemperature": SENTINELS,
+    "relativeHumidity": MISSING_CODES,
+    "windSpeed": MISSING_CODES,
+    "windDirection": MISSING_CODES | WIND_DIRECTION_CODES,
+    "airPressure": MISSING_CODES,
+    "precipitation": MISSING_CODES | PRECIPITATION_CODES,
+    "weather": MISSING_CODES,
+    "coordinates": MISSING_CODES,
+}
 
 # --- Executor HOW choices (documented in the README) ----------------------------
 
@@ -175,7 +200,7 @@ class ObservationFailure(Exception):
 _OBS_TIME_SHAPE = re.compile(r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}")
 
 
-def parse_published_number(value: Any, sentinels: frozenset[str] = SENTINELS):
+def parse_published_number(value: Any, sentinels: frozenset[str] = MISSING_CODES):
     """Return the published value as a JSON number, or ``None`` if not valid.
 
     ``None`` for: missing, non-numeric text, non-finite, booleans, or a sentinel
@@ -211,7 +236,7 @@ def parse_published_number(value: Any, sentinels: frozenset[str] = SENTINELS):
     return result if math.isfinite(result) else None
 
 
-def parse_published_text(value: Any, sentinels: frozenset[str] = SENTINELS) -> str | None:
+def parse_published_text(value: Any, sentinels: frozenset[str] = MISSING_CODES) -> str | None:
     """Return a published text field (e.g. ``Weather``) or ``None`` if missing /
     empty / a sentinel."""
     if not isinstance(value, str):
@@ -246,7 +271,7 @@ def parse_obs_time(value: Any) -> datetime | None:
 
 
 def _wgs84(
-    geo: Mapping[str, Any], sentinels: frozenset[str] = SENTINELS
+    geo: Mapping[str, Any], sentinels: frozenset[str] = MISSING_CODES
 ) -> tuple[float, float] | None:
     """Return the station's finite WGS84 ``(latitude, longitude)`` or ``None``.
 
@@ -278,12 +303,15 @@ class NormalizedObservation:
 
 
 def normalize_station(
-    record: Any, sentinels: frozenset[str] = SENTINELS
+    record: Any, field_sentinels: Mapping[str, frozenset[str]] = FIELD_SENTINELS
 ) -> tuple[dict[str, Any], datetime] | None:
     """Normalise one upstream station record, or return ``None`` if it is invalid.
 
-    Returns the trimmed station dict and its parsed ``ObsTime`` instant.
+    Returns the trimmed station dict and its parsed ``ObsTime`` instant. Each
+    field is checked only against the sentinel codes defined for it
+    (``field_sentinels``).
     """
+    codes = field_sentinels
     if not isinstance(record, dict):
         return None
     station_id = record.get("StationId")
@@ -295,10 +323,10 @@ def normalize_station(
     if not isinstance(geo, dict) or not isinstance(elements, dict) or not isinstance(obs, dict):
         return None
 
-    temperature = parse_published_number(elements.get("AirTemperature"), sentinels)
+    temperature = parse_published_number(elements.get("AirTemperature"), codes["airTemperature"])
     if temperature is None:
         return None
-    position = _wgs84(geo, sentinels)
+    position = _wgs84(geo, codes["coordinates"])
     if position is None:
         return None
     county = geo.get("CountyName")
@@ -322,17 +350,23 @@ def normalize_station(
         "longitude": position[1],
         "observationTime": obs_time_text,
         "airTemperature": temperature,
-        "relativeHumidity": parse_published_number(elements.get("RelativeHumidity"), sentinels),
-        "windSpeed": parse_published_number(elements.get("WindSpeed"), sentinels),
-        "windDirection": parse_published_number(elements.get("WindDirection"), sentinels),
-        "airPressure": parse_published_number(elements.get("AirPressure"), sentinels),
-        "precipitation": parse_published_number(precipitation, sentinels),
-        "weather": parse_published_text(elements.get("Weather"), sentinels),
+        "relativeHumidity": parse_published_number(
+            elements.get("RelativeHumidity"), codes["relativeHumidity"]
+        ),
+        "windSpeed": parse_published_number(elements.get("WindSpeed"), codes["windSpeed"]),
+        "windDirection": parse_published_number(
+            elements.get("WindDirection"), codes["windDirection"]
+        ),
+        "airPressure": parse_published_number(elements.get("AirPressure"), codes["airPressure"]),
+        "precipitation": parse_published_number(precipitation, codes["precipitation"]),
+        "weather": parse_published_text(elements.get("Weather"), codes["weather"]),
     }
     return station, obs_instant
 
 
-def normalize(payload: Any, sentinels: frozenset[str] = SENTINELS) -> NormalizedObservation:
+def normalize(
+    payload: Any, field_sentinels: Mapping[str, frozenset[str]] = FIELD_SENTINELS
+) -> NormalizedObservation:
     """Validate the upstream payload and trim it to the valid stations.
 
     Raises :class:`ObservationFailure` (``invalid_response``) when the payload is
@@ -353,7 +387,7 @@ def normalize(payload: Any, sentinels: frozenset[str] = SENTINELS) -> Normalized
     latest_text: str | None = None
     latest_instant: datetime | None = None
     for record in raw_stations:
-        normalized = normalize_station(record, sentinels)
+        normalized = normalize_station(record, field_sentinels)
         if normalized is None:
             continue
         station, instant = normalized
@@ -476,7 +510,7 @@ class LatestObservationService:
         connect_timeout: float = CONNECT_TIMEOUT_SECONDS,
         read_timeout: float = READ_TIMEOUT_SECONDS,
         deadline: float = UPSTREAM_DEADLINE_SECONDS,
-        sentinels: frozenset[str] = SENTINELS,
+        field_sentinels: Mapping[str, frozenset[str]] = FIELD_SENTINELS,
     ):
         if not 0 <= reuse_window_seconds <= REUSE_WINDOW_CEILING_SECONDS:
             raise ValueError("reuse window must be between 0 and 600 seconds")
@@ -488,7 +522,9 @@ class LatestObservationService:
         self._connect_timeout = connect_timeout
         self._read_timeout = read_timeout
         self._deadline = deadline
-        self._sentinels = sentinels
+        if set(field_sentinels) != set(FIELD_SENTINELS):
+            raise ValueError(f"field_sentinels must define exactly {sorted(FIELD_SENTINELS)}")
+        self._field_sentinels = dict(field_sentinels)
         self._lock = threading.Lock()
         self._cached: tuple[datetime, dict[str, Any]] | None = None
 
@@ -519,7 +555,7 @@ class LatestObservationService:
                     deadline=self._deadline,
                     http_get=self._http_get,
                 )
-                dataset = normalize(payload, self._sentinels)
+                dataset = normalize(payload, self._field_sentinels)
             except ObservationFailure as failure:
                 logger.warning(
                     "latest observation failed: reason=%s upstream_status=%s",
