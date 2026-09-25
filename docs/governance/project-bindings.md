@@ -2,7 +2,7 @@
 
 本檔是本 repo 依 Minimal Operational Governance v2.0 §5.1 宣告的 Project Bindings：哪些範圍採用治理，以及採用範圍內的權限來源、角色與模型、lane、assurance、工具與紀錄位置。
 
-- **Bindings 版本**：b2（2026-09-24）
+- **Bindings 版本**：b3（2026-09-25）
 - **生效條件**：acceptor 把引入本檔的 PR 合併進 `main`，即代表接受並授權本檔全部內容（含第 2.5 節的 standing authorizations）。合併前本檔只是提案。
 - **優先順序**（治理 §5.3）：治理本文 ＞ 本檔 ＞ Accepted Work Contract ＞ Implementation Profile ＞ Orchestrator Contract ＞ Runtime 工具。Root `CLAUDE.md` 的其他規則在治理啟用的範圍內視為本檔的一部分；與治理 MUST 衝突時以治理為準。
 
@@ -77,7 +77,7 @@ Root `CLAUDE.md` 的「不要自行補出老師沒有提出的要求」，在治
 | --- | --- |
 | RB-1 | 合併任何分支進 `main`（`main` 同時是 GitHub Pages 的發布來源）。 |
 | RB-2 | 繳交作業或任何對外提交。 |
-| RB-3 | 申請、輪替或填寫 API key 等憑證；第三方帳號操作。金鑰只能放在未追蹤的本機 `.env`，任何時候都不得進 git、log、前端程式或文件。 |
+| RB-3 | 申請、輪替或填寫 API key 等憑證；第三方帳號操作。金鑰只能放在兩個授權位置：(a) 未追蹤的本機 `.env`；(b) 部署平台（Vercel）專案的環境變數——只由 acceptor 親自填入，Agents 不得填入、讀出、印出或匯出其值；部署的應用程式只在伺服器端執行期讀取，不得傳給前端、不得寫入 build／runtime log 或 evidence。無論位置為何，金鑰任何時候都不得進 git、log、前端程式或文件。 |
 | RB-4 | 任何需要付費的動作（付費方案、付費 API 額度）。 |
 | RB-5 | 修改該單元目錄以外的檔案（root、其他單元），以及修改 `doc/requirement/` 內的上位契約。 |
 | RB-6 | 破壞性或不可逆的 git 操作：force push、改寫已 push 的歷史、刪除非本次 run 建立的分支。 |
@@ -248,4 +248,5 @@ home_workNN/doc/
 | --- | --- | --- | --- | --- |
 | b1 | 2026-09-23 | 初版：`home_workNN/` 採用 Minimal Governance — Reusable Package v2.0，`weekNN/` 與 root 不採用；宣告第 1–8 節全部 bindings。 | acceptor 2026-09-23 指示：導入治理原則並以 flag 控制啟用，DIC 不使用，採用 Notion 的 Minimal Governance — Reusable Package v2.0。 | 待 acceptor 合併引入本檔的 PR 後生效 |
 | b1（合併前修訂） | 2026-09-23 | 第 2.4 節 scope 規則改為：MVM 必須完整滿足上位契約；acceptor 授權的 ENHANCED／OPTIONAL 可超出老師撰寫的需求，須明確標示且不得取代、弱化或冒充老師要求的行為。 | acceptor 2026-09-23 於 `home_work_01` grill 中裁決，並依 RB-5 授權此最小修改。 | 隨 b1 一同待合併 |
+| b3 | 2026-09-25 | 第 2.6 節 RB-3：金鑰授權位置由「只能放在未追蹤的本機 `.env`」改為兩個位置——未追蹤的本機 `.env`，以及部署平台（Vercel）專案的環境變數（只由 acceptor 親自填入；Agents 不得填入、讀出、印出或匯出；只在伺服器端執行期讀取；不傳給前端、不進 log／evidence）。其他憑證限制、角色 mapping、lane、assurance、audit flow 與 implementation method 全部不變。 | acceptor 2026-09-25 於 HW01 Weather Map V2 grill 裁決（D-3）：授權 Vercel 專案環境變數為 CWA 金鑰的第二個位置（條件：acceptor 填入、不印出／匯出、不提交、不暴露前端、不進 log／evidence），並依 RB-5 授權起草只含此變更的最小 b3 修正。 | 待 acceptor 合併引入本變更的 PR 後生效（RB-1）；不適用生效前已開始的 work item（治理 §5.3）；`home_work_01` V2 work item 的 activation 以本變更生效為前置（`home_work_01/doc/governance/outcome-contract-v2.md` §8）。 |
 | b2 | 2026-09-24 | 第 3.1 節 `executor` mapping override：model 由 `claude-opus-4-8` 改為 `claude-opus-5-5`（effort `high` 不變）；新增 override fallback `claude-opus-4-8`／`high` 與其 definition `gov-executor-fallback`；第 1 節 override 標示與第 5 節 model diversity 相應更新。其他角色 mapping、replacement policy、lane、assurance、audit flow 與 implementation method 不變。 | acceptor 2026-09-24 指示：「Primary Executor：Opus 4.8 → Opus 5.5」「Executor fallback：Opus 4.8」，其餘全部維持現狀；本輪只是 project configuration／model-mapping 調整，不觸發 implementation audit。 | 待 acceptor 合併引入本變更的 PR 後生效；不適用生效前已開始的 work item（治理 §5.3），變更時沒有 open 的 issue 或 PR。第一次以 b2 mapping 派 Executor 前，須完成 `binding-verification.md` b2 節的 dry-run |
