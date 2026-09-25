@@ -67,7 +67,7 @@
 
 ## 實作過程中的調整
 
-（執行後由 Orchestrator／Executor 依 worklog 補記。）
+- 2026-09-26 — **DV-20**（[`../governance/decisions/decision-20260926-ac-v2-01-county-round-trip-allocation.md`](../governance/decisions/decision-20260926-ac-v2-01-county-round-trip-allocation.md)；來源 #36 R1 的 routing signal R-1）：**#38** 追加 AC-V2-01「選縣往返部分」與 R-V2-MODE-5(a) 選縣部分的驗證與實作分配（逐字見 DV-20 §4.1）；Spec Integration Audit 仍為 AC-V2-01 的 Spec 層 owner；#36 分配與結案不變。#38 issue body 已更新（Acceptance criteria／Traceability／Decisions）。不改 accepted 語義（治理 §5.3 第 2 類）。
 
 ## Post-baseline 追加 work item（合併前）
 
