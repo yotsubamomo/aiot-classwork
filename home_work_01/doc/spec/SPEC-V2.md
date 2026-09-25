@@ -8,7 +8,7 @@
 - **上位契約**（唯讀，不變）：[`../requirement/REQUIREMENTS.md`](../requirement/REQUIREMENTS.md) Part A、課程總覽 §1–21。Part B（B2-2～B2-4、B4、B16、B22、B24）只是 V2 構想的來源，經 V2 Outcome Contract 明確採用；Part B 的架構（FastAPI、React／Next.js、Windy）仍為 REFERENCE／FUTURE。
 - **Derivation record**：[`../governance/decisions/derivation-SPEC-V2.md`](../governance/decisions/derivation-SPEC-V2.md)（含本次 derive 的 DA 裁決 DV-1～DV-19、boundary determination、高風險類別判定）。
 - **治理**：Minimal Operational Governance v2.0；Project Bindings **b3**（RB-3 兩個金鑰授權位置）。
-- **Issue tracker**：Tickets 尚未 derive（本檔只做 Spec derivation；Ticket derivation 另行進行並記入 derivation record）。
+- **Issue tracker**：Tickets **#35–#41** 已於 2026-09-25 derive（GitHub Issues，`yotsubamomo/aiot-classwork`）；索引 [`../ticket/tickets-v2.md`](../ticket/tickets-v2.md)；分配與 boundary determination 見 derivation record §15。
 
 ## 0. 狀態與效力
 
@@ -423,3 +423,4 @@ Grading App `app.py`、ingestion、`data.db`、共用預報查詢模組、預報
 | v2.0 | 2026-09-25 | 初版 derive（V2 Outcome Contract ACCEPTED，candidate `69c5a04`，接受紀錄 `f853bcb`；Bindings b3）。 | derived contract（治理 §1.2）；不改變 V1 Spec v1.1 任何文字 |
 | v2.1 | 2026-09-25 | acceptor 指示的 DA 修正（PR #34 未合併；OC-V2 不變）：(1) R-V2-MAP-2、AC-V2-13(c)、§5.3——移除「E 全部／22 縣市同時在視窗內」的下限 PASS 條件（超出 S-8／D-14 的接受語義），下限只以本島 ≥ 25% 視窗高與圍欄判準驗證；`minZoom` 6 保留為儀器。(2) R-V2-MAP-1、AC-V2-13(b)、§5.3——pan oracle 由「視窗 ∩ E ≠ ∅」改為「中心在 E 內＋逐軸視窗 ⊆ E 或 E ⊆ 視窗」，並要求金門／連江以截圖證明可達。(3) R-V2-RAD-3、AC-V2-18、R-V2-DOC-1(9)、AC-V2-21(10)——移除「Refresh MUST 一併重取雷達」的耦合；重新取得的觸發方式改為 HOW（使用者動作、不輪詢、狀態獨立、README 記載）。(4) R-V2-TC-1、§6.1、AC-V2-02／06／07／09／15／16／19／23 證據欄——新 V2 驗證改為框架中立的證據類別用語；V1 既有 pytest／Flask test client／靜態守衛只以既有回歸事實命名；PASS／FAIL oracle 未弱化。(5) Radar 1 km 對齊 oracle 經比例性複核後保留（derivation record DV-13 補充）。 | 治理 §5.3 第 2 類（不改變 accepted 語義的 derived contract 修訂）；不改變 V1 Spec v1.1 任何文字；詳見 derivation record §14 |
 | v2.2 | 2026-09-25 | acceptor 指示的最終一致性修正（OC-V2 不重開）：v2.1 的 R-V2-OBS-2 未要求有效測站具可解析的 `ObsTime`，使 R-V2-OBS-4 的最大值與 R-V2-DD-7 的測站 Observation Time 可能對某站無定義。修正：R-V2-OBS-2 新增 (e)「有 CWA 發布且可解析的 `ObsTime`（如發布、不正規化；解析方式 HOW；新舊不影響有效性）」，缺少或無法解析者不進氣溫圖層、代表測站選取、縣統計與 dataset-level Observation Time；R-V2-OBS-4(a) 明示只取有效測站、成功回應下恆有定義；AC-V2-05 新增反例 (7)(8)（含「最新 `ObsTime` 的站改壞 → 最大值落到其餘有效站」）；R-V2-TC-1 涵蓋範圍同步。 | 治理 §5.3 第 2 類（derived-contract 一致性修正；S-1／S-2／S-5 的接受語義不變——S-2 的規則是最小集合，S-1「Observation Time 永遠可見」與 S-5「詳情含 Observation Time」已蘊含此條件）；不改變 V1 任何文字；詳見 derivation record DV-3、B-18、§14 |
+| v2.2（metadata） | 2026-09-25 | 標頭「Issue tracker」列改為 Tickets #35–#41 已 derive 與索引 `doc/ticket/tickets-v2.md`（derivation record §15）。 | Metadata，不動語義、R、AC、INV 或儀器；版本不變。 |
