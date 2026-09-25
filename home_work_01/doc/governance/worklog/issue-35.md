@@ -67,7 +67,8 @@
 - **V-12 AC-V2-20（本票範圍）／H-2**：`git diff --stat 08e158e -- app.py weather_query.py ingestion/ data.db static/ smoke.py vercel.json requirements.txt ../.github/workflows/` → 空；`data.db` blob `687586991ce3654e8b336b5b0a1616e98aa83a66` ＝ BASE blob。老師驗證 SQL（唯讀開啟）：SQL1 → 6 列（北部地區、中部地區、南部地區、東北部地區、東部地區、東南部地區）；SQL2（中部地區）→ 7 列（2026-09-24…2026-09-30）。V1 測試保留：以腳本比對 BASE 全部 V1 測試檔的 144 個 `test_*` 函式在 subject 皆存在（missing: []）；`git diff 08e158e -- tests/ tools/` 的刪除行只有 `_PYTHON_SIDE`／`_NON_SHARED_PYTHON` 定義、其註解、一行區段標題與兩處 docstring 文字，無斷言被刪除。
 - **V-13 A-3 定向即時驗證（本機，README 步驟實跑）**：scratchpad 腳本 `live_local_check.py` 以 `python server.py` 啟動（子行程環境先移除 `CWA_API_KEY`，金鑰只能來自單元 `.env`），請求 `/api/observations/latest` 兩次與 `/api/health` 一次後終止：第一次 200（0.17 s；`observationTime` 2026-09-26T00:00:00+08:00、`fetchedTime` 2026-09-26T00:27:19+08:00、有效 848／876、`Cache-Control: no-store`），第二次重用（body 相同、同 Fetched Time），health 200；無上游結構鍵。終端 log 10 行（Flask 啟動訊息與 werkzeug 請求行，只含路徑）；終端輸出與回應中金鑰字面 **False**、金鑰格式 **False**、`opendata.cwa.gov.tw` **False**。
 - **V-14 自我驗證：mutation checks**（暫時修改 `observation.py`、跑 `test_observation.py`、還原並以 `cmp` 確認；非正式 audit）：移除數值哨兵比對 → 4 失敗；`ObsTime` 不必要 → 8；不檢查縣 → 5；永遠重用 → 4；失敗時回舊資料 → 1；log 例外內容 → 4；恢復 urllib3 logging → 2；最大值改最小值 → 2；忽略上游狀態碼 → 5；deadline ×20 → 2（停滯測試逾時）；完全移除 deadline → 滴流測試卡住（以此確認 deadline 是唯一界限）。移除「文字哨兵」分支時全數通過——該分支與 `Decimal`／數值比對重複，非測試缺口。
-- **未執行／限制**：瀏覽器、preview 部署、Vercel 時限實測皆不在本票（#36／#41）；CI 在 GitHub 上的實跑待 push 後由 workflow 產生（本機已跑同一指令：`pytest -v` 等價與 `tools.credential_scan`）。
+- **V-15 CI（R-V2-TC-3）**：push `9147997`（＝code anchor `bbc1d56`＋本 worklog）後，既有 workflow「home_work_01 CI」run `36161275690`（ubuntu，Python 3.12）**success**：`385 passed in 10.73s`；`credential scan passed: 558 tracked files …`。Workflow 檔未修改（A-4 未使用）。
+- **未執行／限制**：瀏覽器、preview 部署、Vercel 時限實測皆不在本票（#36／#41）。
 
 ### A-3 金鑰使用紀錄
 
