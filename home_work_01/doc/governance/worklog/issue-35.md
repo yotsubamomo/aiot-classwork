@@ -121,6 +121,6 @@
 - **V-21 INV-V2-6**：重用／失敗不快取／視窗外失敗不帶舊資料的測試未變且通過（含於 V-18）。
 - **V-22 AC-V2-05**：八個反例測試未變且通過，仍全部由提交的樣本衍生（`tests/fixtures/O-A0001-001_sample.json` 未改）。
 - **V-23 靜態檢查 re-scope 仍只加不減**：`git diff c9c9ec5 -- tests/test_static_checks.py tests/test_secrets.py tools/credential_scan.py` → 0 行（與 R1 受審版本相同）；BASE 的 144 個 V1 測試函式全部存在；`test_static_checks.py`＋`test_secrets.py` 47 passed。
-- **V-24 CI**：push 後的 workflow 結果記於下一次 worklog 更新（本段 commit 前尚未產生）。
+- **V-24 CI**：push `d876577`（＝code anchor `5f0dbc3`＋worklog）後，「home_work_01 CI」run `36164066306` **success**：`424 passed in 12.08s`；`credential scan passed: 558 tracked files …`。Workflow 檔未修改。
 - **過程紀錄（可驗證事實）**：re-verification 時一個指令誤執行 `git stash -u`，暫時收起了未提交的修正與 Reviewer 未追蹤的 audit record；立即以 `git stash pop` 完整還原（stash 內容 4 檔：README、`observation.py`、`test_observation.py`、`issue-35-c1-r1.md`；還原後 audit record 仍為未追蹤、內容未被 Executor 修改），並在還原後的樹上重跑 V-18、V-20、V-23（上列結果皆為還原後的數據）。
 
