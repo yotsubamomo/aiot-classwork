@@ -3,8 +3,8 @@
 - **Work item**：GitHub Issue #35（Formal lane，V2 Core；SPEC-V2 的第一張 Ticket，Blocked by：無）
 - **Executing role**：`executor`，以 `gov-executor` definition 派工（Bindings §3.1 mapping：`claude-opus-5-5`，effort `high`）。本 session 自述的模型為 Opus 5.5（`claude-opus-5-5`）；**這不是 binding 證據**。Binding verification 依 Bindings §3.4 由派工者（Orchestrator）從 harness 紀錄（`subagents/agent-<id>.meta.json` 的 `agentType`、`.jsonl` 的 `message.model`／`effort`）核對並記入 run record 或 audit record；本 worklog 不複製 harness 日誌。
 - **Branch**：`home_work_01-v2-implementation`；BASE ＝ `08e158e`（branch 起點為 run record commit `305dd1c`，record-only）
-- **Subject**：code anchor ＝ `bbc1d56`（實作、測試、樣本、README）；本 worklog 為其後的 record-only commit（`doc/governance/**`，Bindings §7 P7）
-- **開始／本次更新**：2026-09-26
+- **Subject**：cycle 1 初版 code anchor ＝ `bbc1d56`（R1 受審）；**cycle 1 targeted correction（F-1）後的 code anchor ＝ `5f0dbc3`**（`observation.py`、`tests/test_observation.py`、README）。本 worklog 的更新皆為其後的 record-only commit（`doc/governance/**`，Bindings §7 P7）
+- **開始／本次更新**：2026-09-26（初版）；2026-09-26（cycle 1 targeted correction F-1，見文末「Cycle 1 targeted correction」）
 
 ## Contract reference
 
@@ -22,7 +22,7 @@
 3. **失敗 HTTP 狀態碼**（HOW；契約只要求非 2xx）：`key_not_configured` 503、`upstream_unreachable` 504、`upstream_error` 502（附 `upstreamStatus` 數字，DV-6 MAY）、`invalid_response` 502。`error` 為每類固定句，不插入任何上游內容。
 4. **「如發布」的數值表示**：以 `Decimal` 解析發布字串；整數字串保持 int（如 `82`）、小數字串轉為同位數 float（如 `259.0`、`25.5`），不四捨五入、不換單位。`ObsTime` 字串原樣回傳；比較最大值時才解析為時刻；無時區的 `ObsTime` 只在比較時視為 `+08:00`（CWA 發布時區）。同一時刻的平手保留第一個出現者的發布字串（確定性）。
 5. **有效 `ObsTime`**：須符合 `YYYY-MM-DD[T ]HH:MM` 開頭且 `datetime.fromisoformat` 可解析（R-V2-OBS-2(e)「至少含日期與時、分」）；只有日期（`2026-09-25`）視為無效。
-6. **哨兵集合**：`X`、`-99`、`-98`、`T`、`990`（Spec 最低集合，未擴充），文字比對＋數值比對（`-99.0` 亦為哨兵）；同一集合套用於可選欄位（→ `null`）與 WGS84 座標（哨兵座標＝無座標）。常數 `SENTINELS`，建構子參數可設定（R-V2-OBS-2(b)「可設定、有文件」）。
+6. **哨兵集合**：~~同一集合（`X`、`-99`、`-98`、`T`、`990`）套用於全部可選欄位與座標~~——**此決定是錯的，已於 cycle 1 依 R1 F-1 更正（`5f0dbc3`）**：改為依資料標準 V1.05（BRIEF-V2 §3.2）逐欄位套用——`X`／`-99` 適用全部欄位（含 WGS84 座標）；`T`（雨跡）／`-98`（連續無降水）只適用 `precipitation`；`990`（風向不定）只適用 `windDirection`；R-V2-OBS-2(b) 對氣溫有效性明列整個集合。文字比對＋數值比對（`-99.0` 亦為哨兵）。常數 `FIELD_SENTINELS`，建構子 `field_sentinels=` 可設定（R-V2-OBS-2(b)「可設定、有文件」），README 以表格列出每個代碼適用的欄位。
 7. **結構驗證**：`success` 必須逐字為 `"true"`（布林 `true` 亦歸 `invalid_response`，依 R-V2-OBS-11 字面）；`result.resource_id` 必須為 `O-A0001-001`；`records.Station` 必須為 list。單筆測站結構不符只使該站無效，不使整體失敗。
 8. **有界時間**：connect 3 秒、read 5 秒，另以 worker thread＋`join(8 s)` 給整個上游交換一個總上限 8 秒——單靠 `requests` 的 read timeout 無法限制「慢速滴流」回應的總時間。逾時的結果被丟棄、永不進入快取。8 秒低於 Vercel 最低的預設 function 時限（10 秒）；`vercel.json` 未修改（見 Remaining work 1）。
 9. **重用視窗**：300 秒（≤ 600 秒契約上限；建構子拒絕 > 600）；只快取成功；視窗以同一個可注入 clock 量測，clock 倒退視為過期；記憶體內、無持久狀態。回應一律 `Cache-Control: no-store`，避免 CDN 在伺服器視窗之外再重用。
@@ -33,7 +33,7 @@
 14. **README 既有敘述**：本票只修正與本次變更直接矛盾、且位於本票 README 段落相鄰的句子（「backend imports no HTTP client」「no environment variable or secret is needed at runtime」、測試段的靜態檢查描述），改為限定於預報路徑。部署段（「Vercel function needs no environment variable」等）屬 R-V2-DOC-1(6) Vercel 部分與 (11)，留給 #41。
 15. **樣本（A-3、R-V2-TC-2）**：一次唯讀 GET 擷取、**未縮減**（876 筆，只重新序列化為 compact JSON，879 KB）；寫入前以 `ingestion.checks.scan_text`（含金鑰字面比對）確認無金鑰、無 `Authorization`。全部衍生反例在測試內由樣本衍生。
 
-## Artifacts（code anchor `bbc1d56`；BASE `08e158e`）
+## Artifacts（初版 code anchor `bbc1d56`；F-1 更正見文末；BASE `08e158e`）
 
 | 檔案 | 動作 |
 | --- | --- |
@@ -83,17 +83,44 @@
 
 - **H-1 憑證**：金鑰位置——程式只讀 process env `CWA_API_KEY`（`observation.py` `LatestObservationService.latest`）；本機來源只有單元 `.env`（`load_local_env`，只在 `server.py` `__main__`）；部署來源為 Vercel 專案環境變數（本票未觸及）。零外洩證據：V-3、V-4、V-9（回應／log／stdout／stderr，含哨兵金鑰與刻意含金鑰的例外訊息）、V-11、V-13；樣本與 V2 程式在 `test_secrets.py` 與 `tools/credential_scan.py` 範圍內。可核對點：`_FAILURES` 為固定文字；`except requests.RequestException: raise ... from None`；log 格式只含 reason／status；`urllib3` logger 為 ERROR。
 - **H-2 老師指定介面**：V-12（`app.py`、`weather_query.py`、`ingestion/**`、`data.db` 與 BASE 無差異、blob 相同、兩句 SQL 6／7 列）；V-10（預報 endpoint 與 `/api/health` byte 相同、封網無金鑰）。頁面與前端未動。
-- **H-3 語義與標示**：觀測值「如發布」（決定 4；`test_values_are_as_published_not_rounded`）；`ObsTime` 不正規化；哨兵永不成為數值（`test_every_station_has_the_contract_fields`、`test_parse_published_number`、反例 (1)）；伺服器回應無任何聚合值（無縣平均；`stations` 只有逐站值）。README 段落標示觀測值為 CWA 測站觀測（如發布）、Fetched Time 不是預報快照取得時間。UI 標示屬 #36～#38。
+- **H-3 語義與標示**：觀測值「如發布」（決定 4；`test_values_are_as_published_not_rounded`；**F-1 更正後**：只對欄位適用的代碼視為哨兵，真實 `990.0` 氣壓／雨量原樣回傳——`test_real_990_air_pressure_is_kept_as_published`、`test_sentinel_applies_only_to_its_fields`、手算站 `C0F9I0`；V-17 全樣本獨立 oracle 0 差異）；`ObsTime` 不正規化；哨兵永不成為數值（`test_every_station_has_the_contract_fields`、`test_per_field_sentinel_sets`、`test_parse_published_number_generic_codes`、反例 (1)）；伺服器回應無任何聚合值（無縣平均；`stations` 只有逐站值）。README 段落標示觀測值為 CWA 測站觀測（如發布）、Fetched Time 不是預報快照取得時間。UI 標示屬 #36～#38。
 
 ## Audit status
 
-- **Required**（Formal；Bindings §5）：Ticket independent audit R1 由 Orchestrator 依 Bindings §3.5 派 `gov-primary-reviewer`。**尚未執行**。本 worklog 中的 mutation checks 與測試為 Executor self-verification，不是 audit。
+- **Required**（Formal；Bindings §5）：Ticket independent audit。
+- **Cycle 1 R1**：`home_work_01/doc/governance/audit/issue-35-c1-r1.md`（Reviewer 自寫；本 Executor 未修改）——**BLOCKING**：F-1（Medium，H-3，blocking）；non-blocking：F-2（Medium，owner #37／#41）、F-3（Low，不需處理）、F-4（Low，owner #41）。
+- **F-1 targeted correction**：已完成於 `5f0dbc3`（見文末）；Executor 的「已修正」不是 closure，待 **R2 scoped closure review**。
+- 本 worklog 中的 mutation checks、獨立 oracle 與測試皆為 Executor self-verification，不是 audit。
 - Model diversity：Executor 與 Primary Reviewer 預設同為 `claude-opus-5-5` → audit record 應記 `diversity_lost`（Bindings §5；derivation record §6 A-7）。
 
 ## Remaining work
+
+0. **R2**（Orchestrator 派 `gov-primary-reviewer`）：核對 F-1 closure 與回歸，subject `5f0dbc3`。
 
 1. **Vercel function 時限實測**（derivation record §11 #1；DA 為 authority）：本票以 8 秒總上限假設平台最低預設時限 10 秒，`vercel.json`（legacy `builds`）未設 `maxDuration`。部署上的實際時限與「上游停滯 → 分類 JSON 而非平台 gateway 頁」需在 preview 驗證（#41，acceptor 填入 Vercel 金鑰後）；若平台時限低於假設，route DA（§5.3 儀器調整，不改語義）。
 2. **README 部署段**（R-V2-DOC-1(6) Vercel 步驟、(11) 其餘矛盾敘述，例如「function needs no environment variable and no secret」）：#41。
 3. **瀏覽器面**（AC-V2-03 抽樣、04 UI、06 UI、network log）：#36、#37；preview（AC-V2-03、17(c)、22）：#41。
 4. 本票不需 workflow 變更（R-V2-TC-3；A-4 未使用）；新測試由既有 `home_work_01/**` 觸發的 CI 涵蓋。
 5. Ticket 結案條件（治理 §3.8）：待 R1（與必要時 R2）audit closure；不由 Executor 關閉 Issue。
+
+## Cycle 1 targeted correction — F-1（2026-09-26）
+
+- **Finding**：R1 F-1（Medium，blocking，H-3）：`990` 被當成通用哨兵套用到全部可選數值欄位，使真實的 `AirPressure "990.0"`（樣本 `C0F9I0` 神岡、`CAF030` 國一S169K，皆臺中市約 195 m 海拔）回傳 `null`；測試 `test_observation.py:217-219`、`:844` 把錯誤行為固定。
+- **契約依據（重讀）**：R-V2-OBS-2(b)（氣溫有效性：整個集合）、R-V2-OBS-3（可選欄位「有效為數值／文字，無效為 `null`」）、R-V2-OBS-6（缺值、哨兵或無效欄位 → 「—」）、R-V2-DD-7；BRIEF-V2 §3.2（DV-3 引用的哨兵事實）：`X` 儀器故障、`-99` 缺值／異常、`T` 雨跡、`-98` 連續無降水、`990` 風向不定。
+- **歧義評估**：逐欄位對照後**沒有需要猜測的語義**，未 route DA：`X`／`-99` 的定義不限欄位 → 全部欄位；`T`、`-98` 的定義是降水語義 → 只 `precipitation`；`990` 是風向代碼 → 只 `windDirection`；氣溫有效性由 R-V2-OBS-2(b) 字面指定整個集合（`990`／`-98`／`T` 不是可能的氣溫值，不影響任何可用資料）；`weather` 文字與 WGS84 座標只適用通用代碼。`T`／`-98` 在 `precipitation` 仍回 `null`（顯示「—」）而不是換算為數值，依 R-V2-OBS-6「哨兵永不顯示為數值」。
+- **改動（`5f0dbc3`）**：`observation.py`——`MISSING_CODES`、`PRECIPITATION_CODES`、`WIND_DIRECTION_CODES`、`SENTINELS`（氣溫用全集合）、`FIELD_SENTINELS`（逐欄位對應）；`normalize_station`／`normalize`／`LatestObservationService` 改用 `field_sentinels`（鍵不完整即 `ValueError`）；`parse_published_number`／`parse_published_text` 預設只用通用代碼。`tests/test_observation.py`——手算站加入 `C0F9I0`（`airPressure` 990.0）；`test_every_station_has_the_contract_fields` 改為逐欄位斷言；`test_parse_published_number` 改為 `test_parse_published_number_generic_codes`（`"990.0"` → 990.0、`"-98"` → -98）；新增 `test_per_field_sentinel_sets`、`test_field_sentinel_sets_match_the_data_standard`、`test_real_990_air_pressure_is_kept_as_published`、`test_sentinel_applies_only_to_its_fields`（13 個由樣本衍生的例子：`AirPressure`／`Precipitation` 的 `990`／`990.0` 保留，`WindDirection "990"`／`"990.0"`、`Precipitation "T"`／`"-98"`／`"-98.0"`、各欄位 `-99`／`X` → `null`，該站仍有效）、`test_field_sentinels_are_configurable`。README——「Sentinel codes, per field」表。未修改：`server.py`、`api/index.py`、樣本、`test_static_checks.py`、`test_secrets.py`、`tools/credential_scan.py`、任何 V1 產物。
+- **F-2／F-3／F-4**：依派工指示不處理。F-2 與本 worklog Remaining work 1（Vercel 時限）相互影響：鎖在上游停滯期間序列化同一 instance 的並行請求，第 k 個請求約 8k 秒，故 #41 的 preview 驗證應同時量測並行停滯；本票未改鎖設計。
+
+### Re-verification（subject ＝ `5f0dbc3`）
+
+- **V-16 修正前後對照**：把 `observation.py` 暫時換回 `bbc1d56` 版本執行新測試（`-k "real_990 or hand_computed or only_to_its_fields"`）→ **5 failed**（手算站 C0F9I0、樣本 990.0 氣壓、`AirPressure 990`／`990.0`、`Precipitation 990.0`）；換回修正版 → 全數通過（`cmp` 確認還原）。
+- **V-17 全樣本獨立 oracle**：另寫一個不引用 `observation.py` 正規化邏輯的逐欄位計算（只引用 `COUNTIES` 常數），對樣本 876 筆計算期望：有效 849 筆、ID 集合相同、**所有欄位值與型別 0 差異**（含 `C0F9I0`／`CAF030` 的 `airPressure` 990.0）。
+- **V-18 全套**：`python -m pytest -q` → **424 passed**（385 ＋ 39：`test_observation.py` 106 → 145）。
+- **V-19 H-1 回歸**：四類失敗、封網真實 client、loopback 成功路徑的 leak 測試（哨兵金鑰、root DEBUG logging、capfd 擷取 stdout／stderr；斷言回應、log、輸出無金鑰、`opendata.cwa.gov.tw`、上游本文標記、`Authorization`）→ 相關子集 30 passed（含於 V-18）；`tools.credential_scan` → `credential scan passed: 558 tracked files …`；staged diff 的金鑰字面比對 **False**。本次未使用真實金鑰、未呼叫 CWA（A-3 使用紀錄仍為兩次）。
+- **V-20 H-2／INV-V2-1／4／8 回歸**：`git diff --stat 08e158e -- app.py weather_query.py ingestion/ data.db static/ smoke.py vercel.json requirements.txt ../.github/workflows/` → 空；`data.db` blob `687586991ce3654e8b336b5b0a1616e98aa83a66`；老師 SQL 6／7 列；BASE `server.py` 對 subject 在封網無金鑰下 4 DB × 19 路徑 **76 組 byte 相同、0 差異**；無金鑰觀測路徑 503 `key_not_configured`。
+- **V-21 INV-V2-6**：重用／失敗不快取／視窗外失敗不帶舊資料的測試未變且通過（含於 V-18）。
+- **V-22 AC-V2-05**：八個反例測試未變且通過，仍全部由提交的樣本衍生（`tests/fixtures/O-A0001-001_sample.json` 未改）。
+- **V-23 靜態檢查 re-scope 仍只加不減**：`git diff c9c9ec5 -- tests/test_static_checks.py tests/test_secrets.py tools/credential_scan.py` → 0 行（與 R1 受審版本相同）；BASE 的 144 個 V1 測試函式全部存在；`test_static_checks.py`＋`test_secrets.py` 47 passed。
+- **V-24 CI**：push 後的 workflow 結果記於下一次 worklog 更新（本段 commit 前尚未產生）。
+- **過程紀錄（可驗證事實）**：re-verification 時一個指令誤執行 `git stash -u`，暫時收起了未提交的修正與 Reviewer 未追蹤的 audit record；立即以 `git stash pop` 完整還原（stash 內容 4 檔：README、`observation.py`、`test_observation.py`、`issue-35-c1-r1.md`；還原後 audit record 仍為未追蹤、內容未被 Executor 修改），並在還原後的樹上重跑 V-18、V-20、V-23（上列結果皆為還原後的數據）。
+
