@@ -12,6 +12,8 @@
 
 6. **DA 修正輪（同日，acceptor 指示；PR #34 未合併）**：以 SendMessage 續派同一個 Design Authority assignment（`agent-a813b9bb4bfbfd4cc`），原文轉交 acceptor 的五項指示（移除下限「E 全部／22 縣市同時在視窗內」的 PASS 條件、以中心與逐軸規則取代「視窗 ∩ E ≠ ∅」的 pan 儀器、移除 Refresh→Radar 的 MUST 耦合、驗證方法用語去框架化、雷達 1 km oracle 比例性複核），並要求先重讀磁碟上的檔案再修改、只改兩份 DA 文件、不 commit。Design Authority 修訂 Spec 為 **v2.1**（R-V2-MAP-1、R-V2-MAP-2、AC-V2-13、R-V2-RAD-3、AC-V2-18、R-V2-DOC-1(9)、AC-V2-21(10)、R-V2-TC-1、§5.3、§6.1 與八個 AC 證據欄）與 derivation record（§14 修訂列、DV-11／DV-12 重寫、DV-13 補充、B-4／B-10、§9 self-review、§10 evidence），回報：無任何 accepted 語義改變；第 3、5 項不需 acceptor 決定；1 km oracle 保留並記錄理由。主 session 再次核對 binding（同一 agentId，observed `('claude-fable-5-1', 'xhigh')`）、變更範圍（只有兩檔，48＋／44－）、金鑰掃描 0 命中、版本列與修訂列存在，並確認框架名稱只剩 §5.2 HOW 清單與 V1 既有事實的引用。
 
+7. **DA 最終一致性修正輪（同日，acceptor 指示）**：再次以 SendMessage 續派同一個 Design Authority assignment，原文轉交 acceptor 的第 1 項（有效測站定義未要求可解析的 `ObsTime`，與 R-V2-OBS-4 的 dataset-level 最大值及 R-V2-DD-7 的必要欄位不一致）並要求先重讀檔案、只改兩份 DA 文件、升版 v2.2。Design Authority 修訂 Spec 為 **v2.2**：R-V2-OBS-2 新增 (e)「有 CWA 發布且可解析的 `ObsTime`，值如發布、不正規化、解析屬 HOW」並把排除範圍擴及 dataset-level Observation Time 的計算；R-V2-OBS-4(a) 註明只取有效測站、成功回應下恆有定義；AC-V2-05 新增 (7)(8) 反例（壞 `ObsTime` 的站不進圖層、不被選為代表、不計入縣有效數、不決定 dataset-level 最大值；全部壞 → 零有效 → `invalid_response`）；R-V2-TC-1 涵蓋；derivation record DV-3 修訂、DV-2 補充、B-18、§9、§10、§14。回報：治理 §5.3 第 2 類，無任何 accepted 語義改變；六項聚焦檢查 PASS。主 session 依第 2 項把本檔 Artifacts 表的 Spec 版本改為目前 v2.2（保留 v2.0 為初版的敘述），再次核對 binding、變更範圍、版本列、金鑰掃描，commit、push、更新 PR #34，並依 acceptor 對 PR #34 的 item-specific RB-1 授權以 merge commit 合併、驗證 `main`。
+
 ## Contract reference
 
 Acceptor 2026-09-25 於對話中的直接指示：「Proceed with V2 DELTA SPEC DERIVATION only … Do NOT: edit the V1 Spec; rewrite V1 requirements; create Tickets yet; implement; start the Orchestrator … Work on a topic branch. SA-1 / SA-2 remain available for: commit; push; PR. Do NOT merge.」上位的 accepted contract：V2 Outcome Contract（`outcome-contract-v2.md`，ACCEPTED 2026-09-25）。
@@ -31,7 +33,7 @@ Acceptor 2026-09-25 於對話中的直接指示：「Proceed with V2 DELTA SPEC 
 
 | 動作 | 路徑 | 作者 |
 | --- | --- | --- |
-| 新增 | `home_work_01/doc/spec/SPEC-V2.md`（**v2.0**，DERIVED；自 2026-09-25 起為 V2 Outcome Contract 的有效 derived contract，以參照繼承 V1 Spec v1.1） | Design Authority |
+| 新增 | `home_work_01/doc/spec/SPEC-V2.md`（目前 **v2.2**，DERIVED；v2.0 為 2026-09-25 的初版 derive，v2.1 與 v2.2 為同日依 acceptor 指示的 DA 修正，見 Spec §10；自 2026-09-25 起為 V2 Outcome Contract 的有效 derived contract，以參照繼承 V1 Spec v1.1） | Design Authority |
 | 新增 | `home_work_01/doc/governance/decisions/derivation-SPEC-V2.md` | Design Authority |
 | 新增 | 本檔 | 主 session |
 
