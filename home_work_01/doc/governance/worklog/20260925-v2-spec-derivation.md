@@ -10,6 +10,8 @@
 4. Design Authority 自行讀取後寫出 Delta Spec v2.0 與 derivation record（見 Artifacts），並回報無需 STOP 的事項。
 5. 主 session 依 Bindings §3.4 核對 binding（見下）、確認變更路徑只有兩個新檔、掃描金鑰格式字串、抽查文件結構（第 1.2 節 delta 表、第 3 節 AC 表、第 5.3 節驗證儀器、derivation record 的裁決、高風險判定、self-review、未決事項）；寫本 worklog；commit、push、開 PR（SA-1、SA-2）。未 merge（無 RB-1 授權）。
 
+6. **DA 修正輪（同日，acceptor 指示；PR #34 未合併）**：以 SendMessage 續派同一個 Design Authority assignment（`agent-a813b9bb4bfbfd4cc`），原文轉交 acceptor 的五項指示（移除下限「E 全部／22 縣市同時在視窗內」的 PASS 條件、以中心與逐軸規則取代「視窗 ∩ E ≠ ∅」的 pan 儀器、移除 Refresh→Radar 的 MUST 耦合、驗證方法用語去框架化、雷達 1 km oracle 比例性複核），並要求先重讀磁碟上的檔案再修改、只改兩份 DA 文件、不 commit。Design Authority 修訂 Spec 為 **v2.1**（R-V2-MAP-1、R-V2-MAP-2、AC-V2-13、R-V2-RAD-3、AC-V2-18、R-V2-DOC-1(9)、AC-V2-21(10)、R-V2-TC-1、§5.3、§6.1 與八個 AC 證據欄）與 derivation record（§14 修訂列、DV-11／DV-12 重寫、DV-13 補充、B-4／B-10、§9 self-review、§10 evidence），回報：無任何 accepted 語義改變；第 3、5 項不需 acceptor 決定；1 km oracle 保留並記錄理由。主 session 再次核對 binding（同一 agentId，observed `('claude-fable-5-1', 'xhigh')`）、變更範圍（只有兩檔，48＋／44－）、金鑰掃描 0 命中、版本列與修訂列存在，並確認框架名稱只剩 §5.2 HOW 清單與 V1 既有事實的引用。
+
 ## Contract reference
 
 Acceptor 2026-09-25 於對話中的直接指示：「Proceed with V2 DELTA SPEC DERIVATION only … Do NOT: edit the V1 Spec; rewrite V1 requirements; create Tickets yet; implement; start the Orchestrator … Work on a topic branch. SA-1 / SA-2 remain available for: commit; push; PR. Do NOT merge.」上位的 accepted contract：V2 Outcome Contract（`outcome-contract-v2.md`，ACCEPTED 2026-09-25）。

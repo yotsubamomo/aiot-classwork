@@ -1,7 +1,7 @@
 # Derivation record — SPEC-V2（HW01 Weather Map V2，`home_work_01/`）
 
 - **紀錄類型**：Design Authority derivation record（治理 §1.2、§3.4；Bindings §7「Spec 與其 Tickets 的 derivation 都記在這裡」）。本紀錄同時承載本次 derive 中依治理 §3.6-A 作出的 DA 裁決（DV-1～DV-19），效力與 decision record 相同；不另開 decision record（派工指示：只在需要新的高風險類別時才開）。
-- **Derived contract**：[`../../spec/SPEC-V2.md`](../../spec/SPEC-V2.md) **v2.0**（2026-09-25），**DERIVED — effective as derived contract of the accepted V2 Outcome Contract**。
+- **Derived contract**：[`../../spec/SPEC-V2.md`](../../spec/SPEC-V2.md) **v2.1**（2026-09-25；v2.0 初版、v2.1 依 acceptor 指示修正，見 §14），**DERIVED — effective as derived contract of the accepted V2 Outcome Contract**。
 - **Outcome Contract**：[`../outcome-contract-v2.md`](../outcome-contract-v2.md)，**ACCEPTED 2026-09-25**；normative §1–8 ＝ candidate commit `69c5a049104b2fd96289d10ff938c2c8a6d59bd4`；接受紀錄 commit `f853bcbc69ed75a27b77aeb609daabe103c96a25`；合併進 `main` 於 `8c4667d4d20fd82718d6acb4a29392cc5679b516`（PR #33）。acceptor 原文（OC §9.1）：「no additional scope beyond the candidate SHA is authorized by this acceptance」。
 - **其他權威輸入**（identity）：
   - 治理 `docs/governance/minimal-operational-governance-v2.0.md`（v2.0 Adopted／Frozen）；Project Bindings **b3**（`docs/governance/project-bindings.md`，RB-3 兩個金鑰位置，PR #31 `0b42208`）；`docs/governance/binding-verification.md`（b1 6／6 PASS；b2 `executor` override dry-run 2／2 PASS，PR #32 `588ef57`）。
@@ -19,7 +19,7 @@
 | 項目 | 內容 |
 | --- | --- |
 | 現況 | V2 Outcome Contract 已接受；OC §8 前提 #1–#3（接受紀錄、b3 生效、b2 dry-run）已滿足（OC §9 前置證據列）。本次只做 Delta Spec derivation。 |
-| 效力 | SPEC-V2 v2.0 自本紀錄寫入起為有效 derived contract（治理 §1.2：不需 acceptor 逐份核准）。 |
+| 效力 | SPEC-V2 v2.0 自本紀錄初版寫入起為有效 derived contract（治理 §1.2：不需 acceptor 逐份核准）；v2.1 自本紀錄 §14 的修訂列寫入起取代 v2.0（§5.3 第 2 類修訂）。 |
 | 重新 derive 條件 | V2 OC normative §1–8 的 scope、requirement、架構、acceptance boundary 或 authority／authorization 條款變更時；由 DA 重新 derive 或以本紀錄修訂確認未受影響。 |
 | 未做 | 未修改 V1 Spec、V1 OC、V1 derivation record、任何 decision record、OC-V2、BRIEF-V2、`CONTEXT.md`、README、實作、測試；未建 Ticket；未啟動 run；未 commit（派工者依 SA-1 處理）。 |
 | 下一步 | Ticket derivation（DA，另行派工；記入本紀錄新章節）→ Orchestrator activation（acceptor 開主 session）。 |
@@ -57,7 +57,7 @@
 
 ## 3. Boundary determination 與 DA 裁決（治理 §1.2、§3.6-A、§5.3 第 2 類）
 
-**總判定：SPEC-V2 v2.0 全部內容在 V2 Outcome Contract（candidate `69c5a04`）的 boundary 內；沒有任何 R／AC／INV 超出 §2.2 的 scope classes、§2.3 non-scope、§2.5 語義、§2.6 constraints 或 §3 acceptance boundary；沒有改變 accepted 語義；沒有重開任何 Grill 裁決（D-1～D-19、P-1～P-36）；沒有改變 V1 Spec v1.1、V1 OC 或任何 decision record 的文字；第 1.2 節 Δ 表與 OC §2.4 逐列一致，未對 §2.4 未列的 V1 條款作任何重新解讀。** 逐項依據如下（只列需要判斷者；逐字轉錄 OC 的項目不列）。
+**總判定：SPEC-V2 v2.1（含 v2.0 初版與 v2.1 修正）全部內容在 V2 Outcome Contract（candidate `69c5a04`）的 boundary 內；沒有任何 R／AC／INV 超出 §2.2 的 scope classes、§2.3 non-scope、§2.5 語義、§2.6 constraints 或 §3 acceptance boundary；沒有改變 accepted 語義；沒有重開任何 Grill 裁決（D-1～D-19、P-1～P-36）；沒有改變 V1 Spec v1.1、V1 OC 或任何 decision record 的文字；第 1.2 節 Δ 表與 OC §2.4 逐列一致，未對 §2.4 未列的 V1 條款作任何重新解讀。** 逐項依據如下（只列需要判斷者；逐字轉錄 OC 的項目不列）。
 
 ### 3.1 Boundary items（B）
 
@@ -66,13 +66,13 @@
 | B-1 | 單一 Delta Spec、V1 以參照繼承 | 在 boundary 內；OC §6「derive V2 Delta Spec（以參照繼承 V1 Spec v1.1，不重寫 V1；逐條列出 re-scope／supersede／extend 的 V1 條款）」。 | OC §6；DV-1 |
 | B-2 | 觀測／雷達 `/api/` 路徑與欄位名交給實作、只凍結語義欄位與四個失敗代碼 | 在 boundary 內；OC §3 開頭「證據類別不指定框架、檔名、fixture、mock、票務或順序」；C-1「模組結構屬 HOW」；V1 DR-1 的凍結判準（可觀察驗收條件或跨 Ticket 依賴才凍結）。四個代碼字串是 AB-V2-4「四類…各自可辨」的 oracle，屬跨 Ticket 依賴（前端與 API 測試共用）。 | OC §3、C-1；DR-1；DV-6 |
 | B-3 | 重用視窗上限 10 分鐘／5 分鐘、有界時間儀器 30 秒 | 在 boundary 內；OC S-1「長度屬 Spec／HOW」、S-6「界值由 DA 於 Delta Spec 決定，如客觀驗收需要」——DA 決定需要上限與儀器才能客觀驗收「bounded staleness」與「有界時間」；實際長度仍 HOW。 | S-1、S-6；DV-5、DV-7 |
-| B-4 | 圍欄三項轉為產品語義＋儀器（E、25%、1 km ≥ 20 px、375 px ≥ 5 km、minZoom 6／maxZoom 12） | 在 boundary 內；OC S-8「minZoom／maxZoom／bounds／margin／viscosity 為 HOW／驗證參數」；派工指示允許 DA 選定具體 Leaflet 數值作為驗證儀器並與產品語義區分。Spec §5.3 明確標示儀器可改、語義不可。 | S-8；DV-11 |
+| B-4 | 圍欄三項轉為產品語義＋儀器（E 與逐軸包含、本島 ≥ 25% 視窗高、1 km ≥ 20 px、375 px ≥ 5 km、minZoom 6／maxZoom 12） | 在 boundary 內；OC S-8「minZoom／maxZoom／bounds／margin／viscosity 為 HOW／驗證參數」；派工指示允許 DA 選定具體 Leaflet 數值作為驗證儀器並與產品語義區分。Spec §5.3 明確標示儀器可改、語義不可。**v2.1 修正**：v2.0 的下限條款曾要求「E 全部同時在視窗內」，acceptor 指出此強於 S-8／D-14 的接受語義（等於重新引入未被選擇的 Q14-C 行為）——DA 同意並移除；v2.0 的 pan oracle「視窗 ∩ E ≠ ∅」不足以證明「不得離開有用範圍造成空白主導」——改為中心在 E 內＋逐軸包含（DV-11）。修正後的三項語義只重述 S-8 的四個接受要點，不新增產品需求。 | S-8；DV-11 |
 | B-5 | 圍欄外測站（東沙、南沙等）不上圖但列於清單 | 在 boundary 內；S-4「縣下鑽後該縣測站皆可到達」與 S-8「pan 不得離開有用的臺灣範圍」同時成立的唯一方式；不新增功能、不排除任何有效測站（仍計數、可列、可看詳情）。 | S-4、S-8、S-10；DV-10 |
 | B-6 | dataset-level Observation Time ＝ 有效測站 `ObsTime` 最大值 | 在 boundary 內；S-2 的「較舊 Observation Time 不得取代較新」需要一個可比較的 dataset-level 值，OC 未定義；DA 在 §3.6-A 第二種情形（多種解讀，選擇只影響本 work item）選定最大值；測站層級 Observation Time 依 S-5 另顯示。 | S-1、S-2、S-5；DV-2 |
 | B-7 | 伺服器只回成功（含重用）或分類失敗，不回「帶資料的 stale」 | 在 boundary 內；S-6 把 Stale 定義為「介面仍顯示上一次成功資料」，OC §2.3「契約不要求持久伺服器狀態」；把 stale 固定為介面狀態使四類失敗與 Stale 語義單一來源、且在 Vercel 多實例下可成立。這是設計選擇，不縮減任何 accepted outcome（使用者可見行為完全依 S-6）。 | S-6；OC §2.3、C-2；DV-5 |
 | B-8 | 代表測站規則只寫性質（確定性、只依有效站、有文件、可離線驗證、不列 StationId） | 在 boundary 內；S-4 原文；驗證接縫（若在瀏覽器端實作須有等價自動化證據）是 AB-V2-6「規則的自動化驗證」的必要條件。 | S-4；AB-V2-6；DV-9 |
 | B-9 | 模式切換保留脈絡的精確規則（Forecast 進入時最小調整以滿足 AC-17；返回恢復） | 在 boundary 內；S-3「切換保留使用者目前地理脈絡（除非某模式確實需要不同的有效視野）」＋ V1 AC-17 的六標記可見；DA 只把「除非」具體化為 AC-17。 | S-3；AC-17；DV-8 |
-| B-10 | Radar 預設隱藏、顯示時才取得、Refresh 在顯示中一併重新取得、只在 Now mode | 在 boundary 內；S-11 未定預設；DA 依 §3.6-A 選擇對首次載入最輕、與「只有手動 Refresh」一致的行為；Radar 歸屬 Now mode 來自 OC §1／BRIEF §1 樹狀圖與 C-4（觀測脈絡不流入 Forecast）。 | S-11；OC §1；C-4；DV-12 |
+| B-10 | Radar 預設隱藏、顯示時才取得、重新取得的觸發方式為 HOW（使用者動作、不輪詢）、只在 Now mode | 在 boundary 內；S-11 未定預設；DA 依 §3.6-A 選擇對首次載入最輕的預設；Radar 歸屬 Now mode 來自 OC §1／BRIEF §1 樹狀圖與 C-4（觀測脈絡不流入 Forecast）。**v2.1 修正**：v2.0 曾規定「Refresh 在 Radar 顯示中 MUST 一併重新取得雷達」；acceptor 指出 OC 未定義此耦合——DA 同意：S-11 只要求顯示／隱藏、時間戳、對齊、`/api/` 代理、獨立狀態，重新取得的時機是 HOW；DA 不認為共用 Refresh 是實質必要的產品行為（顯示／隱藏控制本身已提供使用者觸發的重新取得路徑，獨立狀態不受影響），故不需 acceptor 決定。 | S-11；OC §1、§2.3；C-4；DV-12 |
 | B-11 | Radar 對齊 oracle ≤ 1 km | 在 boundary 內；S-11「不預先接受實質偏移為已知限制…細微邊緣差異可記錄，明顯錯位不可」＋派工指示「若有意義的對齊需要具體 oracle，定義它而不預先固定重投影實作」。1 km 的選定依據見 DV-13；重投影技術與 CRS 仍 HOW。 | S-11；DV-13 |
 | B-12 | 文字錨點（`Now`、`Forecast`、`Latest Observation`、`Observation Time`、`Fetched Time`、`Refresh`、`Back to Taiwan`） | 在 boundary 內；這些是 OC／BRIEF §9 的 accepted 用語與 S-4 的控制名稱；固定為逐字錨點只是讓「明顯有標籤」「永遠可見」可客觀驗收；其餘描述文字仍 HOW。不是新增老師要求（H-2 不擴張）。 | S-1、S-3、S-4；BRIEF §9；DV-14 |
 | B-13 | 靜態檢查 re-scope 的檔案集合＝`app.py`、`weather_query.py` 及其單元內 import closure；預報 endpoint 以封網無金鑰行為測試 | 在 boundary 內；OC §2.4 列 2「`app.py`、共用預報查詢模組與預報讀取路徑維持無 HTTP client、無 CWA 字串…靜態檢查依此 re-scope，不弱化；不要求特定模組結構」。「預報讀取路徑」在不固定模組結構下只能以行為（封網無金鑰仍正常）驗證，故 SEC-2(c)。 | OC §2.4 列 2、D-17(6)；DV-15 |
@@ -100,11 +100,12 @@
 - **DV-6 四個失敗代碼**。裁決：`key_not_configured`、`upstream_unreachable`、`upstream_error`、`invalid_response`；非 2xx JSON 含 `reason` 與 `error`；零有效測站歸 `invalid_response`；`upstream_error` MAY 附上游 HTTP 狀態碼數字（非機密）。依據：S-6 四類；B-2。影響：OBS-11、RAD-2、AC-V2-07。
 - **DV-7 有界時間**。裁決：產品語義＝每次 Refresh 到達終態、上游逾時存在且小於平台 function 上限、平台層錯誤仍依 failure 處理；驗證儀器＝30 秒（V1 smoke 的 90 秒是暖機預算，不適用單次互動；30 秒足以涵蓋冷啟動＋一次 ~1.4 MB 上游取得＋逾時）。依據：S-6、P-25；B-3。影響：OBS-13、AC-V2-06(e)(f)。
 - **DV-8 模式切換保留脈絡**。裁決：Now 狀態往返恢復；進入 Forecast 時已顯示六標記則保留視野，否則最小調整（AC-17 是「模式確實需要不同視野」的唯一情形）；返回 Now 恢復離開時視野。依據：B-9。影響：MODE-5、AC-V2-01。
-- **DV-9 代表測站規則**。裁決：只寫性質（確定性、只依有效站與有文件靜態偏好、後備、README 可手算、可離線驗證、不列 StationId 為契約）；若在瀏覽器端實作，須有等價自動化證據（headless 或靜態守衛）。依據：B-8。影響：DD-3、AC-V2-11、TC-1。
+- **DV-9 代表測站規則**。裁決：只寫性質（確定性、只依有效站與有文件靜態偏好、後備、README 可手算、可離線驗證、不列 StationId 為契約）；若在瀏覽器端實作，須有等價自動化證據（瀏覽器自動化或靜態守衛；工具 HOW）。依據：B-8。影響：DD-3、AC-V2-11、TC-1。
 - **DV-10 圍欄外測站**。裁決：不上圖、仍計數、列於清單並標示、可看詳情；README 記述。依據：B-5；DA 核對 CWA 測站事實（高雄市所轄東沙、南沙測站位於 lat 20.7N／10.4N，遠在任何「有用的臺灣範圍」之外）。影響：DD-5、DD-6、DD-11、AC-V2-12。
-- **DV-11 圍欄三項的產品語義與儀器**。裁決：(pan) 視窗永遠與 E 相交、金門連江可達；(zoom-out) 下限存在、下限時 E 全在視窗內且本島南北 ≥ 25% 視窗高；(zoom-in) 上限存在、1 km ≥ 20 CSS px、375 px 視窗 ≥ 5 km、臺北市測站可個別選取；儀器：E ＝ lon 117.6–122.9／lat 21.2–26.7，minZoom 6，maxZoom 12（12–13 可接受），初始 fitBounds 本島＋澎湖。依據：B-4；DA 以 Web Mercator 公式計算（scratchpad）：z6 時 E 241×274 px、本島南北 174 px（1280×560 視窗 31%、375×360 視窗 48%；z5 為 15% FAIL）；z12 時 1 km ≈ 24 px、375 px ≈ 16 km（z11 12 px FAIL；z14 4 km FAIL）。影響：MAP-1～4、§5.3、AC-V2-13。
-- **DV-12 Radar 預設與觸發**。裁決：預設隱藏；顯示時取得；顯示中 Refresh 一併重新取得（狀態獨立）；只在 Now mode。依據：B-10。影響：RAD-3、MODE-4、AC-V2-18。
+- **DV-11 圍欄三項的產品語義與儀器**（v2.1 修訂；v2.0 版本見下方「未採用的解讀」）。裁決：(pan) 任何可到達的視野，視窗中心在 E 內，且每一軸上視窗 ⊆ E 或（視窗大於 E 的軸）E ⊆ 視窗；金門、連江可藉拖曳／縮放到達並選取測站；(zoom-out) 下限存在；下限時本島南北 ≥ 25% 視窗高、圍欄判準仍成立；**不要求** E 或 22 縣市同時在視窗內；(zoom-in) 上限存在、1 km ≥ 20 CSS px、375 px 視窗 ≥ 5 km、臺北市測站可個別選取；儀器：E ＝ lon 117.6–122.9／lat 21.2–26.7，`maxBounds` ＝ E，minZoom 6，maxZoom 12（12–13 可接受），初始 fitBounds 本島＋澎湖。依據：B-4；S-8 的四個接受要點（zoom-out 在臺灣小到無用或空白主導前停止；金門連江可達；初始視野本島＋澎湖；初始視野不必是最寬）逐一對應，沒有第五項；pan oracle 選「中心＋逐軸包含」是因為它排除了「視窗 ∩ E ≠ ∅」仍允許的空白主導視野（例如視窗只在角落碰到 E），且 vendored Leaflet 1.9.4 的 `maxBounds` 逐軸行為（`_getBoundsOffset`／`_rebound`：視窗小於界 → 限制在界內；視窗大於界 → 界置中）恰好同時滿足 (i)(ii)，使儀器與語義可直接對照；DA 以 Web Mercator 公式計算（scratchpad）：z6 時本島南北 174 px（1280×560 視窗 31%、375×360 視窗 48%；z5 為 15% FAIL；z7 亦 PASS）；z12 時 1 km ≈ 24 px、375 px ≈ 16 km（z11 12 px FAIL；z14 4 km FAIL）；z10 時桌機視窗寬 ≈ 1.76°、375 px ≈ 0.52°，均小於 E 寬 5.3°，故可在圍欄內平移到金門（118.24–118.5E）與連江（119.9–120.5E、25.9–26.4N）。影響：MAP-1～4、§5.3、AC-V2-13。
+- **DV-12 Radar 預設與觸發**（v2.1 修訂）。裁決：預設隱藏；顯示時取得；顯示中重新取得最新影像的觸發方式屬 HOW（例如再次切換顯示或由 Refresh 一併觸發），限使用者動作、不自動更新或輪詢（OC §2.3）、維持 RAD-4 的獨立狀態與時間戳語義、README 記載；只在 Now mode。v2.0 的「Refresh MUST 一併重新取得雷達」已移除（OC 未定義此耦合；不是 S-11 的接受語義）。依據：B-10。影響：RAD-3、MODE-4、DOC-1(9)、AC-V2-18、AC-V2-21(10)。
 - **DV-13 Radar 對齊 oracle**。裁決：每個影像像素與地圖對其經緯度的投影相距 ≤ 1 km；參考點＝產品範圍四角、四邊中點、中心＋本島內 ≥ 3 點；zoom 7 與 10；自動化可重現。依據：產品像素 ≈ 185 m（6°／3600 px），縣層級使用；DA 計算把等經緯度影像線性貼在 Mercator lat 20.5–26.5 的最大誤差 ≈ 3.8 km（lat 23.55 附近；lat 22.0 為 2.8 km、25.0 為 2.9 km），即預設 `L.imageOverlay` 作法 FAIL——這正是 S-11 所稱「實質偏移／重投影問題」，故 oracle 必須排除它；1 km 是 5 個原生像素、在 zoom 10 約 2.8 CSS px，可量測且對縣層級脈絡無明顯錯位。重投影技術或地圖 CRS 仍 HOW。影響：RAD-5、AC-V2-19。
+  **DV-13 補充（v2.1，acceptor 要求的比例性複核；oracle 保留為 ≤ 1 km）**。問題：1 km 是否對「有意義的地理對齊」過嚴，因為它迫使實作做重投影／CRS 工作（線性貼圖已知偏差約 3.8 km）。DA 複核：(1) **工作量由接受語義決定，不由數字決定**——S-11 明文「不預先接受實質偏移為已知限制…明顯錯位不可」並把系統性偏移／重投影問題列為 route DA 的事項，所以「不能用線性貼圖」是 acceptor 已接受的結果；任何 < 3.8 km 的容差都同樣迫使處理緯度非線性，任何 ≥ 3.8 km 的容差都等於預先接受實質偏移（在 zoom 10 為 ≈ 10.6 CSS px、zoom 12 為 ≈ 43 px 的可見錯位），違反 S-11。(2) **1 km 對正確處理不構成額外負擔**——逐列重採樣或改用等經緯度 CRS 的殘差在一個原生像素（≈ 185 m）量級；分段線性近似的殘差（DA 重算）：兩段 ≈ 1.02 km（略超出）、三段 ≈ 0.46 km、四段 ≈ 0.26 km，所以 1 km 允許三段以上的簡單近似解法，不強迫逐像素精確方案。(3) **可量測性**——1 km 在 zoom 10 約 2.8 CSS px，瀏覽器量測可分辨；更寬的容差（例如 2 km）不減少任何工作，只會放寬對粗糙近似的把關；更嚴的容差（例如 200 m）在 zoom 10 不足 1 px、無法可靠量測。(4) 與縣層級使用一致：雷達產品像素 185 m，縣內站距通常 1–10 km，1 km 的錯位不會把回波錯置到相鄰縣或相鄰測站。**裁決：保留 ≤ 1 km；不需 acceptor**——改變容差只有兩種方向：放寬到 ≥ 3.8 km 會改變 accepted 產品品質（須 acceptor），放寬到 1–3.8 km 之間不改變工作量也不改變品質保證的性質，故無理由變動。影響：無條款變更；本補充作為 AC-V2-19 的比例性依據。
 - **DV-14 文字錨點**。裁決：`Now`、`Forecast`（切換）、`Latest Observation`、`Observation Time`、`Fetched Time`、`Refresh`、`Back to Taiwan` 逐字為驗證錨點；禁止以 `real-time`／`realtime`／`live` 指稱觀測；標題與 V1 概念詞不變。依據：B-12。影響：MODE-2、OBS-4、OBS-7、DD-8、DOC-5、AC-V2-23。
 - **DV-15 靜態檢查 re-scope 與預報路徑行為接縫**。裁決：(a′) 集合＝`app.py`、`weather_query.py` 及其單元內 import closure；`server.py`、`api/index.py`、V2 觀測／雷達模組退出但受憑證掃描；(b) 前端檢查延伸至所有請求形式；(c)(d) 不變；新增 (e) 預報 endpoint 封網無金鑰行為不變。依據：B-13；現行 `tests/test_static_checks.py` 的 `_PYTHON_SIDE` 含 `server.py`／`api/index.py`（必須 re-scope 才能容納 V2）。影響：SEC-2、SEC-4、AC-V2-16。
 - **DV-16 CWA 授權標示**。裁決：README MUST（兩個資料集）；應用內 SHOULD。依據：B-14。影響：DOC-2、AC-V2-21(6)。
@@ -112,11 +113,11 @@
 - **DV-18 `Fetched Time` 與 DR-17 標籤可辨**。裁決：V2 標籤須與下方 dashboard 的預報快照取得時間在文字與位置上可辨；DR-17 不變。依據：B-16。影響：MODE-6(d)、DOC-5(d)、AC-V2-02。
 - **DV-19 金鑰來源**。裁決：只從 `CWA_API_KEY` 環境變數讀；本機來源未追蹤 `.env`（載入 HOW）；部署來源 Vercel 環境變數；缺則 `key_not_configured`。依據：B-17。影響：SEC-3、AC-V2-17。
 
-**未採用的解讀（供追溯）**：伺服器端 stale-with-data（B-7，會使 Stale 有兩個來源）；dataset-level Observation Time 取眾數（不如最大值簡單且同樣確定）；以固定 minZoom 為產品語義（改為儀器）；把 Taiwan-wide 極值升為 MUST（B-19）；把附錄 A 的 segmented control、sheet 高度等寫入需求（B-20）。
+**未採用的解讀（供追溯）**：伺服器端 stale-with-data（B-7，會使 Stale 有兩個來源）；dataset-level Observation Time 取眾數（不如最大值簡單且同樣確定）；以固定 minZoom 為產品語義（改為儀器）；把 Taiwan-wide 極值升為 MUST（B-19）；把附錄 A 的 segmented control、sheet 高度等寫入需求（B-20）。**v2.0 曾採、v2.1 依 acceptor 指示撤回**：(a) 下限 PASS 條件「E 全部／22 縣市同時在視窗內」（超出 S-8／D-14；等於重新引入未被選擇的 Q14-C 行為）；(b) pan oracle「視窗 ∩ E ≠ ∅」（允許空白主導的視野，證明力不足）；(c) 「Refresh MUST 一併重新取得雷達」（OC 未定義的耦合）；(d) 對新 V2 驗證直接點名 pytest／mock／Flask test client／headless（框架屬 HOW；V1 既有工具只作既有回歸事實命名）。
 
 ## 4. Spec 分配到的 acceptance boundary
 
-**V2 Outcome Contract 只有一份 derived Spec（SPEC-V2 v2.0）。分配：AB-V2-1～AB-V2-13 全部，加 §2.6 C-1～C-5 constraints 與 §5 風險的可驗收化。** 全部 derived Specs 合起來涵蓋整個 acceptance boundary 的核對（治理 §4.7 第五 bullet）在本 Spec 的 Spec Integration Audit 執行（它同時是第一份與最後一份）。V1 Spec v1.1 是 V1 Outcome Contract 的 derived Spec，不屬 V2 OC 的 boundary 分配；V2 對 V1 的 delta 由本 Spec §1.2 承載並由同一次 Spec Integration Audit 核對一致性。
+**V2 Outcome Contract 只有一份 derived Spec（SPEC-V2 v2.1）。分配：AB-V2-1～AB-V2-13 全部，加 §2.6 C-1～C-5 constraints 與 §5 風險的可驗收化。** 全部 derived Specs 合起來涵蓋整個 acceptance boundary 的核對（治理 §4.7 第五 bullet）在本 Spec 的 Spec Integration Audit 執行（它同時是第一份與最後一份）。V1 Spec v1.1 是 V1 Outcome Contract 的 derived Spec，不屬 V2 OC 的 boundary 分配；V2 對 V1 的 delta 由本 Spec §1.2 承載並由同一次 Spec Integration Audit 核對一致性。
 
 | AB-V2 | 分配 | AC-V2 | 備註 |
 | --- | --- | --- | --- |
@@ -201,10 +202,10 @@
 | --- | --- | --- | --- |
 | 1 | Outcome Contract coverage | PASS | AB-V2-1～13 每條 ≥ 1 AC（§4 表）；S-1～S-11、C-1～C-5 每條 ≥ 1 R（§2 表）；OC §2.4 十四列 ↔ Δ-1～Δ-14 逐列；A-1～A-4 ↔ SEC-3、SEC-6、TC-3。 |
 | 2 | Missing negative／failure behaviour | PASS | 無效測站六種（AC-V2-05）、四類失敗（07）、首次載入 vs 失敗 Refresh（08）、亂序／連按（06(d)）、上游停滯與平台層錯誤（06(e)(f)）、預報失敗與 Now 健康（09）、雷達失敗（18）、零有效縣（DD-5）、圍欄外測站（DD-11）、缺金鑰（17(d)）、年齡不觸發 stale（08(d)）。 |
-| 3 | Unverifiable AC | PASS | 「有意義」「有用」「明顯」皆轉為儀器或錨點（§5.3、DV-11、13、14）；「不得使地圖不可用」以可拖曳／縮放／選取的具體檢查表達。殘留主觀項只剩 SHOULD（視覺抽驗、應用內標示）。 |
-| 4 | Verification mismatch | PASS | 客戶端規則（取代規則、代表選取若在前端）要求 headless 或靜態守衛等價證據，不以 API 測試冒充；對齊以量測不以截圖；預報路徑 CWA-free 以封網行為測試而非只看 import；preview 驗證由 Reviewer 重現。 |
-| 5 | Scope leakage | PASS | 速率限制、Taiwan-wide 極值（MAY）、透明度滑桿（MAY）、應用內授權標示（SHOULD）、年齡提示（MAY）、自動更新皆未升為 MUST；無新增 CWA 資料集；縣互動圖層與圍欄外規則皆為既有 outcome 的必要條件。 |
-| 6 | Hidden HOW | PASS | 端點路徑／欄位名、模組結構、快取、逾時值、Leaflet 常數、資訊面實作、Radar 變體與重投影、測試框架皆列 §5.2；凍結者（§5.1）各有跨 Ticket 依賴或可觀察驗收理由（DR-1 判準）。四個失敗代碼字串與文字錨點是刻意凍結（B-2、B-12）。 |
+| 3 | Unverifiable AC | PASS | 「有意義」「有用」「明顯」皆轉為儀器或錨點（§5.3、DV-11、13、14）；「不得使地圖不可用」以可拖曳／縮放／選取的具體檢查表達。v2.1：pan 圍欄的 oracle 由「視窗 ∩ E ≠ ∅」（證明力不足）改為「中心在 E 內＋逐軸包含」，可由視窗 bounds 讀數客觀判定。殘留主觀項只剩 SHOULD（視覺抽驗、應用內標示）。 |
+| 4 | Verification mismatch | PASS | 客戶端規則（取代規則、代表選取若在前端）要求瀏覽器自動化或靜態守衛的等價證據，不以 API 測試冒充；對齊以量測不以截圖；預報路徑 CWA-free 以封網行為測試而非只看 import；preview 驗證由 Reviewer 重現。v2.1：AC 證據欄與 §6.1 對新 V2 驗證只寫證據類別（離線自動化、API 驗證、靜態檢查、瀏覽器驗收／自動化、量測），V1 既有 pytest／Flask test client／靜態守衛只以既有回歸事實命名；每條 AC 的 PASS／FAIL oracle 文字未變（AC-V2-13 除外，其 oracle 依項目 1、2 修正）。 |
+| 5 | Scope leakage | PASS | 速率限制、Taiwan-wide 極值（MAY）、透明度滑桿（MAY）、應用內授權標示（SHOULD）、年齡提示（MAY）、自動更新皆未升為 MUST；無新增 CWA 資料集；縣互動圖層與圍欄外規則皆為既有 outcome 的必要條件。v2.1 複核：移除了兩處 v2.0 的 leakage——下限「E 全部同時在視窗內」（超出 S-8）與「Refresh MUST 重取雷達」（超出 S-11）；修正後 MAP-1～4 只承載 S-8 的四個接受要點，RAD-3 只承載 S-11 的五個接受要點；未新增任何 MUST。 |
+| 6 | Hidden HOW | PASS | 端點路徑／欄位名、模組結構、快取、逾時值、Leaflet 常數、資訊面實作、Radar 變體與重投影、測試框架皆列 §5.2；凍結者（§5.1）各有跨 Ticket 依賴或可觀察驗收理由（DR-1 判準）。四個失敗代碼字串與文字錨點是刻意凍結（B-2、B-12）。v2.1 複核：雷達重新取得時機回歸 HOW；`minZoom` 6／`maxBounds` ＝ E 明確標示為儀器且 §5.3 說明儀器不創造需求；pytest／mock／headless 不再出現在新 V2 驗證的規範句中。 |
 | 7 | Contradiction with V1 | PASS | 每條與 V1 不同的規定都在 Δ 表且與 OC §2.4 一致；DR-17、DR-19 的處理方式（DV-17、DV-18）明確標示不變／delta 範圍；AC-17「初始視野」在 Forecast mode 進入時解讀（Δ-5）；V1 INV-1～9 與 INV-V2 無互斥（INV-6 以 re-scope 形式由 INV-V2-1 承接）。 |
 | 8 | Missing traceability | PASS | 每條 R 有「對應」欄（OC／AB／V1／DV）；每條 AC 有 AB 與 R；每條 DV 有 B-item 依據；Δ 表引 OC §2.4 列號與 Grill D／P。 |
 | 9 | Disproportionate evidence burden | PASS | §6.2 截圖集合限於新行為與關鍵失敗態；V1 evidence 沿用、只定向重驗 §6.3；Radar 影像不要求真實 fixture；瀏覽器自動化只在需要時；不重做整套 V1。 |
@@ -218,7 +219,8 @@
 - 讀取：Bindings b3 全文；治理 v2.0 全文（§1–§5 與附錄）；`binding-verification.md`（grep）；OC-V2 全文；BRIEF-V2 全文；V1 OC 全文；V1 Spec v1.1 全文；`derivation-SPEC.md` 全文；DR-1～DR-16、H-1～H-3、DR-17、DR-19、DR-20、DR-21、DR-22 全文；兩份 phase 增補全文；`phase-acceptance-SPEC.md` 標題與 §10；`ACCEPTANCE.md` 全文；`CONTEXT.md` 全文；`tickets.md` 全文；`REQUIREMENTS.md` Part B §B.1–B.5、§B.16、§B.22、§B.24；SDD 指引 §8–§9；實作檔（第 0 節清單）。
 - Git（read-only）：`main` HEAD ＝ `8c4667d4d20fd82718d6acb4a29392cc5679b516`；`git log --oneline -5 main` 含 PR #33／#32／#31 merges 與 `f853bcb`；`git merge-base --is-ancestor ef15d3e main` → true；`ef15d3e` ＝「HW10 Taiwan Weather Forecast (home_work_01): ingestion, Grading App, Dashboard/Vercel, map rework and acquisition-time validation」；`git status --porcelain` 只有未追蹤 `grep.exe.stackdump`（工具殘留，非本紀錄產物）；`main` 追蹤 `home_work_01/` 166 檔，含 `data/raw/F-D0047-091.json`、`.meta.json`、`tests/fixtures/F-D0047-091_sample.json`。
 - 實作事實：`server.py` 無 HTTP client、無環境變數；`api/index.py` 單一 function；`vercel.json` 全路由；`tests/test_static_checks.py` 的 `_PYTHON_SIDE` ＝ `app.py`、`weather_query.py`、`server.py`、`api/index.py`（須 re-scope）；`_ALLOWED_FRONTEND_URLS` 四個非請求常數；`app.js` 以 `center [23.75,121.0]`／`zoom 7` 初始化、`fitToMarkers` 為唯一 `fitBounds`（`maxZoom: 8`）、無 `minZoom`／`maxZoom`／`maxBounds`；`styles.css` 地圖高度 560／440（≤ 1023）；`basemap.js` 檔頭聲明純幾何無屬性；`smoke.py` 只檢 `GET /` 與 `/api/health`；兩個 workflow 以 `home_work_01/**` 觸發。
-- 計算（scratchpad `geo.py`，Web Mercator 公式）：等經緯度影像線性貼圖於 lat 20.5–26.5 的最大緯度誤差 3.80 km（lat 23.55）；lat 22.0／23.5／24.5／25.0 分別 2.80／3.80／3.42／2.90 km；產品像素 0.0017° ≈ 185 m。z5／6／7／8 時 E（117.6–122.9／21.2–26.7）為 121×137／241×274／482×548／965×1096 px；本島（120.03–122.05／21.85–25.35）南北 87／174／348／695 px；本島＋澎湖（119.25 起）寬 64／127／255／510 px。z11／12／13 時 1 km ≈ 12／24／47 px。
+- 計算（scratchpad `geo.py`，Web Mercator 公式）：等經緯度影像線性貼圖於 lat 20.5–26.5 的最大緯度誤差 3.80 km（lat 23.55）；lat 22.0／23.5／24.5／25.0 分別 2.80／3.80／3.42／2.90 km；產品像素 0.0017° ≈ 185 m。z5／6／7／8 時 E（117.6–122.9／21.2–26.7）為 121×137／241×274／482×548／965×1096 px（v2.1 起只作圍欄儀器的參考，不再是下限 PASS 條件）；本島（120.03–122.05／21.85–25.35）南北 87／174／348／695 px；本島＋澎湖（119.25 起）寬 64／127／255／510 px。z11／12／13 時 1 km ≈ 12／24／47 px。
+- v2.1 複核（read-only）：vendored `static/vendor/leaflet.js`（Leaflet 1.9.4）的 `_getBoundsOffset`／`_rebound`：`0<t+e ? Math.round(t-e)/2 : Math.max(0,Math.ceil(t))-Math.max(0,Math.floor(e))`——視窗在某軸大於 `maxBounds` 時把界置中，否則把視窗限制在界內；`_panInsideMaxBounds` 於移動時強制。此為 §5.3 MAP-1 儀器說明的依據。分段線性近似殘差由同一 Mercator 公式對等分區間重算（scratchpad）：一段 3.803 km、兩段 1.019 km、三段 0.463 km、四段 0.263 km、八段 0.067 km。`git diff --stat HEAD` 於修正前為空（工作樹與 `dae3ab0` 一致）。
 - 未讀取 `home_work_01/.env`；未使用 API key；未呼叫 CWA；產出不含任何金鑰字串。
 
 ## 11. 未決事項（不阻擋 derivation；皆為實作期或部署期事項）
@@ -236,10 +238,10 @@
 
 | 檔案 | 動作 |
 | --- | --- |
-| `home_work_01/doc/spec/SPEC-V2.md` | 新增（v2.0） |
-| `home_work_01/doc/governance/decisions/derivation-SPEC-V2.md` | 新增（本檔） |
+| `home_work_01/doc/spec/SPEC-V2.md` | 新增（v2.0，commit `dae3ab0`）；v2.1 修正（本次，Edit 局部修改） |
+| `home_work_01/doc/governance/decisions/derivation-SPEC-V2.md` | 新增（本檔，`dae3ab0`）；v2.1 修訂（本次） |
 
-未 commit；依 SA-1 由派工者處理。未建立 decision record（無新高風險類別，第 6 節）。
+未 commit；依 SA-1 由派工者處理。未建立 decision record（無新高風險類別，第 6 節）。v2.1 未觸及任何其他檔案。
 
 ## 13. 預期的 Ticket 分解（非約束；供 Ticket derivation 參考）
 
@@ -257,3 +259,4 @@
 | 版本 | 日期 | 依據 | 變更 | 性質 |
 | --- | --- | --- | --- | --- |
 | SPEC-V2 v2.0／本紀錄初版 | 2026-09-25 | acceptor 派工「Proceed with V2 DELTA SPEC DERIVATION only」 | 初版 derive。 | 治理 §1.2 derived contract；§5.3 第 2 類 |
+| SPEC-V2 v2.1／本紀錄修訂 | 2026-09-25 | acceptor 指示「Perform a focused DA correction pass on SPEC-V2 v2.0 and its derivation record. The accepted V2 Outcome Contract is NOT being changed.」（三項實質修正＋一項 HOW 清理＋一項比例性複核；PR #34 不合併、不 derive Tickets） | (1) R-V2-MAP-2、AC-V2-13(c)、§5.3：移除「E 全部／22 縣市同時在視窗內」的下限 PASS 條件；下限只以本島 ≥ 25% 視窗高＋圍欄判準驗證；`minZoom` 6 保留為儀器。(2) R-V2-MAP-1、AC-V2-13(b)、§5.3：pan oracle 改為「中心在 E 內＋逐軸視窗 ⊆ E 或 E ⊆ 視窗」，金門／連江以截圖證明可達；儀器對照 vendored Leaflet `maxBounds` 行為。(3) R-V2-RAD-3、AC-V2-18、R-V2-DOC-1(9)、AC-V2-21(10)：移除「Refresh MUST 一併重取雷達」；觸發方式為 HOW（使用者動作、不輪詢、狀態獨立、README 記載）。(4) R-V2-TC-1、§6.1、AC-V2-02／06／07／09／15／16／19／23 證據欄：框架中立的證據類別用語；V1 既有工具只作既有事實命名；oracle 未弱化。(5) DV-13 補充：1 km 對齊 oracle 比例性複核，保留。本紀錄同步更新：header、§1 效力、§3 總判定、B-4、B-10、DV-9（用語）、DV-11、DV-12、DV-13 補充、未採用的解讀、§4、§9 第 3／4／5／6 列、§10 evidence、§12。 | 治理 §5.3 第 2 類：不改變 V2 OC 的 intent、scope、constraints 或 acceptance semantics；不改變 V1 任何文字；無進行中 work item、無 Ticket、無既有 V2 evidence 受影響；B-4／B-10 的 boundary determination 維持「在 boundary 內」且修正後更貼近 accepted 語義。項目 3 與 5 經 DA 判定不需 acceptor 決定（B-10、DV-13 補充）。 |
