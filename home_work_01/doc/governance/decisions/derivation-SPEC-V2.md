@@ -266,6 +266,7 @@
 | SPEC-V2 v2.2／本紀錄修訂 | 2026-09-25 | acceptor 指示「Valid-station Observation Time consistency … correct this without changing accepted product semantics」（v2.1 committed at `4efe777`；OC-V2 不重開） | R-V2-OBS-2 新增 (e)：有效測站 MUST 有 CWA 發布且可解析為明確觀測時刻的 `ObsTime`（如發布、不正規化；解析 HOW；新舊不影響有效性），缺少或無法解析者不進氣溫圖層、代表測站選取、縣統計與 dataset-level Observation Time；R-V2-OBS-4(a) 明示最大值只取有效測站、成功回應下恆有定義；AC-V2-05 新增反例 (7)（含最新 `ObsTime` 的站改壞 → 最大值落到其餘有效站）與 (8)（全部壞 → `invalid_response`），對應欄加 OBS-4，FAIL 例補充；R-V2-TC-1 涵蓋範圍同步；§10 加 v2.2 列。本紀錄同步更新：header、§1 效力、§3 總判定、B-18、DV-2 補充、DV-3 修訂、§4、§9 第 2 列與 v2.2 聚焦複核段、§10 evidence、§12。 | 治理 §5.3 第 2 類：derived-contract 一致性修正；不改變 V2 OC 的 intent、scope、constraints、acceptance semantics（S-1、S-2、S-5 不變）；不改變 V1 任何文字；無進行中 work item、無 Ticket、無既有 V2 evidence 受影響；不需 acceptor 決定。 |
 | Tickets（V2）／本紀錄 §15 | 2026-09-25 | acceptor 指示「Proceed with V2 Ticket derivation using Matt's `to_tickets` skill … Do not create new: product semantics; acceptance criteria; invariants; architecture; verification oracles」（baseline `main` `b0642f8`；SPEC-V2 v2.2） | 新增 §15：Issues #35–#41（七張垂直切片，一條 blocking 鏈）、分配、覆蓋矩陣（AC-V2-01～23、INV-V2-1～9、§6.3 全部列、A-1～A-7）、boundary determination TB-V2-1～TB-V2-12、derivation-quality check（八項）、evidence。索引 `doc/ticket/tickets-v2.md`；SPEC-V2 只改標頭「Issue tracker」列與 §10 metadata 列（版本仍 v2.2）。 | 治理 §1.2、§3.4：Tickets 為 derived contracts，不需 acceptor 逐張核准；未新增任何 requirement、AC、invariant、架構或 oracle。 |
 | Tickets（V2）依賴圖修正／本紀錄 §15 | 2026-09-25 | acceptor 指示「do not encode Bindings parallelism=1 as a false technical dependency … The current edge: #37 -> #38 is not required by the authoritative Spec」（PR #42 合併前；Ticket set、scope、AC／INV／high-risk ownership、SPEC-V2 不變） | 移除 blocked-by edge 38←37、新增 41←37（GitHub 原生 dependencies、#38 與 #41 的 `Blocked by` 段、索引 `tickets-v2.md`、本紀錄 §15.1／15.2／TB-V2-2／15.5 第 5 項／15.6 四方同步）；偏好執行順序改記為並行度 1 的排程偏好而非 edge；provenance（`/to-tickets` skill 未安裝）維持原文；八項 derivation-quality check 重跑皆 PASS。 | 治理 §5.3 第 2 類：只修正 Ticket 之間的依賴表示，不改任何 Ticket 的 What to build、AC、INV、High-risk 或 Spec 內容；不需 acceptor 逐張核准。 |
+| Tickets（V2）分配修訂／本紀錄 §15 | 2026-09-26 | Issue #36 c1 R1 audit routing signal **R-1**（治理 §4.2）；Orchestrator 依治理 §2.4 派工 DA | decision record [`decision-20260926-ac-v2-01-county-round-trip-allocation.md`](decision-20260926-ac-v2-01-county-round-trip-allocation.md)（**DV-20**）：AC-V2-01 的「選縣往返」部分與 R-V2-MODE-5(a) 的選縣部分分配給 **#38**（Ticket 層 owner；追加的驗證分配逐字見該紀錄 §4.1）；Spec Integration Audit 對整條 AC-V2-01 的 Spec 層核對不變、不豁免。§15.2 #38 列、§15.3 AC 表 01 列與「R-V2 群組覆蓋」MODE 列同步。#36 分配、evidence 與結案不變；#39／#40／#41 不新增分配；SPEC-V2 文字不變（仍 v2.2）。 | 治理 §5.3 第 2 類：只修正 Ticket 的驗證與實作責任分配，不新增 AC／INV／R／oracle，不改 #38 的 What to build，不改 accepted 語義（OC S-3／AB-V2-1 不變）；不需 acceptor。 |
 
 ## 15. Tickets（V2，2026-09-25 derive）
 
@@ -284,7 +285,7 @@
 | #35 | 伺服器端 Latest Observation 路徑：`/api/` 觀測回應、四類失敗分類與安全邊界 re-scope | V2 Core | 03（離線／API）、04（API）、05、06（API）、07（觀測）、16（靜態＋封網）、17(a)(b)(d)、20（範圍） | 2、3、4、5（API）、10、11（部分） | 1、2、4、6（伺服器）、8 | H-1、H-2、H-3 | — |
 | #36 | Now mode 與 Forecast mode：預設 Now、模式切換、全臺代表測站的 Latest Observation 與 Observation Time／Fetched Time | V2 Core | 01、02、03（瀏覽器抽樣）、04（UI success）、09(a)＋API 面、11、15（模式切換）、16（network log）、20（範圍）、21(13)、23（除 Back to Taiwan） | 1、2、5（部分）、6（代表規則）、11、12（部分） | 3、5、7（預報失敗）、8、9 | H-2、H-3 | #35 |
 | #37 | Refresh 與狀態語義：newer／not-newer／failure、Stale／Unavailable、觀測失敗只影響 Now mode | V2 Core | 04（UI stale／unavailable）、06（UI）、08、09(b)、20（範圍） | 3、4、5（部分） | 6、7（觀測失敗） | H-1、H-3 | #36 |
-| #38 | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | 10、12、16（縣界圖層）、20（範圍）、23（Back to Taiwan） | 6、8（鍵盤路徑）、10（部分） | 3、5 | H-3、H-2 | #36 |
+| #38 | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | 01（選縣往返部分；DV-20）、10、12、16（縣界圖層）、20（範圍）、23（Back to Taiwan） | 1（選縣往返部分）、6、8（鍵盤路徑）、10（部分） | 3、5 | H-3、H-2 | #36 |
 | #39 | 地圖圍欄與響應式可用性：pan／zoom 圍欄、初始視野、375 px 底部資訊面、44×44、768 px 破版檢查 | V2 Core | 13、14、15（完整）、20（範圍） | 7、8 | 8、9 | H-2 | #38 |
 | #40 | Radar overlay：`/api/` 代理、顯示／隱藏、雷達時間戳、獨立狀態與 1 km 地理對齊 oracle | V2 Radar | 07（雷達）、09(c)、16（雷達 URL／log）、17(a)(e)（雷達）、18、19、20（範圍）；13、15 只在改變 CRS 時重驗 | 9、5（雷達）、10（部分） | 2、3、7（雷達） | H-1、H-3 | #39 |
 | #41 | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class；V1 #25 先例） | 03（preview）、16（最終 log）、17(c)(e)、20（完整）、21（全部）、22 | 10、11、12、13；全部 AB-V2 最終對照 | 1～9 最終自我核對 | H-1、H-2、H-3 | #37、#40 |
@@ -295,7 +296,7 @@
 
 | AC-V2 | Owner |
 | --- | --- |
-| 01 | #36 |
+| 01 | #36（#36 subject 可觀察的全部部分）、#38（選縣往返部分；DV-20 [`decision-20260926-ac-v2-01-county-round-trip-allocation.md`](decision-20260926-ac-v2-01-county-round-trip-allocation.md) §4.1） |
 | 02 | #36 |
 | 03 | #35（離線／API）、#36（瀏覽器抽樣）、#41（preview） |
 | 04 | #35（API）、#36（UI success）、#37（UI stale／unavailable） |
@@ -337,7 +338,7 @@
 
 **A-1～A-7 → 承接**：A-1（觸及 H-1／H-2／H-3 的票，R1 record 明記核對段）→ #35～#41 全部（每票的 High-risk 段已標示類別）；A-2（Spec Integration Audit 逐項核 INV-V2-2／5／8 與 V1 兩句 SQL）→ Spec Integration Audit instance，不是票；A-3（高風險 blocking finding 不得由 FA 單獨 deferred）→ 全部票的 adjudication；A-4 → 不適用（Formal）；A-5（CI 機械檢查延伸）→ #35（延伸）、#41（最終執行）；A-6（release gate 材料）→ #41；A-7（diversity 記錄）→ Orchestrator 於各 audit record。
 
-**R-V2 群組覆蓋**：MODE → #36（MODE-6(c) 另 #37）；OBS-1～6、9、11～13 → #35，OBS-4(c)、7、8、10、12（UI）、13（UI）→ #36／#37；DD-2、3、10 → #36，DD-1、4～9、11 → #38；SEC-1～7 → #35（雷達面 #40；SEC-3(c)(d)、SEC-5 最終 #41）；DEG-1、3、5 → #36（DEG-5 API 面 #35），DEG-2 → #37，DEG-4 → #40；MAP-1～4 → #39，MAP-5 → #36／#39；RSP-1～8 → #39（RSP-4 #36、RSP-6 部分 #38）；RAD-1～6 → #40；DOC-1 → #35 (6)(7)、#36 (1)(2)(3)、#38 (3)、#39 (8)、#40 (5)(9)、#41 全部；DOC-2 → #40、#41；DOC-3 → #41；DOC-4 → #36；DOC-5 → #36、#41；DOC-6 → 全部；TC-1 → #35（各票對自己的自動化）；TC-2 → #35（雷達樣本 #40）；TC-3 → #35、#41；TC-4 → #36～#40；ENV-1 → #41；ENV-2 → #35（文件）、#41。全部 73 條 R-V2 至少出現在一張票的 Traceability。
+**R-V2 群組覆蓋**：MODE → #36（MODE-6(c) 另 #37；MODE-5(a) 選縣部分另 #38，DV-20）；OBS-1～6、9、11～13 → #35，OBS-4(c)、7、8、10、12（UI）、13（UI）→ #36／#37；DD-2、3、10 → #36，DD-1、4～9、11 → #38；SEC-1～7 → #35（雷達面 #40；SEC-3(c)(d)、SEC-5 最終 #41）；DEG-1、3、5 → #36（DEG-5 API 面 #35），DEG-2 → #37，DEG-4 → #40；MAP-1～4 → #39，MAP-5 → #36／#39；RSP-1～8 → #39（RSP-4 #36、RSP-6 部分 #38）；RAD-1～6 → #40；DOC-1 → #35 (6)(7)、#36 (1)(2)(3)、#38 (3)、#39 (8)、#40 (5)(9)、#41 全部；DOC-2 → #40、#41；DOC-3 → #41；DOC-4 → #36；DOC-5 → #36、#41；DOC-6 → 全部；TC-1 → #35（各票對自己的自動化）；TC-2 → #35（雷達樣本 #40）；TC-3 → #35、#41；TC-4 → #36～#40；ENV-1 → #41；ENV-2 → #35（文件）、#41。全部 73 條 R-V2 至少出現在一張票的 Traceability。
 
 **缺口：無。** AB-V2-1～13 每條至少一張票（AB-1 #36；AB-2 #35／#36／#41；AB-3 #35／#37；AB-4 #35／#37；AB-5 #35／#36／#37／#40；AB-6 #36／#38；AB-7 #39；AB-8 #38／#39；AB-9 #40；AB-10 #35／#38／#40／#41；AB-11 #35／#36／#41；AB-12 #36／#41；AB-13 #41）。
 
