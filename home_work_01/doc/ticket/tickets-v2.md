@@ -11,33 +11,38 @@
 - **Label**：`ready-for-agent`（`docs/agents/triage-labels.md`）
 - **分類**：V2 Core／V2 Radar 是 Spec 的 scope class（皆 ENHANCED REQUIRED，只在部署的 Dashboard）；INTEGRATION／FINAL VERIFICATION 只用於 #41，表示整合驗證票、不承載新需求（V1 #25 先例）
 - **Overnight run policy**：V1 的 [`../governance/decisions/decision-20260924-unattended-run-policy.md`](../governance/decisions/decision-20260924-unattended-run-policy.md) 可沿用（OC-V2 §6）
-- **執行**：Bindings §6 並行度 1；blocking edges 為一條鏈，唯一順序＝編號順序 #35 → #41
+- **執行**：Bindings §6 並行度 1。技術 blocking edges 在 #36 之後分為兩條分支（#37 → #41；#38 → #39 → #40 → #41），#41 等待兩條分支皆結案；**偏好的執行順序** #35、#36、#37、#38、#39、#40、#41 是並行度 1 下的排程偏好，不是 blocked-by edge（acceptor 2026-09-25 指示：不得把並行度 1 編成假的技術依賴）
 
 | # | 票 | Scope class | High-risk | Blocked by | 狀態 | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
 | [#35](https://github.com/yotsubamomo/aiot-classwork/issues/35) | 伺服器端 Latest Observation 路徑：`/api/` 觀測回應、四類失敗分類與安全邊界 re-scope | V2 Core | H-1、H-2、H-3 | — | 待執行 | |
 | [#36](https://github.com/yotsubamomo/aiot-classwork/issues/36) | Now mode 與 Forecast mode：預設 Now、模式切換、全臺代表測站的 Latest Observation 與 Observation Time／Fetched Time | V2 Core | H-2、H-3 | #35 | 待執行 | |
 | [#37](https://github.com/yotsubamomo/aiot-classwork/issues/37) | Refresh 與狀態語義：newer／not-newer／failure、Stale／Unavailable、觀測失敗只影響 Now mode | V2 Core | H-1、H-3 | #36 | 待執行 | |
-| [#38](https://github.com/yotsubamomo/aiot-classwork/issues/38) | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | H-3、H-2 | #37 | 待執行 | |
+| [#38](https://github.com/yotsubamomo/aiot-classwork/issues/38) | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | H-3、H-2 | #36 | 待執行 | |
 | [#39](https://github.com/yotsubamomo/aiot-classwork/issues/39) | 地圖圍欄與響應式可用性：pan／zoom 圍欄、初始視野、375 px 底部資訊面、44×44、768 px 破版檢查 | V2 Core | H-2 | #38 | 待執行 | |
 | [#40](https://github.com/yotsubamomo/aiot-classwork/issues/40) | Radar overlay：`/api/` 代理、顯示／隱藏、雷達時間戳、獨立狀態與 1 km 地理對齊 oracle | V2 Radar | H-1、H-3 | #39 | 待執行 | |
-| [#41](https://github.com/yotsubamomo/aiot-classwork/issues/41) | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class） | H-1、H-2、H-3 | #40 | 待執行（AC-V2-17(c)、AC-V2-22 觀測部分在 acceptor 填入 Vercel 金鑰前為 BLOCKED，不是 FAIL） | |
+| [#41](https://github.com/yotsubamomo/aiot-classwork/issues/41) | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class） | H-1、H-2、H-3 | #37、#40 | 待執行（AC-V2-17(c)、AC-V2-22 觀測部分在 acceptor 填入 Vercel 金鑰前為 BLOCKED，不是 FAIL） | |
 
 狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。Commit 欄填結案時的 subject SHA。
 
 ## 執行順序與依賴
 
+技術依賴（blocked-by edges；只反映 Spec 要求的前置）：
+
 ```text
 #35 伺服器端 Latest Observation 路徑（V2 Core；tracer bullet 的資料面）
  └─ #36 Now mode 與 Forecast mode（V2 Core；使用者可見的 tracer bullet：預設 Now、代表測站、兩個時間、模式切換、Forecast 保留）
-     └─ #37 Refresh 與狀態語義（V2 Core；失敗路徑：Stale／Unavailable、獨立降級）
-         └─ #38 Taiwan → County → Station 下鑽（V2 Core）
-             └─ #39 地圖圍欄與響應式可用性（V2 Core）
-                 └─ #40 Radar overlay（V2 Radar；含 1 km 對齊 oracle）
-                     └─ #41 V2 整合驗收（INTEGRATION／FINAL VERIFICATION）
+     ├─ #37 Refresh 與狀態語義（V2 Core；失敗路徑：Stale／Unavailable、獨立降級）
+     │    └─────────────────────────────────────┐
+     └─ #38 Taiwan → County → Station 下鑽（V2 Core）  │
+         └─ #39 地圖圍欄與響應式可用性（V2 Core）        │
+             └─ #40 Radar overlay（V2 Radar；含 1 km 對齊 oracle）
+                 └─ #41 V2 整合驗收（INTEGRATION／FINAL VERIFICATION）← 同時等待 #37 與 #40
 ```
 
-- 每條 blocking edge 的 blocker 編號都小於被阻擋票，並以 GitHub 原生 issue dependencies（blocked by）建立，共 6 條邊；票內 `Blocked by` 段為權威。
+偏好的執行順序（Bindings §6 並行度 1 下的排程偏好，**不是** edge）：#35 → #36 → #37 → #38 → #39 → #40 → #41。Orchestrator 在 #36 結案後 MAY 依既定條件先派 #38 分支再派 #37，兩者對 Spec 而言互不依賴。
+
+- 共 7 條 blocking edges，以 GitHub 原生 issue dependencies（blocked by）建立：35→36、36→37、36→38、38→39、39→40、37→41、40→41；每條邊的 blocker 編號都小於被阻擋票、無環；票內 `Blocked by` 段為權威。#38 不依賴 #37（下鑽只需 #36 的 Now mode 基礎，不需 Refresh／Stale／Unavailable 語義完成；acceptor 2026-09-25 指示修正）。
 - #40 排在 #39 之後：若對齊所採的重投影或 CRS 改變地圖投影，#40 須重驗 AC-V2-13 與 AC-V2-15（票內已列），避免 #39 的圍欄儀器在 #40 之後失效。
 
 ## 拆票原則
