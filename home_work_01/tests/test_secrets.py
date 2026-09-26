@@ -39,6 +39,11 @@ V2_CODE = [
     # Issue #37: Refresh / Stale / Unavailable guards and browser check.
     UNIT_DIR / "tests" / "test_refresh_frontend.py",
     UNIT_DIR / "tests" / "check_refresh_browser.py",
+    # Issue #38: county interaction layer names, County context guards and
+    # browser check.
+    UNIT_DIR / "static" / "data" / "counties.js",
+    UNIT_DIR / "tests" / "test_county_frontend.py",
+    UNIT_DIR / "tests" / "check_county_browser.py",
 ]
 
 

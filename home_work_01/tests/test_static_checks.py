@@ -352,7 +352,7 @@ def test_frontend_makes_no_external_absolute_url_requests() -> None:
 # R-V2-SEC-4(b): literal targets of every request form in the first-party
 # frontend. Vendored third-party files keep the absolute-URL whitelist check above
 # (their internal ``.src =`` assignments use variables, not literals).
-_FIRST_PARTY_FRONTEND = ("index.html", "app.js", "styles.css", "data/basemap.js")
+_FIRST_PARTY_FRONTEND = ("index.html", "app.js", "styles.css", "data/basemap.js", "data/counties.js")
 _Q = "[`'\"]"
 _NOT_Q = "[^`'\"]*"
 _REQUEST_FORMS = (

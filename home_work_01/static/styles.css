@@ -839,6 +839,114 @@ img { max-width: 100%; }
   background: var(--obs-stale-bg);
 }
 
+/* --- V2 (#38): Taiwan → County → Station --------------------------------------- */
+
+/* County chooser (the keyboard path that does not use the map, R-V2-DD-9(a)). */
+.county-pick { margin: 10px 0 8px; }
+.county-pick .map-select { min-height: 44px; }
+.map-select:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+
+/* County context: fixed neutral styling — nothing here is coloured by data. */
+.county { border-top: 1px solid var(--map-border); padding-top: 8px; margin-top: 4px; }
+.county__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.county__name { margin: 0; font-size: 16px; color: var(--map-heading); }
+.btn--back {
+  background: var(--map-surface-2);
+  color: var(--map-text);
+  border: 1px solid #fbbf24;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.btn--back:hover { background: #26354c; }
+.btn--back:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.county__state {
+  margin: 6px 0 0;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--map-border);
+  border-left-width: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.county__state--stale { color: #fcd34d; border-color: #8a6a12; border-left-color: #f5b83d; background: rgba(245, 184, 61, .10); }
+.county__state--unavailable { color: #ffb4b4; border-color: #7a2b2b; border-left-color: #f87171; background: rgba(248, 113, 113, .10); }
+.county__facts { margin: 8px 0 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.county__fact { display: grid; min-width: 0; }
+.county__fact--wide { grid-column: 1 / -1; }
+.county__fact dt { font-size: 12px; color: var(--map-muted); font-weight: 600; }
+.county__fact dd { margin: 0; font-size: 14px; font-weight: 600; color: var(--map-text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+/* The station list: its own scroll box so a long county list never pushes the
+   rest of the panel away; each item is a >= 44 px tall button. */
+.county-stations { border-top: 1px solid var(--map-border); margin-top: 8px; padding-top: 6px; }
+.county__list-title { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--map-muted); }
+.county__empty { margin: 0; font-size: 13px; color: var(--map-muted); }
+.county__list {
+  list-style: none;
+  margin: 0;
+  padding: 2px;
+  max-height: 232px;
+  overflow-y: auto;
+  display: grid;
+  gap: 2px;
+}
+.county__item {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--map-text);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.county__item:hover { background: var(--map-surface-2); }
+.county__item:focus-visible { outline: 3px solid #9ed0ff; outline-offset: -3px; }
+.county__item.is-active { border-color: var(--obs-pill-active); background: rgba(251, 191, 36, .10); }
+.county__item-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; min-width: 0; font-weight: 600; }
+.county__item-town { font-weight: 400; font-size: 12px; color: var(--map-muted); }
+.county__item-off {
+  font-weight: 700;
+  font-size: 11px;
+  color: #fcd34d;
+  border: 1px solid #8a6a12;
+  border-radius: 999px;
+  padding: 0 6px;
+}
+.county__item-temp { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.map-sel__offmap { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: #fcd34d; }
+
+/* A county polygon is a pointer target only (not a Tab stop; the County chooser is
+   the keyboard path, R-V2-DD-9(a)(d)); a click that focuses the SVG path must not
+   draw the browser's ring around the county's bounding box. */
+.leaflet-overlay-pane path.leaflet-interactive:focus { outline: none; }
+
+/* The county name on hover (a Leaflet tooltip that follows the pointer). */
+.leaflet-tooltip.county-tip {
+  background: var(--map-surface);
+  color: var(--map-heading);
+  border: 1px solid #9ed0ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+.leaflet-tooltip.county-tip::before { border-top-color: #9ed0ff; }
+
+/* County-view station markers: compact — the name label only on the selected
+   marker — so a dense county stays readable and selectable. */
+.station-icon--county .slabel { display: none; }
+.station-icon--county.is-active .slabel { display: block; }
+.station-icon--county .spill { min-width: 44px; height: 24px; padding: 0 5px; font-size: 12px; }
+
 /* On narrow screens the mode names stay; the descriptive suffix is visually
    hidden but still part of each button's accessible name. */
 @media (max-width: 560px) {

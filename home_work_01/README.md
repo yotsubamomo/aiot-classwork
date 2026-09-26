@@ -386,8 +386,8 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
 | --- | --- | --- |
 | Shows | The **Latest Observation**: CWA station air temperatures, **as published by CWA** | The six-region seven-day forecast: **project-derived** values |
 | Data | `GET /api/observations/latest` | `GET /api/days`, `GET /api/days/<date>` |
-| Markers | At most one **representative station** per county, a neutral light marker with the station's temperature and name | Six Region pills coloured by the derived band |
-| Panel and controls | `Observation Time`, `Fetched Time`, valid-station count, `Refresh` | `Select Date`, the `DERIVED` panel, the four-band legend |
+| Markers | At most one **representative station** per county, a neutral light marker with the station's temperature and name; with a county selected, that county's stations | Six Region pills coloured by the derived band |
+| Panel and controls | `Observation Time`, `Fetched Time`, valid-station count, `Refresh`; the county layer, the `County` chooser, the County context, the station list and detail, `Back to Taiwan` | `Select Date`, the `DERIVED` panel, the four-band legend |
 | Never shown | `Select Date`, the derived legend, any forecast value | Any observation value, `Refresh` |
 
 - **Two meanings kept apart.** An observation value is a CWA station observation, as
@@ -402,7 +402,8 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   is the time the **forecast snapshot** was acquired. They are different times, with
   different labels, in different places.
 - **Switching keeps your place.** Leaving Now mode remembers its view (zoom and
-  position) and the selected station; coming back restores both. Entering Forecast
+  position), the selected county and the selected station; coming back restores
+  them all — the view is the one you left, not the county's own view. Entering Forecast
   mode keeps the current view when all six Region markers are already visible clear
   of the panels, and otherwise widens it just enough to show them.
 - **Independent of the forecast.** The Now mode loads on its own and never waits for
@@ -476,6 +477,56 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   selects it and the panel lists that station's values, with "—" for any missing
   value. A marker is always a **station value**: it is never presented as "the
   county's temperature", and no county average is computed.
+
+#### Now mode — Taiwan → County → Station
+
+- **Choosing a county.** Point at a county on the map: its outline and a faint fill
+  light up and its name is shown. Click it to select it. Without the map, use the
+  **`County`** chooser in the Now panel (Tab to it; the arrow keys pick a county;
+  "All of Taiwan" clears the choice). The county shapes react to the pointer only in
+  Now mode; they are never coloured by any data value.
+- **The county view.** Selecting a county zooms the map to the county and its
+  stations and shows **every valid station of the county** as a marker (the
+  Taiwan-wide representative markers are replaced; in the county view a marker's
+  name label appears on the selected one, and hovering shows every marker's name).
+- **County context.** The panel shows the county's name, its number of **valid
+  stations** and how many of them are **on the map**, the station with the
+  **highest** and the one with the **lowest** air temperature (its value and name),
+  and the list of the county's stations with their air temperatures, highest first.
+  Every number here is a published **station value** or a count of stations — **no
+  county average or any other combined value is computed**. On an equal
+  temperature, the station with the smaller `stationId` (character-code order, as in
+  the representative rule) is listed first and is the one named as highest or
+  lowest. A county with no valid station in the Latest Observation can still be
+  selected: it shows `0` stations and "—" for the highest and lowest — that is not an
+  error.
+- **Station list and detail.** Each station in the list is a button: Tab to it and
+  press Enter or Space (or click it, or click its marker) to see the **station
+  detail**: its name and `StationId`, county and town, its own `Observation Time`, its
+  air temperature, and its relative humidity, wind speed, wind direction (degrees),
+  air pressure (hPa), precipitation (the dataset's `Now.Precipitation`: accumulated
+  precipitation for the current day, mm) and weather — each "—" when CWA published
+  no valid value.
+- **`Back to Taiwan`.** The button beside the county's name clears the county and the
+  station and returns the map to the Taiwan-wide view it opens with.
+- **Stale and Unavailable.** The county shapes, the `County` chooser, the list and
+  `Back to Taiwan` keep working when the Latest Observation fails. **Stale**: the
+  County context shows the last successful data, marked Stale. **Unavailable**: the
+  county's name is shown but every count and value is "—" (never `0`: with no Latest
+  Observation there is no station set to count) and no station is listed.
+- **Stations outside the map range.** A valid station whose position is outside the
+  useful Taiwan map range — latitude **21.2 – 26.7**, longitude **117.6 – 122.9**, the
+  same range as the representative rule below (for example 高雄市's **東沙島**,
+  `468100`, at longitude 116.73) — is **not placed on the map**, but it **is counted**
+  in its county's valid stations (the context shows e.g. "57 (1 not on the map)"),
+  **listed** in the county's station list marked **"not on the map"**, and its
+  **detail** can be opened from the list.
+- **County shapes.** The interactive county shapes are the same vendored 內政部
+  county polygons as the basemap (see the Forecast mode section), joined with their
+  county names by [`static/data/counties.js`](static/data/counties.js) (a same-origin
+  `<script>`, project data: the CWA `CountyName` of each basemap polygon). They are
+  drawn transparent over the unchanged backdrop and load no data from anywhere; the
+  offline tests check each name against the sample's stations inside the polygon.
 
 #### Representative station rule
 
@@ -690,7 +741,13 @@ map size guard on the mode-switch path), and `tests/test_refresh_frontend.py` ho
 static guards on the Refresh semantics (the page's time bound between the server's
 bound and 30 s; no polling; one Refresh at a time; the not-newer rules; Stale and
 Unavailable set only by a failure, with no clock or age test; fixed, distinct texts
-for the failure reasons and no response text ever displayed). (Three browser-level
+for the failure reasons and no response text ever displayed), and
+`tests/test_county_frontend.py` holds static guards on Taiwan → County → Station (the
+22 county names, one per basemap polygon, each checked against the sample's
+stations inside it; the frontend's map range equal to `representative.py`'s; no
+aggregate and no data colouring in the county code; "—", never 0, with no Latest
+Observation; the list items as buttons, the `County` chooser and the verbatim
+`Back to Taiwan`; the mode switch never clearing the county). (Four browser-level
 checks need a real Chrome and so run separately from the offline `pytest` suite: the
 check that the dashboard shows a visible message when `/series` fails on first load,
 [`tests/check_series_error_visible.py`](tests/check_series_error_visible.py); the
@@ -702,9 +759,16 @@ Refresh check [`tests/check_refresh_browser.py`](tests/check_refresh_browser.py)
 which drives the three Refresh results, Stale and Unavailable for each failure
 reason, a stalled upstream, a platform `502` page and a held request, a page clock
 moved two hours ahead, and the rest of the page while the observation fails, with a
-sentinel key that must not appear in the page, the console or the server log —
-`python tests/check_modes_browser.py`, `python tests/check_refresh_browser.py`; they
-also need the `websocket-client` package.)
+sentinel key that must not appear in the page, the console or the server log; and
+the county check [`tests/check_county_browser.py`](tests/check_county_browser.py),
+which hovers and selects counties on the map and with the keyboard, compares the
+County context with values worked out from the `/api/` response, walks the station
+list and detail, `Back to Taiwan`, the off-map 東沙島 station, a county with no valid
+station, the Now → Forecast → Now round trip, and the county layer under Stale and
+Unavailable, at 1280 px and 375 px —
+`python tests/check_modes_browser.py`, `python tests/check_refresh_browser.py`,
+`python tests/check_county_browser.py`; they also need the `websocket-client`
+package.)
 The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two

@@ -26,6 +26,25 @@
  *     age; the dataset Observation Time shown never decreases (R-V2-OBS-7, 8, 10,
  *     12, 13; INV-V2-6; Issue #37). An observation failure touches only this
  *     observation layer (R-V2-DEG-2, INV-V2-7).
+ *     Taiwan → County → Station (SPEC-V2 §2.3, Issue #38): a county interaction
+ *     layer — the 22 vendored county polygons, each carrying its county name
+ *     (static/data/counties.js), drawn transparent over the backdrop, never
+ *     coloured by data — highlights a county and shows its name on hover and
+ *     selects it on click; the "County" chooser in the Now panel does the same
+ *     without the map (R-V2-DD-4, R-V2-DD-9(a)). Selecting a county fits the view
+ *     to its stations on the map, shows those stations as markers and the County
+ *     context: its name, valid-station count (and how many are on the map), the
+ *     highest and lowest station (name / value) and the station list — station
+ *     values only, no county average or any aggregate (R-V2-DD-5, R-V2-DD-6,
+ *     INV-V2-5). A list item or a marker selects a station and shows its detail
+ *     (R-V2-DD-7). A valid station outside the map range E is not placed on the
+ *     map but is counted, listed ("not on the map") and has its detail
+ *     (R-V2-DD-11). "Back to Taiwan" clears the county and the station and
+ *     returns to the Taiwan-wide view (R-V2-DD-8). The county layer and the
+ *     County context stay usable when the observation is Stale (the retained data,
+ *     still marked Stale) or Unavailable (the county name, every value "—", never
+ *     0 — DV-21 §4.2); the county selection survives a Now → Forecast → Now round
+ *     trip with the rest of the Now selection (R-V2-MODE-5(a), DV-20).
  *   - Forecast mode: the V1 six-region seven-day map unchanged — Select Date,
  *     six Region pills coloured by the endpoint's band, the DERIVED panel and the
  *     four-band legend (R-V2-MODE-3, R-EN-3..R-EN-7, DR-20/DR-21).
@@ -150,6 +169,8 @@
   var latestDay = null;    // {date, byRegion} for the day currently rendered/pending
   var mapInitScheduled = false;
   var lastFitWidth = null; // window width at the last fit; a height-only resize does not re-fit (#28 R2 N-2)
+  var zoomAnimating = false; // a Leaflet zoom animation is running (#38)
+  var pendingView = null;    // the latest view change asked for during it
 
   // --- Latest Observation, Now mode (R-V2-OBS-*, R-V2-DD-2/3/10) ----------------
   var obs = null;              // the displayed success body of /api/observations/latest
@@ -167,6 +188,28 @@
   var obsState = "loading";
   var obsFailure = null;       // the classified failure behind stale / unavailable
   var MISSING = "—";           // shown for any missing / sentinel value (R-V2-OBS-6)
+
+  // --- Taiwan → County → Station, Now mode (R-V2-DD-1, DD-4..DD-9, DD-11) --------
+  // The 22 counties, CWA CountyName verbatim (R-V2-DD-1), in representative.py's
+  // COUNTY_ORDER; this order fills the "County" chooser.
+  var COUNTY_ORDER = [
+    "基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "苗栗縣",
+    "臺中市", "彰化縣", "南投縣", "雲林縣", "嘉義市", "嘉義縣",
+    "臺南市", "高雄市", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣",
+    "澎湖縣", "金門縣", "連江縣",
+  ];
+  // The useful Taiwan map range E (SPEC-V2 §5.3), bounds inclusive — the same
+  // numbers as representative.py's MAP_RANGE (a static test keeps them equal). A
+  // valid station outside it (e.g. 高雄市's 東沙島) is never placed on the map, but
+  // it is counted, listed as "not on the map" and has its detail (R-V2-DD-11).
+  var MAP_RANGE = { latitude: [21.2, 26.7], longitude: [117.6, 122.9] };
+  var COUNTY_MAX_ZOOM = 11;    // the closest a county fit zooms (a one-station county)
+  var countyLayer = null;      // L.geoJSON of the 22 named county polygons (Now mode only)
+  var countyShapes = {};       // countyName -> its polygon layer
+  var selectedCounty = null;   // Now-mode county selection, kept across mode switches
+  var hoveredCounty = null;    // the county under the pointer
+  var renderedCounty = null;   // the county whose stations are currently the markers
+  var listedKey = null;        // {obs, county} the station list was built for
 
   // Client-side bound on one Refresh (R-V2-OBS-13, DV-7): if no usable answer has
   // arrived after this long the request is aborted and counted as a failure, so
@@ -254,6 +297,26 @@
     els.obsSelWind = document.getElementById("obs-sel-wind");
     els.obsSelWeather = document.getElementById("obs-sel-weather");
     els.obsSelTime = document.getElementById("obs-sel-time");
+    // Taiwan → County → Station (#38).
+    els.obsMarkerNote = document.getElementById("obs-marker-note");
+    els.obsSelId = document.getElementById("obs-sel-id");
+    els.obsSelWdir = document.getElementById("obs-sel-wdir");
+    els.obsSelPres = document.getElementById("obs-sel-pres");
+    els.obsSelRain = document.getElementById("obs-sel-rain");
+    els.obsSelOffmap = document.getElementById("obs-sel-offmap");
+    els.countySelect = document.getElementById("county-select");
+    els.county = document.getElementById("county-context");
+    els.countyName = document.getElementById("county-name");
+    els.countyState = document.getElementById("county-state");
+    els.countyCount = document.getElementById("county-count");
+    els.countyOnMap = document.getElementById("county-onmap");
+    els.countyMax = document.getElementById("county-max");
+    els.countyMin = document.getElementById("county-min");
+    els.countyStations = document.getElementById("county-stations");
+    els.countyListTitle = document.getElementById("county-list-title");
+    els.countyListEmpty = document.getElementById("county-list-empty");
+    els.countyList = document.getElementById("county-list");
+    els.backToTaiwan = document.getElementById("back-to-taiwan");
 
     els.regionSelect.addEventListener("change", function () {
       loadRegion(els.regionSelect.value);
@@ -271,6 +334,20 @@
     els.refreshButton.addEventListener("click", function () {
       loadObservation();
     });
+    // The county chooser: a native <select>, so it is reachable with Tab and
+    // operated with the keyboard without going through the map (R-V2-DD-9(a)).
+    COUNTY_ORDER.forEach(function (name) {
+      var opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      els.countySelect.appendChild(opt);
+    });
+    els.countySelect.addEventListener("change", function () {
+      if (els.countySelect.value) selectCounty(els.countySelect.value);
+      else backToTaiwan();
+    });
+    // A real <button>: click, Enter and Space (R-V2-DD-8, R-V2-DD-9(c)).
+    els.backToTaiwan.addEventListener("click", backToTaiwan);
 
     // Redraw the chart at the new width on resize (the SVG is drawn at the
     // container's own pixel width so its labels stay legible) and drop any open
@@ -286,7 +363,9 @@
             // and the reserved padding may differ — re-fit the current mode's view
             // so the markers stay clear of the panels at the new width (#28 F-1).
             // Only a width change re-fits; a Select Date change never does (P-12).
-            fitToMarkers();
+            // A selected county keeps its county view (#38).
+            if (mode === MODE_NOW && selectedCounty) fitCounty(selectedCounty);
+            else fitToMarkers();
           } else {
             // A height-only change (e.g. a mobile browser toolbar showing/hiding on
             // scroll): keep Leaflet's size in sync WITHOUT re-fitting, so the user's
@@ -315,10 +394,13 @@
   function setMode(next) {
     if (next !== MODE_NOW && next !== MODE_FORECAST) return;
     if (next === mode) return;
-    // Leaving Now mode: remember its view so a round trip restores it (DV-8).
+    // Leaving Now mode: remember its view so a round trip restores it (DV-8). The
+    // Now selection itself — county (#38) and station — lives in module state
+    // that the switch never clears, so it is back on return (R-V2-MODE-5(a), DV-20).
     if (map && appliedMode === MODE_NOW) {
       nowView = { center: map.getCenter(), zoom: map.getZoom() };
     }
+    hoveredCounty = null; // the county layer leaves the map with Now mode
     mode = next;
     renderModeChrome();
     // The mode-switch path goes through the same non-zero-size guard as page load
@@ -352,7 +434,9 @@
   function renderCaption() {
     if (!els.mapCaption) return;
     els.mapCaption.textContent = mode === MODE_NOW
-      ? "Latest Observation · one representative station per county"
+      ? (selectedCounty
+        ? "Latest Observation · the stations of " + selectedCounty
+        : "Latest Observation · one representative station per county")
       : forecastCaption;
   }
 
@@ -378,14 +462,18 @@
       map.invalidateSize();
       if (mode === MODE_FORECAST) {
         map.removeLayer(nowLayer);
+        if (countyLayer) map.removeLayer(countyLayer); // county interaction: Now mode only
         forecastLayer.addTo(map);
         showSixRegions();
       } else {
         map.removeLayer(forecastLayer);
+        if (countyLayer) countyLayer.addTo(map);
         nowLayer.addTo(map);
         restoreNowView();
       }
       appliedMode = mode;
+      styleCounties();
+      raiseSelectedCounty();
     }
     renderStations();
     if (latestDay) renderDay(latestDay.date, latestDay.byRegion);
@@ -394,6 +482,7 @@
 
   // Back to Now mode: restore the view it had when it was left (R-V2-MODE-5(c)).
   function restoreNowView() {
+    if (zoomAnimating) { pendingView = restoreNowView; return; } // see fitToMarkers
     if (nowView) {
       map.setView(nowView.center, nowView.zoom, { animate: false });
     } else {
@@ -704,7 +793,12 @@
       obsById = {};
       body.stations.forEach(function (s) { obsById[s.stationId] = s; });
       var reps = representativeIds();
-      if (selectedStationId && reps.indexOf(selectedStationId) < 0) {
+      var kept = selectedStationId ? obsById[selectedStationId] : null;
+      if (selectedCounty) {
+        // A county is selected (and stays selected): keep the station while it is
+        // still a valid station of that county in the new data.
+        if (!kept || kept.countyName !== selectedCounty) selectedStationId = null;
+      } else if (selectedStationId && reps.indexOf(selectedStationId) < 0) {
         selectedStationId = null; // the selected station is no longer a marker
       }
       if (previousState === "loading") {
@@ -782,6 +876,14 @@
       ? "Stale · last successful Latest Observation"
       : "Latest Observation unavailable";
     if (els.mapEl) els.mapEl.classList.toggle("map--obs-stale", stale);
+    // The County context repeats the state, so a county selection never hides
+    // that its values are the last successful data (Stale) or absent
+    // (Unavailable) — R-V2-OBS-10(b)(e), DV-21 §4.2(5).
+    els.countyState.hidden = !shown;
+    els.countyState.className = "county__state county__state--" + (stale ? "stale" : "unavailable");
+    els.countyState.textContent = stale
+      ? "Stale — the last successful Latest Observation (the last Refresh failed)."
+      : "Latest Observation unavailable — no station data to show.";
   }
 
   function representativeIds() {
@@ -794,6 +896,7 @@
     els.obsTime.textContent = obs ? formatObsTime(obs.observationTime, false) : MISSING;
     els.obsFetched.textContent = obs ? formatObsTime(obs.fetchedTime, true) : MISSING;
     els.obsCount.textContent = obs ? String(obs.validStationCount) : MISSING;
+    renderCountyContext();
     renderSelectedStation();
   }
 
@@ -820,17 +923,24 @@
     if (message) els.obsStatus.appendChild(document.createTextNode(message));
   }
 
-  // Rebuild the representative-station markers when a new body is displayed.
-  // One marker per id in representativeStationIds (at most one per county,
-  // chosen server-side by the README rule); the marker shows the station's own
-  // air temperature and name — never a county value (R-V2-DD-2, H-3).
+  // Rebuild the station markers when a new body is displayed or the county
+  // selection changes. Taiwan-wide: one marker per id in
+  // representativeStationIds (at most one per county, chosen server-side by the
+  // README rule, R-V2-DD-2). A county selected: one marker per valid station of
+  // that county inside the map range (R-V2-DD-5(a), R-V2-DD-11). Each marker shows
+  // the station's own air temperature and name — never a county value (H-3).
   function renderStations() {
     if (!nowLayer) return;
-    if (renderedObs !== obs) {
+    if (renderedObs !== obs || renderedCounty !== selectedCounty) {
       nowLayer.clearLayers();
       stationMarkers = {};
       renderedObs = obs;
-      representativeIds().forEach(function (id) {
+      renderedCounty = selectedCounty;
+      var inCounty = !!selectedCounty;
+      var ids = inCounty
+        ? countyStations(selectedCounty).filter(onMap).map(function (s) { return s.stationId; })
+        : representativeIds();
+      ids.forEach(function (id) {
         var s = obsById[id];
         if (!s) return;
         var lat = Number(s.latitude);
@@ -838,7 +948,7 @@
         // Never hand Leaflet a non-finite position (the NaN-marker hazard).
         if (!isFinite(lat) || !isFinite(lng)) return;
         var marker = L.marker([lat, lng], {
-          icon: stationIcon(s),
+          icon: stationIcon(s, inCounty),
           keyboard: false,
           title: stationName(s) + " (" + s.countyName + ")",
         });
@@ -852,11 +962,16 @@
     highlightStations();
   }
 
-  function stationIcon(s) {
+  // A station marker. In the county view the markers are compact (the name label
+  // only on the selected one, so a dense county stays readable) and are not Tab
+  // stops: the county's station list is the keyboard path to them (R-V2-DD-9(b),
+  // (d)). Taiwan-wide representative markers stay focusable (#36).
+  function stationIcon(s, inCounty) {
     return L.divIcon({
-      className: "station-icon",
+      className: "station-icon" + (inCounty ? " station-icon--county" : ""),
       html:
-        '<span class="spill" tabindex="0" role="button" aria-label="' +
+        '<span class="spill" tabindex="' + (inCounty ? "-1" : "0") +
+        '" role="button" aria-label="' +
         escapeHtml(stationLabel(s)) + '">' + escapeHtml(formatObsTemp(s.airTemperature)) +
         "°</span>" +
         '<span class="slabel">' + escapeHtml(stationName(s)) + "</span>",
@@ -866,16 +981,14 @@
   }
 
   // Each time the marker's element is (re)created on the map, bind click and
-  // Enter/Space on its pill and re-apply the selection highlight.
+  // Enter/Space on its pill and re-apply the selection highlight. A pill that
+  // receives keyboard focus is brought clear of the floating panel and the on-map
+  // notice, so focus is never fully hidden under them (R-V2-DD-9(e), R-V2-RSP-6).
   function wireStationMarker(marker, id) {
     var el = marker.getElement();
     if (!el) return;
     var pill = el.querySelector(".spill");
-    function select() {
-      selectedStationId = id;
-      highlightStations();
-      renderSelectedStation();
-    }
+    function select() { selectStation(id); }
     (pill || el).addEventListener("click", select);
     if (pill) {
       pill.addEventListener("keydown", function (e) {
@@ -884,19 +997,63 @@
           select();
         }
       });
+      // The focused marker is also drawn above its neighbours (a dense cluster
+      // must not hide it) until focus leaves it.
+      pill.addEventListener("focus", function () {
+        marker.setZIndexOffset(2000);
+        keepInClearArea(marker.getLatLng());
+      });
+      pill.addEventListener("blur", function () {
+        marker.setZIndexOffset(id === selectedStationId ? 1000 : 0);
+      });
     }
     el.classList.toggle("is-active", id === selectedStationId);
   }
 
-  function highlightStations() {
-    Object.keys(stationMarkers).forEach(function (id) {
-      var el = stationMarkers[id].getElement();
-      if (el) el.classList.toggle("is-active", id === selectedStationId);
+  // Pan the map, only if needed, so `latlng` lies in the map area not covered by
+  // the current mode's floating panel (and, while shown, the Stale / Unavailable
+  // notice at the bottom of the map).
+  function keepInClearArea(latlng) {
+    if (!map) return;
+    var pad = fitPadding(mode);
+    var bottom = els.obsMapState && !els.obsMapState.hidden ? Math.max(pad.br[1], 72) : pad.br[1];
+    map.panInside(latlng, {
+      paddingTopLeft: pad.tl, paddingBottomRight: [pad.br[0], bottom], animate: false,
     });
   }
 
-  // The selected-station block of the Now panel: the station's own values, with
-  // any missing / sentinel value shown as "—" (R-V2-OBS-6).
+  // Select a station (a marker, or an item of the county's station list): the
+  // marker is highlighted and raised, and the panel shows the station's detail.
+  function selectStation(id) {
+    if (!obsById[id]) return;
+    selectedStationId = id;
+    highlightStations();
+    markListSelection();
+    renderSelectedStation();
+    // The detail opening above the list can push the focused list item out of
+    // the panel's visible area: bring it back, so keyboard focus is never hidden
+    // (R-V2-DD-9(e)).
+    var focused = document.activeElement;
+    if (focused && focused.classList && focused.classList.contains("county__item") &&
+        typeof focused.scrollIntoView === "function") {
+      focused.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function highlightStations() {
+    Object.keys(stationMarkers).forEach(function (id) {
+      var marker = stationMarkers[id];
+      var on = id === selectedStationId;
+      var el = marker.getElement();
+      if (el) el.classList.toggle("is-active", on);
+      marker.setZIndexOffset(on ? 1000 : 0); // the selected marker is drawn on top
+    });
+  }
+
+  // The selected-station detail (R-V2-DD-7): the station's name and StationId,
+  // county, town, its own Observation Time and air temperature, and the optional
+  // values, any missing / sentinel one shown as "—" (R-V2-OBS-6). A station
+  // outside the map range says so (R-V2-DD-11).
   function renderSelectedStation() {
     var s = selectedStationId ? obsById[selectedStationId] : null;
     if (!s) {
@@ -904,13 +1061,284 @@
       return;
     }
     els.obsSelName.textContent = stationName(s) + " station";
-    els.obsSelPlace.textContent = s.countyName + (s.townName ? " · " + s.townName : "");
+    els.obsSelPlace.textContent = s.countyName + " · " + (s.townName ? String(s.townName) : MISSING);
+    els.obsSelOffmap.hidden = onMap(s);
+    els.obsSelId.textContent = s.stationId ? String(s.stationId) : MISSING;
     els.obsSelTemp.textContent = withUnit(formatObsTemp(s.airTemperature), " °C");
     els.obsSelRh.textContent = withUnit(published(s.relativeHumidity), " %");
     els.obsSelWind.textContent = withUnit(published(s.windSpeed), " m/s");
+    els.obsSelWdir.textContent = withUnit(published(s.windDirection), "°");
+    els.obsSelPres.textContent = withUnit(published(s.airPressure), " hPa");
+    els.obsSelRain.textContent = withUnit(published(s.precipitation), " mm");
     els.obsSelWeather.textContent = s.weather ? String(s.weather) : MISSING;
     els.obsSelTime.textContent = formatObsTime(s.observationTime, false);
     els.obsSelected.hidden = false;
+  }
+
+  // --- county selection and County context (R-V2-DD-4..DD-9, DD-11; #38) --------
+
+  // The valid stations of `county` in the displayed Latest Observation (every
+  // entry of stations[] is already valid, R-V2-OBS-2); none when there is no
+  // displayed observation (Unavailable).
+  function countyStations(county) {
+    if (!obs || !Array.isArray(obs.stations)) return [];
+    return obs.stations.filter(function (s) { return s.countyName === county; });
+  }
+
+  // Whether a station is placed on the map: a finite WGS84 position inside E.
+  function onMap(s) {
+    var lat = Number(s.latitude);
+    var lng = Number(s.longitude);
+    return isFinite(lat) && isFinite(lng) &&
+      lat >= MAP_RANGE.latitude[0] && lat <= MAP_RANGE.latitude[1] &&
+      lng >= MAP_RANGE.longitude[0] && lng <= MAP_RANGE.longitude[1];
+  }
+
+  // Station order for the list and the extremes: air temperature high to low; a
+  // tie goes to the smaller stationId (character-code order), so the highest and
+  // the lowest station are each one definite station (README).
+  function byTemperatureDesc(a, b) {
+    var d = Number(b.airTemperature) - Number(a.airTemperature);
+    if (d) return d;
+    return a.stationId < b.stationId ? -1 : a.stationId > b.stationId ? 1 : 0;
+  }
+
+  function highestStation(list) {
+    var best = null;
+    list.forEach(function (s) {
+      var t = Number(s.airTemperature);
+      if (!isFinite(t)) return;
+      if (!best || t > Number(best.airTemperature) ||
+          (t === Number(best.airTemperature) && s.stationId < best.stationId)) best = s;
+    });
+    return best;
+  }
+
+  function lowestStation(list) {
+    var best = null;
+    list.forEach(function (s) {
+      var t = Number(s.airTemperature);
+      if (!isFinite(t)) return;
+      if (!best || t < Number(best.airTemperature) ||
+          (t === Number(best.airTemperature) && s.stationId < best.stationId)) best = s;
+    });
+    return best;
+  }
+
+  // Select a county (a click on its polygon, or the County chooser). The station
+  // selection is kept only if it is a station of that county. The view is fitted
+  // to the county (R-V2-DD-5(a)).
+  function selectCounty(name) {
+    if (COUNTY_ORDER.indexOf(name) < 0) return;
+    selectedCounty = name;
+    var s = selectedStationId ? obsById[selectedStationId] : null;
+    if (!s || s.countyName !== name) selectedStationId = null;
+    renderCountySelection();
+    if (map && mode === MODE_NOW) {
+      fitCounty(name);
+      renderStations();
+    }
+    // Floating panel (>= 1180 px): scroll it so the County context is in view
+    // (the chooser just above it stays in view too). Stacked layouts keep the
+    // page where it is.
+    if (window.innerWidth >= 1180 && typeof els.county.scrollIntoView === "function") {
+      els.county.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  // "Back to Taiwan" (and "All of Taiwan" in the chooser): clear the county and
+  // the station and return to the Taiwan-wide initial view (R-V2-DD-8,
+  // R-V2-MAP-4). Keyboard focus moves from the (now hidden) button to the county
+  // chooser so it is not lost.
+  function backToTaiwan() {
+    var hadFocus = document.activeElement === els.backToTaiwan;
+    selectedCounty = null;
+    selectedStationId = null;
+    renderCountySelection();
+    if (map && mode === MODE_NOW) {
+      fitToMarkers();
+      renderStations();
+    }
+    if (hadFocus) els.countySelect.focus();
+  }
+
+  // Everything that shows the county selection: the chooser, the polygon styles,
+  // the County context, the station list and detail, the marker note.
+  function renderCountySelection() {
+    els.countySelect.value = selectedCounty || "";
+    styleCounties();
+    raiseSelectedCounty();
+    renderCaption();
+    renderCountyContext();
+    renderSelectedStation();
+    els.obsMarkerNote.textContent = selectedCounty
+      ? "Each marker is one " + selectedCounty + " station's air temperature (°C) — a " +
+        "station value. Stations outside the map range are listed only."
+      : "Each marker is one representative station's air temperature (°C) — a " +
+        "station value, not a county temperature.";
+  }
+
+  // Fit the view so the county's stations on the map — and the county itself —
+  // are inside the map area clear of the panel (R-V2-DD-5(a)). With no station to
+  // show (Unavailable, or a county without valid stations) the county's own shape
+  // is the view.
+  function fitCounty(name) {
+    if (!map) return;
+    var bounds = L.latLngBounds([]);
+    countyStations(name).filter(onMap).forEach(function (s) {
+      bounds.extend([Number(s.latitude), Number(s.longitude)]);
+    });
+    if (countyShapes[name]) bounds.extend(countyShapes[name].getBounds());
+    if (bounds.isValid()) fitToMarkers(bounds, COUNTY_MAX_ZOOM);
+  }
+
+  // The County context (R-V2-DD-5(b)): name, valid-station count, how many are on
+  // the map, highest and lowest station (name / value) and the station list —
+  // station values only, never an average or any other aggregate (R-V2-DD-5(c),
+  // INV-V2-5). A success with no valid station in the county shows 0 and "—"
+  // (not an error, R-V2-DD-5). With no displayed observation (Unavailable) there
+  // is no station set to count: every value is "—", never 0, and no station is
+  // listed (R-V2-OBS-6, DV-21 §4.2). Stale shows the retained data.
+  function renderCountyContext() {
+    var name = selectedCounty;
+    els.county.hidden = !name;
+    els.countyStations.hidden = !name;
+    if (!name) {
+      listedKey = null;
+      els.countyList.innerHTML = "";
+      return;
+    }
+    els.countyName.textContent = name;
+    var list = countyStations(name).slice().sort(byTemperatureDesc);
+    if (!obs) {
+      els.countyCount.textContent = MISSING;
+      els.countyOnMap.textContent = MISSING;
+      els.countyMax.textContent = MISSING;
+      els.countyMin.textContent = MISSING;
+    } else {
+      var onMapCount = list.filter(onMap).length;
+      els.countyCount.textContent = String(list.length);
+      els.countyOnMap.textContent = list.length - onMapCount
+        ? onMapCount + " (" + (list.length - onMapCount) + " not on the map)"
+        : String(onMapCount);
+      els.countyMax.textContent = extremeText(highestStation(list));
+      els.countyMin.textContent = extremeText(lowestStation(list));
+    }
+    renderCountyList(name, list);
+  }
+
+  function extremeText(s) {
+    if (!s) return MISSING;
+    return withUnit(formatObsTemp(s.airTemperature), " °C") + " · " + stationName(s);
+  }
+
+  // The county's station list: rebuilt only when the data or the county changes
+  // (a station selection only re-marks it, so keyboard focus stays on the item).
+  function renderCountyList(name, list) {
+    if (listedKey && listedKey.obs === obs && listedKey.county === name) {
+      markListSelection();
+      return;
+    }
+    listedKey = { obs: obs, county: name };
+    els.countyList.innerHTML = "";
+    els.countyListTitle.textContent = obs ? "Stations (" + list.length + ")" : "Stations";
+    if (!obs) {
+      els.countyListEmpty.textContent = "No stations to list: the Latest Observation is unavailable.";
+    } else if (!list.length) {
+      els.countyListEmpty.textContent = "No valid station in " + name + " in this Latest Observation.";
+    }
+    els.countyListEmpty.hidden = !!(obs && list.length);
+    els.countyList.hidden = !list.length;
+    list.forEach(function (s) {
+      var li = document.createElement("li");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "county__item";
+      btn.setAttribute("data-station-id", s.stationId);
+      btn.setAttribute("aria-pressed", "false");
+      btn.setAttribute("aria-label", stationLabel(s) + (onMap(s) ? "" : ", not on the map"));
+      btn.innerHTML =
+        '<span class="county__item-name">' + escapeHtml(stationName(s)) +
+        (s.townName ? '<span class="county__item-town">' + escapeHtml(s.townName) + "</span>" : "") +
+        (onMap(s) ? "" : '<span class="county__item-off">not on the map</span>') +
+        "</span>" +
+        '<span class="county__item-temp">' + escapeHtml(withUnit(formatObsTemp(s.airTemperature), " °C")) +
+        "</span>";
+      btn.addEventListener("click", function () { selectStation(s.stationId); });
+      li.appendChild(btn);
+      els.countyList.appendChild(li);
+    });
+    markListSelection();
+  }
+
+  function markListSelection() {
+    Array.prototype.forEach.call(els.countyList.querySelectorAll(".county__item"), function (btn) {
+      var on = btn.getAttribute("data-station-id") === selectedStationId;
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.classList.toggle("is-active", on);
+    });
+  }
+
+  // The county interaction layer (R-V2-DD-4): the vendored basemap's 22 county
+  // polygons joined with their names (static/data/counties.js). Transparent,
+  // never coloured by data: a fixed outline + faint fill on hover, a fixed
+  // outline for the selected county. Hover shows the county name; a click selects
+  // the county. Built only when the two vendored files agree (22 polygons, 22
+  // names); otherwise the County chooser remains the way to select a county.
+  function buildCountyLayer(basemap) {
+    var names = window.TAIWAN_COUNTY_NAMES;
+    var geoms = basemap.taiwan && basemap.taiwan.geometries;
+    if (!Array.isArray(names) || !Array.isArray(geoms) || names.length !== geoms.length ||
+        names.length !== COUNTY_ORDER.length) {
+      return null;
+    }
+    var features = geoms.map(function (g, i) {
+      return { type: "Feature", properties: { countyName: names[i] }, geometry: g };
+    });
+    return L.geoJSON({ type: "FeatureCollection", features: features }, {
+      style: function (f) { return countyStyle(f.properties.countyName); },
+      onEachFeature: function (f, layer) {
+        var name = f.properties.countyName;
+        countyShapes[name] = layer;
+        layer.bindTooltip(escapeHtml(name), {
+          sticky: true, direction: "top", offset: [0, -10], className: "county-tip",
+        });
+        layer.on("mouseover", function () { hoveredCounty = name; styleCounties(); });
+        layer.on("mouseout", function () {
+          if (hoveredCounty === name) hoveredCounty = null;
+          styleCounties();
+        });
+        layer.on("click", function () { selectCounty(name); });
+      },
+    });
+  }
+
+  function countyStyle(name) {
+    var selected = name === selectedCounty;
+    var hovered = name === hoveredCounty;
+    return {
+      stroke: true,
+      color: selected ? "#fbbf24" : "#9ed0ff",
+      opacity: selected || hovered ? 1 : 0,
+      weight: selected ? 2.5 : 2,
+      fill: true,
+      fillColor: "#9ed0ff",
+      fillOpacity: hovered ? 0.14 : 0,
+    };
+  }
+
+  // Draw the selected county's outline above its neighbours'. Called on a
+  // selection change and when the layer comes back with Now mode — never on
+  // hover, so a hovered shape is not re-inserted under the pointer.
+  function raiseSelectedCounty() {
+    var shape = selectedCounty && countyShapes[selectedCounty];
+    if (shape && map && map.hasLayer(shape)) shape.bringToFront();
+  }
+
+  function styleCounties() {
+    Object.keys(countyShapes).forEach(function (name) {
+      countyShapes[name].setStyle(countyStyle(name));
+    });
   }
 
   function stationName(s) {
@@ -1265,6 +1693,10 @@
       }).addTo(map);
     }
 
+    // The Now mode's county interaction layer (#38): same polygons, drawn
+    // transparent above the backdrop, with the county names attached.
+    countyLayer = buildCountyLayer(basemap);
+
     forecastLayer = L.layerGroup();
     nowLayer = L.layerGroup();
 
@@ -1306,6 +1738,7 @@
       markers[region] = marker;
     });
 
+    if (mode === MODE_NOW && countyLayer) countyLayer.addTo(map);
     (mode === MODE_FORECAST ? forecastLayer : nowLayer).addTo(map);
     appliedMode = mode;
 
@@ -1313,6 +1746,18 @@
     // edges, so refresh the zoom-label class and re-pick each tooltip's direction
     // to keep it unclipped (V-3).
     map.on("moveend", refreshMapChrome);
+    // Track Leaflet's zoom animation so a view change requested during it is not
+    // lost (fitToMarkers / restoreNowView keep the latest; it is applied here, at
+    // the animation's end).
+    map.on("zoomanim", function () { zoomAnimating = true; });
+    map.on("zoomend", function () {
+      zoomAnimating = false;
+      if (pendingView) {
+        var apply = pendingView;
+        pendingView = null;
+        apply();
+      }
+    });
 
     // Now that the container is laid out, recompute size and fit the current
     // mode's initial view. fitToMarkers() is the ONLY fitBounds call site — used
@@ -1363,18 +1808,26 @@
 
   // Fit the view: to `bounds` when given, otherwise to the current mode's initial
   // view (Forecast mode: the six Region markers, as in V1; Now mode: the main
-  // island plus 澎湖). Tooltip clipping at the top edge is handled per-marker by
-  // tipDir(). invalidateSize() always runs first so fitBounds measures real
-  // pixels (else an infinite zoom -> NaN markers).
-  function fitToMarkers(bounds) {
+  // island plus 澎湖). `maxZoom` caps how close the fit goes (default 8; a county
+  // fit passes its own cap). Tooltip clipping at the top edge is handled
+  // per-marker by tipDir(). invalidateSize() always runs first so fitBounds
+  // measures real pixels (else an infinite zoom -> NaN markers).
+  function fitToMarkers(bounds, maxZoom) {
     if (!map) return;
+    // Leaflet drops a zoom requested while a zoom animation is still running, so
+    // a fit asked for then (e.g. county choices in quick succession) is kept and
+    // applied — only the latest one — when the animation ends (#38).
+    if (zoomAnimating) {
+      pendingView = function () { fitToMarkers(bounds, maxZoom); };
+      return;
+    }
     map.invalidateSize();
     var pad = fitPadding(mode);
     var target = bounds || (mode === MODE_FORECAST ? regionPoints() : NOW_INITIAL_BOUNDS);
     map.fitBounds(target, {
       paddingTopLeft: pad.tl,
       paddingBottomRight: pad.br,
-      maxZoom: 8,
+      maxZoom: maxZoom || 8,
     });
     lastFitWidth = window.innerWidth; // remember the width this fit was for (#28 R2 N-2)
   }
