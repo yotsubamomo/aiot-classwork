@@ -69,6 +69,7 @@
 
 - 2026-09-26 — **DV-20**（[`../governance/decisions/decision-20260926-ac-v2-01-county-round-trip-allocation.md`](../governance/decisions/decision-20260926-ac-v2-01-county-round-trip-allocation.md)；來源 #36 R1 的 routing signal R-1）：**#38** 追加 AC-V2-01「選縣往返部分」與 R-V2-MODE-5(a) 選縣部分的驗證與實作分配（逐字見 DV-20 §4.1）；Spec Integration Audit 仍為 AC-V2-01 的 Spec 層 owner；#36 分配與結案不變。#38 issue body 已更新（Acceptance criteria／Traceability／Decisions）。不改 accepted 語義（治理 §5.3 第 2 類）。
 - 2026-09-26 — **DV-21**（[`../governance/decisions/decision-20260926-county-layer-under-stale-unavailable-allocation.md`](../governance/decisions/decision-20260926-county-layer-under-stale-unavailable-allocation.md)；來源 #37 R1 的 routing signal R-1）：**#38** 追加 AC-V2-08(a)(b)「縣界互動圖層與 County 脈絡在 Stale／Unavailable 下」的驗證與實作分配（逐字見 DV-21 §4.1），含 §4.2 §3.6-A 釐清（Unavailable 縣脈絡缺值顯示「—」、不得為 0 或數值）；Spec Integration Audit 仍為 AC-V2-08／INV-V2-7 的 Spec 層 owner；#37 不變。#38 issue body 已更新。不改 accepted 語義（§5.3 第 2 類）。
+- 2026-09-26 — **DV-22**（[`../governance/decisions/decision-20260926-desktop-representative-marker-density.md`](../governance/decisions/decision-20260926-desktop-representative-marker-density.md)；來源 #39 R1 的 routing signal R-1）：桌機初始全臺視野隱藏部分代表標記**在契約內，但只限「44×44 碰撞」的最小隱藏**（§3.6-A 釐清；全臺圖層集合須完整、被隱藏縣須可達；BASE 22/22 本身違反 RSP-7）。#39 F-1 修正須滿足 DV-22 §4.1，由 R2 逐項核對；#39 分配不變；不改 accepted 語義（§5.3 第 2 類）。#39 issue body 已更新。
 
 ## Post-baseline 追加 work item（合併前）
 
