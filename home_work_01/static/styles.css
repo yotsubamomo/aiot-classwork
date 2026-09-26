@@ -1007,6 +1007,9 @@ img { max-width: 100%; }
    Tab stop (app.js updateMarkerAccess). It keeps its box, so it reappears in place
    when zooming in. */
 .station-icon.is-culled { visibility: hidden; }
+/* An optional name label that would overlap a shown marker's touch area or an
+   earlier label yields (the marker stays shown; decision DV-22). */
+.station-icon.label-off .slabel { visibility: hidden; }
 
 /* "Back to Taiwan" and "Details" beside the County chooser. */
 .county-actions { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1033,28 +1036,67 @@ img { max-width: 100%; }
 
 /* >= 1024 px, Now mode: the panel is a column BESIDE the map, never over it, so
    the whole map stays clear (R-V2-RSP-6) and the map fence can reach every edge
-   of E, e.g. 金門 at any zoom (R-V2-MAP-1). It scrolls within the map's height.
-   Forecast mode keeps the V1 layout (floating >= 1180 px, stacked below). */
+   of E, e.g. 金門 at any zoom (R-V2-MAP-1). Forecast mode keeps the V1 layout
+   (floating >= 1180 px, stacked below). */
 @media (min-width: 1024px) {
   .map-shell.map-shell--now {
     display: grid;
-    grid-template-columns: 312px minmax(0, 1fr);
+    grid-template-columns: 360px minmax(0, 1fr);
     gap: 12px;
     align-items: stretch;
   }
+  /* The panel itself never scrolls (#39 R1 F-1): its status part — title, state,
+     Observation Time, Fetched Time, Refresh, the County chooser and Back to
+     Taiwan — keeps fixed rows at the top in every selection state, and only the
+     info part below it (#sheet-body: County context, station detail, station
+     list) scrolls, within the map's height. Explicit rows, so a hidden state
+     block leaves its row empty instead of moving the others. */
   .map-shell--now .map-panel--now {
     position: static;
     width: auto;
     max-width: none;
-    max-height: 562px;
-    overflow-y: auto;
+    height: 562px;
+    max-height: none;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto auto auto minmax(0, 1fr);
+    column-gap: 8px;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     background: var(--map-surface-2);
     box-shadow: none;
   }
+  .map-shell--now .map-panel--now > .map-panel__title { grid-row: 1; grid-column: 1 / -1; }
+  .map-shell--now .map-panel--now > .obs-state { grid-row: 2; grid-column: 1 / -1; margin: 2px 0 6px; padding: 6px 8px; }
+  .map-shell--now .map-panel--now > .obs-times {
+    grid-row: 3; grid-column: 1 / -1; margin: 2px 0; gap: 2px;
+  }
+  .map-shell--now .map-panel--now .obs-times__row { grid-template-columns: 112px minmax(0, 1fr); align-items: baseline; gap: 6px; }
+  .map-shell--now .map-panel--now .obs-times__row dd { font-size: 13px; }
+  .map-shell--now .map-panel--now > .obs-actions { grid-row: 4; grid-column: 1 / -1; margin: 4px 0; }
+  .map-shell--now .map-panel--now > .county-pick { grid-row: 5; grid-column: 1; margin: 2px 0 8px; }
+  .map-shell--now .map-panel--now > .county-actions { grid-row: 5; grid-column: 2; align-self: start; margin-top: 2px; }
+  .map-shell--now .map-panel--now > .county-actions .btn { margin: 0; }
+  .map-shell--now .map-panel--now > .sheet {
+    grid-row: 6;
+    grid-column: 1 / -1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--map-border);
+  }
+  .map-shell--now .sheet__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+  }
+  .map-shell--now .sheet .county { border-top: 0; }
+  .sheet .county__list { max-height: none; overflow: visible; }
   .map-shell--now .map-frame { grid-column: 2; }
-  .now-notes { margin-left: 324px; }
+  .now-notes { margin-left: 372px; }
   .sheet-reopen { display: none !important; }
 }
 

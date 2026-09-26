@@ -206,10 +206,55 @@ def test_density_rule_ranks_every_county_and_hides_without_removing() -> None:
     assert sorted(names) == sorted(representative.COUNTY_ORDER) and len(names) == 22
     assert ".station-icon.is-culled { visibility: hidden; }" in _CSS
     body = _body("updateMarkerAccess")
-    assert 'classList.toggle("is-culled", hidden)' in body
-    assert 'renderedCounty || hidden || covered ? "-1" : "0"' in body, "a hidden or covered marker is never a Tab stop"
+    assert 'classList.toggle("is-culled", it.hidden)' in body
+    assert 'renderedCounty || it.hidden || covered ? "-1" : "0"' in body, "a hidden or covered marker is never a Tab stop"
     rank = _body("densityRank")
     assert "id === selectedStationId) return -3" in rank, "the selected station is always shown"
+
+
+def test_markers_hide_only_by_required_touch_area_collision() -> None:
+    """Decision DV-22 §4.1(2): a marker is hidden only when its REQUIRED touch
+    area (pill grown to >= 44 x 44) is within 2 px of a shown marker's required
+    area; the optional name label never hides a marker — it yields itself."""
+    box = _body("markerBox")
+    assert "TOUCH" in box and "slabel" not in box, "the required area excludes the optional label"
+    body = _body("updateMarkerAccess")
+    assert "it.hidden = kept.some(function (k) { return overlaps(k.box, it.box); });" in body
+    assert 'classList.toggle("label-off"' in body
+    assert ".station-icon.label-off .slabel { visibility: hidden; }" in _CSS
+    assert "a.l < b.r + 2 && b.l < a.r + 2 && a.t < b.b + 2 && b.t < a.b + 2" in _body("overlaps")
+    # the layer holds every /api/ representative: markers come from representativeStationIds only
+    assert "representativeIds()" in _body("renderStations")
+    assert "representativeStationIds" in _body("representativeIds")
+
+
+def test_desktop_status_part_never_scrolls_out_of_view() -> None:
+    """#39 R1 F-1: >= 1024 px the Now panel does not scroll; its status rows
+    (times, Refresh, County, Back to Taiwan) are fixed grid rows and only the
+    info part (#sheet-body) scrolls; selection code scrolls only that part."""
+    block = _CSS[_CSS.index("@media (min-width: 1024px) {\n  .map-shell.map-shell--now {"):]
+    block = block[:block.index("\n}\n")]
+    panel = block[block.index(".map-shell--now .map-panel--now {"):]
+    panel = panel[:panel.index("}")]
+    assert "overflow: hidden;" in panel and "display: grid;" in panel and "height: 562px;" in panel
+    assert "grid-template-rows: auto auto auto auto auto minmax(0, 1fr);" in panel
+    for cls, row in ((".map-panel__title", 1), (".obs-state", 2), (".obs-times", 3), (".obs-actions", 4),
+                     (".county-pick", 5), (".county-actions", 5), (".sheet", 6)):
+        assert re.search(r"\.map-shell--now \.map-panel--now > " + re.escape(cls) + r" \{[^}]*grid-row: " + str(row) + ";",
+                         block), cls
+    body_rule = block[block.index(".map-shell--now .sheet__body {"):]
+    assert "overflow-y: auto;" in body_rule[:body_rule.index("}")]
+    for fn in ("selectStation", "selectCounty", "toggleSheetExpanded"):
+        assert "scrollIntoView" not in _body(fn), f"{fn} must scroll only the info part"
+    scroll = _body("scrollInPanel")
+    assert "els.sheetBody" in scroll and "scrollTop" in scroll and "scrollIntoView" not in scroll
+    assert "scrollInPanel(els.obsSelected, true)" in _body("selectStation")
+
+
+def test_deferred_map_steps_are_queued_not_dropped() -> None:
+    """#39 R1 F-2: while the map waits for a size, every deferred step is kept."""
+    body = _body("ensureMapSized")
+    assert "pendingSized.push(cb);" in body and "steps.forEach(" in body
 
 
 def test_mouse_focus_does_not_move_the_map() -> None:
@@ -220,7 +265,7 @@ def test_mouse_focus_does_not_move_the_map() -> None:
 def test_desktop_now_panel_sits_beside_the_map() -> None:
     block = _CSS[_CSS.index("@media (min-width: 1024px) {\n  .map-shell.map-shell--now {"):]
     block = block[:block.index("\n}\n")]
-    assert "display: grid;" in block and "grid-template-columns: 312px minmax(0, 1fr);" in block
+    assert "display: grid;" in block and "grid-template-columns: 360px minmax(0, 1fr);" in block
     assert ".map-shell--now .map-panel--now {\n    position: static;" in block
     assert 'classList.toggle("map-shell--now", mode === MODE_NOW)' in _body("renderModeChrome")
     pad = _body("fitPadding")

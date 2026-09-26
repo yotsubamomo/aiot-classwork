@@ -127,10 +127,34 @@ window.__fx = {
     var p = el.querySelector('.spill').getBoundingClientRect(), cx = p.x + p.width / 2, cy = p.y + p.height / 2;
     var w = Math.max(p.width, 44) / 2, h = Math.max(p.height, 44) / 2, b = {l: cx - w, t: cy - h, r: cx + w, b: cy + h};
     var lab = el.querySelector('.slabel').getBoundingClientRect();
-    if (lab.width > 0 && getComputedStyle(el.querySelector('.slabel')).display !== 'none') {
+    var lcs = getComputedStyle(el.querySelector('.slabel'));
+    if (lab.width > 0 && lcs.display !== 'none' && lcs.visibility !== 'hidden') {
       b = {l: Math.min(b.l, lab.left), t: Math.min(b.t, lab.top), r: Math.max(b.r, lab.right), b: Math.max(b.b, lab.bottom)};
     }
     return b;
+  },
+  // required touch area only (pill grown to >= 44 x 44; decision DV-22 §4.1(2))
+  req: function (el) {
+    var p = el.querySelector('.spill').getBoundingClientRect(), cx = p.x + p.width / 2, cy = p.y + p.height / 2;
+    var w = Math.max(p.width, 44) / 2, h = Math.max(p.height, 44) / 2;
+    return {l: cx - w, t: cy - h, r: cx + w, b: cy + h};
+  },
+  // share of an element's box that is on screen: clipped by every overflow
+  // ancestor and by the viewport (0..1)
+  onScreen: function (el, noViewport) {
+    if (!el) return 0;
+    var r = el.getBoundingClientRect(), a = r.width * r.height;
+    if (!a || getComputedStyle(el).visibility === 'hidden') return 0;
+    var x0 = r.left, y0 = r.top, x1 = r.right, y1 = r.bottom;
+    for (var p = el.parentElement; p; p = p.parentElement) {
+      var cs = getComputedStyle(p);
+      if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') {
+        var q = p.getBoundingClientRect();
+        x0 = Math.max(x0, q.left); y0 = Math.max(y0, q.top); x1 = Math.min(x1, q.right); y1 = Math.min(y1, q.bottom);
+      }
+    }
+    if (!noViewport) { x0 = Math.max(x0, 0); y0 = Math.max(y0, 0); x1 = Math.min(x1, innerWidth); y1 = Math.min(y1, innerHeight); }
+    return Math.max(0, x1 - x0) * Math.max(0, y1 - y0) / a;
   },
   marker: function (prefix) {
     return Array.from(document.querySelectorAll('.station-icon')).filter(function (el) {
@@ -575,10 +599,11 @@ def density_and_touch(s: F, where: str) -> None:
     d = b.js("""(function(){var sh=__fx.shown(), boxes=sh.map(__fx.box), clash=[];
         for (var i=0;i<boxes.length;i++) for (var j=i+1;j<boxes.length;j++){var a=boxes[i],c=boxes[j];
           if (a.l<c.r-1&&c.l<a.r-1&&a.t<c.b-1&&c.t<a.b-1) clash.push([i,j]);}
-        var m=document.getElementById('map').getBoundingClientRect(), sheet=document.getElementById('info-sheet').getBoundingClientRect();
+        var m=document.getElementById('map').getBoundingClientRect(), se=document.getElementById('info-sheet');
+        var over=getComputedStyle(se).position==='absolute', sheet=se.getBoundingClientRect();  // only a bottom info panel lies over the map
         var inside=sh.filter(function(el){var r=el.querySelector('.spill').getBoundingClientRect();
-          return r.left>=m.left+24&&r.right<=m.right-60&&r.top>=m.top+24&&r.bottom<=m.bottom-26&&
-                 !(sheet.height>0&&r.bottom>sheet.top-24);});
+          return r.left>=m.left+24&&r.right<=m.right-60&&r.top>=m.top+24&&r.bottom<=m.bottom-26&&r.bottom<=innerHeight-24&&
+                 !(over&&sheet.height>0&&r.bottom>sheet.top-24);});
         var miss=inside.map(function(el){return __fx.touch(el.querySelector('.spill'));});
         var unread=inside.filter(function(el){return !__fx.hit(el.querySelector('.spill'));}).length;
         return {all: document.querySelectorAll('.station-icon').length, shown: sh.length, overlaps: clash.length,
@@ -1026,6 +1051,265 @@ def scenario_en1(s: F, desktop: bool) -> None:
     b.hover(5, 5)
 
 
+# --- scenario: #39 R1 F-1 — the desktop Now panel's status part stays in view ------------------
+
+
+F1_JS = r"""(function () {
+  var ids = ['obs-time', 'obs-fetched', 'refresh-button', 'mode-now', 'mode-forecast', 'county-select'];
+  if (__chk.visible(document.getElementById('back-to-taiwan'))) ids.push('back-to-taiwan');
+  if (__chk.visible(document.getElementById('obs-state-chip'))) ids.push('obs-state-chip');
+  var out = {};
+  ids.forEach(function (id) { var e = document.getElementById(id);
+    out[id] = {share: Math.round(__fx.onScreen(e) * 1000) / 1000,
+               inPanel: Math.round(__fx.onScreen(e, true) * 1000) / 1000, hit: __fx.hit(e)}; });
+  var d = document.getElementById('obs-selected'), p = document.getElementById('now-panel');
+  return {controls: out,
+          detail: __chk.visible(d) ? Math.round(__fx.onScreen(document.getElementById('obs-sel-name')) * 1000) / 1000 : null,
+          focus: __cty.focusVisible(), scrollY: scrollY, panelScroll: p.scrollTop,
+          panelFits: p.getBoundingClientRect().bottom + scrollY <= innerHeight,
+          heights: Array.from(p.children).map(function (c) { return [c.id || c.className, Math.round(c.getBoundingClientRect().height)]; })};
+})()"""
+
+
+def f1_ok(r: dict, want_detail: bool) -> bool:
+    """Every status element is wholly in view (clipped by no overflow ancestor
+    and not by the window) and not covered; the panel has not scrolled; the
+    detail (when asked for) is in view."""
+    return all(v["share"] >= 0.999 and v["hit"] for v in r["controls"].values()) \
+        and (not want_detail or (r["detail"] or 0) >= 0.999) and r["panelScroll"] == 0
+
+
+def f1_keyboard_ok(r: dict) -> bool:
+    """Keyboard path: focus visible; the panel has not scrolled and no status
+    element is clipped by the panel; when the map card fits the window the
+    status elements are also wholly in the window (a shorter window may scroll
+    the PAGE to show the focused item: that is the browser focus scroll)."""
+    return r["focus"]["ok"] and r["panelScroll"] == 0 \
+        and all(v["inPanel"] >= 0.999 for v in r["controls"].values()) \
+        and (not r["panelFits"] or all(v["share"] >= 0.999 and v["hit"] for v in r["controls"].values()))
+
+
+LIST_CLICK_JS = r"""(function () {
+  var items = Array.from(document.querySelectorAll('#county-list .county__item')).filter(function (b) {
+    return !b.classList.contains('is-active') && __fx.hit(b); });
+  var b = items[items.length - 1]; if (!b) return null;
+  var r = b.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2, id: b.getAttribute('data-station-id')};
+})()"""
+
+
+def scenario_f1(s: F) -> None:
+    """Desktop (>= 1024 px): in every selection state, under success / Stale /
+    Unavailable, Observation Time, Fetched Time, Refresh, the mode switch, the
+    County chooser, Back to Taiwan (with a county) and the state chip are wholly
+    in view and not covered; the chosen station detail is in view too; the Now
+    panel itself never scrolls (#39 R1 F-1)."""
+    b = s.b
+    body = None
+    for state in ("success", "stale", "unavailable"):
+        s.rig.set("ok", "c0", key=(state != "unavailable"))
+        s.open()
+        if state == "success":
+            body = s.success_bodies()[-1]
+        if state == "stale":
+            s.rig.set("http", status=503)
+            s.refresh()
+            b.js("window.scrollTo(0, 0); document.activeElement.blur(); true")
+        r = {"taiwan": b.js(F1_JS)}
+        ok = f1_ok(r["taiwan"], False)
+        if state != "unavailable":
+            c = s.marker_center(rep_label(body, "467490"))  # 臺中 (a representative)
+            if c:
+                s.click(c["x"], c["y"])
+            r["taiwan+station (map click)"] = b.js(F1_JS)
+            ok = ok and bool(c) and f1_ok(r["taiwan+station (map click)"], True)
+        s.choose("臺中市")
+        b.js("window.scrollTo(0, 0); true")
+        r["county"] = b.js(F1_JS)
+        ok = ok and f1_ok(r["county"], False)
+        if state != "unavailable":
+            # scroll the info part (as a user would) so the list is on screen
+            b.js("""(function(){var bd=document.getElementById('sheet-body'), l=document.getElementById('county-stations');
+                bd.scrollTop += l.getBoundingClientRect().top - Math.max(bd.getBoundingClientRect().top, 0); return true;})()""")
+            b.pump(0.2)
+            t = b.js(LIST_CLICK_JS)
+            if t:
+                s.click(t["x"], t["y"])
+            r["county+station (list click)"] = b.js(F1_JS)
+            ok = ok and bool(t) and f1_ok(r["county+station (list click)"], True) \
+                and (s.ctx()["detail"] or {}).get("id") == t["id"]
+            tgt = b.js("""(function(){var el=__fx.shown().filter(function(e){return !e.classList.contains('is-active') &&
+                  __fx.hit(e.querySelector('.spill'));})[0];
+                if(!el) return null; var r=el.querySelector('.spill').getBoundingClientRect(); return [r.x+r.width/2, r.y+r.height/2];})()""")
+            if tgt:
+                s.click(tgt[0], tgt[1])
+            r["county+station (map click)"] = b.js(F1_JS)
+            ok = ok and bool(tgt) and f1_ok(r["county+station (map click)"], True)
+            s.shot(f"{state}-county-station")
+            # keyboard: an item far down the list, Enter
+            b.js("var it=document.querySelectorAll('#county-list .county__item'); it[Math.min(20, it.length-1)].focus(); true")
+            b.key("Enter")
+            b.pump(0.6)
+            r["county+station (keyboard, item 21)"] = b.js(F1_JS)
+            ok = ok and f1_keyboard_ok(r["county+station (keyboard, item 21)"])
+        else:
+            s.shot(f"{state}-county")
+        s.add(f"#39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop {state}: Observation Time, Fetched Time, Refresh, mode switch, "
+              "County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, "
+              "county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); "
+              "the detail is in view; the Now panel itself never scrolls", ok, r)
+
+
+# --- scenario: decision DV-22 §4.1 — Taiwan-wide representative markers -------------------------------
+
+
+DV22_JS = r"""(function () {
+  return Array.from(document.querySelectorAll('.station-icon')).map(function (el) {
+    var p = el.querySelector('.spill'), r = p.getBoundingClientRect();
+    var h = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+    var m = document.getElementById('map').getBoundingClientRect();
+    var inMap = r.left >= m.left && r.right <= m.right && r.top >= m.top && r.bottom <= m.bottom &&
+                r.top >= 0 && r.bottom <= innerHeight;
+    var underControl = !!h && !!h.closest && !!h.closest('.leaflet-control-container');
+    return {label: p.getAttribute('aria-label'), culled: el.classList.contains('is-culled'), inMap: inMap,
+            underControl: underControl,
+            visibility: getComputedStyle(el).visibility, tabindex: p.getAttribute('tabindex'),
+            clickable: !!h && (h === p || p.contains(h)), box: __fx.req(el),
+            county: el.classList.contains('station-icon--county')};
+  });
+})()"""
+
+NORTH = ("基隆市", "臺北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣")
+
+
+def near(a: dict, b: dict, gap: float = 2.0) -> bool:
+    """The app's collision test: two required areas closer than 2 px."""
+    return a["l"] < b["r"] + gap and b["l"] < a["r"] + gap and a["t"] < b["b"] + gap and b["t"] < a["b"] + gap
+
+
+def dv22_state(s: F, body: dict, where: str, record: dict) -> set:
+    b = s.b
+    labels = {sid: rep_label(body, sid) for sid in body["representativeStationIds"]}
+    ms = b.js(DV22_JS)
+
+    def sid_of(label):
+        return next((k for k, v in labels.items() if label.startswith(v)), None)
+
+    layer = [sid_of(m["label"]) for m in ms if not m["county"]]
+    shown = [m for m in ms if not m["culled"]]
+    hidden = [m for m in ms if m["culled"]]
+    # (1) layer = the /api/ representative set; hidden ones invisible, not clickable, not Tab stops
+    ok1 = sorted(layer) == sorted(body["representativeStationIds"]) and len(ms) == len(layer) \
+        and all(m["visibility"] == "hidden" and m["tabindex"] == "-1" and not m["clickable"] for m in hidden)
+    # (2) hidden only by collision of the required 44 x 44 areas with a SHOWN marker (2 px gap)
+    pairs, ok2 = [], True
+    for m in hidden:
+        hit = [x for x in shown if near(m["box"], x["box"])]
+        pairs.append({"hidden": m["label"].split(":")[0], "box": {k: round(v, 1) for k, v in m["box"].items()},
+                      "collidesWith": [{"shown": x["label"].split(":")[0],
+                                        "box": {k: round(v, 1) for k, v in x["box"].items()}} for x in hit[:2]]})
+        ok2 = ok2 and bool(hit)
+    # (3) shown ones pairwise apart, hit where drawn, >= 44 x 44
+    apart = all(not near(a["box"], c["box"]) for i, a in enumerate(shown) for c in shown[i + 1:])
+    # a shown marker lying under Leaflet's zoom buttons (#39 R1 O-4) is not a
+    # density fault: it is shown, not a Tab stop while covered, and a pan frees it
+    under = [m for m in shown if m["inMap"] and not m["clickable"] and m["underControl"]]
+    ok3 = apart and all(m["clickable"] or m["underControl"] for m in shown if m["inMap"])         and all(m["tabindex"] == "-1" for m in under) and any(m["inMap"] for m in shown) and all(
+        m["box"]["r"] - m["box"]["l"] >= 44 and m["box"]["b"] - m["box"]["t"] >= 44 for m in shown)
+    record[where] = {"shown": sorted(m["label"].split(":")[0] for m in shown), "hidden": pairs,
+                     "shownUnderZoomButtons": [m["label"].split(":")[0] for m in under],
+                     "layer": len(layer), "api": len(body["representativeStationIds"]), "zoom": s.v()["zoom"]}
+    s.add(f"DV-22 §4.1(1) {where}: the Taiwan-wide layer is the /api/ representative set ({len(layer)}); hidden "
+          "markers are invisible, not clickable and not Tab stops", ok1,
+          {"layer": len(layer), "api": len(body["representativeStationIds"]), "hidden": len(hidden)})
+    s.add(f"DV-22 §4.1(2) {where}: each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN "
+          "representative's required area (hidden only by collision)", ok2, pairs)
+    s.add(f"DV-22 §4.1(3) {where}: the shown representatives are pairwise apart, >= 44 x 44, and each one inside "
+          "the map is hit where drawn",
+          ok3 and len(shown) >= 1, record[where]["shown"])
+    return {m["label"].split(":")[0] for m in shown}
+
+
+def scenario_dv22(s: F, record: dict) -> None:
+    b = s.b
+    s.rig.set("ok", "c0")
+    s.open()
+    s.show_map()
+    body = s.success_bodies()[-1]
+    shown1 = dv22_state(s, body, "initial view", record)
+    s.shot("dv22-initial")
+    s.open()   # (4) same data, same window: reload
+    s.show_map()
+    shown2 = dv22_state(s, body, "reloaded", record)
+    s.add("DV-22 §4.1(4) deterministic: reloading with the same data and window shows the same set",
+          shown1 == shown2, {"first": sorted(shown1), "second": sorted(shown2)})
+    # at zoom 8 the optional name labels are shown: they must still never hide a marker
+    s.zoom_to(8)
+    dv22_state(s, body, "zoom 8 (name labels shown)", record)
+    labels = b.js("""__fx.shown().filter(function(e){var l=e.querySelector('.slabel'), cs=getComputedStyle(l);
+        return cs.display!=='none' && cs.visibility!=='hidden';}).length""")
+    s.add("DV-22 §4.1(2) zoom 8: name labels are shown where they fit and yield where they would overlap",
+          labels >= 1, {"labelsShown": labels})
+    s.choose("花蓮縣")
+    s.press("#back-to-taiwan", "Enter")
+    s.show_map()
+    dv22_state(s, body, "after Back to Taiwan", record)
+    # (5) hidden counties reachable: map hover / click, County chooser, zoom-in
+    reps = {sid: next(x for x in body["stations"] if x["stationId"] == sid) for sid in body["representativeStationIds"]}
+    hidden = [reps[sid]["countyName"] for sid in body["representativeStationIds"]
+              if b.js(f"(function(){{var e=__fx.marker({json.dumps(rep_label(body, sid))}); "
+                      f"return !!e && e.classList.contains('is-culled');}})()")]
+    order = [c for c in hidden if c in NORTH] + [c for c in hidden if c not in NORTH]
+    walked = []
+    for county in order:
+        if len(walked) >= 4 and any(w["county"] in NORTH and w["ok"] for w in walked):
+            break
+        s.open()
+        s.show_map()
+        sid = next(k for k, v in reps.items() if v["countyName"] == county)
+        label = rep_label(body, sid)
+        _i, pt = s.find_county_path(county)
+        hover_zoom = s.v()["zoom"]
+        if not pt:
+            # DD-4 is not tied to a zoom level: a small county may need a closer view
+            for _ in range(2):
+                c = s.marker_center(label)
+                b.send("Input.dispatchMouseEvent", {"type": "mouseWheel", "x": c["x"], "y": c["y"], "deltaX": 0, "deltaY": -240})
+                b.pump(0.8)
+            _i, pt = s.find_county_path(county)
+            hover_zoom = s.v()["zoom"]
+        tip = b.js("__cty.tip()") if pt else None
+        if pt:
+            s.click(pt[0], pt[1])
+        by_map = s.ctx()["name"] == county
+        b.js("var s=document.getElementById('county-select'); s.selectedIndex=0; s.dispatchEvent(new Event('change')); true")
+        b.pump(0.6)
+        s.choose(county)
+        by_menu = s.ctx()["name"] == county
+        b.js("var s=document.getElementById('county-select'); s.selectedIndex=0; s.dispatchEvent(new Event('change')); true")
+        b.pump(0.8)
+        zoom_ok = False
+        for _ in range(8):
+            c = s.marker_center(label)
+            if not c:
+                break
+            if not c["culled"]:
+                s.click(c["x"], c["y"])
+                d = s.ctx()["detail"]
+                zoom_ok = bool(d) and d["id"] == sid
+                break
+            b.send("Input.dispatchMouseEvent", {"type": "mouseWheel", "x": c["x"], "y": c["y"], "deltaX": 0, "deltaY": -240})
+            b.pump(0.8)
+        w = {"county": county, "hoverName": tip, "hoverZoom": hover_zoom, "mapClick": by_map, "chooser": by_menu,
+             "zoomInShowsAndSelects": zoom_ok, "zoom": s.v()["zoom"]}
+        w["ok"] = tip == county and by_map and by_menu and zoom_ok
+        walked.append(w)
+    ok = len(walked) >= 3 and any(w["county"] in NORTH for w in walked) and all(w["ok"] for w in walked)
+    record["reachability"] = walked
+    s.add("DV-22 §4.1(5) hidden counties (>= 3, incl. a northern one): hover shows the name and a click selects it (DD-4); "
+          "the County chooser selects it (DD-9(a)); zooming in shows its representative and a click selects it",
+          ok, walked)
+
+
 # --- run ------------------------------------------------------------------------------
 
 
@@ -1035,6 +1319,8 @@ def run(chrome: str, out: Path, only: str = "") -> Checks:
     instruments: dict = {}
     sweeps: dict = {}
     states375: dict = {}
+    dv22: dict = {}
+    dv22_375: dict = {}
     rig = Rig()
     add_variants(rig)
     plans = [
@@ -1042,8 +1328,10 @@ def run(chrome: str, out: Path, only: str = "") -> Checks:
                                        ("taipei", lambda s: scenario_taipei(s, instruments)),
                                        ("density", scenario_density),
                                        ("panel", scenario_desktop_panel),
+                                       ("dv22", lambda s: scenario_dv22(s, dv22)),
                                        ("en1", lambda s: scenario_en1(s, True))]),
         ("375", 375, 812, True, [("fence", lambda s: scenario_fence(s, instruments, sweeps)),
+                                 ("dv22", lambda s: scenario_dv22(s, dv22_375)),
                                  ("taipei", lambda s: scenario_taipei(s, instruments)),
                                  ("density", scenario_density),
                                  ("sheet", lambda s: scenario_sheet(s, states375)),
@@ -1052,6 +1340,9 @@ def run(chrome: str, out: Path, only: str = "") -> Checks:
                                  ("en1", lambda s: scenario_en1(s, False))]),
         ("768", 768, 1024, False, [("breakage", scenario_768)]),
         ("desktop-states", 1280, 900, False, [("states", lambda s: scenario_states(s, {}))]),
+        ("f1-1024", 1024, 768, False, [("panel", scenario_f1)]),
+        ("f1-1100", 1100, 900, False, [("panel", scenario_f1)]),
+        ("f1-1280", 1280, 900, False, [("panel", scenario_f1)]),
     ]
     consoles = []
     try:
@@ -1083,7 +1374,8 @@ def run(chrome: str, out: Path, only: str = "") -> Checks:
                not [p for p in consoles if not re.search(r"\b(401|403|429|500|502|503|504)\b", p)], consoles[:5])
     out.mkdir(parents=True, exist_ok=True)
     (out / "browser-check-results.json").write_text(
-        json.dumps({"checks": checks.items, "instruments": instruments, "fenceSweeps": sweeps},
+        json.dumps({"checks": checks.items, "instruments": instruments, "fenceSweeps": sweeps,
+                    "dv22": {"1280": dv22, "375": dv22_375}},
                    ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "network-log.json").write_text(
         json.dumps({"origin": rig.base, "external": external, "byScenario": network}, ensure_ascii=False, indent=2),

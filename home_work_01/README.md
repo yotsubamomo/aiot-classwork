@@ -552,19 +552,29 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   shows less than about 13 km. The `+` / `−` buttons are disabled at the limits.
 - **Opening view.** The Now mode opens — and `Back to Taiwan` returns — on the whole
   main island and 澎湖 (金門 and 連江 may be outside it; drag or zoom to reach them).
-- **Marker density.** Where two station markers would overlap at the current zoom,
-  only one is shown: the selected station first, then, Taiwan-wide, the counties in a
-  fixed order spread over the island (臺北市, 高雄市, 臺中市, 花蓮縣, 臺東縣, 澎湖縣,
-  金門縣, 連江縣, 宜蘭縣, 臺南市, 屏東縣, 嘉義縣, 南投縣, 新竹縣, 桃園市, 新北市, 基隆市,
-  苗栗縣, 彰化縣, 雲林縣, 嘉義市, 新竹市) and, in a county view, its highest and lowest
-  station and its representative first. A hidden marker appears when you zoom in; every
-  county stays in the `County` chooser and every station in the county's station list.
-  So the markers you see are never on top of each other and each can be read and
-  clicked (its touch area is at least 44 × 44 px). On a phone the Taiwan-wide view at
-  the opening zoom shows only a few representative markers.
+- **Marker density.** The Taiwan-wide view always holds **every** representative
+  station of the Latest Observation (one per county with a valid station); only
+  their display is managed. Each marker's required touch area is its temperature
+  marker grown to at least **44 × 44 px**. Where that area would come within **2 px**
+  of the touch area of a marker already shown at the current zoom, the marker is
+  hidden at that zoom — never for any other reason. Markers are placed in this order:
+  the selected station first, then, Taiwan-wide, the counties in a fixed order spread
+  over the island (臺北市, 高雄市, 臺中市, 花蓮縣, 臺東縣, 澎湖縣, 金門縣, 連江縣, 宜蘭縣,
+  臺南市, 屏東縣, 嘉義縣, 南投縣, 新竹縣, 桃園市, 新北市, 基隆市, 苗栗縣, 彰化縣, 雲林縣,
+  嘉義市, 新竹市) and, in a county view, its highest and lowest station and its
+  representative first. A station's name label (shown from zoom 8) never hides a
+  marker: where it would overlap another shown marker or an earlier label, the label
+  is left out instead. A hidden marker appears when you zoom in, and its county can
+  still be pointed at and clicked on the map and chosen in the `County` chooser; every
+  station is in its county's station list. So the markers you see are never on top of
+  each other and each can be read and clicked. At the opening zoom the Taiwan-wide
+  view shows 9 of the 22 representatives at 1280 px and 5 on a phone (with the
+  committed sample data).
 - **Layout.** At **1024 px and wider** the Now panel (times, `Refresh`, `County`,
   `Back to Taiwan`, the County context, the station detail and list) is a column
-  **beside** the map, so it never covers the map. **Below 1024 px** a compact bar
+  **beside** the map, so it never covers the map. Its top part — the state, the two
+  times, `Refresh`, `County` and `Back to Taiwan` — never scrolls away; only the
+  County context, station detail and list below it scroll. **Below 1024 px** a compact bar
   above the map holds the times, `Refresh`, `County` and `Back to Taiwan`, and the
   county / station details open in a **bottom info panel** over the lower part of
   the map when you select a county or a station:

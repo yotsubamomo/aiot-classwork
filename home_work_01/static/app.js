@@ -168,6 +168,7 @@
   var selectedRegion = "北部地區"; // the Region shown in the info panel's selected block
   var latestDay = null;    // {date, byRegion} for the day currently rendered/pending
   var mapInitScheduled = false;
+  var pendingSized = [];   // steps waiting for the map container to have a size
   var lastFitWidth = null; // window width at the last fit; a height-only resize does not re-fit (#28 R2 N-2)
   var zoomAnimating = false; // a Leaflet zoom animation is running (#38)
   var pendingView = null;    // the latest view change asked for during it
@@ -1116,18 +1117,16 @@
     markListSelection();
     renderSelectedStation();
     renderSheet();
-    // The detail opening above the list can push the focused list item out of
-    // the panel's visible area: bring it back, so keyboard focus is never hidden
-    // (R-V2-DD-9(e)). Otherwise (a marker was chosen) show the detail at the top
-    // of the phone info panel.
+    // Show the detail from its top in the panel's scrolling part; a list item
+    // that has KEYBOARD focus is then kept in view too, even if that scrolls the
+    // detail's top away, so keyboard focus is never hidden (R-V2-DD-9(e)). Only
+    // that part scrolls — never the status part with the two times and Refresh
+    // (#39 R1 F-1).
+    scrollInPanel(els.obsSelected, true);
     var focused = document.activeElement;
     if (focused && focused.classList && focused.classList.contains("county__item") &&
-        typeof focused.scrollIntoView === "function") {
-      focused.scrollIntoView({ block: "nearest" });
-    } else if (sheetLayout()) {
-      els.sheetBody.scrollTop = Math.max(0, els.obsSelected.offsetTop - els.sheetBody.offsetTop);
-    } else if (typeof els.obsSelected.scrollIntoView === "function") {
-      els.obsSelected.scrollIntoView({ block: "nearest" }); // the side panel scrolls to the detail
+        (!focused.matches || focused.matches(":focus-visible"))) {
+      scrollInPanel(focused, false);
     }
     afterSheetChange(!sheetExpanded);
   }
@@ -1143,15 +1142,20 @@
     updateMarkerAccess();
   }
 
-  // Marker density and keyboard access (R-V2-RSP-3, RSP-7, R-V2-DD-9(e)). In
-  // rank order, a station marker is shown only when its touch area (at least
-  // 44 x 44 px, with its name label when shown) does not overlap one already
-  // shown; a hidden marker ("is-culled": invisible, not clickable, not a Tab stop)
-  // reappears when zooming in, and every station stays reachable through the
-  // County chooser and the station list. A Taiwan-wide marker is a Tab stop only
-  // while no panel or notice covers it, so keyboard focus can never land under
-  // one. County-view markers are never Tab stops (the station list is their
-  // keyboard path, R-V2-DD-9(b)(d)).
+  // Marker density and keyboard access (R-V2-RSP-3, RSP-7, R-V2-DD-9(e);
+  // decision DV-22). The Taiwan-wide layer always holds every representative
+  // station of /api/ (one per county with a valid station); only its display is
+  // managed here. In rank order, a marker is shown unless its REQUIRED touch
+  // area — the temperature pill grown to at least 44 x 44 px around its centre —
+  // comes within 2 px of the required touch area of a marker already shown; a
+  // hidden marker ("is-culled": invisible, not clickable, not a Tab stop) keeps
+  // its place and reappears when zooming in, and every county stays reachable
+  // on the map and through the County chooser. Optional parts never hide a
+  // marker: a name label that would overlap a shown marker's touch area or an
+  // earlier label is itself hidden ("label-off") instead. A Taiwan-wide marker is
+  // a Tab stop only while no panel or notice covers it, so keyboard focus can
+  // never land under one. County-view markers are never Tab stops (the station
+  // list is their keyboard path, R-V2-DD-9(b)(d)).
   function updateMarkerAccess() {
     if (!map) return;
     var ids = Object.keys(stationMarkers);
@@ -1162,7 +1166,10 @@
       var el = stationMarkers[id].getElement();
       if (!el) return;
       if (active && el.contains(active)) focusedId = id;
-      items.push({ id: id, el: el, box: markerBox(el) });
+      var label = el.querySelector(".slabel");
+      var lr = label ? label.getBoundingClientRect() : null;
+      items.push({ id: id, el: el, box: markerBox(el),
+                   label: lr && lr.width > 0 && lr.height > 0 ? boxOf(label) : null });
     });
     var rank = densityRank(focusedId);
     items.sort(function (a, b) {
@@ -1171,12 +1178,25 @@
     var covers = coveringRects();
     var kept = [];
     items.forEach(function (it) {
-      var hidden = kept.some(function (k) { return overlaps(k, it.box); });
-      if (!hidden) kept.push(it.box);
-      var covered = !hidden && covers.some(function (r) { return overlaps(r, it.box); });
-      it.el.classList.toggle("is-culled", hidden);
+      it.hidden = kept.some(function (k) { return overlaps(k.box, it.box); });
+      if (!it.hidden) kept.push(it);
+    });
+    // Labels yield: shown only clear of every shown marker's touch area and of
+    // the labels shown before them.
+    var labels = [];
+    kept.forEach(function (it) {
+      var clear = !!it.label &&
+        !kept.some(function (k) { return k !== it && overlaps(k.box, it.label); }) &&
+        !labels.some(function (l) { return overlaps(l, it.label); });
+      it.el.classList.toggle("label-off", !!it.label && !clear);
+      if (clear) labels.push(it.label);
+    });
+    items.forEach(function (it) {
+      var covered = !it.hidden && covers.some(function (r) { return overlaps(r, it.box); });
+      it.el.classList.toggle("is-culled", it.hidden);
+      if (it.hidden) it.el.classList.remove("label-off");
       var pill = it.el.querySelector(".spill");
-      if (pill) pill.setAttribute("tabindex", renderedCounty || hidden || covered ? "-1" : "0");
+      if (pill) pill.setAttribute("tabindex", renderedCounty || it.hidden || covered ? "-1" : "0");
     });
   }
 
@@ -1204,22 +1224,15 @@
     };
   }
 
-  // A marker's touch area in page px: its pill, grown to at least 44 x 44 around
-  // the pill's centre (the pill's ::before hit area), plus its name label when
-  // the label is shown.
+  // A marker's REQUIRED touch area in page px (R-V2-RSP-3): its temperature pill,
+  // grown to at least 44 x 44 around the pill's centre (the pill's ::before hit
+  // area). The name label is optional and is not part of it.
   function markerBox(el) {
     var pill = el.querySelector(".spill");
     var r = (pill || el).getBoundingClientRect();
     var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     var w = Math.max(r.width, TOUCH) / 2, h = Math.max(r.height, TOUCH) / 2;
-    var box = { l: cx - w, t: cy - h, r: cx + w, b: cy + h };
-    var label = el.querySelector(".slabel");
-    var lr = label ? label.getBoundingClientRect() : null;
-    if (lr && lr.width > 0 && lr.height > 0) {
-      box = { l: Math.min(box.l, lr.left), t: Math.min(box.t, lr.top),
-              r: Math.max(box.r, lr.right), b: Math.max(box.b, lr.bottom) };
-    }
-    return box;
+    return { l: cx - w, t: cy - h, r: cx + w, b: cy + h };
   }
 
   // Two boxes closer than 2 px count as overlapping, so neighbouring touch areas
@@ -1228,12 +1241,15 @@
     return a.l < b.r + 2 && b.l < a.r + 2 && a.t < b.b + 2 && b.t < a.b + 2;
   }
 
-  // What may cover the map in Now mode: the phone info panel and the on-map
-  // Stale / Unavailable notice.
+  // What may cover the map in Now mode: the phone info panel, the on-map
+  // Stale / Unavailable notice and the zoom buttons (a marker under them stays
+  // shown — it is not hidden for them — but is not a Tab stop while covered).
   function coveringRects() {
     var out = [];
     if (sheetShown()) out.push(boxOf(els.sheet));
     if (noticeShown()) out.push(boxOf(els.obsMapState));
+    var zoom = els.mapEl && els.mapEl.querySelector(".leaflet-control-zoom");
+    if (zoom) out.push(boxOf(zoom));
     return out;
   }
 
@@ -1290,6 +1306,23 @@
     els.sheetReopen.hidden = state !== "closed";
   }
 
+  // Scroll the info panel's scrolling part (#sheet-body) — and nothing else —
+  // so `el` is in view: at its top (`toTop`) or just enough. Beside the map
+  // (>= 1024 px) this part sits under the fixed status part of the Now panel, so
+  // Observation Time, Fetched Time, Refresh and the County chooser never scroll
+  // out of view (#39 R1 F-1); below 1024 px it is the bottom info panel's body.
+  function scrollInPanel(el, toTop) {
+    var box = els.sheetBody;
+    if (!box || !el || el.hidden) return;
+    // the part of the scroller that is on screen (a short window may cut it)
+    var rb = box.getBoundingClientRect();
+    var b = { top: Math.max(rb.top, 0), bottom: Math.min(rb.bottom, window.innerHeight) };
+    if (b.bottom - b.top < 44) b = { top: rb.top, bottom: rb.bottom };
+    var r = el.getBoundingClientRect();
+    if (toTop || r.top < b.top) box.scrollTop += r.top - b.top;
+    else if (r.bottom > b.bottom) box.scrollTop += Math.min(r.bottom - b.bottom, r.top - b.top);
+  }
+
   function closeSheet() {
     var focusInside = els.sheet.contains(document.activeElement);
     sheetOpen = false;
@@ -1314,8 +1347,8 @@
     renderSheet();
     if (sheetExpanded && sheetLayout() && !els.countyStations.hidden) {
       var item = els.countyList.querySelector(".county__item.is-active");
-      if (item && typeof item.scrollIntoView === "function") item.scrollIntoView({ block: "nearest" });
-      else els.sheetBody.scrollTop = Math.max(0, els.countyStations.offsetTop - els.sheetBody.offsetTop);
+      if (item) scrollInPanel(item, false);
+      else scrollInPanel(els.countyStations, true);
     }
     afterSheetChange(!sheetExpanded);
   }
@@ -1439,11 +1472,6 @@
       renderStations();
     }
     afterSheetChange(false);
-    // Side panel (>= 1024 px): scroll it so the County context is in view (the
-    // chooser just above it stays in view too).
-    if (!sheetLayout() && window.innerWidth >= 1024 && typeof els.county.scrollIntoView === "function") {
-      els.county.scrollIntoView({ block: "nearest" });
-    }
   }
 
   // "Back to Taiwan" (and "All of Taiwan" in the chooser): clear the county and
@@ -1941,14 +1969,19 @@
       return container && container.clientWidth > 0 && container.clientHeight > 0;
     }
     if (sized()) { cb(); return; }
-    if (mapInitScheduled) return; // already waiting; the pending step reads current state
+    // Already waiting: queue this step too, so no deferred step (a mode switch,
+    // a resize, an info panel change) is ever dropped (#39 R1 F-2).
+    pendingSized.push(cb);
+    if (mapInitScheduled) return;
     mapInitScheduled = true;
     var done = false;
     function fire() {
       if (done || !sized()) return;
       done = true;
       mapInitScheduled = false;
-      cb();
+      var steps = pendingSized;
+      pendingSized = [];
+      steps.forEach(function (step) { step(); });
     }
     if (typeof ResizeObserver !== "undefined" && container) {
       var ro = new ResizeObserver(function () {
