@@ -8,6 +8,9 @@
        CSS and JS are served same-origin from /static/vendor/. The basemap is a
        vendored vector layer loaded from /static/data/basemap.js (a same-origin
        <script>, not a fetch), so the map makes NO external tile/data request. -->
+  <!-- Light / dark switch: applies a saved choice before the first paint
+       (WI-UI-THEME-1); without one the page follows the system setting. -->
+  <script src="/static/theme.js"></script>
   <link rel="stylesheet" href="/static/vendor/leaflet.css">
   <link rel="stylesheet" href="/static/styles.css">
 </head>
@@ -56,6 +59,13 @@
           </button>
         </div>
         <p id="map-caption" class="caption caption--map"></p>
+        <!-- Page theme switch (WI-UI-THEME-1, static/theme.js): a real button whose
+             pressed state is the dark theme; after the mode switch in the DOM so the
+             mode switch stays the first Tab stop. The map card is dark either way. -->
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">
+          <svg class="theme-toggle__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <span class="theme-toggle__label">Dark mode</span>
+        </button>
       </div>
 
       <div class="map-shell map-shell--now" id="map-shell">

@@ -1,0 +1,5000 @@
+{
+  "checks": [
+    {
+      "id": "1440 map height",
+      "pass": true,
+      "detail": {
+        "map": 640,
+        "expected": 640
+      }
+    },
+    {
+      "id": "1440 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1772,
+        "w": 1440,
+        "h": 1772,
+        "shown": true
+      }
+    },
+    {
+      "id": "1440 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "iw": 1440
+      }
+    },
+    {
+      "id": "1440 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "container": {
+          "w": 944,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.05981445312501,
+          "e": 125.43090820312501
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "1440 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "1440 desktop Now panel is 360 px wide, beside the map",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "l": 61,
+          "t": 237,
+          "r": 421,
+          "b": 879,
+          "w": 360,
+          "h": 642,
+          "shown": true
+        },
+        "map": {
+          "l": 434,
+          "t": 238,
+          "r": 1378,
+          "b": 878,
+          "w": 944,
+          "h": 640,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1440 desktop: the whole map is on the first screen",
+      "pass": true,
+      "detail": {
+        "mapBottom": 878,
+        "ih": 900
+      }
+    },
+    {
+      "id": "1440 Forecast section composition A: summary above the chart (left), table in a right column of the same height",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 40,
+          "t": 993,
+          "r": 1400,
+          "b": 1063,
+          "w": 1360,
+          "h": 70,
+          "shown": true
+        },
+        "summary": {
+          "l": 40,
+          "t": 1083,
+          "r": 893,
+          "b": 1242,
+          "w": 853,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 40,
+          "t": 1262,
+          "r": 893,
+          "b": 1716,
+          "w": 853,
+          "h": 454,
+          "shown": true
+        },
+        "table": {
+          "l": 913,
+          "t": 1083,
+          "r": 1400,
+          "b": 1716,
+          "w": 487,
+          "h": 634,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1440 B5 region 1: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "1440 B6 region 1: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23.3",
+          "minDay": "on 2026-09-24",
+          "max": "32.4",
+          "maxDay": "on 2026-09-28"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              544,
+              56.030769230769295
+            ],
+            "text": "32.4°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              272.3307692307692
+            ],
+            "text": "23.3°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 B6 region 1: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 region 1: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "1440 region 1: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 31°CMinT 23.3°C",
+          "2026-09-25MaxT 31.4°CMinT 23.4°C",
+          "2026-09-26MaxT 31.4°CMinT 24.1°C",
+          "2026-09-27MaxT 31.6°CMinT 24.1°C",
+          "2026-09-28MaxT 32.4°CMinT 24.4°C",
+          "2026-09-29MaxT 30.9°CMinT 25.3°C",
+          "2026-09-30MaxT 30.3°CMinT 24.6°C"
+        ]
+      }
+    },
+    {
+      "id": "1440 B5 region 4: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "1440 B6 region 4: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23",
+          "minDay": "on 2026-09-24",
+          "max": "32",
+          "maxDay": "on 2026-09-25"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              170.5,
+              65.53846153846155
+            ],
+            "text": "32°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              279.46153846153845
+            ],
+            "text": "23°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 B6 region 4: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 231.49669647216797,
+            "y": 494.3795471191406,
+            "l": 221.85421752929688,
+            "t": 486.8795471191406,
+            "r": 241.13917541503906,
+            "b": 501.8795471191406
+          },
+          {
+            "x": 112.63888549804688,
+            "y": 752.2053833007812,
+            "l": 102.99641418457031,
+            "t": 744.7053833007812,
+            "r": 122.28135681152344,
+            "b": 759.7053833007812
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 region 4: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "1440 region 4: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 30°CMinT 23°C",
+          "2026-09-25MaxT 32°CMinT 23°C",
+          "2026-09-26MaxT 32°CMinT 24°C",
+          "2026-09-27MaxT 31°CMinT 24°C",
+          "2026-09-28MaxT 31°CMinT 24°C",
+          "2026-09-29MaxT 29°CMinT 24°C",
+          "2026-09-30MaxT 30°CMinT 24°C"
+        ]
+      }
+    },
+    {
+      "id": "1440 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "iw": 1440
+      }
+    },
+    {
+      "id": "1440 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "container": {
+          "w": 944,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1440 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "iw": 1440,
+        "leaflet": {
+          "w": 1316,
+          "h": 640
+        },
+        "container": {
+          "w": 1316,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1440 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.05981445312501,
+          "e": 125.43090820312501
+        }
+      }
+    },
+    {
+      "id": "1440 zoom floor: at minZoom 6 the main island spans >= 25 % of the 640 px map",
+      "pass": true,
+      "detail": {
+        "zoom": 6,
+        "ns": 169,
+        "h": 640
+      }
+    },
+    {
+      "id": "1440 resize 1440 -> 768 -> 375 -> 1440: map height follows 440 / 360 / 640, Leaflet size == container, no horizontal scroll, the refitted view holds the main island and 澎湖",
+      "pass": true,
+      "detail": [
+        {
+          "w": 768,
+          "map": 440,
+          "leaflet": {
+            "w": 678,
+            "h": 440
+          },
+          "container": {
+            "w": 678,
+            "h": 440
+          },
+          "sw": 768,
+          "view": {
+            "s": 21.381474908405607,
+            "n": 25.809781975840405,
+            "w": 116.52099609375001,
+            "e": 123.96972656250001
+          }
+        },
+        {
+          "w": 375,
+          "map": 360,
+          "leaflet": {
+            "w": 309,
+            "h": 360
+          },
+          "container": {
+            "w": 309,
+            "h": 360
+          },
+          "sw": 375,
+          "view": {
+            "s": 20.324023603422518,
+            "n": 27.547241546253268,
+            "w": 116.85058593750001,
+            "e": 123.64013671875001
+          }
+        },
+        {
+          "w": 1440,
+          "map": 640,
+          "leaflet": {
+            "w": 944,
+            "h": 640
+          },
+          "container": {
+            "w": 944,
+            "h": 640
+          },
+          "sw": 1440,
+          "view": {
+            "s": 20.72529087399421,
+            "n": 27.147144835991796,
+            "w": 115.05981445312501,
+            "e": 125.43090820312501
+          }
+        }
+      ]
+    },
+    {
+      "id": "1280 map height",
+      "pass": true,
+      "detail": {
+        "map": 640,
+        "expected": 640
+      }
+    },
+    {
+      "id": "1280 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1744,
+        "w": 1280,
+        "h": 1744,
+        "shown": true
+      }
+    },
+    {
+      "id": "1280 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 1280,
+        "iw": 1280
+      }
+    },
+    {
+      "id": "1280 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 787,
+          "h": 640
+        },
+        "container": {
+          "w": 787,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.92773437500001,
+          "e": 124.57397460937501
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "1280 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "1280 desktop Now panel is 360 px wide, beside the map",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "l": 59,
+          "t": 237,
+          "r": 419,
+          "b": 879,
+          "w": 360,
+          "h": 642,
+          "shown": true
+        },
+        "map": {
+          "l": 432,
+          "t": 238,
+          "r": 1220,
+          "b": 878,
+          "w": 787,
+          "h": 640,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1280 desktop: the whole map is on the first screen",
+      "pass": true,
+      "detail": {
+        "mapBottom": 878,
+        "ih": 900
+      }
+    },
+    {
+      "id": "1280 Forecast section composition A: summary above the chart (left), table in a right column of the same height",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 38,
+          "t": 1011,
+          "r": 1242,
+          "b": 1081,
+          "w": 1203,
+          "h": 70,
+          "shown": true
+        },
+        "summary": {
+          "l": 38,
+          "t": 1101,
+          "r": 791,
+          "b": 1260,
+          "w": 753,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 38,
+          "t": 1280,
+          "r": 791,
+          "b": 1688,
+          "w": 753,
+          "h": 408,
+          "shown": true
+        },
+        "table": {
+          "l": 811,
+          "t": 1101,
+          "r": 1242,
+          "b": 1688,
+          "w": 430,
+          "h": 588,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1280 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 1280,
+        "iw": 1280
+      }
+    },
+    {
+      "id": "1280 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 787,
+          "h": 640
+        },
+        "container": {
+          "w": 787,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1280 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 1280,
+        "iw": 1280,
+        "leaflet": {
+          "w": 1159,
+          "h": 640
+        },
+        "container": {
+          "w": 1159,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1280 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 787,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.92773437500001,
+          "e": 124.57397460937501
+        }
+      }
+    },
+    {
+      "id": "1024 map height",
+      "pass": true,
+      "detail": {
+        "map": 640,
+        "expected": 640
+      }
+    },
+    {
+      "id": "1024 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 1741,
+        "w": 1024,
+        "h": 1741,
+        "shown": true
+      }
+    },
+    {
+      "id": "1024 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 1024,
+        "iw": 1024
+      }
+    },
+    {
+      "id": "1024 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 547,
+          "h": 640
+        },
+        "container": {
+          "w": 547,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 117.24609375000001,
+          "e": 123.25561523437501
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "1024 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "1024 desktop Now panel is 360 px wide, beside the map",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "l": 52,
+          "t": 286,
+          "r": 412,
+          "b": 928,
+          "w": 360,
+          "h": 642,
+          "shown": true
+        },
+        "map": {
+          "l": 425,
+          "t": 287,
+          "r": 971,
+          "b": 927,
+          "w": 547,
+          "h": 640,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1024 Forecast section composition A: summary above the chart (left), table in a right column of the same height",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 31,
+          "t": 1077,
+          "r": 993,
+          "b": 1147,
+          "w": 963,
+          "h": 70,
+          "shown": true
+        },
+        "summary": {
+          "l": 31,
+          "t": 1167,
+          "r": 631,
+          "b": 1327,
+          "w": 600,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 31,
+          "t": 1347,
+          "r": 631,
+          "b": 1685,
+          "w": 600,
+          "h": 338,
+          "shown": true
+        },
+        "table": {
+          "l": 651,
+          "t": 1167,
+          "r": 993,
+          "b": 1685,
+          "w": 343,
+          "h": 518,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1024 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 1024,
+        "iw": 1024
+      }
+    },
+    {
+      "id": "1024 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 547,
+          "h": 640
+        },
+        "container": {
+          "w": 547,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1024 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 1024,
+        "iw": 1024,
+        "leaflet": {
+          "w": 919,
+          "h": 640
+        },
+        "container": {
+          "w": 919,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1024 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 547,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 117.24609375000001,
+          "e": 123.25561523437501
+        }
+      }
+    },
+    {
+      "id": "768 map height",
+      "pass": true,
+      "detail": {
+        "map": 440,
+        "expected": 440
+      }
+    },
+    {
+      "id": "768 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2309,
+        "w": 768,
+        "h": 2309,
+        "shown": true
+      }
+    },
+    {
+      "id": "768 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 768,
+        "iw": 768
+      }
+    },
+    {
+      "id": "768 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        },
+        "view": {
+          "s": 21.381474908405607,
+          "n": 25.809781975840405,
+          "w": 116.52099609375001,
+          "e": 123.96972656250001
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "768 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "768 narrow: Forecast section is one column in the order header, summary, chart, table",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 23,
+          "t": 1099,
+          "r": 745,
+          "b": 1201,
+          "w": 722,
+          "h": 102,
+          "shown": true
+        },
+        "summary": {
+          "l": 23,
+          "t": 1221,
+          "r": 745,
+          "b": 1381,
+          "w": 722,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 23,
+          "t": 1401,
+          "r": 745,
+          "b": 1795,
+          "w": 722,
+          "h": 394,
+          "shown": true
+        },
+        "table": {
+          "l": 23,
+          "t": 1815,
+          "r": 745,
+          "b": 2253,
+          "w": 722,
+          "h": 438,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "768 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 768,
+        "iw": 768
+      }
+    },
+    {
+      "id": "768 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        }
+      }
+    },
+    {
+      "id": "768 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 768,
+        "iw": 768,
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        }
+      }
+    },
+    {
+      "id": "768 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "view": {
+          "s": 21.381474908405607,
+          "n": 25.809781975840405,
+          "w": 116.52099609375001,
+          "e": 123.96972656250001
+        }
+      }
+    },
+    {
+      "id": "375 map height",
+      "pass": true,
+      "detail": {
+        "map": 360,
+        "expected": 360
+      }
+    },
+    {
+      "id": "375 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2580,
+        "w": 375,
+        "h": 2580,
+        "shown": true
+      }
+    },
+    {
+      "id": "375 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        },
+        "view": {
+          "s": 20.324023603422518,
+          "n": 27.547241546253268,
+          "w": 116.85058593750001,
+          "e": 123.64013671875001
+        },
+        "zoom": 6
+      }
+    },
+    {
+      "id": "375 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "375 narrow: Forecast section is one column in the order header, summary, chart, table",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 16,
+          "t": 1194,
+          "r": 359,
+          "b": 1353,
+          "w": 343,
+          "h": 159,
+          "shown": true
+        },
+        "summary": {
+          "l": 16,
+          "t": 1373,
+          "r": 359,
+          "b": 1657,
+          "w": 343,
+          "h": 284,
+          "shown": true
+        },
+        "chart": {
+          "l": 16,
+          "t": 1677,
+          "r": 359,
+          "b": 2075,
+          "w": 343,
+          "h": 398,
+          "shown": true
+        },
+        "table": {
+          "l": 16,
+          "t": 2095,
+          "r": 359,
+          "b": 2524,
+          "w": 343,
+          "h": 428,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "375 B5 region 1: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "375 B6 region 1: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23.3",
+          "minDay": "on 2026-09-24",
+          "max": "32.4",
+          "maxDay": "on 2026-09-28"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              210.66666666666666,
+              47.046153846153885
+            ],
+            "text": "32.4°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              212.24615384615385
+            ],
+            "text": "23.3°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 B6 region 1: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 242.71257781982422,
+            "y": 281.593017578125,
+            "l": 227.9635467529297,
+            "t": 274.093017578125,
+            "r": 257.46160888671875,
+            "b": 289.093017578125
+          },
+          {
+            "x": 88.7490234375,
+            "y": 490.79302978515625,
+            "l": 74,
+            "t": 483.29302978515625,
+            "r": 103.498046875,
+            "b": 498.29302978515625
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 region 1: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "375 region 1: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 31°CMinT 23.3°C",
+          "2026-09-25MaxT 31.4°CMinT 23.4°C",
+          "2026-09-26MaxT 31.4°CMinT 24.1°C",
+          "2026-09-27MaxT 31.6°CMinT 24.1°C",
+          "2026-09-28MaxT 32.4°CMinT 24.4°C",
+          "2026-09-29MaxT 30.9°CMinT 25.3°C",
+          "2026-09-30MaxT 30.3°CMinT 24.6°C"
+        ]
+      }
+    },
+    {
+      "id": "375 B5 region 4: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "375 B6 region 4: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23",
+          "minDay": "on 2026-09-24",
+          "max": "32",
+          "maxDay": "on 2026-09-25"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              87.16666666666666,
+              54.30769230769232
+            ],
+            "text": "32°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              217.69230769230768
+            ],
+            "text": "23°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 B6 region 4: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 119.21353530883789,
+            "y": 288.85455322265625,
+            "l": 109.56510162353516,
+            "t": 281.35455322265625,
+            "r": 128.86196899414062,
+            "b": 296.35455322265625
+          },
+          {
+            "x": 83.6484375,
+            "y": 496.23919677734375,
+            "l": 74,
+            "t": 488.73919677734375,
+            "r": 93.296875,
+            "b": 503.73919677734375
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 region 4: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "375 region 4: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 30°CMinT 23°C",
+          "2026-09-25MaxT 32°CMinT 23°C",
+          "2026-09-26MaxT 32°CMinT 24°C",
+          "2026-09-27MaxT 31°CMinT 24°C",
+          "2026-09-28MaxT 31°CMinT 24°C",
+          "2026-09-29MaxT 29°CMinT 24°C",
+          "2026-09-30MaxT 30°CMinT 24°C"
+        ]
+      }
+    },
+    {
+      "id": "375 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        }
+      }
+    },
+    {
+      "id": "375 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 375,
+        "iw": 375,
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        }
+      }
+    },
+    {
+      "id": "375 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "view": {
+          "s": 20.324023603422518,
+          "n": 27.547241546253268,
+          "w": 116.85058593750001,
+          "e": 123.64013671875001
+        }
+      }
+    },
+    {
+      "id": "1440-dark B5 dark: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "1440-dark B6 dark: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23.3",
+          "minDay": "on 2026-09-24",
+          "max": "32.4",
+          "maxDay": "on 2026-09-28"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              544,
+              56.030769230769295
+            ],
+            "text": "32.4°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              272.3307692307692
+            ],
+            "text": "23.3°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440-dark B6 dark: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440-dark dark: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "1440-dark dark: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 31°CMinT 23.3°C",
+          "2026-09-25MaxT 31.4°CMinT 23.4°C",
+          "2026-09-26MaxT 31.4°CMinT 24.1°C",
+          "2026-09-27MaxT 31.6°CMinT 24.1°C",
+          "2026-09-28MaxT 32.4°CMinT 24.4°C",
+          "2026-09-29MaxT 30.9°CMinT 25.3°C",
+          "2026-09-30MaxT 30.3°CMinT 24.6°C"
+        ]
+      }
+    },
+    {
+      "id": "1440-dark dark scheme renders with no horizontal scroll and the 640 px map",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "map": 640
+      }
+    },
+    {
+      "id": "theme-1440-syslight no saved choice: the page follows the system and the switch shows it",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-syslight the switch is a visible 'Dark mode' button, >= 44 x 44, on the first screen; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-syslight keyboard: the mode switch is still the first Tab stop; the theme switch follows it",
+      "pass": true,
+      "detail": {
+        "first": "mode-now",
+        "third": "theme-toggle"
+      }
+    },
+    {
+      "id": "theme-1440-syslight Enter on the switch flips the page theme (tokens, background) and aria-pressed",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-syslight the Taiwan Map card stays dark in both themes (P-1)",
+      "pass": true,
+      "detail": {
+        "before": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "after": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)"
+      }
+    },
+    {
+      "id": "theme-1440-syslight the choice is remembered after a reload",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-syslight clicking again switches back",
+      "pass": true,
+      "detail": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-sysdark no saved choice: the page follows the system and the switch shows it",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-sysdark the switch is a visible 'Dark mode' button, >= 44 x 44, on the first screen; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-sysdark keyboard: the mode switch is still the first Tab stop; the theme switch follows it",
+      "pass": true,
+      "detail": {
+        "first": "mode-now",
+        "third": "theme-toggle"
+      }
+    },
+    {
+      "id": "theme-1440-sysdark Enter on the switch flips the page theme (tokens, background) and aria-pressed",
+      "pass": true,
+      "detail": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-sysdark the Taiwan Map card stays dark in both themes (P-1)",
+      "pass": true,
+      "detail": {
+        "before": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "after": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)"
+      }
+    },
+    {
+      "id": "theme-1440-sysdark the choice is remembered after a reload",
+      "pass": true,
+      "detail": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-1440-sysdark clicking again switches back",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    {
+      "id": "theme-375-syslight no saved choice: the page follows the system and the switch shows it",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-syslight the switch is a visible 'Dark mode' button, >= 44 x 44, on the first screen; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-syslight keyboard: the mode switch is still the first Tab stop; the theme switch follows it",
+      "pass": true,
+      "detail": {
+        "first": "mode-now",
+        "third": "theme-toggle"
+      }
+    },
+    {
+      "id": "theme-375-syslight Enter on the switch flips the page theme (tokens, background) and aria-pressed",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-syslight the Taiwan Map card stays dark in both themes (P-1)",
+      "pass": true,
+      "detail": {
+        "before": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "after": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)"
+      }
+    },
+    {
+      "id": "theme-375-syslight the choice is remembered after a reload",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-syslight clicking again switches back",
+      "pass": true,
+      "detail": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-sysdark no saved choice: the page follows the system and the switch shows it",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-sysdark the switch is a visible 'Dark mode' button, >= 44 x 44, on the first screen; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "theme": null,
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-sysdark keyboard: the mode switch is still the first Tab stop; the theme switch follows it",
+      "pass": true,
+      "detail": {
+        "first": "mode-now",
+        "third": "theme-toggle"
+      }
+    },
+    {
+      "id": "theme-375-sysdark Enter on the switch flips the page theme (tokens, background) and aria-pressed",
+      "pass": true,
+      "detail": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-sysdark the Taiwan Map card stays dark in both themes (P-1)",
+      "pass": true,
+      "detail": {
+        "before": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "after": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)"
+      }
+    },
+    {
+      "id": "theme-375-sysdark the choice is remembered after a reload",
+      "pass": true,
+      "detail": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    {
+      "id": "theme-375-sysdark clicking again switches back",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    }
+  ],
+  "geometry": {
+    "1440-now": {
+      "iw": 1440,
+      "ih": 900,
+      "sw": 1440,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1772,
+        "w": 1440,
+        "h": 1772,
+        "shown": true
+      },
+      "masthead": {
+        "l": 40,
+        "t": 28,
+        "r": 1400,
+        "b": 130,
+        "w": 1360,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 40,
+        "t": 150,
+        "r": 1400,
+        "b": 969,
+        "w": 1360,
+        "h": 818,
+        "shown": true
+      },
+      "toggle": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 434,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 944,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 61,
+        "t": 237,
+        "r": 421,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1716,
+        "w": 1360,
+        "h": 724,
+        "shown": true
+      },
+      "controls": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1063,
+        "w": 1360,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 40,
+        "t": 1083,
+        "r": 893,
+        "b": 1242,
+        "w": 853,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 40,
+        "t": 1262,
+        "r": 893,
+        "b": 1716,
+        "w": 853,
+        "h": 454,
+        "shown": true
+      },
+      "table": {
+        "l": 913,
+        "t": 1083,
+        "r": 1400,
+        "b": 1716,
+        "w": 487,
+        "h": 634,
+        "shown": true
+      },
+      "notes": {
+        "l": 433,
+        "t": 889,
+        "r": 1379,
+        "b": 948,
+        "w": 946,
+        "h": 58,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 944,
+        "h": 640
+      },
+      "container": {
+        "w": 944,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 115.05981445312501,
+        "e": 125.43090820312501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1440-chart-region 1": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            544,
+            56.030769230769295
+          ],
+          "text": "32.4°",
+          "label": {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          "ringBox": {
+            "x": 604.8071594238281,
+            "y": 506.36903381347656,
+            "l": 596.3103637695312,
+            "t": 497.8722229003906,
+            "r": 613.303955078125,
+            "b": 514.8658447265625
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            272.3307692307692
+          ],
+          "text": "23.3°",
+          "label": {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          },
+          "ringBox": {
+            "x": 106.99491119384766,
+            "y": 722.5874938964844,
+            "l": 98.49811553955078,
+            "t": 714.0906982421875,
+            "r": 115.49170684814453,
+            "b": 731.0842895507812
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23.3",
+        "minDay": "on 2026-09-24",
+        "max": "32.4",
+        "maxDay": "on 2026-09-28"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23.3",
+          "31"
+        ],
+        [
+          "2026-09-25",
+          "23.4",
+          "31.4"
+        ],
+        [
+          "2026-09-26",
+          "24.1",
+          "31.4"
+        ],
+        [
+          "2026-09-27",
+          "24.1",
+          "31.6"
+        ],
+        [
+          "2026-09-28",
+          "24.4",
+          "32.4"
+        ],
+        [
+          "2026-09-29",
+          "25.3",
+          "30.9"
+        ],
+        [
+          "2026-09-30",
+          "24.6",
+          "30.3"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
+    "1440-chart-region 4": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            170.5,
+            65.53846153846155
+          ],
+          "text": "32°",
+          "label": {
+            "x": 231.49669647216797,
+            "y": 494.3795471191406,
+            "l": 221.85421752929688,
+            "t": 486.8795471191406,
+            "r": 241.13917541503906,
+            "b": 501.8795471191406
+          },
+          "ringBox": {
+            "x": 231.44796752929688,
+            "y": 515.8731384277344,
+            "l": 222.951171875,
+            "t": 507.3763427734375,
+            "r": 239.94476318359375,
+            "b": 524.3699340820312
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            279.46153846153845
+          ],
+          "text": "23°",
+          "label": {
+            "x": 112.63888549804688,
+            "y": 752.2053833007812,
+            "l": 102.99641418457031,
+            "t": 744.7053833007812,
+            "r": 122.28135681152344,
+            "b": 759.7053833007812
+          },
+          "ringBox": {
+            "x": 106.99491119384766,
+            "y": 729.715576171875,
+            "l": 98.49811553955078,
+            "t": 721.21875,
+            "r": 115.49170684814453,
+            "b": 738.21240234375
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23",
+        "minDay": "on 2026-09-24",
+        "max": "32",
+        "maxDay": "on 2026-09-25"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23",
+          "30"
+        ],
+        [
+          "2026-09-25",
+          "23",
+          "32"
+        ],
+        [
+          "2026-09-26",
+          "24",
+          "32"
+        ],
+        [
+          "2026-09-27",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-28",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-29",
+          "24",
+          "29"
+        ],
+        [
+          "2026-09-30",
+          "24",
+          "30"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
+    "1440-county": {
+      "iw": 1440,
+      "ih": 900,
+      "sw": 1440,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1772,
+        "w": 1440,
+        "h": 1772,
+        "shown": true
+      },
+      "masthead": {
+        "l": 40,
+        "t": 28,
+        "r": 1400,
+        "b": 130,
+        "w": 1360,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 40,
+        "t": 150,
+        "r": 1400,
+        "b": 969,
+        "w": 1360,
+        "h": 818,
+        "shown": true
+      },
+      "toggle": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 434,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 944,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 61,
+        "t": 237,
+        "r": 421,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1716,
+        "w": 1360,
+        "h": 724,
+        "shown": true
+      },
+      "controls": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1063,
+        "w": 1360,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 40,
+        "t": 1083,
+        "r": 893,
+        "b": 1242,
+        "w": 853,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 40,
+        "t": 1262,
+        "r": 893,
+        "b": 1716,
+        "w": 853,
+        "h": 454,
+        "shown": true
+      },
+      "table": {
+        "l": 913,
+        "t": 1083,
+        "r": 1400,
+        "b": 1716,
+        "w": 487,
+        "h": 634,
+        "shown": true
+      },
+      "notes": {
+        "l": 433,
+        "t": 889,
+        "r": 1379,
+        "b": 948,
+        "w": 946,
+        "h": 58,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 944,
+        "h": 640
+      },
+      "container": {
+        "w": 944,
+        "h": 640
+      },
+      "zoom": 9,
+      "view": {
+        "s": 22.92804166565176,
+        "n": 24.53712939907994,
+        "w": 120.08605957031251,
+        "e": 122.67883300781251
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1440-forecast": {
+      "iw": 1440,
+      "ih": 900,
+      "sw": 1440,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1704,
+        "w": 1440,
+        "h": 1704,
+        "shown": true
+      },
+      "masthead": {
+        "l": 40,
+        "t": 28,
+        "r": 1400,
+        "b": 130,
+        "w": 1360,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 40,
+        "t": 150,
+        "r": 1400,
+        "b": 900,
+        "w": 1360,
+        "h": 750,
+        "shown": true
+      },
+      "toggle": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 62,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 1316,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 75,
+        "t": 251,
+        "r": 363,
+        "b": 664,
+        "w": 288,
+        "h": 413,
+        "shown": true
+      },
+      "section": {
+        "l": 40,
+        "t": 924,
+        "r": 1400,
+        "b": 1648,
+        "w": 1360,
+        "h": 724,
+        "shown": true
+      },
+      "controls": {
+        "l": 40,
+        "t": 924,
+        "r": 1400,
+        "b": 994,
+        "w": 1360,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 40,
+        "t": 1014,
+        "r": 893,
+        "b": 1174,
+        "w": 853,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 40,
+        "t": 1194,
+        "r": 893,
+        "b": 1648,
+        "w": 853,
+        "h": 454,
+        "shown": true
+      },
+      "table": {
+        "l": 913,
+        "t": 1014,
+        "r": 1400,
+        "b": 1648,
+        "w": 487,
+        "h": 634,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 1316,
+        "h": 640
+      },
+      "container": {
+        "w": 1316,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 113.01635742187501,
+        "e": 127.47436523437501
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "1440-zoom-floor": {
+      "zoom": 6,
+      "ns": 169,
+      "h": 640
+    },
+    "resize-sequence": [
+      {
+        "w": 768,
+        "map": 440,
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        },
+        "sw": 768,
+        "view": {
+          "s": 21.381474908405607,
+          "n": 25.809781975840405,
+          "w": 116.52099609375001,
+          "e": 123.96972656250001
+        }
+      },
+      {
+        "w": 375,
+        "map": 360,
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        },
+        "sw": 375,
+        "view": {
+          "s": 20.324023603422518,
+          "n": 27.547241546253268,
+          "w": 116.85058593750001,
+          "e": 123.64013671875001
+        }
+      },
+      {
+        "w": 1440,
+        "map": 640,
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "container": {
+          "w": 944,
+          "h": 640
+        },
+        "sw": 1440,
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.05981445312501,
+          "e": 125.43090820312501
+        }
+      }
+    ],
+    "1280-now": {
+      "iw": 1280,
+      "ih": 900,
+      "sw": 1280,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1744,
+        "w": 1280,
+        "h": 1744,
+        "shown": true
+      },
+      "masthead": {
+        "l": 38,
+        "t": 28,
+        "r": 1242,
+        "b": 130,
+        "w": 1203,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 38,
+        "t": 150,
+        "r": 1242,
+        "b": 987,
+        "w": 1203,
+        "h": 837,
+        "shown": true
+      },
+      "toggle": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 432,
+        "t": 238,
+        "r": 1220,
+        "b": 878,
+        "w": 787,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 59,
+        "t": 237,
+        "r": 419,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1688,
+        "w": 1203,
+        "h": 678,
+        "shown": true
+      },
+      "controls": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1081,
+        "w": 1203,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 38,
+        "t": 1101,
+        "r": 791,
+        "b": 1260,
+        "w": 753,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 38,
+        "t": 1280,
+        "r": 791,
+        "b": 1688,
+        "w": 753,
+        "h": 408,
+        "shown": true
+      },
+      "table": {
+        "l": 811,
+        "t": 1101,
+        "r": 1242,
+        "b": 1688,
+        "w": 430,
+        "h": 588,
+        "shown": true
+      },
+      "notes": {
+        "l": 431,
+        "t": 889,
+        "r": 1221,
+        "b": 966,
+        "w": 789,
+        "h": 77,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 787,
+        "h": 640
+      },
+      "container": {
+        "w": 787,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 115.92773437500001,
+        "e": 124.57397460937501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1280-county": {
+      "iw": 1280,
+      "ih": 900,
+      "sw": 1280,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1744,
+        "w": 1280,
+        "h": 1744,
+        "shown": true
+      },
+      "masthead": {
+        "l": 38,
+        "t": 28,
+        "r": 1242,
+        "b": 130,
+        "w": 1203,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 38,
+        "t": 150,
+        "r": 1242,
+        "b": 987,
+        "w": 1203,
+        "h": 837,
+        "shown": true
+      },
+      "toggle": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 432,
+        "t": 238,
+        "r": 1220,
+        "b": 878,
+        "w": 787,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 59,
+        "t": 237,
+        "r": 419,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1688,
+        "w": 1203,
+        "h": 678,
+        "shown": true
+      },
+      "controls": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1081,
+        "w": 1203,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 38,
+        "t": 1101,
+        "r": 791,
+        "b": 1260,
+        "w": 753,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 38,
+        "t": 1280,
+        "r": 791,
+        "b": 1688,
+        "w": 753,
+        "h": 408,
+        "shown": true
+      },
+      "table": {
+        "l": 811,
+        "t": 1101,
+        "r": 1242,
+        "b": 1688,
+        "w": 430,
+        "h": 588,
+        "shown": true
+      },
+      "notes": {
+        "l": 431,
+        "t": 889,
+        "r": 1221,
+        "b": 966,
+        "w": 789,
+        "h": 77,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 787,
+        "h": 640
+      },
+      "container": {
+        "w": 787,
+        "h": 640
+      },
+      "zoom": 9,
+      "view": {
+        "s": 22.92804166565176,
+        "n": 24.53712939907994,
+        "w": 120.30029296875001,
+        "e": 122.46185302734376
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1280-forecast": {
+      "iw": 1280,
+      "ih": 900,
+      "sw": 1280,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1658,
+        "w": 1280,
+        "h": 1658,
+        "shown": true
+      },
+      "masthead": {
+        "l": 38,
+        "t": 28,
+        "r": 1242,
+        "b": 130,
+        "w": 1203,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 38,
+        "t": 150,
+        "r": 1242,
+        "b": 900,
+        "w": 1203,
+        "h": 750,
+        "shown": true
+      },
+      "toggle": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 60,
+        "t": 238,
+        "r": 1220,
+        "b": 878,
+        "w": 1159,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 73,
+        "t": 251,
+        "r": 361,
+        "b": 664,
+        "w": 288,
+        "h": 413,
+        "shown": true
+      },
+      "section": {
+        "l": 38,
+        "t": 924,
+        "r": 1242,
+        "b": 1602,
+        "w": 1203,
+        "h": 678,
+        "shown": true
+      },
+      "controls": {
+        "l": 38,
+        "t": 924,
+        "r": 1242,
+        "b": 994,
+        "w": 1203,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 38,
+        "t": 1014,
+        "r": 791,
+        "b": 1174,
+        "w": 753,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 38,
+        "t": 1194,
+        "r": 791,
+        "b": 1602,
+        "w": 753,
+        "h": 408,
+        "shown": true
+      },
+      "table": {
+        "l": 811,
+        "t": 1014,
+        "r": 1242,
+        "b": 1602,
+        "w": 430,
+        "h": 588,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 1159,
+        "h": 640
+      },
+      "container": {
+        "w": 1159,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 113.88427734375,
+        "e": 126.61743164062501
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "1024-now": {
+      "iw": 1024,
+      "ih": 768,
+      "sw": 1024,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 1741,
+        "w": 1024,
+        "h": 1741,
+        "shown": true
+      },
+      "masthead": {
+        "l": 31,
+        "t": 25,
+        "r": 993,
+        "b": 127,
+        "w": 963,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 31,
+        "t": 147,
+        "r": 993,
+        "b": 1053,
+        "w": 963,
+        "h": 907,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 425,
+        "t": 287,
+        "r": 971,
+        "b": 927,
+        "w": 547,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 52,
+        "t": 286,
+        "r": 412,
+        "b": 928,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 31,
+        "t": 1077,
+        "r": 993,
+        "b": 1685,
+        "w": 963,
+        "h": 608,
+        "shown": true
+      },
+      "controls": {
+        "l": 31,
+        "t": 1077,
+        "r": 993,
+        "b": 1147,
+        "w": 963,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 31,
+        "t": 1167,
+        "r": 631,
+        "b": 1327,
+        "w": 600,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 31,
+        "t": 1347,
+        "r": 631,
+        "b": 1685,
+        "w": 600,
+        "h": 338,
+        "shown": true
+      },
+      "table": {
+        "l": 651,
+        "t": 1167,
+        "r": 993,
+        "b": 1685,
+        "w": 343,
+        "h": 518,
+        "shown": true
+      },
+      "notes": {
+        "l": 424,
+        "t": 938,
+        "r": 972,
+        "b": 1032,
+        "w": 549,
+        "h": 95,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 547,
+        "h": 640
+      },
+      "container": {
+        "w": 547,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 117.24609375000001,
+        "e": 123.25561523437501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1024-county": {
+      "iw": 1024,
+      "ih": 768,
+      "sw": 1024,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 1689,
+        "w": 1024,
+        "h": 1689,
+        "shown": true
+      },
+      "masthead": {
+        "l": 31,
+        "t": 25,
+        "r": 993,
+        "b": 127,
+        "w": 963,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 31,
+        "t": 147,
+        "r": 993,
+        "b": 1001,
+        "w": 963,
+        "h": 855,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 425,
+        "t": 235,
+        "r": 971,
+        "b": 875,
+        "w": 547,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 52,
+        "t": 234,
+        "r": 412,
+        "b": 876,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 31,
+        "t": 1025,
+        "r": 993,
+        "b": 1633,
+        "w": 963,
+        "h": 608,
+        "shown": true
+      },
+      "controls": {
+        "l": 31,
+        "t": 1025,
+        "r": 993,
+        "b": 1095,
+        "w": 963,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 31,
+        "t": 1115,
+        "r": 631,
+        "b": 1275,
+        "w": 600,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 31,
+        "t": 1295,
+        "r": 631,
+        "b": 1633,
+        "w": 600,
+        "h": 338,
+        "shown": true
+      },
+      "table": {
+        "l": 651,
+        "t": 1115,
+        "r": 993,
+        "b": 1633,
+        "w": 343,
+        "h": 518,
+        "shown": true
+      },
+      "notes": {
+        "l": 424,
+        "t": 886,
+        "r": 972,
+        "b": 980,
+        "w": 549,
+        "h": 95,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 547,
+        "h": 640
+      },
+      "container": {
+        "w": 547,
+        "h": 640
+      },
+      "zoom": 9,
+      "view": {
+        "s": 22.92804166565176,
+        "n": 24.53712939907994,
+        "w": 120.6298828125,
+        "e": 122.13226318359376
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1024-forecast": {
+      "iw": 1024,
+      "ih": 768,
+      "sw": 1024,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 2134,
+        "w": 1024,
+        "h": 2134,
+        "shown": true
+      },
+      "masthead": {
+        "l": 31,
+        "t": 25,
+        "r": 993,
+        "b": 127,
+        "w": 963,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 31,
+        "t": 147,
+        "r": 993,
+        "b": 1446,
+        "w": 963,
+        "h": 1299,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 53,
+        "t": 623,
+        "r": 971,
+        "b": 1263,
+        "w": 919,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 52,
+        "t": 234,
+        "r": 972,
+        "b": 612,
+        "w": 921,
+        "h": 378,
+        "shown": true
+      },
+      "section": {
+        "l": 31,
+        "t": 1470,
+        "r": 993,
+        "b": 2078,
+        "w": 963,
+        "h": 608,
+        "shown": true
+      },
+      "controls": {
+        "l": 31,
+        "t": 1470,
+        "r": 993,
+        "b": 1540,
+        "w": 963,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 31,
+        "t": 1560,
+        "r": 631,
+        "b": 1720,
+        "w": 600,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 31,
+        "t": 1740,
+        "r": 631,
+        "b": 2078,
+        "w": 600,
+        "h": 338,
+        "shown": true
+      },
+      "table": {
+        "l": 651,
+        "t": 1560,
+        "r": 993,
+        "b": 2078,
+        "w": 343,
+        "h": 518,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 919,
+        "h": 640
+      },
+      "container": {
+        "w": 919,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 115.20263671875001,
+        "e": 125.29907226562501
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "768-now": {
+      "iw": 768,
+      "ih": 1024,
+      "sw": 768,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2309,
+        "w": 768,
+        "h": 2309,
+        "shown": true
+      },
+      "masthead": {
+        "l": 23,
+        "t": 18,
+        "r": 745,
+        "b": 184,
+        "w": 722,
+        "h": 165,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 23,
+        "t": 204,
+        "r": 745,
+        "b": 1075,
+        "w": 722,
+        "h": 871,
+        "shown": true
+      },
+      "toggle": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 45,
+        "t": 526,
+        "r": 723,
+        "b": 966,
+        "w": 678,
+        "h": 440,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 44,
+        "t": 343,
+        "r": 724,
+        "b": 515,
+        "w": 680,
+        "h": 173,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 23,
+        "t": 1099,
+        "r": 745,
+        "b": 2253,
+        "w": 722,
+        "h": 1155,
+        "shown": true
+      },
+      "controls": {
+        "l": 23,
+        "t": 1099,
+        "r": 745,
+        "b": 1201,
+        "w": 722,
+        "h": 102,
+        "shown": true
+      },
+      "summary": {
+        "l": 23,
+        "t": 1221,
+        "r": 745,
+        "b": 1381,
+        "w": 722,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 23,
+        "t": 1401,
+        "r": 745,
+        "b": 1795,
+        "w": 722,
+        "h": 394,
+        "shown": true
+      },
+      "table": {
+        "l": 23,
+        "t": 1815,
+        "r": 745,
+        "b": 2253,
+        "w": 722,
+        "h": 438,
+        "shown": true
+      },
+      "notes": {
+        "l": 44,
+        "t": 977,
+        "r": 724,
+        "b": 1054,
+        "w": 680,
+        "h": 77,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 678,
+        "h": 440
+      },
+      "container": {
+        "w": 678,
+        "h": 440
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.381474908405607,
+        "n": 25.809781975840405,
+        "w": 116.52099609375001,
+        "e": 123.96972656250001
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "768-county": {
+      "iw": 768,
+      "ih": 1024,
+      "sw": 768,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2380,
+        "w": 768,
+        "h": 2380,
+        "shown": true
+      },
+      "masthead": {
+        "l": 23,
+        "t": 18,
+        "r": 745,
+        "b": 184,
+        "w": 722,
+        "h": 165,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 23,
+        "t": 204,
+        "r": 745,
+        "b": 1145,
+        "w": 722,
+        "h": 941,
+        "shown": true
+      },
+      "toggle": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 45,
+        "t": 578,
+        "r": 723,
+        "b": 1018,
+        "w": 678,
+        "h": 440,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 44,
+        "t": 343,
+        "r": 724,
+        "b": 567,
+        "w": 680,
+        "h": 225,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 23,
+        "t": 1169,
+        "r": 745,
+        "b": 2324,
+        "w": 722,
+        "h": 1155,
+        "shown": true
+      },
+      "controls": {
+        "l": 23,
+        "t": 1169,
+        "r": 745,
+        "b": 1271,
+        "w": 722,
+        "h": 102,
+        "shown": true
+      },
+      "summary": {
+        "l": 23,
+        "t": 1291,
+        "r": 745,
+        "b": 1451,
+        "w": 722,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 23,
+        "t": 1471,
+        "r": 745,
+        "b": 1865,
+        "w": 722,
+        "h": 394,
+        "shown": true
+      },
+      "table": {
+        "l": 23,
+        "t": 1885,
+        "r": 745,
+        "b": 2324,
+        "w": 722,
+        "h": 438,
+        "shown": true
+      },
+      "notes": {
+        "l": 44,
+        "t": 1029,
+        "r": 724,
+        "b": 1124,
+        "w": 680,
+        "h": 95,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 678,
+        "h": 440
+      },
+      "container": {
+        "w": 678,
+        "h": 440
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.197216077387107,
+        "n": 25.631621577258493,
+        "w": 116.52099609375001,
+        "e": 123.96972656250001
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "768-forecast": {
+      "iw": 768,
+      "ih": 1024,
+      "sw": 768,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2590,
+        "w": 768,
+        "h": 2590,
+        "shown": true
+      },
+      "masthead": {
+        "l": 23,
+        "t": 18,
+        "r": 745,
+        "b": 184,
+        "w": 722,
+        "h": 165,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 23,
+        "t": 204,
+        "r": 745,
+        "b": 1355,
+        "w": 722,
+        "h": 1151,
+        "shown": true
+      },
+      "toggle": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 45,
+        "t": 732,
+        "r": 723,
+        "b": 1172,
+        "w": 678,
+        "h": 440,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 44,
+        "t": 343,
+        "r": 724,
+        "b": 721,
+        "w": 680,
+        "h": 378,
+        "shown": true
+      },
+      "section": {
+        "l": 23,
+        "t": 1379,
+        "r": 745,
+        "b": 2534,
+        "w": 722,
+        "h": 1155,
+        "shown": true
+      },
+      "controls": {
+        "l": 23,
+        "t": 1379,
+        "r": 745,
+        "b": 1482,
+        "w": 722,
+        "h": 102,
+        "shown": true
+      },
+      "summary": {
+        "l": 23,
+        "t": 1502,
+        "r": 745,
+        "b": 1661,
+        "w": 722,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 23,
+        "t": 1681,
+        "r": 745,
+        "b": 2075,
+        "w": 722,
+        "h": 394,
+        "shown": true
+      },
+      "table": {
+        "l": 23,
+        "t": 2095,
+        "r": 745,
+        "b": 2534,
+        "w": 722,
+        "h": 438,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 678,
+        "h": 440
+      },
+      "container": {
+        "w": 678,
+        "h": 440
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.381474908405607,
+        "n": 25.809781975840405,
+        "w": 116.52099609375001,
+        "e": 123.96972656250001
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "375-now": {
+      "iw": 375,
+      "ih": 812,
+      "sw": 375,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2580,
+        "w": 375,
+        "h": 2580,
+        "shown": true
+      },
+      "masthead": {
+        "l": 16,
+        "t": 16,
+        "r": 359,
+        "b": 209,
+        "w": 343,
+        "h": 193,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 16,
+        "t": 223,
+        "r": 359,
+        "b": 1170,
+        "w": 343,
+        "h": 947,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 33,
+        "t": 616,
+        "r": 342,
+        "b": 976,
+        "w": 309,
+        "h": 360,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 32,
+        "t": 357,
+        "r": 343,
+        "b": 605,
+        "w": 311,
+        "h": 248,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 16,
+        "t": 1194,
+        "r": 359,
+        "b": 2524,
+        "w": 343,
+        "h": 1330,
+        "shown": true
+      },
+      "controls": {
+        "l": 16,
+        "t": 1194,
+        "r": 359,
+        "b": 1353,
+        "w": 343,
+        "h": 159,
+        "shown": true
+      },
+      "summary": {
+        "l": 16,
+        "t": 1373,
+        "r": 359,
+        "b": 1657,
+        "w": 343,
+        "h": 284,
+        "shown": true
+      },
+      "chart": {
+        "l": 16,
+        "t": 1677,
+        "r": 359,
+        "b": 2075,
+        "w": 343,
+        "h": 398,
+        "shown": true
+      },
+      "table": {
+        "l": 16,
+        "t": 2095,
+        "r": 359,
+        "b": 2524,
+        "w": 343,
+        "h": 428,
+        "shown": true
+      },
+      "notes": {
+        "l": 32,
+        "t": 987,
+        "r": 343,
+        "b": 1154,
+        "w": 311,
+        "h": 167,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 309,
+        "h": 360
+      },
+      "container": {
+        "w": 309,
+        "h": 360
+      },
+      "zoom": 6,
+      "view": {
+        "s": 20.324023603422518,
+        "n": 27.547241546253268,
+        "w": 116.85058593750001,
+        "e": 123.64013671875001
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "375-chart-region 1": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            210.66666666666666,
+            47.046153846153885
+          ],
+          "text": "32.4°",
+          "label": {
+            "x": 242.71257781982422,
+            "y": 281.593017578125,
+            "l": 227.9635467529297,
+            "t": 274.093017578125,
+            "r": 257.46160888671875,
+            "b": 289.093017578125
+          },
+          "ringBox": {
+            "x": 242.6666717529297,
+            "y": 303.093017578125,
+            "l": 234.1666717529297,
+            "t": 294.593017578125,
+            "r": 251.1666717529297,
+            "b": 311.593017578125
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            212.24615384615385
+          ],
+          "text": "23.3°",
+          "label": {
+            "x": 88.7490234375,
+            "y": 490.79302978515625,
+            "l": 74,
+            "t": 483.29302978515625,
+            "r": 103.498046875,
+            "b": 498.29302978515625
+          },
+          "ringBox": {
+            "x": 78,
+            "y": 468.29302978515625,
+            "l": 69.5,
+            "t": 459.79302978515625,
+            "r": 86.5,
+            "b": 476.79302978515625
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23.3",
+        "minDay": "on 2026-09-24",
+        "max": "32.4",
+        "maxDay": "on 2026-09-28"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23.3",
+          "31"
+        ],
+        [
+          "2026-09-25",
+          "23.4",
+          "31.4"
+        ],
+        [
+          "2026-09-26",
+          "24.1",
+          "31.4"
+        ],
+        [
+          "2026-09-27",
+          "24.1",
+          "31.6"
+        ],
+        [
+          "2026-09-28",
+          "24.4",
+          "32.4"
+        ],
+        [
+          "2026-09-29",
+          "25.3",
+          "30.9"
+        ],
+        [
+          "2026-09-30",
+          "24.6",
+          "30.3"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
+    "375-chart-region 4": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            87.16666666666666,
+            54.30769230769232
+          ],
+          "text": "32°",
+          "label": {
+            "x": 119.21353530883789,
+            "y": 288.85455322265625,
+            "l": 109.56510162353516,
+            "t": 281.35455322265625,
+            "r": 128.86196899414062,
+            "b": 296.35455322265625
+          },
+          "ringBox": {
+            "x": 119.16666412353516,
+            "y": 310.35455322265625,
+            "l": 110.66666412353516,
+            "t": 301.85455322265625,
+            "r": 127.66666412353516,
+            "b": 318.85455322265625
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            217.69230769230768
+          ],
+          "text": "23°",
+          "label": {
+            "x": 83.6484375,
+            "y": 496.23919677734375,
+            "l": 74,
+            "t": 488.73919677734375,
+            "r": 93.296875,
+            "b": 503.73919677734375
+          },
+          "ringBox": {
+            "x": 78,
+            "y": 473.73919677734375,
+            "l": 69.5,
+            "t": 465.23919677734375,
+            "r": 86.5,
+            "b": 482.23919677734375
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23",
+        "minDay": "on 2026-09-24",
+        "max": "32",
+        "maxDay": "on 2026-09-25"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23",
+          "30"
+        ],
+        [
+          "2026-09-25",
+          "23",
+          "32"
+        ],
+        [
+          "2026-09-26",
+          "24",
+          "32"
+        ],
+        [
+          "2026-09-27",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-28",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-29",
+          "24",
+          "29"
+        ],
+        [
+          "2026-09-30",
+          "24",
+          "30"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
+    "375-county": {
+      "iw": 375,
+      "ih": 812,
+      "sw": 375,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2632,
+        "w": 375,
+        "h": 2632,
+        "shown": true
+      },
+      "masthead": {
+        "l": 16,
+        "t": 16,
+        "r": 359,
+        "b": 209,
+        "w": 343,
+        "h": 193,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 16,
+        "t": 223,
+        "r": 359,
+        "b": 1222,
+        "w": 343,
+        "h": 999,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 33,
+        "t": 668,
+        "r": 342,
+        "b": 1028,
+        "w": 309,
+        "h": 360,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 32,
+        "t": 357,
+        "r": 343,
+        "b": 657,
+        "w": 311,
+        "h": 300,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 217,
+        "r": 0,
+        "b": 217,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 16,
+        "t": 1246,
+        "r": 359,
+        "b": 2576,
+        "w": 343,
+        "h": 1330,
+        "shown": true
+      },
+      "controls": {
+        "l": 16,
+        "t": 1246,
+        "r": 359,
+        "b": 1405,
+        "w": 343,
+        "h": 159,
+        "shown": true
+      },
+      "summary": {
+        "l": 16,
+        "t": 1425,
+        "r": 359,
+        "b": 1709,
+        "w": 343,
+        "h": 284,
+        "shown": true
+      },
+      "chart": {
+        "l": 16,
+        "t": 1729,
+        "r": 359,
+        "b": 2127,
+        "w": 343,
+        "h": 398,
+        "shown": true
+      },
+      "table": {
+        "l": 16,
+        "t": 2147,
+        "r": 359,
+        "b": 2576,
+        "w": 343,
+        "h": 428,
+        "shown": true
+      },
+      "notes": {
+        "l": 32,
+        "t": 1039,
+        "r": 343,
+        "b": 1206,
+        "w": 311,
+        "h": 167,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 309,
+        "h": 360
+      },
+      "container": {
+        "w": 309,
+        "h": 360
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.197216077387107,
+        "n": 24.836595553891183,
+        "w": 119.50927734375001,
+        "e": 122.90405273437501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "375-forecast": {
+      "iw": 375,
+      "ih": 812,
+      "sw": 375,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2745,
+        "w": 375,
+        "h": 2745,
+        "shown": true
+      },
+      "masthead": {
+        "l": 16,
+        "t": 16,
+        "r": 359,
+        "b": 209,
+        "w": 343,
+        "h": 193,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 16,
+        "t": 223,
+        "r": 359,
+        "b": 1336,
+        "w": 343,
+        "h": 1113,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 33,
+        "t": 781,
+        "r": 342,
+        "b": 1141,
+        "w": 309,
+        "h": 360,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 217,
+        "r": 0,
+        "b": 217,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 32,
+        "t": 357,
+        "r": 343,
+        "b": 770,
+        "w": 311,
+        "h": 413,
+        "shown": true
+      },
+      "section": {
+        "l": 16,
+        "t": 1360,
+        "r": 359,
+        "b": 2689,
+        "w": 343,
+        "h": 1330,
+        "shown": true
+      },
+      "controls": {
+        "l": 16,
+        "t": 1360,
+        "r": 359,
+        "b": 1518,
+        "w": 343,
+        "h": 159,
+        "shown": true
+      },
+      "summary": {
+        "l": 16,
+        "t": 1538,
+        "r": 359,
+        "b": 1823,
+        "w": 343,
+        "h": 284,
+        "shown": true
+      },
+      "chart": {
+        "l": 16,
+        "t": 1843,
+        "r": 359,
+        "b": 2241,
+        "w": 343,
+        "h": 398,
+        "shown": true
+      },
+      "table": {
+        "l": 16,
+        "t": 2261,
+        "r": 359,
+        "b": 2689,
+        "w": 343,
+        "h": 428,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 217,
+        "r": 0,
+        "b": 217,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 309,
+        "h": 360
+      },
+      "container": {
+        "w": 309,
+        "h": 360
+      },
+      "zoom": 6,
+      "view": {
+        "s": 20.324023603422518,
+        "n": 27.547241546253268,
+        "w": 116.85058593750001,
+        "e": 123.64013671875001
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "1440-dark": {
+      "bg": "layered",
+      "sw": 1440,
+      "map": {
+        "l": 434,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 944,
+        "h": 640,
+        "shown": true
+      }
+    },
+    "1440-dark-chart-dark": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            544,
+            56.030769230769295
+          ],
+          "text": "32.4°",
+          "label": {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          "ringBox": {
+            "x": 604.8071594238281,
+            "y": 506.36903381347656,
+            "l": 596.3103637695312,
+            "t": 497.8722229003906,
+            "r": 613.303955078125,
+            "b": 514.8658447265625
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            272.3307692307692
+          ],
+          "text": "23.3°",
+          "label": {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          },
+          "ringBox": {
+            "x": 106.99491119384766,
+            "y": 722.5874938964844,
+            "l": 98.49811553955078,
+            "t": 714.0906982421875,
+            "r": 115.49170684814453,
+            "b": 731.0842895507812
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23.3",
+        "minDay": "on 2026-09-24",
+        "max": "32.4",
+        "maxDay": "on 2026-09-28"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23.3",
+          "31"
+        ],
+        [
+          "2026-09-25",
+          "23.4",
+          "31.4"
+        ],
+        [
+          "2026-09-26",
+          "24.1",
+          "31.4"
+        ],
+        [
+          "2026-09-27",
+          "24.1",
+          "31.6"
+        ],
+        [
+          "2026-09-28",
+          "24.4",
+          "32.4"
+        ],
+        [
+          "2026-09-29",
+          "25.3",
+          "30.9"
+        ],
+        [
+          "2026-09-30",
+          "24.6",
+          "30.3"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
+    "theme-1440-syslight": {
+      "initial": {
+        "theme": null,
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      },
+      "flipped": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      },
+      "reloaded": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      },
+      "back": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    "theme-1440-sysdark": {
+      "initial": {
+        "theme": null,
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      },
+      "flipped": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      },
+      "reloaded": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      },
+      "back": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          133,
+          44
+        ],
+        "inView": true,
+        "sw": 1440,
+        "iw": 1440,
+        "modeBottom": 223,
+        "ih": 900
+      }
+    },
+    "theme-375-syslight": {
+      "initial": {
+        "theme": null,
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      },
+      "flipped": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      },
+      "reloaded": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      },
+      "back": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    },
+    "theme-375-sysdark": {
+      "initial": {
+        "theme": null,
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      },
+      "flipped": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      },
+      "reloaded": {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark mode",
+        "surface": "#ffffff",
+        "bodyBg": "rgb(238, 242, 247)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      },
+      "back": {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark mode",
+        "surface": "#172030",
+        "bodyBg": "rgb(14, 19, 27)",
+        "heroBg": "linear-gradient(rgb(23, 33, 49) 0%, rgb(16, 25, 38) 100%)",
+        "size": [
+          44,
+          44
+        ],
+        "inView": true,
+        "sw": 375,
+        "iw": 375,
+        "modeBottom": 291,
+        "ih": 812
+      }
+    }
+  }
+}

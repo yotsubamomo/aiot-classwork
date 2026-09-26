@@ -842,7 +842,9 @@ neither.
   **no external tile server**, so the map makes **no external request at runtime** and
   needs **no key, account or payment**; the browser only ever calls this app's own
   same-origin `/static/` and `/api/` URLs. The map area is dark in both light and dark
-  colour schemes.
+  colour schemes. The page follows the system light / dark setting; the **Dark mode**
+  button at the right of the Taiwan Map heading switches the page between the two (the
+  choice is kept in this browser only; the map area stays dark either way).
   - **Basemap sources and licences** (acquired 2026-09-24 at build time — both free,
     no account, no payment; the geometry is simplified and carries no attributes, so it
     is a backdrop only, not a data layer):

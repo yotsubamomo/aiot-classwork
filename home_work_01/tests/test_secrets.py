@@ -55,6 +55,9 @@ V2_CODE = [
     UNIT_DIR / "tests" / "test_radar.py",
     UNIT_DIR / "tests" / "test_radar_frontend.py",
     UNIT_DIR / "tests" / "check_radar_browser.py",
+    # WI-UI-THEME-1: the light / dark switch script and its guards.
+    UNIT_DIR / "static" / "theme.js",
+    UNIT_DIR / "tests" / "test_theme_frontend.py",
 ]
 
 

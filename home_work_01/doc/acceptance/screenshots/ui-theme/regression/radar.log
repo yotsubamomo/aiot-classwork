@@ -1,0 +1,49 @@
+PASS 1280 AC-V2-18 default: the Radar control is a visible text-labelled button, hidden (Off), no radar request, no layer
+PASS 1280 RSP-3 the Radar control is at least 44 x 44
+PASS 1280 AC-V2-18 Enter shows the radar: overlay drawn, Radar Time = the response's X-Radar-Time, aria-pressed true
+PASS 1280 AC-V2-18/H-3 the radar time is labelled 'Radar Time', visible, apart from Observation Time and Fetched Time
+PASS 1280 AC-V2-18/RAD-6 drawing order: backdrop < radar < county interaction layer < station markers; radar takes no pointer
+PASS 1280 AC-V2-18/RAD-6 over a radar pixel the county layer is hit (not the radar): hover shows the county name, click selects it
+PASS 1280 AC-V2-18/RAD-6 station markers stay on top and readable over the radar; clicking one selects the station
+PASS 1280 AC-V2-18/RAD-6 with the radar shown the map still drags and zooms (animated +); the layer is re-placed (≤ 1 km)
+PASS 1280 AC-V2-19 zoom 7: all 15 reference pixels drawn within 1 km of the map's projection
+PASS 1280 AC-V2-19 zoom 10: all 15 reference pixels drawn within 1 km of the map's projection
+PASS 1280 AC-V2-19 rendered pixels, zoom 10: every whole square's centroid within 1 km of its projected centre
+PASS 1280 AC-V2-19 rendered pixels: every square on screen was found in the rendered map
+PASS 1280 AC-V2-19 rendered pixels, zoom 7 (coarse; 1 px ≈ 1.1 km): every whole square on screen within 1 km
+PASS 1280 AC-V2-19 the instrument discriminates: a plain image overlay measures > 1 km off (DA: ~3.8 km)
+PASS 1280 RAD-6 non-echo area is transparent: the only map pixels the radar changes are the pattern squares
+PASS 1280 AC-V2-18 Space hides the radar: overlay removed, Radar Time hidden, aria-pressed false
+PASS 1280 AC-V2-18/RAD-3 showing the radar again fetches the latest image (new Radar Time)
+PASS 1280 AC-V2-18/RAD-3 Refresh while the radar is shown fetches the latest radar image too
+PASS 1280 AC-V2-18/RAD-3 no automatic update or polling (12 s idle: no radar request)
+PASS 1280 RAD-4 an older radar image never replaces the newer one shown (kept, noted)
+PASS 1280 AC-V2-18/MODE-4 Forecast mode has no Radar control and no radar overlay
+PASS 1280 MODE-5 back in Now mode the shown radar and its Radar Time are back
+PASS 1280 MODE-6/DOC-5 no real-time / live wording on the page
+PASS 1280 no console errors / NaN / Invalid LatLng
+PASS 1280-fail AC-V2-18/09(c) first radar fetch fails (key_not_configured) → radar unavailable, no overlay, reason; observation unchanged
+PASS 1280-fail AC-V2-18/09(c) first radar fetch fails (upstream_unreachable) → radar unavailable, no overlay, reason; observation unchanged
+PASS 1280-fail AC-V2-18/09(c) first radar fetch fails (upstream_error) → radar unavailable, no overlay, reason; observation unchanged
+PASS 1280-fail AC-V2-18/09(c) first radar fetch fails (invalid_response) → radar unavailable, no overlay, reason; observation unchanged
+PASS 1280-fail AC-V2-18/09(c) first radar fetch fails (unexpected_response) → radar unavailable, no overlay, reason; observation unchanged
+PASS 1280-fail R-V2-OBS-12 (radar) the failure categories are distinguishable to the user
+PASS 1280-fail AC-V2-18 bounded time: a stalled upstream ends as radar unavailable (upstream_unreachable) within 30 s
+PASS 1280-fail recovery: the next successful show clears radar unavailable
+PASS 1280-fail AC-V2-18/RAD-4 a failed refetch while an image is shown keeps the overlay and its Radar Time, marked stale with the reason
+PASS 1280-fail AC-V2-09(c) the radar failure changed only the radar: observation state success, times and markers as before
+PASS 1280-fail AC-V2-18 the page's own bound: no answer in 20 s → stale kept (no_response), within 30 s
+PASS 1280-fail stale cleared by the next successful fetch
+PASS 1280-fail AC-V2-09(c) an observation failure (Refresh → observation Stale) leaves the radar working (new image, success)
+PASS 1280-fail H-1 the page shows no key, upstream host, upstream body or platform page text
+PASS 1280-obs-down AC-V2-09(c) observation Unavailable from the first load: the radar still shows
+PASS 375 375 default hidden; control ≥ 44 x 44; no horizontal scroll
+PASS 375 375 radar shown by keyboard; Radar Time visible; no horizontal scroll
+PASS 375 375 AC-V2-19 (DOM geometry, current zoom) every reference pixel within 1 km
+PASS 375 375 stale: overlay kept, reason visible; no horizontal scroll
+PASS 375 375 unavailable: no overlay, reason visible; no horizontal scroll
+PASS 1280-forecast503 AC-V2-09(a) forecast snapshot 503: Now mode radar works; the forecast section shows its own error
+PASS AC-V2-16 network log: zero external requests (the radar image comes from /api/radar/latest)
+PASS AC-V2-07/H-1 server log (DEBUG) and request URLs carry no key, upstream host, upstream body or auth header
+47/47 checks passed
+exit 0

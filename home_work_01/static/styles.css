@@ -138,6 +138,47 @@
   }
 }
 
+/* The page's "Dark mode" switch (WI-UI-THEME-1, static/theme.js) forces the dark
+   page tokens regardless of the system setting — the SAME values as the block
+   above (tests/test_theme_frontend.py keeps the two identical). data-theme="light"
+   already switches the block above off, so the light tokens in :root apply. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e131b;
+  --bg-top: #131c29;
+  --bg-glow: rgba(107, 166, 232, .12);
+  --bg-glow-2: rgba(56, 189, 248, .06);
+  --surface: #172030;
+  --surface-2: #1d2839;
+  --border: #2b3648;
+  --hairline: #243044;
+  --table-head: #1b2536;
+  --row-hover: rgba(255, 255, 255, .03);
+  --range-band: rgba(160, 150, 230, .10);
+  --text: #e6eaf2;
+  --muted: #9aa4b6;
+  --heading: #f2f5fa;
+  --accent: #6ba6e8;
+  --maxt: #ff6b6b;
+  --mint: #5aa9e6;
+  --min-bg: #14263a;
+  --max-bg: #33201f;
+  --error-bg: #3a1d1d;
+  --error-border: #6e3232;
+  --error-text: #ffb4b4;
+  --info-bg: #16273a;
+  --info-border: #2c4a6b;
+  --info-text: #a9cdf2;
+  --empty-bg: #1a2231;
+  --empty-border: #2b3648;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 28px -14px rgba(0, 0, 0, .6);
+  --shadow-hero: 0 2px 4px rgba(0, 0, 0, .35), 0 28px 56px -28px rgba(0, 0, 0, .8);
+  --hero-border: #2b3648;
+  --toggle-on-bg: #6ba6e8;
+  --toggle-on-text: #0b1220;
+}
+
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 
@@ -555,6 +596,44 @@ img { max-width: 100%; }
 }
 .map-card__head .section-heading { margin-bottom: 0; }
 .caption--map { margin: 0; }
+
+/* Page theme switch (WI-UI-THEME-1): at the right end of the map heading row,
+   after the mode switch in the DOM (so the mode switch stays the first Tab stop).
+   It sits in the always-dark map card, so it uses the card's tokens. */
+.theme-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.theme-toggle:hover { background: var(--surface); }
+.theme-toggle:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.theme-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--heading); }
+.theme-toggle__icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.theme-toggle[aria-pressed="true"] .theme-toggle__icon { fill: currentColor; }
 
 /* The shell is the positioning context for the floating panels on desktop. */
 .map-shell { position: relative; }
@@ -1176,6 +1255,18 @@ img { max-width: 100%; }
     white-space: nowrap;
   }
   .map-card__head .section-heading { flex: 1 1 auto; }
+  /* Narrow screens: the switch keeps its accessible name but shows the icon only,
+     and shares the caption's row instead of taking a row of its own. */
+  .caption--map { flex: 1 1 calc(100% - 60px); min-width: 0; } /* row 2: caption + 44 px switch + 16 px gap */
+  .theme-toggle { padding: 0; }
+  .theme-toggle__label {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0; border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 /* --- narrow screens (down to 375px) ----------------------------------------- */
@@ -1399,5 +1490,5 @@ img { max-width: 100%; }
 /* Hover transitions (WI-UI-POLISH-1) are dropped under reduced motion. Last in the
    file so it wins over the rules that set them. */
 @media (prefers-reduced-motion: reduce) {
-  .mode-toggle__btn, .btn, .table tbody td { transition: none; }
+  .mode-toggle__btn, .btn, .table tbody td, .theme-toggle { transition: none; }
 }
