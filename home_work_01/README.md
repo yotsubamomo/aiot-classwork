@@ -255,7 +255,8 @@ browser never calls CWA and holds no key. The forecast endpoints read `data.db` 
 through the shared module [`weather_query.py`](weather_query.py) and never call CWA.
 The only server-side CWA access is the V2 Latest Observation endpoint (see
 [below](#latest-observation-endpoint-v2-core)), implemented in
-[`observation.py`](observation.py).
+[`observation.py`](observation.py), and the V2 Radar endpoint (see
+[Radar endpoint](#radar-endpoint-v2-radar)), implemented in [`radar.py`](radar.py).
 
 ### `/api/` endpoints
 
@@ -273,7 +274,8 @@ structure lives beside the code — `server.py` (the app), `api/index.py` (the
 serverless entry that imports `app`), `vercel.json` (routes every request to that
 one function) and `requirements.txt`; `data.db` is packaged next to the code and
 opened read-only. The forecast endpoints and `/api/health` need no environment
-variable or secret; only the Latest Observation endpoint below reads `CWA_API_KEY`.
+variable or secret; only the Latest Observation and Radar endpoints below read
+`CWA_API_KEY`.
 
 ### Latest Observation endpoint (V2 Core)
 
@@ -374,6 +376,71 @@ re-serialised as compact JSON). It was checked key-free before it was committed
 and is covered by the credential scans. The offline tests derive every
 counter-example from it.
 
+### Radar endpoint (V2 Radar)
+
+`GET /api/radar/latest` returns the **latest CWA radar echo image** for the Now mode's
+Radar overlay: the CWA product **O-A0058-006**
+(雷達整合回波圖-臺灣(鄰近地區)_透明底圖 — the composite radar echo around Taiwan on a
+**transparent background**, a 3600 × 3600 PNG covering longitude 118.0–124.0 and
+latitude 20.5–26.5, published every 10 minutes). The server fetches it in **one
+server-side operation**: first the product's metadata from CWA's file API (this
+needs the key, so it only ever happens on the server; the key goes in the
+`Authorization` header), then the image the metadata points to on CWA's public
+open-data storage (without the key). The browser only ever calls this `/api/` path;
+it never sees the key, the metadata or any upstream URL.
+
+**Success — `200` `image/png`** (`Cache-Control: no-store`): the image bytes, with
+
+| Header | Meaning |
+| --- | --- |
+| `X-Radar-Time` | The **radar time**: the product time from the metadata (`DateTime`), exactly as CWA published it (for example `2026-09-26T14:40:00+08:00`). It comes from the **same** fetch as the image in the body. |
+| `X-Radar-Fetched-Time` | When this server fetched that image (`+08:00`, to the second). |
+| `X-Radar-Dataset` | `O-A0058-006` |
+
+Because the image and its radar time travel in one response, the page can never
+show an image with another fetch's time.
+
+**Product checks.** The server accepts only what the overlay can place correctly:
+the metadata must name `O-A0058-006`, a parseable `DateTime`, exactly the extent
+longitude `118.0-124.0` / latitude `20.5-26.5` and the dimension `3600x3600`, a PNG
+resource and an `https` image URL on CWA's open-data host
+(`cwaopendata.s3.ap-northeast-1.amazonaws.com` — the metadata cannot send the server
+anywhere else); the image must be a PNG of 3600 × 3600 pixels and at most 4 MB.
+Anything else is `invalid_response`.
+
+**Failure — non-2xx JSON** `{ dataset, reason, error }` with exactly one `reason`, the
+same four codes as the Latest Observation endpoint:
+
+| `reason` | HTTP | When |
+| --- | --- | --- |
+| `key_not_configured` | `503` | The server has no `CWA_API_KEY` (no upstream request is made). |
+| `upstream_unreachable` | `504` | DNS / connection failure on the metadata or the image request, or the two did not finish within the time bound. |
+| `upstream_error` | `502` | The metadata or the image request answered a non-2xx status (e.g. `401` / `403`, `429` quota, `500`); the numeric status is added as `upstreamStatus`. |
+| `invalid_response` | `502` | The metadata is not JSON or not the expected product (see the product checks), or the image is not the expected PNG. |
+
+`error` is a fixed sentence per reason ("Radar is unavailable: …"); it and the server
+log carry only the reason, the numeric upstream status and the radar time — never
+the key, a URL, request headers, the metadata or an upstream body.
+
+**Time bound and reuse window.** Each of the two upstream requests uses a 3 s
+connect and 5 s read timeout, and the whole exchange (metadata + image) is capped at
+**8 s**, after which the answer is `upstream_unreachable` — below Vercel's smallest
+default function duration (10 s). A success is **reused for 120 s** (the contract
+ceiling is 5 minutes): within that window every request gets the same image, radar
+time and fetched time; after it the next request fetches again. Only successes are
+reused; the cache is in the function's memory (no persistent server state). The
+radar is fetched only when a visitor shows it (or presses Refresh while it is
+shown) — there is no polling; the quota facts of the Latest Observation endpoint
+apply (the file API has its own daily quota).
+
+**Sample.** [`tests/fixtures/O-A0058-006_metadata_sample.json`](tests/fixtures/O-A0058-006_metadata_sample.json)
+is one **real** O-A0058-006 metadata response captured **2026-09-26 14:51 +08:00**
+(radar time 2026-09-26 14:40), **not reduced** (only re-indented). It was checked
+key-free before it was committed and is covered by the credential scans. The radar
+image itself is not committed: the offline tests use a synthetic PNG of the product's
+size, and the browser check draws a synthetic test pattern (see
+[Run the tests](#run-the-tests-offline)).
+
 ### Taiwan Map modes: Now mode and Forecast mode (V2 Core)
 
 The **Taiwan Map** at the top of the dashboard has exactly two modes, switched with
@@ -387,8 +454,8 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
 | Shows | The **Latest Observation**: CWA station air temperatures, **as published by CWA** | The six-region seven-day forecast: **project-derived** values |
 | Data | `GET /api/observations/latest` | `GET /api/days`, `GET /api/days/<date>` |
 | Markers | At most one **representative station** per county, a neutral light marker with the station's temperature and name; with a county selected, that county's stations | Six Region pills coloured by the derived band |
-| Panel and controls | `Observation Time`, `Fetched Time`, valid-station count, `Refresh`; the county layer, the `County` chooser, the County context, the station list and detail, `Back to Taiwan` | `Select Date`, the `DERIVED` panel, the four-band legend |
-| Never shown | `Select Date`, the derived legend, any forecast value | Any observation value, `Refresh` |
+| Panel and controls | `Observation Time`, `Fetched Time`, valid-station count, `Refresh`; the county layer, the `County` chooser, the County context, the station list and detail, `Back to Taiwan`; the **Radar** show / hide control and `Radar Time` ([Radar overlay](#now-mode--radar-overlay-v2-radar)) | `Select Date`, the `DERIVED` panel, the four-band legend |
+| Never shown | `Select Date`, the derived legend, any forecast value | Any observation value, `Refresh`, the radar |
 
 - **Two meanings kept apart.** An observation value is a CWA station observation, as
   published — not a forecast, not a project-derived value, and never an average of a
@@ -588,6 +655,70 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   - the zoom buttons, the mode switch, `Refresh` and `Back to Taiwan` are never covered.
 - **Tooltips** are kept inside the map, also for markers near its edges. Buttons,
   the `County` chooser, list items and the zoom buttons are at least 44 × 44 px.
+
+#### Now mode — Radar overlay (V2 Radar)
+
+- **Show / hide.** The **`Radar: Off`** button next to `Refresh` shows the latest
+  radar echo over the map; it then reads **`Radar: On`** (and is filled). It is a real
+  button (click, or Tab to it and press Enter or Space) and is **off when the page
+  opens**. The radar belongs to the Now mode only: Forecast mode has neither the
+  button nor the overlay; coming back to Now mode brings a shown radar back.
+- **Source and time.** The overlay is CWA's **雷達整合回波圖-臺灣(鄰近地區)_透明底圖
+  (O-A0058-006)**, fetched through this app's
+  [`/api/radar/latest`](#radar-endpoint-v2-radar). While it is shown, the panel shows
+  **`Radar Time`** — the radar product time CWA published for that image, to the
+  minute — in its own row under the buttons, apart from `Observation Time` (the
+  stations' observation time) and `Fetched Time` (when the stations were fetched):
+  three different times with three different labels. Areas without echo are
+  transparent, so the map shows through; the echo colours are CWA's (slightly
+  see-through over the map).
+- **Drawing order and use.** The echo is drawn above the map backdrop and **below**
+  the county layer and the station markers: counties can still be pointed at and
+  clicked, stations clicked and read, and the map dragged and zoomed as before.
+- **Getting a newer image — the re-fetch trigger.** The radar is fetched when you
+  **switch it on** (switching it off and on again fetches the latest image) and when
+  you press **`Refresh` while it is shown** (Refresh then updates the Latest
+  Observation and the radar, each with its own result). The page never updates the
+  radar by itself and never polls. An image whose radar time is older than the one
+  shown (possible when a different server instance still reuses an older image)
+  never replaces it; "Already the latest radar image." is shown instead.
+- **Its own state, independent of the observation.** While the radar loads, a
+  spinner and "Loading the radar image…" (or "Updating…" when an image is already
+  shown) appear under the button. If the first fetch fails, no overlay is drawn and
+  **"Radar unavailable"** is shown with the reason's category (the same four reasons
+  as the endpoint, or "did not answer in time" / "unexpected answer" from this site's
+  server; the page waits at most 20 s). If a later fetch fails while an image is shown,
+  that image and its `Radar Time` **stay**, marked **"Radar Stale"** with the reason;
+  the next successful fetch clears it. A radar failure never changes the Latest
+  Observation (its data, times or Stale / Unavailable state) or the forecast, and an
+  observation or forecast failure never changes the radar.
+- **Alignment.** The CWA image is an equal-angle grid: its 3600 rows are equally
+  spaced in **latitude** (1/600° each) over 26.5° N – 20.5° N, and its columns equally
+  spaced in longitude over 118° E – 124° E. The map is Web Mercator, whose vertical
+  scale grows with latitude, so stretching the whole image between its projected
+  corners (a plain Leaflet image overlay) would put mid-image rows up to about
+  **3.8 km** off. The overlay therefore draws the image in **24 horizontal strips**
+  of 150 rows (0.25° of latitude each): each strip is placed exactly between the
+  projected positions of its top and bottom latitudes, and only its own rows are
+  scaled into it. Within a strip the remaining difference is at most about
+  **0.01 km**; across, longitude is linear on both, so every column is exact. Every
+  image pixel therefore lands within well under 1 km of where the map projects its
+  latitude / longitude (the acceptance criterion is 1 km), at every zoom (6–12). The
+  map's projection is unchanged (Web Mercator), so the map range and zoom range above
+  are unaffected. The browser check measures this in the page at zoom 7 and 10 (see
+  [Run the tests](#run-the-tests-offline)).
+- **Known limits.** The radar time is the product time CWA publishes in the metadata;
+  CWA makes a product available several minutes after that time (in a local check a
+  15:10 product was the latest at 15:20), so the Radar Time is usually 5–15 minutes
+  before the time you look. The metadata and the image are two separate CWA files
+  that CWA replaces every 10 minutes; the server reads the image immediately after
+  the metadata, but if CWA replaces the image between the two reads, the image can be
+  one cycle newer than the Radar Time shown until the next fetch. A shown radar is
+  not refreshed on its own; switch it off and on, or press Refresh. The echo covers
+  longitude 118–124 / latitude 20.5–26.5 only (all 22 counties).
+- **Data licence.** Radar data: **交通部中央氣象署 雷達整合回波圖-臺灣(鄰近地區)_透明底圖
+  (O-A0058-006)**, CWA open data under the **Open Government Data License
+  (政府資料開放授權條款)**. The same attribution is under the map in Now mode.
 
 #### Representative station rule
 
@@ -814,7 +945,17 @@ Observation; the list items as buttons, the `County` chooser and the verbatim
 recomputed against their criteria; the opening view's box), the info panel (a
 Close button with visible text, Esc, the peek and expanded sizes), 44 × 44 targets,
 the marker density rule, the side-by-side desktop layout, and the map size guard on
-the info panel and resize paths. (Five browser-level
+the info panel and resize paths. For the Radar overlay, `tests/test_radar.py` covers
+the radar endpoint with the real metadata sample and a synthetic PNG (the image and
+radar time of one fetch, the product checks, the key sent only to the metadata
+request, the reuse window, the four failure reasons with a sentinel key, a stalled
+upstream, and the radar, observation and forecast paths failing independently), and
+`tests/test_radar_frontend.py` holds static guards on the radar frontend (the
+labelled control, off by default, fetched only by showing it or by Refresh; the image
+and time from `/api/radar/latest` only; `Radar Time` apart from the other two times;
+its own stale / unavailable state; the drawing order) and recomputes the strip
+placement for every image row at zoom 6–12 (within 0.05 km; a plain image overlay
+would be about 3.8 km off). (Six browser-level
 checks need a real Chrome and so run separately from the offline `pytest` suite: the
 check that the dashboard shows a visible message when `/series` fails on first load,
 [`tests/check_series_error_visible.py`](tests/check_series_error_visible.py); the
@@ -838,10 +979,21 @@ every edge at zoom 6, 8 and 12 and reads the view back, reaches 金門 and 連�
 the zoom floor and ceiling, clicks every 臺北市 station at the ceiling, drives the
 phone info panel (peek, expand, Close, Esc, Details), measures 44 × 44 targets and
 marker overlap, checks 768 px for breakage and repeats resizes and panel changes
-while watching for broken markers —
+while watching for broken markers; and the radar check
+[`tests/check_radar_browser.py`](tests/check_radar_browser.py), which draws a synthetic
+test pattern (squares on known pixels) through the real radar endpoint and measures,
+at zoom 7 and 10, where every reference pixel (the product's corners, edge midpoints
+and centre, and points on the island) is drawn against the map's projection — from the
+drawn image's geometry and from the rendered pixels — and does the same for a plain
+image overlay to show the measurement tells them apart; it also drives the control by
+keyboard, the re-fetch triggers, radar unavailable and stale for each failure reason,
+the observation and forecast failing on their own, the drawing order and map use with
+the radar shown, 375 px, and a sentinel key; `--real-image` / `--coastline` add
+screenshots with a real O-A0058-006 image and a real O-A0058-003 image (coastlines
+and county borders) over the app's basemap —
 `python tests/check_modes_browser.py`, `python tests/check_refresh_browser.py`,
-`python tests/check_county_browser.py`, `python tests/check_fence_browser.py`; they
-also need the `websocket-client` package.)
+`python tests/check_county_browser.py`, `python tests/check_fence_browser.py`,
+`python tests/check_radar_browser.py`; they also need the `websocket-client` package.)
 The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two

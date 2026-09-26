@@ -45,6 +45,23 @@
  *     still marked Stale) or Unavailable (the county name, every value "—", never
  *     0 — DV-21 §4.2); the county selection survives a Now → Forecast → Now round
  *     trip with the rest of the Now selection (R-V2-MODE-5(a), DV-20).
+ *     Radar (SPEC-V2 §2.7, Issue #40): a "Radar" show / hide button (default Off)
+ *     puts the latest CWA radar echo (O-A0058-006, transparent background) over
+ *     the backdrop and under the county interaction layer and the station
+ *     markers. Image and radar time come only from /api/radar/latest, in ONE
+ *     response (the image bytes, and the radar product time of that same
+ *     server-side fetch in the X-Radar-Time header), so the time shown as
+ *     "Radar Time" always belongs to the image shown (R-V2-RAD-2, RAD-4). The
+ *     image is an equal-angle (lat/lon) grid and the map is Web Mercator, so the
+ *     layer draws it in RADAR_STRIPS horizontal strips, each placed at the
+ *     projected latitudes of its own rows — every image pixel lands within a few
+ *     metres of its projected position (the 1 km oracle, R-V2-RAD-5); longitude
+ *     is linear in both, so each strip is exact across. Showing the radar, and
+ *     Refresh while it is shown, fetch the latest image — never a timer
+ *     (R-V2-RAD-3). The radar has its own state, independent of the Latest
+ *     Observation: a failure with no image shown → radar unavailable (no
+ *     overlay); a failure while an image is shown → the image stays, marked
+ *     stale (R-V2-RAD-4, R-V2-DEG-4, INV-V2-7). Forecast mode has no radar.
  *   - Forecast mode: the V1 six-region seven-day map unchanged — Select Date,
  *     six Region pills coloured by the endpoint's band, the DERIVED panel and the
  *     four-band legend (R-V2-MODE-3, R-EN-3..R-EN-7, DR-20/DR-21).
@@ -264,6 +281,39 @@
     "key_not_configured", "upstream_unreachable", "upstream_error", "invalid_response",
   ];
 
+  // --- Radar overlay, Now mode (SPEC-V2 §2.7, R-V2-RAD-1..6; Issue #40) ----------
+  // The product's geometry (radar.py EXTENT / IMAGE_SIZE, kept equal by a static
+  // test): a 3600 x 3600 image on an equal-angle grid whose edges are these
+  // meridians and parallels. The server refuses any product that says otherwise.
+  var RADAR_EXTENT = { west: 118.0, east: 124.0, south: 20.5, north: 26.5 };
+  var RADAR_PIXELS = 3600;
+  // Horizontal strips the image is drawn in (see createRadarLayer): 24 strips of
+  // 150 rows (0.25° of latitude) keep every pixel within about 0.01 km of its
+  // Web Mercator position; one strip (a plain image overlay) is ~3.8 km off.
+  var RADAR_STRIPS = 24;
+  var RADAR_OPACITY = 0.8;     // echo colours slightly see-through over the backdrop
+  // Client-side bound on one radar request (as OBS_TIMEOUT_MS: above the server's
+  // own 8 s upstream bound, below the 30 s instrument).
+  var RADAR_TIMEOUT_MS = 20000;
+  var radarOn = false;         // the show / hide control (default hidden, DV-12)
+  var radarState = null;       // last result: null (none yet) | "success" | "stale" | "unavailable"
+  var radarShown = null;       // {url, radarTime, fetchedTime}: the image on the layer
+  var radarFailure = null;     // the classified failure behind stale / unavailable
+  var radarInFlight = false;   // one radar request at a time
+  var radarNote = "";          // the last result's short note (e.g. "already the latest")
+  var radarLayer = null;       // the strip layer (created with the map)
+  // The radar's user-visible failure categories: the same four server reasons
+  // as the observation path, plus the two client-side categories. Fixed texts —
+  // nothing from a response body is ever shown (H-1).
+  var RADAR_FAILURE_TEXT = {
+    key_not_configured: "the server has no CWA API key configured",
+    upstream_unreachable: "the CWA service could not be reached in time",
+    upstream_error: "the CWA service answered with an error status",
+    invalid_response: "the CWA radar product was not usable",
+    no_response: "this site's server did not answer in time or could not be reached",
+    unexpected_response: "this site's server gave an unexpected answer",
+  };
+
   document.addEventListener("DOMContentLoaded", function () {
     els.pageError = document.getElementById("page-error");
     els.pageErrorText = document.getElementById("page-error-text");
@@ -352,6 +402,11 @@
     els.sheetExpand = document.getElementById("sheet-expand");
     els.sheetClose = document.getElementById("sheet-close");
     els.sheetReopen = document.getElementById("sheet-reopen");
+    // Radar (#40).
+    els.radarToggle = document.getElementById("radar-toggle");
+    els.radarInfo = document.getElementById("radar-info");
+    els.radarTime = document.getElementById("radar-time");
+    els.radarStatus = document.getElementById("radar-status");
 
     els.regionSelect.addEventListener("change", function () {
       loadRegion(els.regionSelect.value);
@@ -368,7 +423,13 @@
     });
     els.refreshButton.addEventListener("click", function () {
       loadObservation();
+      // Refresh also updates a shown radar image (README "Radar overlay"); the
+      // two requests and their states stay independent (R-V2-DEG-4).
+      if (radarOn) loadRadar();
     });
+    // The radar show / hide control: a real button (click, Enter, Space) whose
+    // aria-pressed and visible text give its state (R-V2-RAD-3, R-V2-DD-9(c)).
+    els.radarToggle.addEventListener("click", toggleRadar);
     // The county chooser: a native <select>, so it is reachable with Tab and
     // operated with the keyboard without going through the map (R-V2-DD-9(a)).
     COUNTY_ORDER.forEach(function (name) {
@@ -420,6 +481,7 @@
     // and load the Latest Observation. The forecast bootstrap runs independently;
     // the Now mode never waits for, or depends on, /api/health (R-V2-DEG-1).
     renderModeChrome();
+    renderRadar();
     bringUpMap();
     loadObservation();
     bootstrap();
@@ -517,6 +579,7 @@
       raiseSelectedCounty();
     }
     renderStations();
+    syncRadarLayer(); // the radar overlay is on the map only in Now mode (#40)
     if (latestDay) renderDay(latestDay.date, latestDay.byRegion);
     refreshMapChrome();
   }
@@ -1737,6 +1800,306 @@
     return Date.parse(String(text));
   }
 
+  // --- Radar overlay (Now mode; SPEC-V2 §2.7, Issue #40) ---------------------------
+  // One GET of /api/radar/latest answers the image (image/png) with its radar
+  // product time in X-Radar-Time — both from the same server-side fetch — or a
+  // classified non-2xx JSON {reason, error}. States (R-V2-RAD-4), independent of
+  // the Latest Observation's: success; stale (a failed fetch while an image is
+  // shown: the image and its Radar Time stay, marked stale); unavailable (a
+  // failed fetch with no image: no overlay). Only a success clears them.
+
+  // Show / hide (R-V2-RAD-3). Showing fetches the latest image; while that fetch
+  // runs, an image already fetched earlier stays shown with its own Radar Time.
+  function toggleRadar() {
+    if (mode !== MODE_NOW) return;
+    radarOn = !radarOn;
+    radarNote = "";
+    if (radarOn) loadRadar();
+    renderRadar();
+  }
+
+  function loadRadar() {
+    if (radarInFlight) return; // one radar request at a time
+    radarInFlight = true;
+    renderRadar();
+    requestRadar()
+      .then(function (result) {
+        return result.ok ? decodeRadar(result) : result;
+      })
+      .then(function (result) {
+        if (result.ok) applyRadar(result);
+        else applyRadarFailure(result);
+      })
+      .then(null, function () {
+        // A rendering error still ends the request in a terminal state.
+        applyRadarFailure({ ok: false, category: "unexpected_response" });
+      })
+      .then(function () {
+        radarInFlight = false;
+        renderRadar();
+      });
+  }
+
+  // Settled exactly once and within RADAR_TIMEOUT_MS: {ok: true, blob,
+  // radarTime, fetchedTime} for a PNG with a usable radar time, otherwise
+  // {ok: false, category[, upstreamStatus][, httpStatus]}.
+  function requestRadar() {
+    return new Promise(function (resolve) {
+      var settled = false;
+      var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      var timer = setTimeout(function () {
+        if (controller) controller.abort();
+        settle({ ok: false, category: "no_response" });
+      }, RADAR_TIMEOUT_MS);
+      function settle(result) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(result);
+      }
+      fetch("/api/radar/latest", {
+        headers: { Accept: "image/png, application/json" },
+        cache: "no-store",
+        signal: controller ? controller.signal : undefined,
+      })
+        .then(function (response) {
+          var type = response.headers.get("Content-Type") || "";
+          var radarTime = response.headers.get("X-Radar-Time") || "";
+          if (response.ok && /^image\/png\b/i.test(type) && isFinite(instant(radarTime))) {
+            return response.blob().then(function (blob) {
+              settle({
+                ok: true, blob: blob, radarTime: radarTime,
+                fetchedTime: response.headers.get("X-Radar-Fetched-Time") || "",
+              });
+            });
+          }
+          return response.text().then(function (text) {
+            settle(classifyRadarFailure(response, text));
+          });
+        })
+        .then(null, function () {
+          settle({ ok: false, category: "no_response" }); // network failure / aborted
+        });
+    });
+  }
+
+  // A non-image answer: one of the four server reasons when it is JSON naming
+  // one of them, otherwise "unexpected_response" (e.g. a platform HTML page).
+  function classifyRadarFailure(response, text) {
+    var body = null;
+    try {
+      body = text ? JSON.parse(text) : null;
+    } catch (e) {
+      body = null;
+    }
+    var reason = !response.ok && body && typeof body.reason === "string" &&
+      OBS_SERVER_REASONS.indexOf(body.reason) >= 0 ? body.reason : null;
+    if (!reason) return { ok: false, category: "unexpected_response", httpStatus: response.status };
+    var failure = { ok: false, category: reason };
+    if (reason === "upstream_error" && isHttpStatus(body.upstreamStatus)) {
+      failure.upstreamStatus = body.upstreamStatus; // a number only (non-secret)
+    }
+    return failure;
+  }
+
+  // Decode the image from a same-origin object URL (no further request) and
+  // check it is the product's 3600 x 3600 grid before it may go on the map.
+  function decodeRadar(result) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(result.blob);
+      var probe = new Image();
+      probe.onload = function () {
+        if (probe.naturalWidth === RADAR_PIXELS && probe.naturalHeight === RADAR_PIXELS) {
+          resolve({ ok: true, url: url, radarTime: result.radarTime, fetchedTime: result.fetchedTime });
+        } else {
+          URL.revokeObjectURL(url);
+          resolve({ ok: false, category: "unexpected_response" });
+        }
+      };
+      probe.onerror = function () {
+        URL.revokeObjectURL(url);
+        resolve({ ok: false, category: "unexpected_response" });
+      };
+      probe.src = url;
+    });
+  }
+
+  // A usable image. An OLDER radar time than the one shown never replaces it
+  // (the shown image is kept; e.g. another server instance's reuse window).
+  function applyRadar(result) {
+    if (radarShown && instant(result.radarTime) < instant(radarShown.radarTime)) {
+      URL.revokeObjectURL(result.url);
+      radarNote = "Already the latest radar image.";
+    } else {
+      var previous = radarShown;
+      radarShown = { url: result.url, radarTime: result.radarTime, fetchedTime: result.fetchedTime };
+      radarNote = previous && previous.radarTime === result.radarTime
+        ? "Radar image checked: no newer image yet." : "";
+      syncRadarLayer();
+      if (previous) URL.revokeObjectURL(previous.url);
+    }
+    radarFailure = null;
+    radarState = "success";
+  }
+
+  // A failed fetch: stale while an image is shown (kept), unavailable otherwise.
+  function applyRadarFailure(failure) {
+    radarFailure = failure;
+    radarState = radarShown ? "stale" : "unavailable";
+    radarNote = "";
+  }
+
+  function radarFailureText(failure) {
+    if (!failure) return "";
+    var category = RADAR_FAILURE_TEXT.hasOwnProperty(failure.category)
+      ? failure.category : "unexpected_response";
+    var text = RADAR_FAILURE_TEXT[category];
+    if (failure.upstreamStatus) text += " (HTTP " + failure.upstreamStatus + ")";
+    else if (failure.httpStatus) text += " (HTTP " + failure.httpStatus + ")";
+    if (OBS_SERVER_REASONS.indexOf(category) >= 0) text += " — " + category;
+    return text + ".";
+  }
+
+  // The control, the Radar Time and the radar's own status line. The Radar Time
+  // is labelled apart from the Observation Time and the Fetched Time (H-3).
+  function renderRadar() {
+    if (!els.radarToggle) return;
+    els.radarToggle.setAttribute("aria-pressed", radarOn ? "true" : "false");
+    els.radarToggle.textContent = radarOn ? "Radar: On" : "Radar: Off";
+    els.radarToggle.classList.toggle("is-on", radarOn);
+    var state = !radarOn ? "off" : (radarState || "loading");
+    els.radarInfo.hidden = !radarOn;
+    els.radarInfo.setAttribute("data-radar-state", state);
+    els.radarInfo.setAttribute("aria-busy", radarInFlight ? "true" : "false");
+    els.radarTime.textContent = radarShown ? formatObsTime(radarShown.radarTime, false) : MISSING;
+    var st = els.radarStatus;
+    st.textContent = "";
+    st.className = "radar-status radar-status--" + (radarInFlight ? "busy" : state);
+    if (radarInFlight) {
+      var spin = document.createElement("span");
+      spin.className = "spinner spinner--sm";
+      spin.setAttribute("aria-hidden", "true");
+      st.appendChild(spin);
+      st.appendChild(document.createTextNode(
+        radarShown ? "Updating the radar image…" : "Loading the radar image…"));
+    } else if (state === "stale") {
+      st.appendChild(document.createTextNode(
+        "Radar Stale: the last radar update failed; the image shown is from the Radar Time above. Reason: " +
+        radarFailureText(radarFailure)));
+    } else if (state === "unavailable") {
+      st.appendChild(document.createTextNode(
+        "Radar unavailable: no radar image to show. Reason: " + radarFailureText(radarFailure)));
+    } else if (state === "success" && radarNote) {
+      st.appendChild(document.createTextNode(radarNote));
+    }
+    syncRadarLayer();
+  }
+
+  // Put the radar layer on the map exactly while it is shown in Now mode and
+  // there is an image; otherwise take it off (R-V2-MODE-4, R-V2-RAD-3/4).
+  function syncRadarLayer() {
+    if (!map || !radarLayer) return;
+    var want = mode === MODE_NOW && appliedMode === MODE_NOW && radarOn && !!radarShown;
+    if (want) {
+      radarLayer.setUrl(radarShown.url);
+      if (!map.hasLayer(radarLayer)) radarLayer.addTo(map);
+    } else if (map.hasLayer(radarLayer)) {
+      map.removeLayer(radarLayer);
+    }
+  }
+
+  // The radar layer (R-V2-RAD-5, AC-V2-19). The image is an equal-angle grid —
+  // its rows are equally spaced in LATITUDE — while the map is Web Mercator,
+  // whose y grows faster than latitude towards the north. Stretching the whole
+  // image between its projected corners (a plain image overlay) would misplace
+  // mid-image rows by up to ~3.8 km. So the image is drawn in RADAR_STRIPS
+  // horizontal strips: strip k shows the rows of the latitudes
+  // [north - (k+1)·step, north - k·step] and is placed exactly between the
+  // projected y of those two latitudes (an image clipped to the strip, scaled
+  // so its rows fill it). Inside a strip the residual of the linear fill is at
+  // most ~0.01 km; across, longitude is linear in both projections, so x is
+  // exact. Positions are recomputed on every zoom / view reset; during a zoom
+  // animation the whole layer scales like any Leaflet overlay.
+  function createRadarLayer() {
+    var Overlay = L.Layer.extend({
+      options: { pane: "radar" },
+      onAdd: function () {
+        if (!this._el) this._build();
+        this.getPane().appendChild(this._el);
+        this._reset();
+      },
+      onRemove: function () {
+        L.DomUtil.remove(this._el);
+      },
+      getEvents: function () {
+        var events = { zoom: this._reset, viewreset: this._reset };
+        if (this._zoomAnimated) events.zoomanim = this._animateZoom;
+        return events;
+      },
+      setUrl: function (url) {
+        if (this._url === url) return this;
+        this._url = url;
+        if (this._imgs) this._imgs.forEach(function (img) { img.src = url; });
+        return this;
+      },
+      _build: function () {
+        var el = L.DomUtil.create("div",
+          "radar-layer leaflet-zoom-" + (this._zoomAnimated ? "animated" : "hide"));
+        el.style.opacity = String(RADAR_OPACITY);
+        el.setAttribute("aria-hidden", "true");
+        this._el = el;
+        this._strips = [];
+        this._imgs = [];
+        var rows = RADAR_PIXELS / RADAR_STRIPS;
+        for (var k = 0; k < RADAR_STRIPS; k++) {
+          var strip = L.DomUtil.create("div", "radar-layer__strip", el);
+          strip.setAttribute("data-rows", (k * rows) + "-" + ((k + 1) * rows));
+          var img = L.DomUtil.create("img", "radar-layer__img", strip);
+          img.alt = "";
+          img.draggable = false;
+          if (this._url) img.src = this._url;
+          this._strips.push(strip);
+          this._imgs.push(img);
+        }
+      },
+      _reset: function () {
+        var m = this._map;
+        if (!m || !this._el) return;
+        var z = m.getZoom();
+        var origin = m.getPixelOrigin();
+        var e = RADAR_EXTENT;
+        function y(lat) { return m.project(L.latLng(lat, e.west), z).y - origin.y; }
+        var nw = m.project(L.latLng(e.north, e.west), z).subtract(origin);
+        var width = m.project(L.latLng(e.north, e.east), z).x - origin.x - nw.x;
+        L.DomUtil.setPosition(this._el, nw);
+        var step = (e.north - e.south) / RADAR_STRIPS;
+        for (var k = 0; k < RADAR_STRIPS; k++) {
+          var y0 = y(e.north - k * step) - nw.y;       // the strip's top (its first row's edge)
+          var y1 = y(e.north - (k + 1) * step) - nw.y; // its bottom (its last row's edge)
+          var top = Math.round(y0);                    // whole px, so strips abut without seams
+          var bottom = Math.round(y1);
+          var strip = this._strips[k].style;
+          var img = this._imgs[k].style;
+          strip.top = top + "px";
+          strip.height = (bottom - top) + "px";
+          strip.width = width + "px";
+          // The whole image at this strip's row scale, shifted so that its rows
+          // of this strip fall exactly between y0 and y1.
+          img.width = width + "px";
+          img.height = ((y1 - y0) * RADAR_STRIPS) + "px";
+          img.top = (y0 - k * (y1 - y0) - top) + "px";
+        }
+      },
+      _animateZoom: function (ev) {
+        var m = this._map;
+        var offset = m._latLngToNewLayerPoint(
+          L.latLng(RADAR_EXTENT.north, RADAR_EXTENT.west), ev.zoom, ev.center);
+        L.DomUtil.setTransform(this._el, offset, m.getZoomScale(ev.zoom));
+      },
+    });
+    return new Overlay();
+  }
+
   // --- Select Date + Taiwan Map, Forecast mode (R-EN-3..R-EN-7) ----------------
   // Independent of the selected Region. /api/days fills Select Date (seven days,
   // ascending, default first); /api/days/<date> gives the six Regions' values for
@@ -2034,20 +2397,35 @@
     // licence text is in the README (P-2a).
     map.attributionControl.addAttribution("Natural Earth · 內政部 open data");
 
+    // Drawing order (#40, R-V2-RAD-6): the backdrop in its own pane at the
+    // bottom, the radar echo above it, then Leaflet's overlay pane (the Now mode's
+    // county interaction layer) and the marker pane (station markers) on top. The
+    // radar pane never takes the pointer, so dragging, zooming and hovering /
+    // clicking a county or a station work through it.
+    map.createPane("backdrop").style.zIndex = 300;
+    var radarPane = map.createPane("radar");
+    radarPane.style.zIndex = 350;
+    radarPane.style.pointerEvents = "none";
+
     // Surrounding coastline first (behind), then the Taiwan county polygons on
     // top. Both are non-interactive backdrops (no county-level data semantics).
     if (basemap.context) {
       L.geoJSON(basemap.context, {
         style: { color: "#2b3648", weight: 0.8, fillColor: "#1a2331", fillOpacity: 1 },
         interactive: false,
+        pane: "backdrop",
       }).addTo(map);
     }
     if (basemap.taiwan) {
       L.geoJSON(basemap.taiwan, {
         style: { color: "#44577a", weight: 0.9, fillColor: "#25324a", fillOpacity: 1 },
         interactive: false,
+        pane: "backdrop",
       }).addTo(map);
     }
+
+    // The radar overlay layer (#40); on the map only while shown in Now mode.
+    radarLayer = createRadarLayer();
 
     // The Now mode's county interaction layer (#38): same polygons, drawn
     // transparent above the backdrop, with the county names attached.

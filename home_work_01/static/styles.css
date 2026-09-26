@@ -716,6 +716,48 @@ img { max-width: 100%; }
 .obs-status--error { color: #ffb4b4; font-weight: 600; }
 .obs-status--done { color: #8ff0c4; }
 
+/* Radar (#40, R-V2-RAD-3/4): the show / hide button states its state in its
+   text ("Radar: Off" / "Radar: On") and is filled while on; the Radar Time and
+   the radar's own status take a full row under the buttons, only while shown. */
+.btn--radar {
+  background: var(--map-surface-2);
+  color: var(--map-text);
+  border: 1px solid var(--map-border);
+  white-space: nowrap;
+}
+.btn--radar:hover { background: #26354c; }
+.btn--radar:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.btn--radar.is-on { background: #173a55; border-color: #5fb3f0; color: #d8eeff; }
+.radar-info { flex: 1 1 100%; min-width: 0; margin: 0; }
+.radar-info .radar-times { margin: 0; }
+.radar-status {
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--map-muted);
+}
+.radar-status:empty { display: none; }
+.radar-status--busy { color: #a9cdf2; }
+.radar-status--stale { color: #fcd34d; font-weight: 600; }
+.radar-status--unavailable { color: #ffb4b4; font-weight: 600; }
+
+/* The radar layer (app.js createRadarLayer): horizontal strips, each clipping
+   the full image scaled to its own rows. Never takes the pointer. */
+.radar-layer { position: absolute; left: 0; top: 0; pointer-events: none; }
+.radar-layer__strip { position: absolute; left: 0; overflow: hidden; pointer-events: none; }
+.radar-layer__img {
+  position: absolute;
+  left: 0;
+  max-width: none !important;
+  max-height: none !important;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 /* Stale / Unavailable (#37, R-V2-OBS-10(e)): each has its own chip, explanation
    block, on-map notice and look, distinct from success and from each other. */
 /* The Now panel title wraps its chips instead of overflowing the panel. */

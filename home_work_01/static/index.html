@@ -100,7 +100,25 @@
           </dl>
           <div class="obs-actions">
             <button type="button" id="refresh-button" class="btn btn--refresh">Refresh</button>
+            <!-- Radar show / hide (R-V2-RAD-3; Issue #40): a real button with a
+                 visible text label that states its state ("Radar: Off" / "Radar:
+                 On", aria-pressed); hidden by default. It lives in the Now panel
+                 only, so Forecast mode has no radar control (R-V2-MODE-4). -->
+            <button type="button" id="radar-toggle" class="btn btn--radar" aria-pressed="false" aria-controls="radar-info">Radar: Off</button>
             <span id="obs-status" class="obs-status" role="status" aria-live="polite"></span>
+            <!-- Shown while the radar is on: the radar product time, labelled
+                 "Radar Time" and kept apart from the Observation Time and the
+                 Fetched Time above (R-V2-RAD-4, H-3), and the radar's own state
+                 (loading, stale, unavailable — independent of the observation). -->
+            <div id="radar-info" class="radar-info" data-radar-state="off" hidden>
+              <dl class="obs-times radar-times">
+                <div class="obs-times__row">
+                  <dt>Radar Time</dt>
+                  <dd id="radar-time">—</dd>
+                </div>
+              </dl>
+              <p id="radar-status" class="radar-status" role="status" aria-live="polite"></p>
+            </div>
           </div>
           <!-- Taiwan → County → Station (#38, R-V2-DD-4..9). Choosing a county here
                is the keyboard path that does not go through the map (R-V2-DD-9(a));
@@ -267,6 +285,11 @@
         <p class="now-notes__note" id="obs-marker-note">
           Each marker is one representative station's air temperature (°C) — a
           station value, not a county temperature.
+        </p>
+        <!-- CWA attribution for the radar dataset (R-V2-DOC-2, in-app SHOULD). -->
+        <p class="now-notes__note" id="radar-source-note">
+          Radar (when shown): 交通部中央氣象署 雷達整合回波圖-臺灣(鄰近地區)_透明底圖
+          (O-A0058-006), a 10-minute radar echo product; its time is the Radar Time.
         </p>
       </div>
     </section>

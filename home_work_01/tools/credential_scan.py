@@ -59,6 +59,8 @@ _AUTH_ARTIFACTS = (
     "home_work_01/data/raw/F-D0047-091.json",
     "home_work_01/data/raw/F-D0047-091.meta.json",
     "home_work_01/tests/fixtures/O-A0001-001_sample.json",
+    # Issue #40: the sanitised real O-A0058-006 radar metadata sample.
+    "home_work_01/tests/fixtures/O-A0058-006_metadata_sample.json",
 )
 # Documented, deliberately-fake example keys that are NOT secrets (see module
 # docstring). Removed before matching so they never trip the scan.

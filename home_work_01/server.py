@@ -35,15 +35,23 @@ a normalised success body or a classified non-2xx failure (``reason`` /
 ``error``). The forecast endpoints above never touch it, so they stay CWA-free
 and key-free (INV-V2-1). For a local run, ``python server.py`` copies
 ``CWA_API_KEY`` from the unit's untracked ``.env`` into the environment first.
+
+**V2 Radar** (SPEC-V2 §2.7; Issue #40). ``GET /api/radar/latest`` is the Now
+mode's radar path, served by :mod:`radar`: it answers the latest CWA radar echo
+image (``image/png``) together with the radar product time of the same
+server-side fetch (``X-Radar-Time``), or a classified non-2xx JSON failure with
+the same four reasons as the observation path. The key (needed for the product
+metadata) stays server-side; the forecast endpoints never touch this path.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, Response, jsonify, send_from_directory
 
 import observation
+import radar
 import weather_query as wq
 
 PAGE_TITLE = "Taiwan Weather Forecast"
@@ -71,6 +79,7 @@ _UNAVAILABLE_REASON = {
 def create_app(
     db_path: str | Path | None = None,
     observation_service: observation.LatestObservationService | None = None,
+    radar_service: radar.RadarService | None = None,
 ) -> Flask:
     """Build the dashboard Flask app, reading ``data.db`` through the shared module.
 
@@ -81,7 +90,8 @@ def create_app(
 
     ``observation_service`` defaults to a :class:`observation.LatestObservationService`
     reading the process environment; tests inject one with a controllable clock
-    and a simulated upstream.
+    and a simulated upstream. ``radar_service`` likewise defaults to a
+    :class:`radar.RadarService` reading the process environment.
     """
     app = Flask(
         __name__,
@@ -97,6 +107,7 @@ def create_app(
         if observation_service is None
         else observation_service
     )
+    latest_radar_service = radar.RadarService() if radar_service is None else radar_service
 
     def _db() -> str | Path:
         return app.config["DB_PATH"]
@@ -204,6 +215,30 @@ def create_app(
         status, body = latest_observation_service.latest()
         response = jsonify(body)
         response.status_code = status
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    # --- V2 Radar (SPEC-V2 R-V2-RAD-1..6, Issue #40) ------------------------------
+
+    @app.get("/api/radar/latest")
+    def latest_radar():
+        """Return the latest radar echo image with its radar time, or a failure.
+
+        Success is 200 ``image/png``; the radar product time (metadata
+        ``DateTime``, as published) and this server's fetch time travel in the
+        ``X-Radar-Time`` / ``X-Radar-Fetched-Time`` headers of the same response,
+        so the page can never pair an image with another fetch's time
+        (R-V2-RAD-4). Failures are non-2xx JSON with ``reason`` and ``error``.
+        """
+        result = latest_radar_service.latest()
+        if result.image is None:
+            response = jsonify(result.body)
+            response.status_code = result.status
+        else:
+            response = Response(result.image, status=200, mimetype="image/png")
+            response.headers["X-Radar-Time"] = result.radar_time
+            response.headers["X-Radar-Fetched-Time"] = result.fetched_time
+            response.headers["X-Radar-Dataset"] = radar.DATASET_ID
         response.headers["Cache-Control"] = "no-store"
         return response
 

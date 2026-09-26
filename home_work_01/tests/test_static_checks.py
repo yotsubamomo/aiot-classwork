@@ -76,7 +76,9 @@ _OBSERVATION = _UNIT_DIR / "observation.py"
 # single SQL owner (the shared module), including the V2 observation module.
 # Issue #36 adds the pure representative-station rule module to the same set.
 _REPRESENTATIVE = _UNIT_DIR / "representative.py"
-_NON_SHARED_PYTHON = (_APP, _SERVER, _API_ENTRY, _OBSERVATION, _REPRESENTATIVE)
+# Issue #40 adds the V2 radar module (server-side CWA radar access).
+_RADAR = _UNIT_DIR / "radar.py"
+_NON_SHARED_PYTHON = (_APP, _SERVER, _API_ENTRY, _OBSERVATION, _REPRESENTATIVE, _RADAR)
 
 # HTTP client top-level packages that must never appear on the presentation side
 # (R-SHR-5). Dotted modules are matched exactly as well.
@@ -452,6 +454,12 @@ def test_observation_module_is_in_the_no_sql_set() -> None:
     """R-V2-SEC-4(c): the new V2 module is checked for SQL / sqlite3 too."""
     assert _OBSERVATION.is_file()
     assert _OBSERVATION in _NON_SHARED_PYTHON
+
+
+def test_radar_module_is_in_the_no_sql_set() -> None:
+    """R-V2-SEC-4(c) (Issue #40): the V2 radar module holds no SQL / sqlite3."""
+    assert _RADAR.is_file()
+    assert _RADAR in _NON_SHARED_PYTHON
 
 
 def test_python_side_does_not_touch_sqlite_directly() -> None:

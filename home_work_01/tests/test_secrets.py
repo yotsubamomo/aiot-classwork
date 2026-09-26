@@ -19,6 +19,8 @@ ARTIFACTS = [
     UNIT_DIR / "data" / "raw" / "F-D0047-091.meta.json",  # provenance sidecar (DR-17 T-4)
     # V2 sanitised real O-A0001-001 sample (SPEC-V2 R-V2-SEC-5, R-V2-TC-2; #35)
     UNIT_DIR / "tests" / "fixtures" / "O-A0001-001_sample.json",
+    # V2 sanitised real O-A0058-006 radar metadata sample (R-V2-SEC-5; #40)
+    UNIT_DIR / "tests" / "fixtures" / "O-A0058-006_metadata_sample.json",
 ]
 
 # V2 backend code that may hold server-side CWA access (R-V2-SEC-4(a') moved it
@@ -48,6 +50,11 @@ V2_CODE = [
     UNIT_DIR / "static" / "styles.css",
     UNIT_DIR / "tests" / "test_fence_frontend.py",
     UNIT_DIR / "tests" / "check_fence_browser.py",
+    # Issue #40: radar module, its tests, frontend guards and browser check.
+    UNIT_DIR / "radar.py",
+    UNIT_DIR / "tests" / "test_radar.py",
+    UNIT_DIR / "tests" / "test_radar_frontend.py",
+    UNIT_DIR / "tests" / "check_radar_browser.py",
 ]
 
 
@@ -75,3 +82,4 @@ def test_ci_credential_scan_covers_the_v2_sample():
     from tools.credential_scan import _AUTH_ARTIFACTS
 
     assert "home_work_01/tests/fixtures/O-A0001-001_sample.json" in _AUTH_ARTIFACTS
+    assert "home_work_01/tests/fixtures/O-A0058-006_metadata_sample.json" in _AUTH_ARTIFACTS

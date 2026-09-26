@@ -1,0 +1,38 @@
+{
+  "A_forecast_ok": {
+    "total_requests": 29,
+    "urls": {
+      "http://127.0.0.1:<port>/": 2,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.css": 2,
+      "http://127.0.0.1:<port>/static/styles.css": 2,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.js": 2,
+      "http://127.0.0.1:<port>/static/data/basemap.js": 2,
+      "http://127.0.0.1:<port>/static/data/counties.js": 2,
+      "http://127.0.0.1:<port>/static/app.js": 2,
+      "http://127.0.0.1:<port>/api/observations/latest": 3,
+      "http://127.0.0.1:<port>/api/health": 2,
+      "http://127.0.0.1:<port>/favicon.ico": 1,
+      "http://127.0.0.1:<port>/api/regions": 2,
+      "http://127.0.0.1:<port>/api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 2,
+      "http://127.0.0.1:<port>/api/days": 2,
+      "http://127.0.0.1:<port>/api/days/2026-09-24": 2,
+      "http://127.0.0.1:<port>/api/days/2026-09-26": 1
+    }
+  },
+  "B_forecast_503": {
+    "total_requests": 21,
+    "urls": {
+      "http://127.0.0.1:<port>/": 2,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.css": 2,
+      "http://127.0.0.1:<port>/static/styles.css": 2,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.js": 2,
+      "http://127.0.0.1:<port>/static/data/basemap.js": 2,
+      "http://127.0.0.1:<port>/static/data/counties.js": 2,
+      "http://127.0.0.1:<port>/static/app.js": 2,
+      "http://127.0.0.1:<port>/api/observations/latest": 4,
+      "http://127.0.0.1:<port>/api/health": 2,
+      "http://127.0.0.1:<port>/favicon.ico": 1
+    }
+  },
+  "external_requests": []
+}
