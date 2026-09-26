@@ -1,0 +1,3131 @@
+{
+  "checks": [
+    {
+      "id": "1440 map height",
+      "pass": true,
+      "detail": {
+        "map": 640,
+        "expected": 640
+      }
+    },
+    {
+      "id": "1440 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1806,
+        "w": 1440,
+        "h": 1806,
+        "shown": true
+      }
+    },
+    {
+      "id": "1440 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "iw": 1440
+      }
+    },
+    {
+      "id": "1440 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "container": {
+          "w": 944,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.05981445312501,
+          "e": 125.43090820312501
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "1440 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "1440 desktop Now panel is 360 px wide, beside the map",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "l": 61,
+          "t": 237,
+          "r": 421,
+          "b": 879,
+          "w": 360,
+          "h": 642,
+          "shown": true
+        },
+        "map": {
+          "l": 434,
+          "t": 238,
+          "r": 1378,
+          "b": 878,
+          "w": 944,
+          "h": 640,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1440 desktop: the whole map is on the first screen",
+      "pass": true,
+      "detail": {
+        "mapBottom": 878,
+        "ih": 900
+      }
+    },
+    {
+      "id": "1440 Forecast section composition A: summary above the chart (left), table in a right column of the same height",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 40,
+          "t": 993,
+          "r": 1400,
+          "b": 1063,
+          "w": 1360,
+          "h": 70,
+          "shown": true
+        },
+        "summary": {
+          "l": 40,
+          "t": 1083,
+          "r": 893,
+          "b": 1242,
+          "w": 853,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 40,
+          "t": 1262,
+          "r": 893,
+          "b": 1750,
+          "w": 853,
+          "h": 488,
+          "shown": true
+        },
+        "table": {
+          "l": 913,
+          "t": 1083,
+          "r": 1400,
+          "b": 1750,
+          "w": 487,
+          "h": 667,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1440 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "iw": 1440
+      }
+    },
+    {
+      "id": "1440 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "container": {
+          "w": 944,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1440 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "iw": 1440,
+        "leaflet": {
+          "w": 1316,
+          "h": 640
+        },
+        "container": {
+          "w": 1316,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1440 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.05981445312501,
+          "e": 125.43090820312501
+        }
+      }
+    },
+    {
+      "id": "1440 zoom floor: at minZoom 6 the main island spans >= 25 % of the 640 px map",
+      "pass": true,
+      "detail": {
+        "zoom": 6,
+        "ns": 169,
+        "h": 640
+      }
+    },
+    {
+      "id": "1440 resize 1440 -> 768 -> 375 -> 1440: map height follows 440 / 360 / 640, Leaflet size == container, no horizontal scroll, the refitted view holds the main island and 澎湖",
+      "pass": true,
+      "detail": [
+        {
+          "w": 768,
+          "map": 440,
+          "leaflet": {
+            "w": 678,
+            "h": 440
+          },
+          "container": {
+            "w": 678,
+            "h": 440
+          },
+          "sw": 768,
+          "view": {
+            "s": 21.381474908405607,
+            "n": 25.809781975840405,
+            "w": 116.52099609375001,
+            "e": 123.96972656250001
+          }
+        },
+        {
+          "w": 375,
+          "map": 360,
+          "leaflet": {
+            "w": 309,
+            "h": 360
+          },
+          "container": {
+            "w": 309,
+            "h": 360
+          },
+          "sw": 375,
+          "view": {
+            "s": 20.324023603422518,
+            "n": 27.547241546253268,
+            "w": 116.85058593750001,
+            "e": 123.64013671875001
+          }
+        },
+        {
+          "w": 1440,
+          "map": 640,
+          "leaflet": {
+            "w": 944,
+            "h": 640
+          },
+          "container": {
+            "w": 944,
+            "h": 640
+          },
+          "sw": 1440,
+          "view": {
+            "s": 20.72529087399421,
+            "n": 27.147144835991796,
+            "w": 115.05981445312501,
+            "e": 125.43090820312501
+          }
+        }
+      ]
+    },
+    {
+      "id": "1280 map height",
+      "pass": true,
+      "detail": {
+        "map": 640,
+        "expected": 640
+      }
+    },
+    {
+      "id": "1280 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1778,
+        "w": 1280,
+        "h": 1778,
+        "shown": true
+      }
+    },
+    {
+      "id": "1280 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 1280,
+        "iw": 1280
+      }
+    },
+    {
+      "id": "1280 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 787,
+          "h": 640
+        },
+        "container": {
+          "w": 787,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.92773437500001,
+          "e": 124.57397460937501
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "1280 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "1280 desktop Now panel is 360 px wide, beside the map",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "l": 59,
+          "t": 237,
+          "r": 419,
+          "b": 879,
+          "w": 360,
+          "h": 642,
+          "shown": true
+        },
+        "map": {
+          "l": 432,
+          "t": 238,
+          "r": 1220,
+          "b": 878,
+          "w": 787,
+          "h": 640,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1280 desktop: the whole map is on the first screen",
+      "pass": true,
+      "detail": {
+        "mapBottom": 878,
+        "ih": 900
+      }
+    },
+    {
+      "id": "1280 Forecast section composition A: summary above the chart (left), table in a right column of the same height",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 38,
+          "t": 1011,
+          "r": 1242,
+          "b": 1081,
+          "w": 1203,
+          "h": 70,
+          "shown": true
+        },
+        "summary": {
+          "l": 38,
+          "t": 1101,
+          "r": 791,
+          "b": 1260,
+          "w": 753,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 38,
+          "t": 1280,
+          "r": 791,
+          "b": 1722,
+          "w": 753,
+          "h": 442,
+          "shown": true
+        },
+        "table": {
+          "l": 811,
+          "t": 1101,
+          "r": 1242,
+          "b": 1722,
+          "w": 430,
+          "h": 621,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1280 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 1280,
+        "iw": 1280
+      }
+    },
+    {
+      "id": "1280 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 787,
+          "h": 640
+        },
+        "container": {
+          "w": 787,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1280 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 1280,
+        "iw": 1280,
+        "leaflet": {
+          "w": 1159,
+          "h": 640
+        },
+        "container": {
+          "w": 1159,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1280 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 787,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.92773437500001,
+          "e": 124.57397460937501
+        }
+      }
+    },
+    {
+      "id": "1024 map height",
+      "pass": true,
+      "detail": {
+        "map": 640,
+        "expected": 640
+      }
+    },
+    {
+      "id": "1024 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 1723,
+        "w": 1024,
+        "h": 1723,
+        "shown": true
+      }
+    },
+    {
+      "id": "1024 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 1024,
+        "iw": 1024
+      }
+    },
+    {
+      "id": "1024 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 547,
+          "h": 640
+        },
+        "container": {
+          "w": 547,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 117.24609375000001,
+          "e": 123.25561523437501
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "1024 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "1024 desktop Now panel is 360 px wide, beside the map",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "l": 52,
+          "t": 234,
+          "r": 412,
+          "b": 876,
+          "w": 360,
+          "h": 642,
+          "shown": true
+        },
+        "map": {
+          "l": 425,
+          "t": 235,
+          "r": 971,
+          "b": 875,
+          "w": 547,
+          "h": 640,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1024 Forecast section composition A: summary above the chart (left), table in a right column of the same height",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 31,
+          "t": 1025,
+          "r": 993,
+          "b": 1095,
+          "w": 963,
+          "h": 70,
+          "shown": true
+        },
+        "summary": {
+          "l": 31,
+          "t": 1115,
+          "r": 631,
+          "b": 1275,
+          "w": 600,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 31,
+          "t": 1295,
+          "r": 631,
+          "b": 1667,
+          "w": 600,
+          "h": 372,
+          "shown": true
+        },
+        "table": {
+          "l": 651,
+          "t": 1115,
+          "r": 993,
+          "b": 1667,
+          "w": 343,
+          "h": 551,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "1024 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 1024,
+        "iw": 1024
+      }
+    },
+    {
+      "id": "1024 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 547,
+          "h": 640
+        },
+        "container": {
+          "w": 547,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1024 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 1024,
+        "iw": 1024,
+        "leaflet": {
+          "w": 919,
+          "h": 640
+        },
+        "container": {
+          "w": 919,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "1024 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 547,
+          "h": 640
+        },
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 117.24609375000001,
+          "e": 123.25561523437501
+        }
+      }
+    },
+    {
+      "id": "768 map height",
+      "pass": true,
+      "detail": {
+        "map": 440,
+        "expected": 440
+      }
+    },
+    {
+      "id": "768 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2312,
+        "w": 768,
+        "h": 2312,
+        "shown": true
+      }
+    },
+    {
+      "id": "768 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 768,
+        "iw": 768
+      }
+    },
+    {
+      "id": "768 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        },
+        "view": {
+          "s": 21.381474908405607,
+          "n": 25.809781975840405,
+          "w": 116.52099609375001,
+          "e": 123.96972656250001
+        },
+        "zoom": 7
+      }
+    },
+    {
+      "id": "768 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "768 narrow: Forecast section is one column in the order header, summary, chart, table",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 23,
+          "t": 1075,
+          "r": 745,
+          "b": 1178,
+          "w": 722,
+          "h": 102,
+          "shown": true
+        },
+        "summary": {
+          "l": 23,
+          "t": 1198,
+          "r": 745,
+          "b": 1357,
+          "w": 722,
+          "h": 160,
+          "shown": true
+        },
+        "chart": {
+          "l": 23,
+          "t": 1377,
+          "r": 745,
+          "b": 1805,
+          "w": 722,
+          "h": 428,
+          "shown": true
+        },
+        "table": {
+          "l": 23,
+          "t": 1825,
+          "r": 745,
+          "b": 2256,
+          "w": 722,
+          "h": 431,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "768 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 768,
+        "iw": 768
+      }
+    },
+    {
+      "id": "768 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        }
+      }
+    },
+    {
+      "id": "768 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 768,
+        "iw": 768,
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        }
+      }
+    },
+    {
+      "id": "768 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "view": {
+          "s": 21.381474908405607,
+          "n": 25.809781975840405,
+          "w": 116.52099609375001,
+          "e": 123.96972656250001
+        }
+      }
+    },
+    {
+      "id": "375 map height",
+      "pass": true,
+      "detail": {
+        "map": 360,
+        "expected": 360
+      }
+    },
+    {
+      "id": "375 page container <= 1440 px and centred",
+      "pass": true,
+      "detail": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2575,
+        "w": 375,
+        "h": 2575,
+        "shown": true
+      }
+    },
+    {
+      "id": "375 no horizontal scroll (Now, Taiwan)",
+      "pass": true,
+      "detail": {
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 Leaflet size == map container after load; initial view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        },
+        "view": {
+          "s": 20.324023603422518,
+          "n": 27.547241546253268,
+          "w": 116.85058593750001,
+          "e": 123.64013671875001
+        },
+        "zoom": 6
+      }
+    },
+    {
+      "id": "375 mode switch visible without scrolling",
+      "pass": true,
+      "detail": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      }
+    },
+    {
+      "id": "375 narrow: Forecast section is one column in the order header, summary, chart, table",
+      "pass": true,
+      "detail": {
+        "controls": {
+          "l": 16,
+          "t": 1191,
+          "r": 359,
+          "b": 1349,
+          "w": 343,
+          "h": 159,
+          "shown": true
+        },
+        "summary": {
+          "l": 16,
+          "t": 1369,
+          "r": 359,
+          "b": 1654,
+          "w": 343,
+          "h": 284,
+          "shown": true
+        },
+        "chart": {
+          "l": 16,
+          "t": 1674,
+          "r": 359,
+          "b": 2078,
+          "w": 343,
+          "h": 405,
+          "shown": true
+        },
+        "table": {
+          "l": 16,
+          "t": 2098,
+          "r": 359,
+          "b": 2519,
+          "w": 343,
+          "h": 421,
+          "shown": true
+        }
+      }
+    },
+    {
+      "id": "375 no horizontal scroll (Now, a county)",
+      "pass": true,
+      "detail": {
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 Leaflet size == map container with a county selected",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        }
+      }
+    },
+    {
+      "id": "375 Forecast mode: no horizontal scroll; Leaflet size == map container",
+      "pass": true,
+      "detail": {
+        "sw": 375,
+        "iw": 375,
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        }
+      }
+    },
+    {
+      "id": "375 back to Now: Leaflet size == map container; view holds the main island and 澎湖",
+      "pass": true,
+      "detail": {
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "view": {
+          "s": 20.324023603422518,
+          "n": 27.547241546253268,
+          "w": 116.85058593750001,
+          "e": 123.64013671875001
+        }
+      }
+    },
+    {
+      "id": "1440-dark dark scheme renders with no horizontal scroll and the 640 px map",
+      "pass": true,
+      "detail": {
+        "sw": 1440,
+        "map": 640
+      }
+    }
+  ],
+  "geometry": {
+    "1440-now": {
+      "iw": 1440,
+      "ih": 900,
+      "sw": 1440,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1806,
+        "w": 1440,
+        "h": 1806,
+        "shown": true
+      },
+      "masthead": {
+        "l": 40,
+        "t": 28,
+        "r": 1400,
+        "b": 130,
+        "w": 1360,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 40,
+        "t": 150,
+        "r": 1400,
+        "b": 969,
+        "w": 1360,
+        "h": 818,
+        "shown": true
+      },
+      "toggle": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 434,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 944,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 61,
+        "t": 237,
+        "r": 421,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1750,
+        "w": 1360,
+        "h": 757,
+        "shown": true
+      },
+      "controls": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1063,
+        "w": 1360,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 40,
+        "t": 1083,
+        "r": 893,
+        "b": 1242,
+        "w": 853,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 40,
+        "t": 1262,
+        "r": 893,
+        "b": 1750,
+        "w": 853,
+        "h": 488,
+        "shown": true
+      },
+      "table": {
+        "l": 913,
+        "t": 1083,
+        "r": 1400,
+        "b": 1750,
+        "w": 487,
+        "h": 667,
+        "shown": true
+      },
+      "notes": {
+        "l": 433,
+        "t": 889,
+        "r": 1379,
+        "b": 948,
+        "w": 946,
+        "h": 58,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 944,
+        "h": 640
+      },
+      "container": {
+        "w": 944,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 115.05981445312501,
+        "e": 125.43090820312501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1440-county": {
+      "iw": 1440,
+      "ih": 900,
+      "sw": 1440,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1806,
+        "w": 1440,
+        "h": 1806,
+        "shown": true
+      },
+      "masthead": {
+        "l": 40,
+        "t": 28,
+        "r": 1400,
+        "b": 130,
+        "w": 1360,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 40,
+        "t": 150,
+        "r": 1400,
+        "b": 969,
+        "w": 1360,
+        "h": 818,
+        "shown": true
+      },
+      "toggle": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 434,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 944,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 61,
+        "t": 237,
+        "r": 421,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1750,
+        "w": 1360,
+        "h": 757,
+        "shown": true
+      },
+      "controls": {
+        "l": 40,
+        "t": 993,
+        "r": 1400,
+        "b": 1063,
+        "w": 1360,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 40,
+        "t": 1083,
+        "r": 893,
+        "b": 1242,
+        "w": 853,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 40,
+        "t": 1262,
+        "r": 893,
+        "b": 1750,
+        "w": 853,
+        "h": 488,
+        "shown": true
+      },
+      "table": {
+        "l": 913,
+        "t": 1083,
+        "r": 1400,
+        "b": 1750,
+        "w": 487,
+        "h": 667,
+        "shown": true
+      },
+      "notes": {
+        "l": 433,
+        "t": 889,
+        "r": 1379,
+        "b": 948,
+        "w": 946,
+        "h": 58,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 944,
+        "h": 640
+      },
+      "container": {
+        "w": 944,
+        "h": 640
+      },
+      "zoom": 9,
+      "view": {
+        "s": 22.92804166565176,
+        "n": 24.53712939907994,
+        "w": 120.08605957031251,
+        "e": 122.67883300781251
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1440-forecast": {
+      "iw": 1440,
+      "ih": 900,
+      "sw": 1440,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1440,
+        "b": 1737,
+        "w": 1440,
+        "h": 1737,
+        "shown": true
+      },
+      "masthead": {
+        "l": 40,
+        "t": 28,
+        "r": 1400,
+        "b": 130,
+        "w": 1360,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 40,
+        "t": 150,
+        "r": 1400,
+        "b": 900,
+        "w": 1360,
+        "h": 750,
+        "shown": true
+      },
+      "toggle": {
+        "l": 182,
+        "t": 171,
+        "r": 550,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 62,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 1316,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 75,
+        "t": 251,
+        "r": 363,
+        "b": 664,
+        "w": 288,
+        "h": 413,
+        "shown": true
+      },
+      "section": {
+        "l": 40,
+        "t": 924,
+        "r": 1400,
+        "b": 1681,
+        "w": 1360,
+        "h": 757,
+        "shown": true
+      },
+      "controls": {
+        "l": 40,
+        "t": 924,
+        "r": 1400,
+        "b": 994,
+        "w": 1360,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 40,
+        "t": 1014,
+        "r": 893,
+        "b": 1174,
+        "w": 853,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 40,
+        "t": 1194,
+        "r": 893,
+        "b": 1681,
+        "w": 853,
+        "h": 488,
+        "shown": true
+      },
+      "table": {
+        "l": 913,
+        "t": 1014,
+        "r": 1400,
+        "b": 1681,
+        "w": 487,
+        "h": 667,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 1316,
+        "h": 640
+      },
+      "container": {
+        "w": 1316,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 113.01635742187501,
+        "e": 127.47436523437501
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "1440-zoom-floor": {
+      "zoom": 6,
+      "ns": 169,
+      "h": 640
+    },
+    "resize-sequence": [
+      {
+        "w": 768,
+        "map": 440,
+        "leaflet": {
+          "w": 678,
+          "h": 440
+        },
+        "container": {
+          "w": 678,
+          "h": 440
+        },
+        "sw": 768,
+        "view": {
+          "s": 21.381474908405607,
+          "n": 25.809781975840405,
+          "w": 116.52099609375001,
+          "e": 123.96972656250001
+        }
+      },
+      {
+        "w": 375,
+        "map": 360,
+        "leaflet": {
+          "w": 309,
+          "h": 360
+        },
+        "container": {
+          "w": 309,
+          "h": 360
+        },
+        "sw": 375,
+        "view": {
+          "s": 20.324023603422518,
+          "n": 27.547241546253268,
+          "w": 116.85058593750001,
+          "e": 123.64013671875001
+        }
+      },
+      {
+        "w": 1440,
+        "map": 640,
+        "leaflet": {
+          "w": 944,
+          "h": 640
+        },
+        "container": {
+          "w": 944,
+          "h": 640
+        },
+        "sw": 1440,
+        "view": {
+          "s": 20.72529087399421,
+          "n": 27.147144835991796,
+          "w": 115.05981445312501,
+          "e": 125.43090820312501
+        }
+      }
+    ],
+    "1280-now": {
+      "iw": 1280,
+      "ih": 900,
+      "sw": 1280,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1778,
+        "w": 1280,
+        "h": 1778,
+        "shown": true
+      },
+      "masthead": {
+        "l": 38,
+        "t": 28,
+        "r": 1242,
+        "b": 130,
+        "w": 1203,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 38,
+        "t": 150,
+        "r": 1242,
+        "b": 987,
+        "w": 1203,
+        "h": 837,
+        "shown": true
+      },
+      "toggle": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 432,
+        "t": 238,
+        "r": 1220,
+        "b": 878,
+        "w": 787,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 59,
+        "t": 237,
+        "r": 419,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1722,
+        "w": 1203,
+        "h": 711,
+        "shown": true
+      },
+      "controls": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1081,
+        "w": 1203,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 38,
+        "t": 1101,
+        "r": 791,
+        "b": 1260,
+        "w": 753,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 38,
+        "t": 1280,
+        "r": 791,
+        "b": 1722,
+        "w": 753,
+        "h": 442,
+        "shown": true
+      },
+      "table": {
+        "l": 811,
+        "t": 1101,
+        "r": 1242,
+        "b": 1722,
+        "w": 430,
+        "h": 621,
+        "shown": true
+      },
+      "notes": {
+        "l": 431,
+        "t": 889,
+        "r": 1221,
+        "b": 966,
+        "w": 789,
+        "h": 77,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 787,
+        "h": 640
+      },
+      "container": {
+        "w": 787,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 115.92773437500001,
+        "e": 124.57397460937501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1280-county": {
+      "iw": 1280,
+      "ih": 900,
+      "sw": 1280,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1778,
+        "w": 1280,
+        "h": 1778,
+        "shown": true
+      },
+      "masthead": {
+        "l": 38,
+        "t": 28,
+        "r": 1242,
+        "b": 130,
+        "w": 1203,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 38,
+        "t": 150,
+        "r": 1242,
+        "b": 987,
+        "w": 1203,
+        "h": 837,
+        "shown": true
+      },
+      "toggle": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 432,
+        "t": 238,
+        "r": 1220,
+        "b": 878,
+        "w": 787,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 59,
+        "t": 237,
+        "r": 419,
+        "b": 879,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1722,
+        "w": 1203,
+        "h": 711,
+        "shown": true
+      },
+      "controls": {
+        "l": 38,
+        "t": 1011,
+        "r": 1242,
+        "b": 1081,
+        "w": 1203,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 38,
+        "t": 1101,
+        "r": 791,
+        "b": 1260,
+        "w": 753,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 38,
+        "t": 1280,
+        "r": 791,
+        "b": 1722,
+        "w": 753,
+        "h": 442,
+        "shown": true
+      },
+      "table": {
+        "l": 811,
+        "t": 1101,
+        "r": 1242,
+        "b": 1722,
+        "w": 430,
+        "h": 621,
+        "shown": true
+      },
+      "notes": {
+        "l": 431,
+        "t": 889,
+        "r": 1221,
+        "b": 966,
+        "w": 789,
+        "h": 77,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 787,
+        "h": 640
+      },
+      "container": {
+        "w": 787,
+        "h": 640
+      },
+      "zoom": 9,
+      "view": {
+        "s": 22.92804166565176,
+        "n": 24.53712939907994,
+        "w": 120.30029296875001,
+        "e": 122.46185302734376
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1280-forecast": {
+      "iw": 1280,
+      "ih": 900,
+      "sw": 1280,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1280,
+        "b": 1692,
+        "w": 1280,
+        "h": 1692,
+        "shown": true
+      },
+      "masthead": {
+        "l": 38,
+        "t": 28,
+        "r": 1242,
+        "b": 130,
+        "w": 1203,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 38,
+        "t": 150,
+        "r": 1242,
+        "b": 900,
+        "w": 1203,
+        "h": 750,
+        "shown": true
+      },
+      "toggle": {
+        "l": 180,
+        "t": 171,
+        "r": 548,
+        "b": 223,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 60,
+        "t": 238,
+        "r": 1220,
+        "b": 878,
+        "w": 1159,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 73,
+        "t": 251,
+        "r": 361,
+        "b": 664,
+        "w": 288,
+        "h": 413,
+        "shown": true
+      },
+      "section": {
+        "l": 38,
+        "t": 924,
+        "r": 1242,
+        "b": 1636,
+        "w": 1203,
+        "h": 711,
+        "shown": true
+      },
+      "controls": {
+        "l": 38,
+        "t": 924,
+        "r": 1242,
+        "b": 994,
+        "w": 1203,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 38,
+        "t": 1014,
+        "r": 791,
+        "b": 1174,
+        "w": 753,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 38,
+        "t": 1194,
+        "r": 791,
+        "b": 1636,
+        "w": 753,
+        "h": 442,
+        "shown": true
+      },
+      "table": {
+        "l": 811,
+        "t": 1014,
+        "r": 1242,
+        "b": 1636,
+        "w": 430,
+        "h": 621,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 1159,
+        "h": 640
+      },
+      "container": {
+        "w": 1159,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 113.88427734375,
+        "e": 126.61743164062501
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "1024-now": {
+      "iw": 1024,
+      "ih": 768,
+      "sw": 1024,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 1723,
+        "w": 1024,
+        "h": 1723,
+        "shown": true
+      },
+      "masthead": {
+        "l": 31,
+        "t": 25,
+        "r": 993,
+        "b": 127,
+        "w": 963,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 31,
+        "t": 147,
+        "r": 993,
+        "b": 1001,
+        "w": 963,
+        "h": 855,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 425,
+        "t": 235,
+        "r": 971,
+        "b": 875,
+        "w": 547,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 52,
+        "t": 234,
+        "r": 412,
+        "b": 876,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 31,
+        "t": 1025,
+        "r": 993,
+        "b": 1667,
+        "w": 963,
+        "h": 641,
+        "shown": true
+      },
+      "controls": {
+        "l": 31,
+        "t": 1025,
+        "r": 993,
+        "b": 1095,
+        "w": 963,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 31,
+        "t": 1115,
+        "r": 631,
+        "b": 1275,
+        "w": 600,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 31,
+        "t": 1295,
+        "r": 631,
+        "b": 1667,
+        "w": 600,
+        "h": 372,
+        "shown": true
+      },
+      "table": {
+        "l": 651,
+        "t": 1115,
+        "r": 993,
+        "b": 1667,
+        "w": 343,
+        "h": 551,
+        "shown": true
+      },
+      "notes": {
+        "l": 424,
+        "t": 886,
+        "r": 972,
+        "b": 980,
+        "w": 549,
+        "h": 95,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 547,
+        "h": 640
+      },
+      "container": {
+        "w": 547,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 117.24609375000001,
+        "e": 123.25561523437501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1024-county": {
+      "iw": 1024,
+      "ih": 768,
+      "sw": 1024,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 1723,
+        "w": 1024,
+        "h": 1723,
+        "shown": true
+      },
+      "masthead": {
+        "l": 31,
+        "t": 25,
+        "r": 993,
+        "b": 127,
+        "w": 963,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 31,
+        "t": 147,
+        "r": 993,
+        "b": 1001,
+        "w": 963,
+        "h": 855,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 425,
+        "t": 235,
+        "r": 971,
+        "b": 875,
+        "w": 547,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 52,
+        "t": 234,
+        "r": 412,
+        "b": 876,
+        "w": 360,
+        "h": 642,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 31,
+        "t": 1025,
+        "r": 993,
+        "b": 1667,
+        "w": 963,
+        "h": 641,
+        "shown": true
+      },
+      "controls": {
+        "l": 31,
+        "t": 1025,
+        "r": 993,
+        "b": 1095,
+        "w": 963,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 31,
+        "t": 1115,
+        "r": 631,
+        "b": 1275,
+        "w": 600,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 31,
+        "t": 1295,
+        "r": 631,
+        "b": 1667,
+        "w": 600,
+        "h": 372,
+        "shown": true
+      },
+      "table": {
+        "l": 651,
+        "t": 1115,
+        "r": 993,
+        "b": 1667,
+        "w": 343,
+        "h": 551,
+        "shown": true
+      },
+      "notes": {
+        "l": 424,
+        "t": 886,
+        "r": 972,
+        "b": 980,
+        "w": 549,
+        "h": 95,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 547,
+        "h": 640
+      },
+      "container": {
+        "w": 547,
+        "h": 640
+      },
+      "zoom": 9,
+      "view": {
+        "s": 22.92804166565176,
+        "n": 24.53712939907994,
+        "w": 120.6298828125,
+        "e": 122.13226318359376
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "1024-forecast": {
+      "iw": 1024,
+      "ih": 768,
+      "sw": 1024,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 1024,
+        "b": 2167,
+        "w": 1024,
+        "h": 2167,
+        "shown": true
+      },
+      "masthead": {
+        "l": 31,
+        "t": 25,
+        "r": 993,
+        "b": 127,
+        "w": 963,
+        "h": 102,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 31,
+        "t": 147,
+        "r": 993,
+        "b": 1446,
+        "w": 963,
+        "h": 1299,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 168,
+        "r": 541,
+        "b": 220,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 53,
+        "t": 623,
+        "r": 971,
+        "b": 1263,
+        "w": 919,
+        "h": 640,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 52,
+        "t": 234,
+        "r": 972,
+        "b": 612,
+        "w": 921,
+        "h": 378,
+        "shown": true
+      },
+      "section": {
+        "l": 31,
+        "t": 1470,
+        "r": 993,
+        "b": 2111,
+        "w": 963,
+        "h": 641,
+        "shown": true
+      },
+      "controls": {
+        "l": 31,
+        "t": 1470,
+        "r": 993,
+        "b": 1540,
+        "w": 963,
+        "h": 70,
+        "shown": true
+      },
+      "summary": {
+        "l": 31,
+        "t": 1560,
+        "r": 631,
+        "b": 1720,
+        "w": 600,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 31,
+        "t": 1740,
+        "r": 631,
+        "b": 2111,
+        "w": 600,
+        "h": 372,
+        "shown": true
+      },
+      "table": {
+        "l": 651,
+        "t": 1560,
+        "r": 993,
+        "b": 2111,
+        "w": 343,
+        "h": 551,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 919,
+        "h": 640
+      },
+      "container": {
+        "w": 919,
+        "h": 640
+      },
+      "zoom": 7,
+      "view": {
+        "s": 20.72529087399421,
+        "n": 27.147144835991796,
+        "w": 115.20263671875001,
+        "e": 125.29907226562501
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "768-now": {
+      "iw": 768,
+      "ih": 1024,
+      "sw": 768,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2312,
+        "w": 768,
+        "h": 2312,
+        "shown": true
+      },
+      "masthead": {
+        "l": 23,
+        "t": 18,
+        "r": 745,
+        "b": 184,
+        "w": 722,
+        "h": 165,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 23,
+        "t": 204,
+        "r": 745,
+        "b": 1051,
+        "w": 722,
+        "h": 847,
+        "shown": true
+      },
+      "toggle": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 45,
+        "t": 503,
+        "r": 723,
+        "b": 943,
+        "w": 678,
+        "h": 440,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 44,
+        "t": 319,
+        "r": 724,
+        "b": 492,
+        "w": 680,
+        "h": 173,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 23,
+        "t": 1075,
+        "r": 745,
+        "b": 2256,
+        "w": 722,
+        "h": 1180,
+        "shown": true
+      },
+      "controls": {
+        "l": 23,
+        "t": 1075,
+        "r": 745,
+        "b": 1178,
+        "w": 722,
+        "h": 102,
+        "shown": true
+      },
+      "summary": {
+        "l": 23,
+        "t": 1198,
+        "r": 745,
+        "b": 1357,
+        "w": 722,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 23,
+        "t": 1377,
+        "r": 745,
+        "b": 1805,
+        "w": 722,
+        "h": 428,
+        "shown": true
+      },
+      "table": {
+        "l": 23,
+        "t": 1825,
+        "r": 745,
+        "b": 2256,
+        "w": 722,
+        "h": 431,
+        "shown": true
+      },
+      "notes": {
+        "l": 44,
+        "t": 954,
+        "r": 724,
+        "b": 1030,
+        "w": 680,
+        "h": 77,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 678,
+        "h": 440
+      },
+      "container": {
+        "w": 678,
+        "h": 440
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.381474908405607,
+        "n": 25.809781975840405,
+        "w": 116.52099609375001,
+        "e": 123.96972656250001
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "768-county": {
+      "iw": 768,
+      "ih": 1024,
+      "sw": 768,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2382,
+        "w": 768,
+        "h": 2382,
+        "shown": true
+      },
+      "masthead": {
+        "l": 23,
+        "t": 18,
+        "r": 745,
+        "b": 184,
+        "w": 722,
+        "h": 165,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 23,
+        "t": 204,
+        "r": 745,
+        "b": 1121,
+        "w": 722,
+        "h": 918,
+        "shown": true
+      },
+      "toggle": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 45,
+        "t": 555,
+        "r": 723,
+        "b": 995,
+        "w": 678,
+        "h": 440,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 44,
+        "t": 319,
+        "r": 724,
+        "b": 544,
+        "w": 680,
+        "h": 225,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 23,
+        "t": 1145,
+        "r": 745,
+        "b": 2326,
+        "w": 722,
+        "h": 1180,
+        "shown": true
+      },
+      "controls": {
+        "l": 23,
+        "t": 1145,
+        "r": 745,
+        "b": 1248,
+        "w": 722,
+        "h": 102,
+        "shown": true
+      },
+      "summary": {
+        "l": 23,
+        "t": 1268,
+        "r": 745,
+        "b": 1427,
+        "w": 722,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 23,
+        "t": 1447,
+        "r": 745,
+        "b": 1875,
+        "w": 722,
+        "h": 428,
+        "shown": true
+      },
+      "table": {
+        "l": 23,
+        "t": 1895,
+        "r": 745,
+        "b": 2326,
+        "w": 722,
+        "h": 431,
+        "shown": true
+      },
+      "notes": {
+        "l": 44,
+        "t": 1006,
+        "r": 724,
+        "b": 1100,
+        "w": 680,
+        "h": 95,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 678,
+        "h": 440
+      },
+      "container": {
+        "w": 678,
+        "h": 440
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.197216077387107,
+        "n": 25.631621577258493,
+        "w": 116.52099609375001,
+        "e": 123.96972656250001
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "768-forecast": {
+      "iw": 768,
+      "ih": 1024,
+      "sw": 768,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 768,
+        "b": 2564,
+        "w": 768,
+        "h": 2564,
+        "shown": true
+      },
+      "masthead": {
+        "l": 23,
+        "t": 18,
+        "r": 745,
+        "b": 184,
+        "w": 722,
+        "h": 165,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 23,
+        "t": 204,
+        "r": 745,
+        "b": 1303,
+        "w": 722,
+        "h": 1099,
+        "shown": true
+      },
+      "toggle": {
+        "l": 165,
+        "t": 225,
+        "r": 533,
+        "b": 277,
+        "w": 368,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 45,
+        "t": 680,
+        "r": 723,
+        "b": 1120,
+        "w": 678,
+        "h": 440,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 44,
+        "t": 291,
+        "r": 724,
+        "b": 669,
+        "w": 680,
+        "h": 378,
+        "shown": true
+      },
+      "section": {
+        "l": 23,
+        "t": 1327,
+        "r": 745,
+        "b": 2508,
+        "w": 722,
+        "h": 1180,
+        "shown": true
+      },
+      "controls": {
+        "l": 23,
+        "t": 1327,
+        "r": 745,
+        "b": 1430,
+        "w": 722,
+        "h": 102,
+        "shown": true
+      },
+      "summary": {
+        "l": 23,
+        "t": 1450,
+        "r": 745,
+        "b": 1609,
+        "w": 722,
+        "h": 160,
+        "shown": true
+      },
+      "chart": {
+        "l": 23,
+        "t": 1629,
+        "r": 745,
+        "b": 2057,
+        "w": 722,
+        "h": 428,
+        "shown": true
+      },
+      "table": {
+        "l": 23,
+        "t": 2077,
+        "r": 745,
+        "b": 2508,
+        "w": 722,
+        "h": 431,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 678,
+        "h": 440
+      },
+      "container": {
+        "w": 678,
+        "h": 440
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.381474908405607,
+        "n": 25.809781975840405,
+        "w": 116.52099609375001,
+        "e": 123.96972656250001
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "375-now": {
+      "iw": 375,
+      "ih": 812,
+      "sw": 375,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2575,
+        "w": 375,
+        "h": 2575,
+        "shown": true
+      },
+      "masthead": {
+        "l": 16,
+        "t": 16,
+        "r": 359,
+        "b": 209,
+        "w": 343,
+        "h": 193,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 16,
+        "t": 223,
+        "r": 359,
+        "b": 1167,
+        "w": 343,
+        "h": 944,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 33,
+        "t": 612,
+        "r": 342,
+        "b": 972,
+        "w": 309,
+        "h": 360,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 32,
+        "t": 353,
+        "r": 343,
+        "b": 601,
+        "w": 311,
+        "h": 248,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 16,
+        "t": 1191,
+        "r": 359,
+        "b": 2519,
+        "w": 343,
+        "h": 1328,
+        "shown": true
+      },
+      "controls": {
+        "l": 16,
+        "t": 1191,
+        "r": 359,
+        "b": 1349,
+        "w": 343,
+        "h": 159,
+        "shown": true
+      },
+      "summary": {
+        "l": 16,
+        "t": 1369,
+        "r": 359,
+        "b": 1654,
+        "w": 343,
+        "h": 284,
+        "shown": true
+      },
+      "chart": {
+        "l": 16,
+        "t": 1674,
+        "r": 359,
+        "b": 2078,
+        "w": 343,
+        "h": 405,
+        "shown": true
+      },
+      "table": {
+        "l": 16,
+        "t": 2098,
+        "r": 359,
+        "b": 2519,
+        "w": 343,
+        "h": 421,
+        "shown": true
+      },
+      "notes": {
+        "l": 32,
+        "t": 983,
+        "r": 343,
+        "b": 1151,
+        "w": 311,
+        "h": 167,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 309,
+        "h": 360
+      },
+      "container": {
+        "w": 309,
+        "h": 360
+      },
+      "zoom": 6,
+      "view": {
+        "s": 20.324023603422518,
+        "n": 27.547241546253268,
+        "w": 116.85058593750001,
+        "e": 123.64013671875001
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "375-county": {
+      "iw": 375,
+      "ih": 812,
+      "sw": 375,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2607,
+        "w": 375,
+        "h": 2607,
+        "shown": true
+      },
+      "masthead": {
+        "l": 16,
+        "t": 16,
+        "r": 359,
+        "b": 209,
+        "w": 343,
+        "h": 193,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 16,
+        "t": 223,
+        "r": 359,
+        "b": 1198,
+        "w": 343,
+        "h": 976,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 33,
+        "t": 644,
+        "r": 342,
+        "b": 1004,
+        "w": 309,
+        "h": 360,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 32,
+        "t": 333,
+        "r": 343,
+        "b": 633,
+        "w": 311,
+        "h": 300,
+        "shown": true
+      },
+      "forecastPanel": {
+        "l": 0,
+        "t": 193,
+        "r": 0,
+        "b": 193,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "section": {
+        "l": 16,
+        "t": 1222,
+        "r": 359,
+        "b": 2551,
+        "w": 343,
+        "h": 1328,
+        "shown": true
+      },
+      "controls": {
+        "l": 16,
+        "t": 1222,
+        "r": 359,
+        "b": 1381,
+        "w": 343,
+        "h": 159,
+        "shown": true
+      },
+      "summary": {
+        "l": 16,
+        "t": 1401,
+        "r": 359,
+        "b": 1685,
+        "w": 343,
+        "h": 284,
+        "shown": true
+      },
+      "chart": {
+        "l": 16,
+        "t": 1705,
+        "r": 359,
+        "b": 2110,
+        "w": 343,
+        "h": 405,
+        "shown": true
+      },
+      "table": {
+        "l": 16,
+        "t": 2130,
+        "r": 359,
+        "b": 2551,
+        "w": 343,
+        "h": 421,
+        "shown": true
+      },
+      "notes": {
+        "l": 32,
+        "t": 1015,
+        "r": 343,
+        "b": 1182,
+        "w": 311,
+        "h": 167,
+        "shown": true
+      },
+      "leaflet": {
+        "w": 309,
+        "h": 360
+      },
+      "container": {
+        "w": 309,
+        "h": 360
+      },
+      "zoom": 7,
+      "view": {
+        "s": 21.197216077387107,
+        "n": 24.836595553891183,
+        "w": 119.50927734375001,
+        "e": 122.90405273437501
+      },
+      "mode": "mode-now",
+      "bg": "layered"
+    },
+    "375-forecast": {
+      "iw": 375,
+      "ih": 812,
+      "sw": 375,
+      "page": {
+        "l": 0,
+        "t": 0,
+        "r": 375,
+        "b": 2720,
+        "w": 375,
+        "h": 2720,
+        "shown": true
+      },
+      "masthead": {
+        "l": 16,
+        "t": 16,
+        "r": 359,
+        "b": 209,
+        "w": 343,
+        "h": 193,
+        "shown": true
+      },
+      "mapCard": {
+        "l": 16,
+        "t": 223,
+        "r": 359,
+        "b": 1312,
+        "w": 343,
+        "h": 1089,
+        "shown": true
+      },
+      "toggle": {
+        "l": 173,
+        "t": 239,
+        "r": 343,
+        "b": 291,
+        "w": 170,
+        "h": 52,
+        "shown": true
+      },
+      "map": {
+        "l": 33,
+        "t": 757,
+        "r": 342,
+        "b": 1117,
+        "w": 309,
+        "h": 360,
+        "shown": true
+      },
+      "nowPanel": {
+        "l": 0,
+        "t": 193,
+        "r": 0,
+        "b": 193,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "forecastPanel": {
+        "l": 32,
+        "t": 333,
+        "r": 343,
+        "b": 746,
+        "w": 311,
+        "h": 413,
+        "shown": true
+      },
+      "section": {
+        "l": 16,
+        "t": 1336,
+        "r": 359,
+        "b": 2664,
+        "w": 343,
+        "h": 1328,
+        "shown": true
+      },
+      "controls": {
+        "l": 16,
+        "t": 1336,
+        "r": 359,
+        "b": 1495,
+        "w": 343,
+        "h": 159,
+        "shown": true
+      },
+      "summary": {
+        "l": 16,
+        "t": 1515,
+        "r": 359,
+        "b": 1799,
+        "w": 343,
+        "h": 284,
+        "shown": true
+      },
+      "chart": {
+        "l": 16,
+        "t": 1819,
+        "r": 359,
+        "b": 2224,
+        "w": 343,
+        "h": 405,
+        "shown": true
+      },
+      "table": {
+        "l": 16,
+        "t": 2244,
+        "r": 359,
+        "b": 2664,
+        "w": 343,
+        "h": 421,
+        "shown": true
+      },
+      "notes": {
+        "l": 0,
+        "t": 193,
+        "r": 0,
+        "b": 193,
+        "w": 0,
+        "h": 0,
+        "shown": false
+      },
+      "leaflet": {
+        "w": 309,
+        "h": 360
+      },
+      "container": {
+        "w": 309,
+        "h": 360
+      },
+      "zoom": 6,
+      "view": {
+        "s": 20.324023603422518,
+        "n": 27.547241546253268,
+        "w": 116.85058593750001,
+        "e": 123.64013671875001
+      },
+      "mode": "mode-forecast",
+      "bg": "layered"
+    },
+    "1440-dark": {
+      "bg": "layered",
+      "sw": 1440,
+      "map": {
+        "l": 434,
+        "t": 238,
+        "r": 1378,
+        "b": 878,
+        "w": 944,
+        "h": 640,
+        "shown": true
+      }
+    }
+  }
+}

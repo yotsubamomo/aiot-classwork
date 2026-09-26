@@ -1,0 +1,79 @@
+latest observation failed: reason=upstream_error upstream_status=500
+latest observation failed: reason=upstream_error upstream_status=429
+latest observation failed: reason=upstream_unreachable upstream_status=None
+latest observation failed: reason=key_not_configured upstream_status=None
+latest observation failed: reason=invalid_response upstream_status=None
+PASS desktop DD-4 county interaction layer: 22 interactive county paths in Now mode; no county context before a selection
+PASS desktop DD-4 not coloured by data: every county path has the same transparent fill and no visible outline
+PASS desktop DD-1/DD-4 the 22 county polygons carry the 22 CountyName strings one-to-one (select -> the selected polygon's hover name)
+PASS desktop DD-5(a)/DD-9(a) every county chosen with the keyboard (ArrowDown through all 22) is shown: its shape in the map, clear of the panel
+PASS desktop AC-V2-10 hover a county -> highlighted (fixed outline + faint fill) and its name shown
+PASS desktop AC-V2-10 click 臺中市 on the map -> County context: name, count, on-map count, highest/lowest = hand-computed from /api/
+PASS desktop AC-V2-10/DD-5(a) the view holds every on-map 臺中市 station (markers = those stations, inside the map, clear of the panel)
+PASS desktop AC-V2-10 click 新北市, then 臺北市 on the map -> 臺北市 County context = hand-computed from /api/ (densest county)
+PASS desktop AC-V2-10/DD-5(a) the view holds every on-map 臺北市 station (markers = those stations, inside the map, clear of the panel)
+PASS desktop AC-V2-10/DD-6 station list complete (every valid station, temperature high to low, value = /api/)
+PASS desktop AC-V2-10/H-3/INV-V2-5 no average / mean / 平均 anywhere in the Now mode page text; values labelled station values
+PASS desktop AC-V2-12/DD-6/DD-9(b) the station list is reached with Tab; focus visible, not covered
+PASS desktop AC-V2-12/DD-7 Enter on a list item -> detail: name, StationId, county · town, Observation Time, temperature; invalid optional values '—'
+PASS desktop DD-9(e) focus stays on the selected list item after selecting (not lost, not covered)
+PASS desktop AC-V2-12/DD-7 Space on another list item -> that station's detail = /api/
+PASS desktop DD-5(d)/DD-7 a county-view marker click selects its station (detail + list item marked)
+PASS desktop AC-V2-12/DD-8/AC-V2-23 'Back to Taiwan' (Enter) clears county and station, returns the Taiwan-wide view (= initial view)
+PASS desktop AC-V2-10/AC-V2-12/DD-9(a) keyboard chooser (ArrowDown) selects 金門縣 (outlying island): context = /api/
+PASS desktop AC-V2-10 the county with the fewest valid stations (連江縣): context = /api/; view = its stations
+PASS desktop AC-V2-12/DD-11 高雄市: 東沙島 counted, listed and marked 'not on the map', no marker for it
+PASS desktop AC-V2-12/DD-11 東沙島 detail viewable from the list, marked not on the map
+PASS desktop DD-5 zero-valid-station county (derived sample, 連江縣) is selectable: 0 and '—', not an error
+PASS desktop DD-9(e)/RSP-6 the Now panel never covers the map (beside it); a marker focused while off-screen is brought fully into view
+PASS desktop DV-20/MODE-4 Forecast mode: no county layer, no County context, six Region pills (county 臺中市)
+PASS desktop DV-20 AC-V2-01 (i) after Now -> Forecast -> Now the county is still selected and the County context shows the same county
+PASS desktop DV-20 AC-V2-01 (ii) the view equals the view on leaving Now mode (not the county fit, not the initial view)
+PASS desktop DV-20 AC-V2-01 (iii) the station selected in the county and its detail are restored
+PASS desktop RSP-2 no horizontal scroll with a county and a station selected
+PASS desktop DV-21(1) first load fails -> Unavailable; the 22-polygon county layer is present
+PASS desktop DV-21(1) Unavailable: hover still highlights a county and shows its name
+PASS desktop DV-21(1)/§4.2 map click selects 臺中市: name shown; count, on-map, highest, lowest all '—' (never 0 or any number); no station listed
+PASS desktop DV-21(1) with no station to fit, the map stays usable (keyboard pan works)
+PASS desktop DV-21(1) keyboard chooser selects 花蓮縣 under Unavailable: same '—' context, state and Refresh visible; its shape is the view
+PASS desktop DV-21(1) Back to Taiwan works under Unavailable (county cleared, still Now mode, still Unavailable)
+PASS desktop DV-21(1) a later successful Refresh: the kept county's context = the new response's valid stations
+PASS desktop DD-5(a) 花蓮縣 chosen with the keyboard: the view holds its stations and shape
+PASS desktop DV-21(2) county selected BEFORE the failure: Stale; context unchanged and = the retained response by hand
+PASS desktop DV-21(2) the Stale marking and reason stay visible with the county selected (chip, County context, on-map notice)
+PASS desktop DV-21(2) hover + map click select 臺東縣 AFTER the failure: context = the retained response by hand; Stale still shown
+PASS desktop DV-21(2) station list selection works while Stale (detail = retained data)
+PASS desktop DV-21(2) Back to Taiwan works while Stale (county cleared; still Stale)
+PASS desktop DV-21(2) a not-newer Refresh clears Stale; County context = the displayed data
+PASS desktop DV-21(2) after another failure, a newer Refresh clears Stale; County context = the new response
+PASS desktop F-1 every county path is out of the Tab order (tabindex=-1)
+PASS desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus
+PASS desktop F-1 a marker stop is operable (Enter selects its station and shows the detail)
+PASS desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 臺中市 view: no county-path stop; only the zoom buttons, focus visible
+PASS desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 花蓮縣 view: no county-path stop; only the zoom buttons, focus visible
+PASS desktop F-1 regression: hover shows the county name and a click still selects it
+PASS desktop F-1 regression: the station list is still reached with Tab and Enter shows the detail
+PASS 375 375 AC-V2-10/12 keyboard chooser selects 臺北市: context = /api/; no horizontal scroll
+PASS 375 375 AC-V2-12 Tab into the list (past the info panel's Expand / Close) + Enter -> detail = /api/; focus visible; no horizontal scroll
+PASS 375 375 AC-V2-12/DD-8 Back to Taiwan (Enter) clears the selection and returns the initial view
+PASS 375 375 DD-4 hover shows a county name and a click on its polygon selects it (花蓮縣); no horizontal scroll
+PASS 375 DV-20/MODE-4 Forecast mode: no county layer, no County context, six Region pills (county 臺中市)
+PASS 375 DV-20 AC-V2-01 (i) after Now -> Forecast -> Now the county is still selected and the County context shows the same county
+PASS 375 DV-20 AC-V2-01 (ii) the view equals the view on leaving Now mode (not the county fit, not the initial view)
+PASS 375 DV-20 AC-V2-01 (iii) the station selected in the county and its detail are restored
+PASS 375 RSP-2 no horizontal scroll with a county and a station selected
+PASS 375 375 DV-21(1) Unavailable (key_not_configured) + keyboard county: '—' only, state + Refresh visible, no horizontal scroll
+PASS 375 375 DV-21(2) Stale (invalid_response) with 臺中市 selected: retained context = /api/, Stale shown, no horizontal scroll
+PASS 375 F-1 every county path is out of the Tab order (tabindex=-1)
+PASS 375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus
+PASS 375 F-1 a marker stop is operable (Enter selects its station and shows the detail)
+PASS 375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 臺中市 view: no county-path stop; only the zoom buttons, focus visible
+PASS 375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 花蓮縣 view: no county-path stop; only the zoom buttons, focus visible
+PASS 375 F-1 regression: hover shows the county name and a click still selects it
+PASS 375 F-1 regression: the station list is still reached with Tab and Enter shows the detail
+PASS DV-21(3)/H-3 no data vs zero: success shows 0 with no state marking; Unavailable shows only '—' with the state marking
+PASS AC-V2-16/INV-V2-3 runtime network log: zero external requests (county layer and all scenarios)
+PASS H-1 no key / upstream marker in any request URL
+PASS console: no JavaScript exception, no NaN / Invalid LatLng message
+72/72 checks passed; evidence in doc\acceptance\screenshots\ui-polish\regression\county
+exit 0

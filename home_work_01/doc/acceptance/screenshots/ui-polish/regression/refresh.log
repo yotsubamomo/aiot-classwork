@@ -1,0 +1,99 @@
+PASS desktop R-V2-OBS-7(c)/RSP-8 first load shows the loading state with an in-progress indicator
+PASS desktop first load success: data and both times = /api/, no state label, no notice
+PASS desktop selecting 臺北 shows its /api/ values
+PASS desktop AC-V2-06(c) same Fetched Time (reuse window) -> not-newer: display unchanged, 'already the latest', not Stale
+PASS desktop AC-V2-06(b) older Observation Time -> not-newer: data and both times unchanged, 'already the latest', not Stale
+PASS desktop AC-V2-06(a) newer Observation Time -> newer: data, Observation Time and Fetched Time all update
+PASS desktop DV-4 equal Observation Time with a new Fetched Time is applied (Fetched Time and data update)
+PASS desktop AC-V2-06(d) rapid repeated Refresh while in progress -> one request, one result applied in order
+PASS desktop AC-V2-08(b) upstream_error after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS desktop AC-V2-08(b) upstream_unreachable after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS desktop AC-V2-08(b) invalid_response after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS desktop AC-V2-08(b) key_not_configured after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS desktop R-V2-OBS-12 the four failure classes are distinguishable in the page (upstream_error with its HTTP status)
+PASS desktop AC-V2-08(c) a later newer success clears Stale and applies the data
+PASS desktop AC-V2-08(c) a later not-newer success also clears Stale, display unchanged
+PASS desktop AC-V2-06(e) upstream stall -> upstream_unreachable JSON (not a gateway page) and Stale within 30 s
+PASS desktop R-V2-OBS-13 stalled upstream with two requests queued ahead -> this Refresh still reaches Stale within 30 s
+PASS desktop AC-V2-06(f) platform HTML 502 -> Stale with the 'unexpected answer' category, within 30 s
+PASS desktop H-1 the platform page body never reaches the page
+PASS desktop R-V2-OBS-13 no answer within the page's bound -> Stale ('did not answer in time') within 30 s
+PASS desktop AC-V2-06(d)/OBS-7(e) a late answer after the bound is never applied
+PASS desktop AC-V2-09(b) observation stale: the map still pans and zooms
+PASS desktop AC-V2-09(b) observation stale: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)
+PASS desktop AC-V2-09(b) observation stale: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)
+PASS desktop AC-V2-09(b) back in Now mode the stale state is still shown, unchanged
+PASS desktop INV-V2-6 the displayed dataset Observation Time never decreased during the page's lifetime
+PASS desktop AC-V2-08(a) first-load key_not_configured -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS desktop AC-V2-08(a)/H-3 key_not_configured: map and county boundaries visible; no forecast value shown as observation
+PASS desktop AC-V2-09(b) observation unavailable: the map still pans and zooms
+PASS desktop AC-V2-09(b) observation unavailable: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)
+PASS desktop AC-V2-09(b) observation unavailable: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)
+PASS desktop AC-V2-09(b) back in Now mode the unavailable state is still shown, unchanged
+PASS desktop AC-V2-08(a) first-load upstream_unreachable -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS desktop AC-V2-08(a)/H-3 upstream_unreachable: map and county boundaries visible; no forecast value shown as observation
+PASS desktop AC-V2-08(a) first-load upstream_error -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS desktop AC-V2-08(a)/H-3 upstream_error: map and county boundaries visible; no forecast value shown as observation
+PASS desktop AC-V2-08(a) first-load invalid_response -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS desktop AC-V2-08(a)/H-3 invalid_response: map and county boundaries visible; no forecast value shown as observation
+PASS desktop AC-V2-08(a) first-load stall -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS desktop AC-V2-08(a)/H-3 stall: map and county boundaries visible; no forecast value shown as observation
+PASS desktop AC-V2-08(a) first-load unexpected_response -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS desktop AC-V2-08(a)/H-3 unexpected_response: map and county boundaries visible; no forecast value shown as observation
+PASS desktop R-V2-OBS-12 the four server failure classes are distinguishable on first load
+PASS desktop AC-V2-08 Refresh after Unavailable succeeds and clears Unavailable
+PASS 375 R-V2-OBS-7(c)/RSP-8 first load shows the loading state with an in-progress indicator
+PASS 375 first load success: data and both times = /api/, no state label, no notice
+PASS 375 selecting 臺北 shows its /api/ values
+PASS 375 AC-V2-06(c) same Fetched Time (reuse window) -> not-newer: display unchanged, 'already the latest', not Stale
+PASS 375 AC-V2-06(b) older Observation Time -> not-newer: data and both times unchanged, 'already the latest', not Stale
+PASS 375 AC-V2-06(a) newer Observation Time -> newer: data, Observation Time and Fetched Time all update
+PASS 375 DV-4 equal Observation Time with a new Fetched Time is applied (Fetched Time and data update)
+PASS 375 AC-V2-06(d) rapid repeated Refresh while in progress -> one request, one result applied in order
+PASS 375 AC-V2-08(b) upstream_error after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS 375 AC-V2-08(b) upstream_unreachable after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS 375 AC-V2-08(b) invalid_response after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS 375 AC-V2-08(b) key_not_configured after success -> Stale: data and both times kept, Stale label and category, Refresh usable
+PASS 375 R-V2-OBS-12 the four failure classes are distinguishable in the page (upstream_error with its HTTP status)
+PASS 375 AC-V2-08(c) a later newer success clears Stale and applies the data
+PASS 375 AC-V2-08(c) a later not-newer success also clears Stale, display unchanged
+PASS 375 AC-V2-06(e) upstream stall -> upstream_unreachable JSON (not a gateway page) and Stale within 30 s
+PASS 375 R-V2-OBS-13 stalled upstream with two requests queued ahead -> this Refresh still reaches Stale within 30 s
+PASS 375 AC-V2-06(f) platform HTML 502 -> Stale with the 'unexpected answer' category, within 30 s
+PASS 375 H-1 the platform page body never reaches the page
+PASS 375 R-V2-OBS-13 no answer within the page's bound -> Stale ('did not answer in time') within 30 s
+PASS 375 AC-V2-06(d)/OBS-7(e) a late answer after the bound is never applied
+PASS 375 AC-V2-09(b) observation stale: the map still pans and zooms
+PASS 375 AC-V2-09(b) observation stale: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)
+PASS 375 AC-V2-09(b) observation stale: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)
+PASS 375 AC-V2-09(b) back in Now mode the stale state is still shown, unchanged
+PASS 375 INV-V2-6 the displayed dataset Observation Time never decreased during the page's lifetime
+PASS 375 AC-V2-08(a) first-load key_not_configured -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS 375 AC-V2-08(a)/H-3 key_not_configured: map and county boundaries visible; no forecast value shown as observation
+PASS 375 AC-V2-09(b) observation unavailable: the map still pans and zooms
+PASS 375 AC-V2-09(b) observation unavailable: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)
+PASS 375 AC-V2-09(b) observation unavailable: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)
+PASS 375 AC-V2-09(b) back in Now mode the unavailable state is still shown, unchanged
+PASS 375 AC-V2-08(a) first-load upstream_unreachable -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable
+PASS 375 AC-V2-08(a)/H-3 upstream_unreachable: map and county boundaries visible; no forecast value shown as observation
+PASS 375 AC-V2-08 Refresh after Unavailable succeeds and clears Unavailable
+PASS 375 R-V2-RSP-2 no horizontal scroll at 375 px in this state sequence
+PASS 375 R-V2-RSP-2 no horizontal scroll at 375 px in this state sequence
+PASS age AC-V2-08(d) page clock advanced > 2 h with no failure -> still success, no Stale
+PASS age AC-V2-08(d) after the clock advance a not-newer Refresh is still success, not Stale
+PASS desktop H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console
+PASS desktop H-3 no real-time / realtime / live wording in any state
+PASS desktop console: no JavaScript exception
+PASS desktop H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console
+PASS desktop H-3 no real-time / realtime / live wording in any state
+PASS desktop console: no JavaScript exception
+PASS 375 H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console
+PASS 375 H-3 no real-time / realtime / live wording in any state
+PASS 375 console: no JavaScript exception
+PASS 375 H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console
+PASS 375 H-3 no real-time / realtime / live wording in any state
+PASS 375 console: no JavaScript exception
+PASS H-1 server log at DEBUG (Flask debug on) carries no key, upstream URL or upstream body
+PASS AC-V2-16/INV-V2-3 runtime network log: zero external requests in every state
+97/97 checks passed; evidence in doc\acceptance\screenshots\ui-polish\regression\refresh
+exit 0
