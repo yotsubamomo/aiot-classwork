@@ -18,6 +18,34 @@ SQLite, and shown in a web app.
 > and the **Vercel deployment** with its smoke check
 > ([Deploy to Vercel](#deploy-to-vercel-public-url--smoke-check)).
 
+## Contents
+
+- [Data source and labeling (please read)](#data-source-and-labeling-please-read) — the
+  forecast values are project-derived; the observations are CWA's, as published
+- [Requirements](#requirements) · [Setup](#setup) ·
+  [Get a CWA key and create `.env`](#get-a-cwa-key-and-create-env)
+- [Run ingestion](#run-ingestion)
+- [Run the Grading App (`streamlit run app.py`)](#run-the-grading-app-streamlit-run-apppy)
+- [Run the dashboard (Flask) locally](#run-the-dashboard-flask-locally)
+  - [`/api/` endpoints](#api-endpoints) ·
+    [Latest Observation endpoint](#latest-observation-endpoint-v2-core) ·
+    [Radar endpoint](#radar-endpoint-v2-radar)
+  - [Taiwan Map modes: Now mode and Forecast mode](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core)
+    - [Now mode — Latest Observation](#now-mode--latest-observation)
+    - [Now mode — Taiwan → County → Station](#now-mode--taiwan--county--station)
+    - [Now mode — map range, zoom range and layout](#now-mode--map-range-zoom-range-and-layout-v2-core)
+    - [Now mode — Radar overlay](#now-mode--radar-overlay-v2-radar)
+    - [Representative station rule](#representative-station-rule)
+  - **[Forecast mode — the Part A bonus map: six-region Taiwan Map and `Select Date`](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)**
+- [Data licence and attribution (CWA open data)](#data-licence-and-attribution-cwa-open-data)
+- [Deploy to Vercel (public URL & smoke check)](#deploy-to-vercel-public-url--smoke-check)
+  — including the [Vercel key setup](#vercel-key-setup-acceptor-only-v2)
+- [Verify the database](#verify-the-database)
+- [Run the tests (offline)](#run-the-tests-offline)
+- [Continuous integration (GitHub Actions)](#continuous-integration-github-actions)
+- [Not built: the accepted Later list (V2)](#not-built-the-accepted-later-list-v2)
+- [Correspondence to the poster `HW10_Weather/` structure](#correspondence-to-the-poster-hw10_weather-structure)
+
 ## Data source and labeling (please read)
 
 This project's data does **not** come straight from a CWA six-region product.
@@ -54,6 +82,24 @@ computed by this project, not published by CWA.
   mean across the Region's member counties**, rounded **half-up to one decimal**.
   They are **never** a CWA-issued six-region forecast, and the mapping above is
   **never** an authoritative CWA regional division.
+
+**A second, different kind of data (V2).** The dashboard's Taiwan Map opens in the
+**Now mode**, which shows the **Latest Observation**: air temperatures and other
+readings of individual CWA weather stations (dataset **O-A0001-001**), **as published
+by CWA** — observations, not forecasts, and **not** project-derived. No observation
+is averaged or combined: a county is never given a temperature of its own, and a
+representative station's marker is that one station's value. The two kinds of data
+are labelled differently and never share a panel, a legend or a colour scale:
+
+| | Latest Observation (Now mode) | Forecast values (Forecast mode, forecast dashboard, Grading App) |
+| --- | --- | --- |
+| What it is | CWA station observations, **as published** (label `OBSERVED`) | **Project-derived** compatibility values (label `DERIVED` / `PROJECT-DERIVED COMPATIBILITY VALUES`) |
+| Source | O-A0001-001, fetched by this app's server when a visitor loads or refreshes the Now mode | F-D0047-091, fetched once by ingestion and stored in `data.db` |
+| Times shown | `Observation Time` (CWA's observation time) and `Fetched Time` (when this server fetched it) | `Last updated (data fetched from CWA)` — when the forecast snapshot was acquired |
+
+See [Taiwan Map modes](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core) for the
+details and [Data licence and attribution](#data-licence-and-attribution-cwa-open-data)
+for the CWA attribution.
 
 ## Requirements
 
@@ -93,8 +139,16 @@ pip install -r requirements.txt
    ```
 
    `.env` is git-ignored (root `.gitignore`); only `.env.example` (variable name
-   only) is committed. The key is read solely by the ingestion fetch stage and is
-   never printed, logged, or written to any tracked file.
+   only) is committed. The key is read only by the online ingestion fetch stage and,
+   when you run the dashboard locally with `python server.py`, by the dashboard
+   server's Latest Observation and Radar endpoints (see
+   [Key — local run](#latest-observation-endpoint-v2-core)); it is never printed,
+   logged, or written to any tracked file, and it never reaches the browser. The
+   offline ingestion, the Grading App, the forecast endpoints, `/api/health` and the
+   tests need no key.
+3. The deployed dashboard does **not** read this file: on Vercel the same variable
+   name, `CWA_API_KEY`, is set by the repository owner in the Vercel project (see
+   [Vercel key setup](#vercel-key-setup-acceptor-only-v2)).
 
 ## Run ingestion
 
@@ -237,6 +291,12 @@ python server.py            # serves http://127.0.0.1:5000/
 flask --app server run
 ```
 
+`python server.py` reads `CWA_API_KEY` from `home_work_01/.env` (only that variable,
+never printed), so with a key in `.env` the Now mode shows the Latest Observation; with
+no key the Now mode shows "Latest Observation unavailable" (`key_not_configured`) and
+everything else — the Forecast mode, the forecast dashboard, `/api/health` — works
+unchanged.
+
 Open <http://127.0.0.1:5000/>. The Taiwan Map at the top opens in **Now mode**
 (see [Taiwan Map modes](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core)); its
 **Forecast** button switches to the six-region forecast map. Below the map, the page
@@ -366,8 +426,8 @@ before starting (it reads no other file and never prints the value). With
 `flask --app server run`, set `CWA_API_KEY` in the environment yourself. Without a
 key the endpoint answers `key_not_configured` and every forecast endpoint and
 `/api/health` keep working unchanged. On Vercel the same variable name is read from
-the project's environment variables, which only the repository owner fills in (the
-setup steps are part of the deployment section).
+the project's environment variables, which only the repository owner fills in (see
+[Vercel key setup](#vercel-key-setup-acceptor-only-v2)).
 
 **Sample.** [`tests/fixtures/O-A0001-001_sample.json`](tests/fixtures/O-A0001-001_sample.json)
 is one **real** O-A0001-001 response captured **2026-09-26 00:04:56 +08:00**
@@ -497,8 +557,9 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
 - **`Refresh`.** Only a manual Refresh loads newer data; the page never updates by
   itself. While a Refresh runs, a spinner and "Refreshing the Latest Observation…"
   are shown and further presses are ignored (only one request is ever in flight, and
-  only its answer is applied). Every Refresh — and the page's first load — ends in
-  exactly one of three results, shown next to the button:
+  only its answer is applied). Every Refresh ends in exactly one of three results,
+  shown next to the button (the page's first load ends in the same way, except that a
+  successful first load shows the data itself and no separate message):
   - **newer** — the answer's Observation Time is the same as or later than the one
     shown and it is a new fetch: the markers, `Observation Time` and `Fetched Time`
     all update together ("Updated to a newer Latest Observation", or "Updated:
@@ -812,6 +873,23 @@ neither.
   `GET /api/days/<date>`; the frontend colours directly by that band and re-derives
   nothing.
 
+## Data licence and attribution (CWA open data)
+
+The data shown by this project is CWA open data, used under the **Open Government
+Data License (政府資料開放授權條款)**:
+
+| Where it is used | Attribution |
+| --- | --- |
+| Now mode — Latest Observation | **交通部中央氣象署 氣象觀測站-全測站逐時氣象資料 (O-A0001-001)** |
+| Now mode — Radar overlay | **交通部中央氣象署 雷達整合回波圖-臺灣(鄰近地區)_透明底圖 (O-A0058-006)** |
+| Forecast values (ingestion, `data.db`, Forecast mode, forecast dashboard, Grading App) | **交通部中央氣象署 臺灣各縣市鄉鎮未來1週逐12小時天氣預報 (F-D0047-091)** — the values shown are project-derived from it (see [Data source and labeling](#data-source-and-labeling-please-read)) |
+
+In the app, the notes under the map in Now mode name the observation dataset (CWA,
+O-A0001-001) and the radar dataset with its full attribution. The vendored basemap's
+own sources and licences are listed in the
+[Forecast mode](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)
+section.
+
 ## Deploy to Vercel (public URL & smoke check)
 
 The dashboard deploys to Vercel as a **single Python serverless function** that
@@ -820,9 +898,41 @@ inside this unit directory: `vercel.json` (one `@vercel/python` build of
 `api/index.py`, every route sent to it, `data.db` packaged with `includeFiles`),
 `requirements.txt`, `data.db` (packaged and opened read-only), and
 [`.python-version`](.python-version) which **pins Python `3.12`** so the local
-environment, CI and the Vercel runtime all use the same interpreter. The running
-function needs **no environment variable and no secret** — the CWA key is never
-part of the deployment.
+environment, CI and the Vercel runtime all use the same interpreter.
+
+**What needs a key.** The forecast part of the deployment — the page itself, the
+forecast endpoints, `/api/health`, the Forecast mode and the forecast dashboard —
+needs **no environment variable and no secret**, exactly as in V1. Only the V2
+Latest Observation and Radar endpoints need the CWA key: the function reads
+`CWA_API_KEY` from the Vercel project's environment variables **at request time,
+on the server only**. The key is never part of the build, the repository, a
+response, a log or the browser. Without it those two endpoints answer
+`key_not_configured` (the Now mode shows "Latest Observation unavailable") while
+everything else keeps working, and `/api/health` stays `200`.
+
+### Vercel key setup (acceptor only, V2)
+
+Only the repository owner does this, in the Vercel dashboard; an agent never enters,
+reads, prints or exports the key (reserved boundary RB-3). No repository file changes.
+
+1. Open the Vercel project (**aiot-hw01-weather**) → **Settings** → **Environment
+   Variables**.
+2. Add one variable: **Key** `CWA_API_KEY` (the same name as in `.env.example`);
+   **Value** your own CWA key, typed or pasted by you (never copied into this
+   repository, an issue, a pull request, a log or a screenshot); **Environments**
+   **Production** and **Preview** (Development is not needed — local runs use
+   `.env`). Mark it **Sensitive** if Vercel offers it.
+3. Save, then **redeploy**: a new value only reaches deployments built after it (use
+   *Redeploy* on the latest preview deployment of the branch, or push a commit;
+   production gets it with the merge to `main`).
+4. Check without revealing the key: on that deployment,
+   `GET /api/observations/latest` returns `200` with `stations` (instead of `503`
+   `key_not_configured`), `GET /api/radar/latest` returns `200` `image/png` with an
+   `X-Radar-Time` header, the Now mode shows the Latest Observation, and
+   `/api/health` is still `200`. Do not use `vercel env pull` or any command that
+   writes or prints the value.
+
+### Project setup, preview and production
 
 **Acceptor-only setup (one-time).** Creating the Vercel project, linking it to
 `yotsubamomo/aiot-classwork`, setting the project **Root Directory = `home_work_01`**,
@@ -833,18 +943,20 @@ touch billing/account settings outside an agent's authority. No repository files
 change for this.
 
 **Production vs preview.** Pushing the topic branch makes Vercel build a
-**preview** automatically; the branch-preview alias is a public, no-login URL that
-serves the branch's most recent **successful** build (Vercel moves the alias when a
-build succeeds; a failed build leaves it on the previous commit), so it verifies
-the audited commit once that commit's build is ready — confirm the served
-deployment id matches the commit rather than assuming it.
+**preview** of every commit automatically. Each preview deployment has its own
+public, no-login URL, which GitHub lists as the commit's *Preview* deployment (the
+"View deployment" link); the branch-preview alias serves the branch's most recent
+**successful** build (Vercel moves the alias when a build succeeds; a failed build
+leaves it on the previous commit). Either way, confirm that the served deployment id
+(`data-deployment-id` in the page) belongs to the commit you are checking rather
+than assuming it.
 The **production** URL updates only when the branch is merged into `main` — that
 merge is a release action, so re-running the smoke check against production after
 merge is release evidence, not a completion condition for the deployment work.
 
 | | URL |
 | --- | --- |
-| Public preview (audited commit; no login) | `https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app` |
+| Public preview of one commit (no login) | `https://aiot-hw01-weather-<deployment>-nchu-aiot-class.vercel.app` — from the commit's GitHub *Preview* deployment; the one checked for the V2 acceptance is recorded in [`doc/acceptance/ACCEPTANCE-V2.md`](doc/acceptance/ACCEPTANCE-V2.md) |
 | Production (updates on merge to `main`) | `https://aiot-hw01-weather.vercel.app` |
 
 **Smoke check.** [`smoke.py`](smoke.py) verifies the public deployment: `GET /`
@@ -856,13 +968,16 @@ injects):
 
 ```bash
 cd home_work_01
-python smoke.py https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app
+python smoke.py https://aiot-hw01-weather-<deployment>-nchu-aiot-class.vercel.app
 # or, reading the URL from the environment / repository variable:
 HW01_DEPLOY_URL=https://<public-host> python smoke.py
 ```
 
 It is standard-library only (no dependency to install) and is reused unchanged by
-the `workflow_dispatch` smoke workflow (Issue #22).
+the `workflow_dispatch` smoke workflow (Issue #22). It checks only the key-free part
+of the deployment, so it passes with or without the Vercel key; the Latest
+Observation and Radar endpoints are checked as in step 4 of the
+[Vercel key setup](#vercel-key-setup-acceptor-only-v2).
 
 ## Verify the database
 
@@ -1014,9 +1129,10 @@ sets up **Python 3.12**, installs [`requirements.txt`](requirements.txt), runs t
 full offline `pytest` suite, and then runs the credential mechanical checks
 (`python -m tools.credential_scan`): `git ls-files` tracks no `.env` (only
 `.env.example`); no tracked file and no committed diff in history contains a
-CWA-key-format string (the ignored local `.env` is excluded); and the fixture and
-saved raw JSON hold no `Authorization` value. The check prints only findings, never
-a secret. The whole run needs no network, no `.env` and no secret.
+CWA-key-format string (the ignored local `.env` is excluded); and the committed
+samples — the forecast fixture and saved raw JSON, and the V2 O-A0001-001 and
+O-A0058-006 metadata samples — hold no `Authorization` value. The check prints only
+findings, never a secret. The whole run needs no network, no `.env` and no secret.
 
 **Smoke — [`home_work_01-smoke.yml`](../.github/workflows/home_work_01-smoke.yml).**
 Runs on demand only (**`workflow_dispatch`**); it never runs on push. It reuses
@@ -1032,6 +1148,28 @@ before that merge** — run the identical check locally with
 `python smoke.py <preview-url>` meanwhile. After the merge, the default dispatch
 uses the production `HW01_DEPLOY_URL` variable and is **release evidence**
 (DR-12, DR-18); the `url` input then lets you smoke-check any other URL.
+
+## Not built: the accepted Later list (V2)
+
+The V2 Taiwan Map (Now mode, Radar) is ENHANCED work on the deployed dashboard only;
+it does not change the graded Part A behaviour. The following ideas were explicitly
+left out of V2 when its scope was accepted. They are **not** part of this
+deliverable, and doing any of them would need a new decision:
+
+- a separate rainfall layer (O-A0002-001);
+- radar animation or history playback;
+- a heatmap;
+- automatic updates or polling (the page updates only on a manual `Refresh`);
+- county filtering and station search;
+- URL deep-linking of the map state (the forecast dashboard's `?region=` link is
+  V1 and unchanged) and browser-history integration;
+- upgrading to the 10-minute dataset (O-A0003-001);
+- storing observation history;
+- Windy;
+- forecasts for all 22 counties;
+- any V2 behaviour in the Streamlit Grading App;
+- rate limiting of the public endpoints (the reuse windows and the time bounds are
+  the only throttles; see the endpoint sections).
 
 ## Correspondence to the poster `HW10_Weather/` structure
 
@@ -1049,5 +1187,5 @@ ingestion stages into a clearly named `ingestion` package.
 | `requirements.txt` | [`requirements.txt`](requirements.txt) |
 | `README.md` | this file |
 | `app.py` (Streamlit) | [`app.py`](app.py) — the Grading App (Issue #19), reading through [`weather_query.py`](weather_query.py) |
-| (deployed web app) | [`server.py`](server.py) + [`static/`](static/) + [`api/index.py`](api/index.py) + [`vercel.json`](vercel.json) — the Flask dashboard (Issue #20), also reading through [`weather_query.py`](weather_query.py) |
+| (deployed web app) | [`server.py`](server.py) + [`static/`](static/) + [`api/index.py`](api/index.py) + [`vercel.json`](vercel.json) — the Flask dashboard (Issue #20), also reading through [`weather_query.py`](weather_query.py); V2 adds [`observation.py`](observation.py) (Latest Observation), [`representative.py`](representative.py) (representative station rule) and [`radar.py`](radar.py) (Radar), none of which touches `data.db` |
 | `weather_data.csv` (optional) | not used |

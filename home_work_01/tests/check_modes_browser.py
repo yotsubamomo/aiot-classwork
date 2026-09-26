@@ -52,6 +52,7 @@ import tempfile
 import threading
 import time
 import urllib.request
+from datetime import timedelta
 from pathlib import Path
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
@@ -122,10 +123,35 @@ class _QuietHandler(WSGIRequestHandler):
         pass
 
 
+class SecondApartClock:
+    """The real Taipei clock, but every reading is at least one second after the last.
+
+    Fetched Time has one-second resolution. With the real clock, a first load and a
+    Refresh that fall in the same wall-clock second get the same Fetched Time, and the
+    page then correctly reports the Refresh as not-newer (R-V2-OBS-8) — which made the
+    "Refresh works while the forecast snapshot is unavailable" check fail at random
+    (#38 R2 N-1). Keeping every fetch at least a second apart makes each Refresh a
+    genuinely new fetch, which is what that check is about; its assertion is unchanged.
+    """
+
+    def __init__(self) -> None:
+        self._last = None
+        self._lock = threading.Lock()
+
+    def __call__(self):
+        with self._lock:
+            now = obs._taipei_now().replace(microsecond=0)
+            if self._last is not None and now <= self._last:
+                now = self._last + timedelta(seconds=1)
+            self._last = now
+            return now
+
+
 def start_server(db_path):
     upstream = Upstream()
     service = obs.LatestObservationService(
-        env={"CWA_API_KEY": "placeholder-not-a-key"}, http_get=upstream, reuse_window_seconds=0
+        env={"CWA_API_KEY": "placeholder-not-a-key"}, http_get=upstream, reuse_window_seconds=0,
+        clock=SecondApartClock(),
     )
     app = create_app(db_path=db_path, observation_service=service)
     server = make_server("127.0.0.1", 0, app, handler_class=_QuietHandler)
