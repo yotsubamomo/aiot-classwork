@@ -1,0 +1,35 @@
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET / HTTP/1.1" 200 25351
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /static/vendor/leaflet.css HTTP/1.1" 200 14806
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /static/styles.css HTTP/1.1" 200 53809
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /static/vendor/leaflet.js HTTP/1.1" 200 147557
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /static/data/basemap.js HTTP/1.1" 200 196278
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /static/data/counties.js HTTP/1.1" 200 1550
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /static/app.js HTTP/1.1" 200 142759
+latest observation failed: reason=key_not_configured upstream_status=None
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /api/observations/latest HTTP/1.1" 503 143
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /api/health HTTP/1.1" 200 101
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /favicon.ico HTTP/1.1" 404 207
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /api/regions HTTP/1.1" 200 188
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series HTTP/1.1" 503 25
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /api/days HTTP/1.1" 200 102
+127.0.0.1 - - [26/Sep/2026 22:40:00] "GET /api/days/2026-09-24 HTTP/1.1" 200 747
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET / HTTP/1.1" 200 25351
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /static/vendor/leaflet.css HTTP/1.1" 200 14806
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /static/styles.css HTTP/1.1" 200 53809
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /static/vendor/leaflet.js HTTP/1.1" 200 147557
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /static/data/basemap.js HTTP/1.1" 200 196278
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /static/data/counties.js HTTP/1.1" 200 1550
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /static/app.js HTTP/1.1" 200 142759
+latest observation failed: reason=key_not_configured upstream_status=None
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /api/observations/latest HTTP/1.1" 503 143
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /api/health HTTP/1.1" 200 101
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /favicon.ico HTTP/1.1" 404 207
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /api/regions HTTP/1.1" 200 188
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series HTTP/1.1" 404 25
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /api/days HTTP/1.1" 200 102
+127.0.0.1 - - [26/Sep/2026 22:40:01] "GET /api/days/2026-09-24 HTTP/1.1" 200 747
+Checking the /series error state is visible (finding F-1)...
+  [503] visible message: 'injected 503'
+  [404] visible message: 'That Region is not available in this snapshot.'
+PASS: the page shows a visible message for both 503 and 404.
+exit 0

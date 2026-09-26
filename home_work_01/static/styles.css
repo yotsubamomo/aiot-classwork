@@ -28,6 +28,9 @@
   --hairline: #e6ebf2;
   --table-head: #f1f5fa;
   --row-hover: #f7f9fc;
+  /* The chart's MinT–MaxT range band (B5): a faint neutral violet-slate between
+     the red and blue lines, so neither line's colour dominates. */
+  --range-band: rgba(104, 96, 170, .10);
   --text: #1c2230;
   --muted: #5c6373;
   --heading: #10151f;
@@ -109,6 +112,7 @@
     --hairline: #243044;
     --table-head: #1b2536;
     --row-hover: rgba(255, 255, 255, .03);
+    --range-band: rgba(160, 150, 230, .10);
     --text: #e6eaf2;
     --muted: #9aa4b6;
     --heading: #f2f5fa;
@@ -424,6 +428,27 @@ img { max-width: 100%; }
 .chart__dot--mint { fill: var(--mint); }
 .chart__dot--active { r: 6px; stroke: var(--surface); stroke-width: 2.5px; }
 .chart__axis { stroke: transparent; }
+/* B5 range band and B6 extremes (drawn by renderChart): decoration only — they
+   never take the pointer, so the per-date hit targets and tooltip are unchanged. */
+.chart__band, .chart__extreme { pointer-events: none; }
+.chart__band { fill: var(--range-band); stroke: none; }
+.chart__extreme-ring { fill: none; stroke-width: 1.5px; }
+.chart__extreme-halo { stroke: none; opacity: .14; }
+.chart__extreme--maxt .chart__extreme-ring { stroke: var(--maxt); }
+.chart__extreme--maxt .chart__extreme-halo { fill: var(--maxt); }
+.chart__extreme--mint .chart__extreme-ring { stroke: var(--mint); }
+.chart__extreme--mint .chart__extreme-halo { fill: var(--mint); }
+.chart__extreme-label {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.chart__extreme--maxt .chart__extreme-label { fill: var(--maxt); }
+.chart__extreme--mint .chart__extreme-label { fill: var(--mint); }
 .chart__grid { stroke: var(--hairline); }
 .chart__guide { stroke: var(--muted); stroke-dasharray: 4 4; opacity: .55; }
 .chart__tick-label { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }

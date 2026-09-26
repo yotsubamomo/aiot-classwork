@@ -138,6 +138,214 @@
       }
     },
     {
+      "id": "1440 B5 region 1: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "1440 B6 region 1: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23.3",
+          "minDay": "on 2026-09-24",
+          "max": "32.4",
+          "maxDay": "on 2026-09-28"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              544,
+              56.030769230769295
+            ],
+            "text": "32.4°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              272.3307692307692
+            ],
+            "text": "23.3°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 B6 region 1: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 region 1: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "1440 region 1: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 31°CMinT 23.3°C",
+          "2026-09-25MaxT 31.4°CMinT 23.4°C",
+          "2026-09-26MaxT 31.4°CMinT 24.1°C",
+          "2026-09-27MaxT 31.6°CMinT 24.1°C",
+          "2026-09-28MaxT 32.4°CMinT 24.4°C",
+          "2026-09-29MaxT 30.9°CMinT 25.3°C",
+          "2026-09-30MaxT 30.3°CMinT 24.6°C"
+        ]
+      }
+    },
+    {
+      "id": "1440 B5 region 4: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "1440 B6 region 4: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23",
+          "minDay": "on 2026-09-24",
+          "max": "32",
+          "maxDay": "on 2026-09-25"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              170.5,
+              65.53846153846155
+            ],
+            "text": "32°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              279.46153846153845
+            ],
+            "text": "23°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 B6 region 4: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 231.49669647216797,
+            "y": 494.3795471191406,
+            "l": 221.85421752929688,
+            "t": 486.8795471191406,
+            "r": 241.13917541503906,
+            "b": 501.8795471191406
+          },
+          {
+            "x": 112.63888549804688,
+            "y": 752.2053833007812,
+            "l": 102.99641418457031,
+            "t": 744.7053833007812,
+            "r": 122.28135681152344,
+            "b": 759.7053833007812
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440 region 4: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "1440 region 4: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 30°CMinT 23°C",
+          "2026-09-25MaxT 32°CMinT 23°C",
+          "2026-09-26MaxT 32°CMinT 24°C",
+          "2026-09-27MaxT 31°CMinT 24°C",
+          "2026-09-28MaxT 31°CMinT 24°C",
+          "2026-09-29MaxT 29°CMinT 24°C",
+          "2026-09-30MaxT 30°CMinT 24°C"
+        ]
+      }
+    },
+    {
       "id": "1440 no horizontal scroll (Now, a county)",
       "pass": true,
       "detail": {
@@ -902,6 +1110,214 @@
       }
     },
     {
+      "id": "375 B5 region 1: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "375 B6 region 1: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23.3",
+          "minDay": "on 2026-09-24",
+          "max": "32.4",
+          "maxDay": "on 2026-09-28"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              210.66666666666666,
+              47.046153846153885
+            ],
+            "text": "32.4°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              212.24615384615385
+            ],
+            "text": "23.3°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 B6 region 1: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 242.71257781982422,
+            "y": 281.374267578125,
+            "l": 227.9635467529297,
+            "t": 273.874267578125,
+            "r": 257.46160888671875,
+            "b": 288.874267578125
+          },
+          {
+            "x": 88.7490234375,
+            "y": 490.57427978515625,
+            "l": 74,
+            "t": 483.07427978515625,
+            "r": 103.498046875,
+            "b": 498.07427978515625
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 region 1: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "375 region 1: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 31°CMinT 23.3°C",
+          "2026-09-25MaxT 31.4°CMinT 23.4°C",
+          "2026-09-26MaxT 31.4°CMinT 24.1°C",
+          "2026-09-27MaxT 31.6°CMinT 24.1°C",
+          "2026-09-28MaxT 32.4°CMinT 24.4°C",
+          "2026-09-29MaxT 30.9°CMinT 25.3°C",
+          "2026-09-30MaxT 30.3°CMinT 24.6°C"
+        ]
+      }
+    },
+    {
+      "id": "375 B5 region 4: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "375 B6 region 4: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23",
+          "minDay": "on 2026-09-24",
+          "max": "32",
+          "maxDay": "on 2026-09-25"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              87.16666666666666,
+              54.30769230769232
+            ],
+            "text": "32°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              217.69230769230768
+            ],
+            "text": "23°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 B6 region 4: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 119.21353530883789,
+            "y": 288.63580322265625,
+            "l": 109.56510162353516,
+            "t": 281.13580322265625,
+            "r": 128.86196899414062,
+            "b": 296.13580322265625
+          },
+          {
+            "x": 83.6484375,
+            "y": 496.02044677734375,
+            "l": 74,
+            "t": 488.52044677734375,
+            "r": 93.296875,
+            "b": 503.52044677734375
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 region 4: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "375 region 4: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 30°CMinT 23°C",
+          "2026-09-25MaxT 32°CMinT 23°C",
+          "2026-09-26MaxT 32°CMinT 24°C",
+          "2026-09-27MaxT 31°CMinT 24°C",
+          "2026-09-28MaxT 31°CMinT 24°C",
+          "2026-09-29MaxT 29°CMinT 24°C",
+          "2026-09-30MaxT 30°CMinT 24°C"
+        ]
+      }
+    },
+    {
       "id": "375 no horizontal scroll (Now, a county)",
       "pass": true,
       "detail": {
@@ -953,6 +1369,110 @@
           "w": 116.85058593750001,
           "e": 123.64013671875001
         }
+      }
+    },
+    {
+      "id": "1440-dark B5 dark: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)",
+      "pass": true,
+      "detail": {
+        "bands": 1,
+        "n": 14
+      }
+    },
+    {
+      "id": "1440-dark B6 dark: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values",
+      "pass": true,
+      "detail": {
+        "kpi": {
+          "min": "23.3",
+          "minDay": "on 2026-09-24",
+          "max": "32.4",
+          "maxDay": "on 2026-09-28"
+        },
+        "marks": [
+          {
+            "key": "maxt",
+            "at": [
+              544,
+              56.030769230769295
+            ],
+            "text": "32.4°"
+          },
+          {
+            "key": "mint",
+            "at": [
+              46,
+              272.3307692307692
+            ],
+            "text": "23.3°"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440-dark B6 dark: the two value labels are inside the chart and clear of the axis labels",
+      "pass": true,
+      "detail": {
+        "labels": [
+          {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          }
+        ]
+      }
+    },
+    {
+      "id": "1440-dark dark: the per-date hit targets are still on top of every dot and both marks (7 targets)",
+      "pass": true,
+      "detail": {
+        "hits": 7,
+        "dotsHit": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "marksHit": [
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "id": "1440-dark dark: hovering each date shows the tooltip with that row's date, MaxT and MinT",
+      "pass": true,
+      "detail": {
+        "tooltips": [
+          "2026-09-24MaxT 31°CMinT 23.3°C",
+          "2026-09-25MaxT 31.4°CMinT 23.4°C",
+          "2026-09-26MaxT 31.4°CMinT 24.1°C",
+          "2026-09-27MaxT 31.6°CMinT 24.1°C",
+          "2026-09-28MaxT 32.4°CMinT 24.4°C",
+          "2026-09-29MaxT 30.9°CMinT 25.3°C",
+          "2026-09-30MaxT 30.3°CMinT 24.6°C"
+        ]
       }
     },
     {
@@ -1103,6 +1623,240 @@
       },
       "mode": "mode-now",
       "bg": "layered"
+    },
+    "1440-chart-region 1": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            544,
+            56.030769230769295
+          ],
+          "text": "32.4°",
+          "label": {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          "ringBox": {
+            "x": 604.8071594238281,
+            "y": 506.36903381347656,
+            "l": 596.3103637695312,
+            "t": 497.8722229003906,
+            "r": 613.303955078125,
+            "b": 514.8658447265625
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            272.3307692307692
+          ],
+          "text": "23.3°",
+          "label": {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          },
+          "ringBox": {
+            "x": 106.99491119384766,
+            "y": 722.5874938964844,
+            "l": 98.49811553955078,
+            "t": 714.0906982421875,
+            "r": 115.49170684814453,
+            "b": 731.0842895507812
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23.3",
+        "minDay": "on 2026-09-24",
+        "max": "32.4",
+        "maxDay": "on 2026-09-28"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23.3",
+          "31"
+        ],
+        [
+          "2026-09-25",
+          "23.4",
+          "31.4"
+        ],
+        [
+          "2026-09-26",
+          "24.1",
+          "31.4"
+        ],
+        [
+          "2026-09-27",
+          "24.1",
+          "31.6"
+        ],
+        [
+          "2026-09-28",
+          "24.4",
+          "32.4"
+        ],
+        [
+          "2026-09-29",
+          "25.3",
+          "30.9"
+        ],
+        [
+          "2026-09-30",
+          "24.6",
+          "30.3"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
+    "1440-chart-region 4": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            170.5,
+            65.53846153846155
+          ],
+          "text": "32°",
+          "label": {
+            "x": 231.49669647216797,
+            "y": 494.3795471191406,
+            "l": 221.85421752929688,
+            "t": 486.8795471191406,
+            "r": 241.13917541503906,
+            "b": 501.8795471191406
+          },
+          "ringBox": {
+            "x": 231.44796752929688,
+            "y": 515.8731384277344,
+            "l": 222.951171875,
+            "t": 507.3763427734375,
+            "r": 239.94476318359375,
+            "b": 524.3699340820312
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            279.46153846153845
+          ],
+          "text": "23°",
+          "label": {
+            "x": 112.63888549804688,
+            "y": 752.2053833007812,
+            "l": 102.99641418457031,
+            "t": 744.7053833007812,
+            "r": 122.28135681152344,
+            "b": 759.7053833007812
+          },
+          "ringBox": {
+            "x": 106.99491119384766,
+            "y": 729.715576171875,
+            "l": 98.49811553955078,
+            "t": 721.21875,
+            "r": 115.49170684814453,
+            "b": 738.21240234375
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23",
+        "minDay": "on 2026-09-24",
+        "max": "32",
+        "maxDay": "on 2026-09-25"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23",
+          "30"
+        ],
+        [
+          "2026-09-25",
+          "23",
+          "32"
+        ],
+        [
+          "2026-09-26",
+          "24",
+          "32"
+        ],
+        [
+          "2026-09-27",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-28",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-29",
+          "24",
+          "29"
+        ],
+        [
+          "2026-09-30",
+          "24",
+          "30"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
     },
     "1440-county": {
       "iw": 1440,
@@ -2836,6 +3590,240 @@
       "mode": "mode-now",
       "bg": "layered"
     },
+    "375-chart-region 1": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            210.66666666666666,
+            47.046153846153885
+          ],
+          "text": "32.4°",
+          "label": {
+            "x": 242.71257781982422,
+            "y": 281.374267578125,
+            "l": 227.9635467529297,
+            "t": 273.874267578125,
+            "r": 257.46160888671875,
+            "b": 288.874267578125
+          },
+          "ringBox": {
+            "x": 242.6666717529297,
+            "y": 302.874267578125,
+            "l": 234.1666717529297,
+            "t": 294.374267578125,
+            "r": 251.1666717529297,
+            "b": 311.374267578125
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            212.24615384615385
+          ],
+          "text": "23.3°",
+          "label": {
+            "x": 88.7490234375,
+            "y": 490.57427978515625,
+            "l": 74,
+            "t": 483.07427978515625,
+            "r": 103.498046875,
+            "b": 498.07427978515625
+          },
+          "ringBox": {
+            "x": 78,
+            "y": 468.07427978515625,
+            "l": 69.5,
+            "t": 459.57427978515625,
+            "r": 86.5,
+            "b": 476.57427978515625
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23.3",
+        "minDay": "on 2026-09-24",
+        "max": "32.4",
+        "maxDay": "on 2026-09-28"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23.3",
+          "31"
+        ],
+        [
+          "2026-09-25",
+          "23.4",
+          "31.4"
+        ],
+        [
+          "2026-09-26",
+          "24.1",
+          "31.4"
+        ],
+        [
+          "2026-09-27",
+          "24.1",
+          "31.6"
+        ],
+        [
+          "2026-09-28",
+          "24.4",
+          "32.4"
+        ],
+        [
+          "2026-09-29",
+          "25.3",
+          "30.9"
+        ],
+        [
+          "2026-09-30",
+          "24.6",
+          "30.3"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
+    "375-chart-region 4": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            87.16666666666666,
+            54.30769230769232
+          ],
+          "text": "32°",
+          "label": {
+            "x": 119.21353530883789,
+            "y": 288.63580322265625,
+            "l": 109.56510162353516,
+            "t": 281.13580322265625,
+            "r": 128.86196899414062,
+            "b": 296.13580322265625
+          },
+          "ringBox": {
+            "x": 119.16666412353516,
+            "y": 310.13580322265625,
+            "l": 110.66666412353516,
+            "t": 301.63580322265625,
+            "r": 127.66666412353516,
+            "b": 318.63580322265625
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            217.69230769230768
+          ],
+          "text": "23°",
+          "label": {
+            "x": 83.6484375,
+            "y": 496.02044677734375,
+            "l": 74,
+            "t": 488.52044677734375,
+            "r": 93.296875,
+            "b": 503.52044677734375
+          },
+          "ringBox": {
+            "x": 78,
+            "y": 473.52044677734375,
+            "l": 69.5,
+            "t": 465.02044677734375,
+            "r": 86.5,
+            "b": 482.02044677734375
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23",
+        "minDay": "on 2026-09-24",
+        "max": "32",
+        "maxDay": "on 2026-09-25"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23",
+          "30"
+        ],
+        [
+          "2026-09-25",
+          "23",
+          "32"
+        ],
+        [
+          "2026-09-26",
+          "24",
+          "32"
+        ],
+        [
+          "2026-09-27",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-28",
+          "24",
+          "31"
+        ],
+        [
+          "2026-09-29",
+          "24",
+          "29"
+        ],
+        [
+          "2026-09-30",
+          "24",
+          "30"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
+    },
     "375-county": {
       "iw": 375,
       "ih": 812,
@@ -3126,6 +4114,123 @@
         "h": 640,
         "shown": true
       }
+    },
+    "1440-dark-chart-dark": {
+      "bands": 1,
+      "marks": [
+        {
+          "key": "maxt",
+          "at": [
+            544,
+            56.030769230769295
+          ],
+          "text": "32.4°",
+          "label": {
+            "x": 604.8584899902344,
+            "y": 484.87542724609375,
+            "l": 590.1196899414062,
+            "t": 477.37542724609375,
+            "r": 619.5972900390625,
+            "b": 492.37542724609375
+          },
+          "ringBox": {
+            "x": 604.8071594238281,
+            "y": 506.36903381347656,
+            "l": 596.3103637695312,
+            "t": 497.8722229003906,
+            "r": 613.303955078125,
+            "b": 514.8658447265625
+          }
+        },
+        {
+          "key": "mint",
+          "at": [
+            46,
+            272.3307692307692
+          ],
+          "text": "23.3°",
+          "label": {
+            "x": 117.73521423339844,
+            "y": 745.0772705078125,
+            "l": 102.99641418457031,
+            "t": 737.5772705078125,
+            "r": 132.47401428222656,
+            "b": 752.5772705078125
+          },
+          "ringBox": {
+            "x": 106.99491119384766,
+            "y": 722.5874938964844,
+            "l": 98.49811553955078,
+            "t": 714.0906982421875,
+            "r": 115.49170684814453,
+            "b": 731.0842895507812
+          }
+        }
+      ],
+      "labels": 2,
+      "kpi": {
+        "min": "23.3",
+        "minDay": "on 2026-09-24",
+        "max": "32.4",
+        "maxDay": "on 2026-09-28"
+      },
+      "rows": [
+        [
+          "2026-09-24",
+          "23.3",
+          "31"
+        ],
+        [
+          "2026-09-25",
+          "23.4",
+          "31.4"
+        ],
+        [
+          "2026-09-26",
+          "24.1",
+          "31.4"
+        ],
+        [
+          "2026-09-27",
+          "24.1",
+          "31.6"
+        ],
+        [
+          "2026-09-28",
+          "24.4",
+          "32.4"
+        ],
+        [
+          "2026-09-29",
+          "25.3",
+          "30.9"
+        ],
+        [
+          "2026-09-30",
+          "24.6",
+          "30.3"
+        ]
+      ],
+      "dotsHit": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "marksHit": [
+        true,
+        true
+      ]
     }
   }
 }
