@@ -1,0 +1,754 @@
+{
+  "checks": [
+    {
+      "id": "1280 AC-V2-18 default: the Radar control is a visible text-labelled button, hidden (Off), no radar request, no layer",
+      "pass": true,
+      "detail": {
+        "pressed": "false",
+        "label": "Radar: Off",
+        "toggleVisible": true,
+        "state": "off",
+        "busy": "false",
+        "infoVisible": false,
+        "time": "—",
+        "status": "",
+        "statusClass": "radar-status radar-status--off",
+        "layer": false,
+        "layerVisible": false,
+        "src": null,
+        "strips": 0,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280 RSP-3 the Radar control is at least 44 x 44",
+      "pass": true,
+      "detail": {
+        "x": 242.71875,
+        "y": 415.8125,
+        "w": 102.921875,
+        "h": 44
+      }
+    },
+    {
+      "id": "1280 AC-V2-18 Enter shows the radar: overlay drawn, Radar Time = the response's X-Radar-Time, aria-pressed true",
+      "pass": true,
+      "detail": {
+        "state": {
+          "pressed": "true",
+          "label": "Radar: On",
+          "toggleVisible": true,
+          "state": "success",
+          "busy": "false",
+          "infoVisible": true,
+          "time": "2026-09-26 14:40 +08:00",
+          "status": "",
+          "statusClass": "radar-status radar-status--success",
+          "layer": true,
+          "layerVisible": true,
+          "src": "blob:http://127.0.0.1:58958/634a129a-c0c7-42e8-ae36-6298882c452e",
+          "strips": 24,
+          "obsState": "success",
+          "obsTime": "2026-09-25 23:00 +08:00",
+          "obsFetched": "2026-09-26 14:45:00 +08:00",
+          "obsCount": "849",
+          "obsStatus": "",
+          "markers": 22,
+          "mode": "now",
+          "scrollWidth": 1280,
+          "innerWidth": 1280
+        },
+        "header": "2026-09-26T14:40:00+08:00",
+        "type": "image/png"
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/H-3 the radar time is labelled 'Radar Time', visible, apart from Observation Time and Fetched Time",
+      "pass": true,
+      "detail": {
+        "dts": [
+          "Observation Time",
+          "Fetched Time",
+          "Valid stations",
+          "Radar Time",
+          "Valid stations",
+          "On the map",
+          "Highest air temperature",
+          "Lowest air temperature"
+        ],
+        "radarRow": "Radar Time",
+        "separate": true,
+        "radarVal": "2026-09-26 14:40 +08:00",
+        "obsVal": "2026-09-25 23:00 +08:00",
+        "fetchedVal": "2026-09-26 14:45:00 +08:00",
+        "visible": true
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/RAD-6 drawing order: backdrop < radar < county interaction layer < station markers; radar takes no pointer",
+      "pass": true,
+      "detail": {
+        "backdrop": 300,
+        "radar": 350,
+        "overlay": 400,
+        "marker": 600,
+        "radarPointer": "none",
+        "imgPointer": "none",
+        "backdropPaths": 27,
+        "countyPaths": 22,
+        "layerInRadarPane": true
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/RAD-6 over a radar pixel the county layer is hit (not the radar): hover shows the county name, click selects it",
+      "pass": true,
+      "detail": {
+        "hit": {
+          "tag": "path",
+          "county": true,
+          "radar": false
+        },
+        "tooltip": "南投縣",
+        "selected": "南投縣"
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/RAD-6 station markers stay on top and readable over the radar; clicking one selects the station",
+      "pass": true,
+      "detail": {
+        "marker": {
+          "x": 780,
+          "y": 369.3125,
+          "label": "國姓 station, 南投縣: air temperature 24.2 °C (Latest Observation, station value)",
+          "top": true,
+          "opacity": "1",
+          "color": "rgb(16, 21, 31)",
+          "bg": "rgb(242, 245, 250)"
+        },
+        "selected": "國姓 station"
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/RAD-6 with the radar shown the map still drags and zooms (animated +); the layer is re-placed (≤ 1 km)",
+      "pass": true,
+      "detail": {
+        "before": {
+          "lat": 23.4,
+          "lng": 119.9
+        },
+        "after": {
+          "lat": 23.69986470918148,
+          "lng": 120.55847167968751
+        },
+        "zoom": [
+          8,
+          9
+        ],
+        "errKm": {
+          "centre": 0.0017,
+          "臺北": 0.0013,
+          "臺中": 0.0034
+        }
+      }
+    },
+    {
+      "id": "1280 AC-V2-19 zoom 7: all 15 reference pixels drawn within 1 km of the map's projection",
+      "pass": true,
+      "detail": {
+        "worstKm": 0.0118,
+        "worst": "edge E",
+        "worstVsLeafletRoundedApiKm": 0.6174
+      }
+    },
+    {
+      "id": "1280 AC-V2-19 zoom 10: all 15 reference pixels drawn within 1 km of the map's projection",
+      "pass": true,
+      "detail": {
+        "worstKm": 0.0048,
+        "worst": "臺中",
+        "worstVsLeafletRoundedApiKm": 0.0905
+      }
+    },
+    {
+      "id": "1280 AC-V2-19 rendered pixels, zoom 10: every whole square's centroid within 1 km of its projected centre",
+      "pass": true,
+      "detail": {
+        "臺北": 0.015,
+        "臺中": 0.046,
+        "恆春": 0.037,
+        "花蓮": 0.067,
+        "澎湖 馬公": 0.02,
+        "金門": 0.029,
+        "centre": 0.03
+      }
+    },
+    {
+      "id": "1280 AC-V2-19 rendered pixels: every square on screen was found in the rendered map",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "1280 AC-V2-19 rendered pixels, zoom 7 (coarse; 1 px ≈ 1.1 km): every whole square on screen within 1 km",
+      "pass": true,
+      "detail": {
+        "n": 32,
+        "worstKm": 0.722
+      }
+    },
+    {
+      "id": "1280 AC-V2-19 the instrument discriminates: a plain image overlay measures > 1 km off (DA: ~3.8 km)",
+      "pass": true,
+      "detail": {
+        "worstKm": 3.831,
+        "at": "澎湖 馬公"
+      }
+    },
+    {
+      "id": "1280 RAD-6 non-echo area is transparent: the only map pixels the radar changes are the pattern squares",
+      "pass": true,
+      "detail": {
+        "changed": 970,
+        "blobs": 13,
+        "strayBlobs": 0,
+        "largestBlob": 87,
+        "mapPixels": 360640
+      }
+    },
+    {
+      "id": "1280 AC-V2-18 Space hides the radar: overlay removed, Radar Time hidden, aria-pressed false",
+      "pass": true,
+      "detail": {
+        "pressed": "false",
+        "label": "Radar: Off",
+        "toggleVisible": true,
+        "state": "off",
+        "busy": "false",
+        "infoVisible": false,
+        "time": "2026-09-26 14:40 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--off",
+        "layer": false,
+        "layerVisible": false,
+        "src": null,
+        "strips": 0,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/RAD-3 showing the radar again fetches the latest image (new Radar Time)",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 14:50 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/e7488753-8fb1-4186-a10c-a3987be87f45",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/RAD-3 Refresh while the radar is shown fetches the latest radar image too",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 15:00 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/29798fff-f8c6-4d65-ae30-d3905146c254",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "Already the latest: no newer Latest Observation than the one shown.",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/RAD-3 no automatic update or polling (12 s idle: no radar request)",
+      "pass": true,
+      "detail": {
+        "requests": 3
+      }
+    },
+    {
+      "id": "1280 RAD-4 an older radar image never replaces the newer one shown (kept, noted)",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 15:00 +08:00",
+        "status": "Already the latest radar image.",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/29798fff-f8c6-4d65-ae30-d3905146c254",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "Already the latest: no newer Latest Observation than the one shown.",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280 AC-V2-18/MODE-4 Forecast mode has no Radar control and no radar overlay",
+      "pass": true,
+      "detail": {
+        "toggle": false,
+        "layer": false
+      }
+    },
+    {
+      "id": "1280 MODE-5 back in Now mode the shown radar and its Radar Time are back",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 15:00 +08:00",
+        "status": "Already the latest radar image.",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/29798fff-f8c6-4d65-ae30-d3905146c254",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "Already the latest: no newer Latest Observation than the one shown.",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280 MODE-6/DOC-5 no real-time / live wording on the page",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "1280 no console errors / NaN / Invalid LatLng",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "1280-fail AC-V2-18/09(c) first radar fetch fails (key_not_configured) → radar unavailable, no overlay, reason; observation unchanged",
+      "pass": true,
+      "detail": {
+        "state": "unavailable",
+        "layer": false,
+        "time": "—",
+        "status": "Radar unavailable: no radar image to show. Reason: the server has no CWA API key configured — key_not_configured.",
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00"
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-18/09(c) first radar fetch fails (upstream_unreachable) → radar unavailable, no overlay, reason; observation unchanged",
+      "pass": true,
+      "detail": {
+        "state": "unavailable",
+        "layer": false,
+        "time": "—",
+        "status": "Radar unavailable: no radar image to show. Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00"
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-18/09(c) first radar fetch fails (upstream_error) → radar unavailable, no overlay, reason; observation unchanged",
+      "pass": true,
+      "detail": {
+        "state": "unavailable",
+        "layer": false,
+        "time": "—",
+        "status": "Radar unavailable: no radar image to show. Reason: the CWA service answered with an error status (HTTP 403) — upstream_error.",
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00"
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-18/09(c) first radar fetch fails (invalid_response) → radar unavailable, no overlay, reason; observation unchanged",
+      "pass": true,
+      "detail": {
+        "state": "unavailable",
+        "layer": false,
+        "time": "—",
+        "status": "Radar unavailable: no radar image to show. Reason: the CWA radar product was not usable — invalid_response.",
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00"
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-18/09(c) first radar fetch fails (unexpected_response) → radar unavailable, no overlay, reason; observation unchanged",
+      "pass": true,
+      "detail": {
+        "state": "unavailable",
+        "layer": false,
+        "time": "—",
+        "status": "Radar unavailable: no radar image to show. Reason: this site's server gave an unexpected answer (HTTP 502).",
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00"
+      }
+    },
+    {
+      "id": "1280-fail R-V2-OBS-12 (radar) the failure categories are distinguishable to the user",
+      "pass": true,
+      "detail": {
+        "key_not_configured": "Radar unavailable: no radar image to show. Reason: the server has no CWA API key configured — key_not_configured.",
+        "upstream_unreachable": "Radar unavailable: no radar image to show. Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "upstream_error": "Radar unavailable: no radar image to show. Reason: the CWA service answered with an error status (HTTP 403) — upstream_error.",
+        "invalid_response": "Radar unavailable: no radar image to show. Reason: the CWA radar product was not usable — invalid_response.",
+        "unexpected_response": "Radar unavailable: no radar image to show. Reason: this site's server gave an unexpected answer (HTTP 502)."
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-18 bounded time: a stalled upstream ends as radar unavailable (upstream_unreachable) within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 8.6,
+        "status": "Radar unavailable: no radar image to show. Reason: the CWA service could not be reached in time — upstream_unreachable."
+      }
+    },
+    {
+      "id": "1280-fail recovery: the next successful show clears radar unavailable",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 14:40 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/4647e53a-0317-4679-8ab4-922287cc2b42",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-18/RAD-4 a failed refetch while an image is shown keeps the overlay and its Radar Time, marked stale with the reason",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "stale",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 14:40 +08:00",
+        "status": "Radar Stale: the last radar update failed; the image shown is from the Radar Time above. Reason: the CWA service answered with an error status (HTTP 500) — upstream_error.",
+        "statusClass": "radar-status radar-status--stale",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/4647e53a-0317-4679-8ab4-922287cc2b42",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "Already the latest: no newer Latest Observation than the one shown.",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-09(c) the radar failure changed only the radar: observation state success, times and markers as before",
+      "pass": true,
+      "detail": {
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "markers": 22
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-18 the page's own bound: no answer in 20 s → stale kept (no_response), within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 21.3,
+        "status": "Radar Stale: the last radar update failed; the image shown is from the Radar Time above. Reason: this site's server did not answer in time or could not be reached."
+      }
+    },
+    {
+      "id": "1280-fail stale cleared by the next successful fetch",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 14:50 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/e940ee7d-7c56-41f6-b5ce-4da2480e6cc2",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "Already the latest: no newer Latest Observation than the one shown.",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280-fail AC-V2-09(c) an observation failure (Refresh → observation Stale) leaves the radar working (new image, success)",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 15:00 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/da2f9009-8a77-4fdf-868a-ef9922e07f94",
+        "strips": 24,
+        "obsState": "stale",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "Refresh failed: data is Stale.",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "1280-fail H-1 the page shows no key, upstream host, upstream body or platform page text",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "1280-obs-down AC-V2-09(c) observation Unavailable from the first load: the radar still shows",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 14:40 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/c7928151-b90b-46e4-8d69-427d7339bd42",
+        "strips": 24,
+        "obsState": "unavailable",
+        "obsTime": "—",
+        "obsFetched": "—",
+        "obsCount": "—",
+        "obsStatus": "Latest Observation unavailable.",
+        "markers": 0,
+        "mode": "now",
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "375 375 default hidden; control ≥ 44 x 44; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "x": 141.71875,
+        "y": 482.390625,
+        "w": 102.921875,
+        "h": 44
+      }
+    },
+    {
+      "id": "375 375 radar shown by keyboard; Radar Time visible; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "success",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 14:40 +08:00",
+        "status": "",
+        "statusClass": "radar-status radar-status--success",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/debe68c3-6af0-42b6-ac7f-24ebe8230cba",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 375,
+        "innerWidth": 375
+      }
+    },
+    {
+      "id": "375 375 AC-V2-19 (DOM geometry, current zoom) every reference pixel within 1 km",
+      "pass": true,
+      "detail": {
+        "worstKm": 0.0188
+      }
+    },
+    {
+      "id": "375 375 stale: overlay kept, reason visible; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "stale",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "2026-09-26 14:40 +08:00",
+        "status": "Radar Stale: the last radar update failed; the image shown is from the Radar Time above. Reason: the CWA service answered with an error status (HTTP 429) — upstream_error.",
+        "statusClass": "radar-status radar-status--stale",
+        "layer": true,
+        "layerVisible": true,
+        "src": "blob:http://127.0.0.1:58958/debe68c3-6af0-42b6-ac7f-24ebe8230cba",
+        "strips": 24,
+        "obsState": "success",
+        "obsTime": "2026-09-25 23:00 +08:00",
+        "obsFetched": "2026-09-26 14:45:00 +08:00",
+        "obsCount": "849",
+        "obsStatus": "Already the latest: no newer Latest Observation than the one shown.",
+        "markers": 22,
+        "mode": "now",
+        "scrollWidth": 375,
+        "innerWidth": 375
+      }
+    },
+    {
+      "id": "375 375 unavailable: no overlay, reason visible; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "label": "Radar: On",
+        "toggleVisible": true,
+        "state": "unavailable",
+        "busy": "false",
+        "infoVisible": true,
+        "time": "—",
+        "status": "Radar unavailable: no radar image to show. Reason: the server has no CWA API key configured — key_not_configured.",
+        "statusClass": "radar-status radar-status--unavailable",
+        "layer": false,
+        "layerVisible": false,
+        "src": null,
+        "strips": 0,
+        "obsState": "unavailable",
+        "obsTime": "—",
+        "obsFetched": "—",
+        "obsCount": "—",
+        "obsStatus": "Latest Observation unavailable.",
+        "markers": 0,
+        "mode": "now",
+        "scrollWidth": 375,
+        "innerWidth": 375
+      }
+    },
+    {
+      "id": "1280-forecast503 AC-V2-09(a) forecast snapshot 503: Now mode radar works; the forecast section shows its own error",
+      "pass": true,
+      "detail": {
+        "forecastError": "!\n\nSomething went wrong\n\nThe forecast database is missing. Run the ingestion pip",
+        "radar": "success"
+      }
+    },
+    {
+      "id": "AC-V2-16 network log: zero external requests (the radar image comes from /api/radar/latest)",
+      "pass": true,
+      "detail": {
+        "external": [],
+        "total": 113
+      }
+    },
+    {
+      "id": "AC-V2-07/H-1 server log (DEBUG) and request URLs carry no key, upstream host, upstream body or auth header",
+      "pass": true,
+      "detail": []
+    }
+  ]
+}

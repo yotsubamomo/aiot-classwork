@@ -1,0 +1,1335 @@
+{
+  "checks": [
+    {
+      "id": "desktop DD-4 county interaction layer: 22 interactive county paths in Now mode; no county context before a selection",
+      "pass": true,
+      "detail": {
+        "paths": 22,
+        "markers": 22
+      }
+    },
+    {
+      "id": "desktop DD-4 not coloured by data: every county path has the same transparent fill and no visible outline",
+      "pass": true,
+      "detail": [
+        {
+          "stroke": "#9ed0ff",
+          "so": "0",
+          "fill": "#9ed0ff",
+          "fo": "0"
+        },
+        {
+          "stroke": "#9ed0ff",
+          "so": "0",
+          "fill": "#9ed0ff",
+          "fo": "0"
+        }
+      ]
+    },
+    {
+      "id": "desktop DD-1/DD-4 the 22 county polygons carry the 22 CountyName strings one-to-one (select -> the selected polygon's hover name)",
+      "pass": true,
+      "detail": {
+        "基隆市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "基隆市",
+          "countyInView": true
+        },
+        "臺北市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "臺北市",
+          "countyInView": true
+        },
+        "新北市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "新北市",
+          "countyInView": true
+        },
+        "桃園市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "桃園市",
+          "countyInView": true
+        },
+        "新竹市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "新竹市",
+          "countyInView": true
+        },
+        "新竹縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "新竹縣",
+          "countyInView": true
+        },
+        "苗栗縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "苗栗縣",
+          "countyInView": true
+        },
+        "臺中市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "臺中市",
+          "countyInView": true
+        },
+        "彰化縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "彰化縣",
+          "countyInView": true
+        },
+        "南投縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "南投縣",
+          "countyInView": true
+        },
+        "雲林縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "雲林縣",
+          "countyInView": true
+        },
+        "嘉義市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "嘉義市",
+          "countyInView": true
+        },
+        "嘉義縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "嘉義縣",
+          "countyInView": true
+        },
+        "臺南市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "臺南市",
+          "countyInView": true
+        },
+        "高雄市": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "高雄市",
+          "countyInView": true
+        },
+        "屏東縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "屏東縣",
+          "countyInView": true
+        },
+        "宜蘭縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "宜蘭縣",
+          "countyInView": true
+        },
+        "花蓮縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "花蓮縣",
+          "countyInView": true
+        },
+        "臺東縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "臺東縣",
+          "countyInView": true
+        },
+        "澎湖縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "澎湖縣",
+          "countyInView": true
+        },
+        "金門縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "金門縣",
+          "countyInView": true
+        },
+        "連江縣": {
+          "selectedPaths": 1,
+          "path": 21,
+          "hoverTip": "連江縣",
+          "countyInView": true
+        }
+      }
+    },
+    {
+      "id": "desktop DD-5(a)/DD-9(a) every county chosen with the keyboard (ArrowDown through all 22) is shown: its shape in the map, clear of the panel",
+      "pass": true,
+      "detail": {
+        "基隆市": true,
+        "臺北市": true,
+        "新北市": true,
+        "桃園市": true,
+        "新竹市": true,
+        "新竹縣": true,
+        "苗栗縣": true,
+        "臺中市": true,
+        "彰化縣": true,
+        "南投縣": true,
+        "雲林縣": true,
+        "嘉義市": true,
+        "嘉義縣": true,
+        "臺南市": true,
+        "高雄市": true,
+        "屏東縣": true,
+        "宜蘭縣": true,
+        "花蓮縣": true,
+        "臺東縣": true,
+        "澎湖縣": true,
+        "金門縣": true,
+        "連江縣": true
+      }
+    },
+    {
+      "id": "desktop AC-V2-10 hover a county -> highlighted (fixed outline + faint fill) and its name shown",
+      "pass": true,
+      "detail": {
+        "path": 7,
+        "style": {
+          "stroke": "#9ed0ff",
+          "so": "1",
+          "fill": "#9ed0ff",
+          "fo": "0.14"
+        },
+        "tip": "臺中市"
+      }
+    },
+    {
+      "id": "desktop AC-V2-10 click 臺中市 on the map -> County context: name, count, on-map count, highest/lowest = hand-computed from /api/",
+      "pass": true,
+      "detail": {
+        "page": {
+          "name": "臺中市",
+          "count": "60",
+          "onmap": "60",
+          "max": "28.8 °C · 潭子",
+          "min": "4.3 °C · 雪山圈谷",
+          "select": "臺中市"
+        },
+        "expected": {
+          "count": "60",
+          "onmap": "60",
+          "max": "28.8 °C · 潭子",
+          "min": "4.3 °C · 雪山圈谷"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-10/DD-5(a) the view holds every on-map 臺中市 station (markers = those stations, inside the map, clear of the panel)",
+      "pass": true,
+      "detail": {
+        "markers": 60,
+        "expected": 60,
+        "inView": true,
+        "clearOfPanel": true,
+        "shape": {
+          "x": 645,
+          "y": 493,
+          "r": 1007,
+          "b": 669,
+          "mx": 504,
+          "my": 301,
+          "mr": 1148,
+          "mb": 861,
+          "panelRight": 491
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-10 click 新北市, then 臺北市 on the map -> 臺北市 County context = hand-computed from /api/ (densest county)",
+      "pass": true,
+      "detail": {
+        "via": "新北市",
+        "page": {
+          "name": "臺北市",
+          "count": "19",
+          "onmap": "19",
+          "max": "28.4 °C · 石牌",
+          "min": "19.4 °C · 鞍部",
+          "select": "臺北市"
+        },
+        "expected": {
+          "count": "19",
+          "onmap": "19",
+          "max": "28.4 °C · 石牌",
+          "min": "19.4 °C · 鞍部"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-10/DD-5(a) the view holds every on-map 臺北市 station (markers = those stations, inside the map, clear of the panel)",
+      "pass": true,
+      "detail": {
+        "markers": 19,
+        "expected": 19,
+        "inView": true,
+        "clearOfPanel": true,
+        "shape": {
+          "x": 673,
+          "y": 380,
+          "r": 976,
+          "b": 785,
+          "mx": 504,
+          "my": 301,
+          "mr": 1148,
+          "mb": 861,
+          "panelRight": 491
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-10/DD-6 station list complete (every valid station, temperature high to low, value = /api/)",
+      "pass": true,
+      "detail": {
+        "items": [
+          {
+            "id": "C0AI40",
+            "text": "石牌 北投區 28.4 °C",
+            "pressed": "false",
+            "off": false
+          },
+          {
+            "id": "C0A980",
+            "text": "社子 士林區 27.7 °C",
+            "pressed": "false",
+            "off": false
+          },
+          {
+            "id": "466920",
+            "text": "臺北 中正區 27.1 °C",
+            "pressed": "false",
+            "off": false
+          },
+          {
+            "id": "C0AC70",
+            "text": "信義 信義區 26.5 °C",
+            "pressed": "false",
+            "off": false
+          }
+        ],
+        "n": 19
+      }
+    },
+    {
+      "id": "desktop AC-V2-10/H-3/INV-V2-5 no average / mean / 平均 anywhere in the Now mode page text; values labelled station values",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "desktop AC-V2-12/DD-6/DD-9(b) the station list is reached with Tab; focus visible, not covered",
+      "pass": true,
+      "detail": {
+        "first": "C0AI40",
+        "second": "C0A980",
+        "focus": [
+          {
+            "ok": true,
+            "id": "county__item",
+            "rect": [
+              148,
+              771,
+              322,
+              44
+            ]
+          },
+          {
+            "ok": true,
+            "id": "county__item",
+            "rect": [
+              148,
+              805,
+              322,
+              44
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "desktop AC-V2-12/DD-7 Enter on a list item -> detail: name, StationId, county · town, Observation Time, temperature; invalid optional values '—'",
+      "pass": true,
+      "detail": {
+        "page": {
+          "name": "臺北 station",
+          "place": "臺北市 · 中正區",
+          "id": "466920",
+          "temp": "27.1 °C",
+          "rh": "—",
+          "wind": "2.4 m/s",
+          "wdir": "100°",
+          "pres": "—",
+          "rain": "0 mm",
+          "weather": "—",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        },
+        "expected": {
+          "name": "臺北 station",
+          "id": "466920",
+          "place": "臺北市 · 中正區",
+          "temp": "27.1 °C",
+          "rh": "—",
+          "wind": "2.4 m/s",
+          "wdir": "100°",
+          "pres": "—",
+          "rain": "0 mm",
+          "weather": "—",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        },
+        "active": [
+          "臺北 station, 臺北市: air temperature 27.1 °C (Latest Observation, station value)"
+        ]
+      }
+    },
+    {
+      "id": "desktop DD-9(e) focus stays on the selected list item after selecting (not lost, not covered)",
+      "pass": true,
+      "detail": "466920"
+    },
+    {
+      "id": "desktop AC-V2-12/DD-7 Space on another list item -> that station's detail = /api/",
+      "pass": true,
+      "detail": {
+        "page": {
+          "name": "石牌 station",
+          "place": "臺北市 · 北投區",
+          "id": "C0AI40",
+          "temp": "28.4 °C",
+          "rh": "78 %",
+          "wind": "1.7 m/s",
+          "wdir": "131°",
+          "pres": "1008.8 hPa",
+          "rain": "0 mm",
+          "weather": "晴",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        },
+        "expected": {
+          "name": "石牌 station",
+          "id": "C0AI40",
+          "place": "臺北市 · 北投區",
+          "temp": "28.4 °C",
+          "rh": "78 %",
+          "wind": "1.7 m/s",
+          "wdir": "131°",
+          "pres": "1008.8 hPa",
+          "rain": "0 mm",
+          "weather": "晴",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        }
+      }
+    },
+    {
+      "id": "desktop DD-5(d)/DD-7 a county-view marker click selects its station (detail + list item marked)",
+      "pass": true,
+      "detail": {
+        "name": "科教館 station",
+        "place": "臺北市 · 士林區",
+        "id": "C0A770",
+        "temp": "25.4 °C",
+        "rh": "77 %",
+        "wind": "0 m/s",
+        "wdir": "0°",
+        "pres": "1006.7 hPa",
+        "rain": "0 mm",
+        "weather": "晴",
+        "time": "2026-09-25 23:00 +08:00",
+        "offmap": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-12/DD-8/AC-V2-23 'Back to Taiwan' (Enter) clears county and station, returns the Taiwan-wide view (= initial view)",
+      "pass": true,
+      "detail": {
+        "select": "",
+        "markers": 22,
+        "sameView": true,
+        "focus": "county-select"
+      }
+    },
+    {
+      "id": "desktop AC-V2-10/AC-V2-12/DD-9(a) keyboard chooser (ArrowDown) selects 金門縣 (outlying island): context = /api/",
+      "pass": true,
+      "detail": {
+        "name": "金門縣",
+        "count": "6",
+        "onmap": "6",
+        "max": "26.0 °C · 金寧",
+        "min": "23.3 °C · 金門(東)"
+      }
+    },
+    {
+      "id": "desktop AC-V2-10 the county with the fewest valid stations (連江縣): context = /api/; view = its stations",
+      "pass": true,
+      "detail": {
+        "name": "連江縣",
+        "count": "4",
+        "onmap": "4",
+        "max": "25.3 °C · 東引",
+        "min": "23.3 °C · 東莒"
+      }
+    },
+    {
+      "id": "desktop AC-V2-12/DD-11 高雄市: 東沙島 counted, listed and marked 'not on the map', no marker for it",
+      "pass": true,
+      "detail": {
+        "onmap": "57 (1 not on the map)",
+        "count": "58",
+        "off": [
+          {
+            "id": "468100",
+            "text": "東沙島 旗津區 not on the map 27.4 °C",
+            "pressed": "false",
+            "off": true
+          }
+        ],
+        "markers": 57
+      }
+    },
+    {
+      "id": "desktop AC-V2-12/DD-11 東沙島 detail viewable from the list, marked not on the map",
+      "pass": true,
+      "detail": {
+        "name": "東沙島 station",
+        "place": "高雄市 · 旗津區",
+        "id": "468100",
+        "temp": "27.4 °C",
+        "rh": "85 %",
+        "wind": "2 m/s",
+        "wdir": "90°",
+        "pres": "1012 hPa",
+        "rain": "10 mm",
+        "weather": "晴",
+        "time": "2026-09-25 23:00 +08:00",
+        "offmap": true
+      }
+    },
+    {
+      "id": "desktop DD-5 zero-valid-station county (derived sample, 連江縣) is selectable: 0 and '—', not an error",
+      "pass": true,
+      "detail": {
+        "count": "0",
+        "onmap": "0",
+        "max": "—",
+        "min": "—",
+        "empty": "No valid station in 連江縣 in this Latest Observation.",
+        "obsState": "success",
+        "state": null
+      }
+    },
+    {
+      "id": "desktop DD-9(e)/RSP-6 the Now panel never covers the map (beside it); a marker focused while off-screen is brought fully into view",
+      "pass": true,
+      "detail": {
+        "apart": true,
+        "marker": "基隆 station, 基隆市: air temperature 25.9 °C (Latest Observation, station value)",
+        "focus": {
+          "ok": true,
+          "id": "spill",
+          "rect": [
+            799,
+            566,
+            54,
+            27
+          ]
+        }
+      }
+    },
+    {
+      "id": "desktop DV-20/MODE-4 Forecast mode: no county layer, no County context, six Region pills (county 臺中市)",
+      "pass": true,
+      "detail": {
+        "pills": 6,
+        "stations": 0,
+        "countyPaths": 0,
+        "nowPanel": false
+      }
+    },
+    {
+      "id": "desktop DV-20 AC-V2-01 (i) after Now -> Forecast -> Now the county is still selected and the County context shows the same county",
+      "pass": true,
+      "detail": {
+        "name": "臺中市",
+        "select": "臺中市",
+        "selectedPaths": 1
+      }
+    },
+    {
+      "id": "desktop DV-20 AC-V2-01 (ii) the view equals the view on leaving Now mode (not the county fit, not the initial view)",
+      "pass": true,
+      "detail": {
+        "before": {
+          "zoom": 9.999,
+          "center": [
+            24.21966,
+            120.95396
+          ],
+          "pane": "translate3d(0px, 0px, 0px)"
+        },
+        "after": {
+          "zoom": 9.999,
+          "center": [
+            24.21966,
+            120.95396
+          ],
+          "pane": "translate3d(0px, 0px, 0px)"
+        },
+        "countyFit": {
+          "zoom": 9.003,
+          "center": [
+            24.21964,
+            120.95393
+          ],
+          "pane": "translate3d(0px, 0px, 0px)"
+        }
+      }
+    },
+    {
+      "id": "desktop DV-20 AC-V2-01 (iii) the station selected in the county and its detail are restored",
+      "pass": true,
+      "detail": {
+        "detail": {
+          "name": "大里 station",
+          "place": "臺中市 · 大里區",
+          "id": "C0F9N0",
+          "temp": "27.4 °C",
+          "rh": "79 %",
+          "wind": "0.6 m/s",
+          "wdir": "114°",
+          "pres": "1001.8 hPa",
+          "rain": "0 mm",
+          "weather": "晴",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        },
+        "active": [
+          "大里 station, 臺中市: air temperature 27.4 °C (Latest Observation, station value)"
+        ]
+      }
+    },
+    {
+      "id": "desktop RSP-2 no horizontal scroll with a county and a station selected",
+      "pass": true,
+      "detail": [
+        1280,
+        1280
+      ]
+    },
+    {
+      "id": "desktop DV-21(1) first load fails -> Unavailable; the 22-polygon county layer is present",
+      "pass": true,
+      "detail": {
+        "obsState": "unavailable",
+        "countyPaths": 22,
+        "chip": "UNAVAILABLE"
+      }
+    },
+    {
+      "id": "desktop DV-21(1) Unavailable: hover still highlights a county and shows its name",
+      "pass": true,
+      "detail": {
+        "style": {
+          "stroke": "#9ed0ff",
+          "so": "1",
+          "fill": "#9ed0ff",
+          "fo": "0.14"
+        }
+      }
+    },
+    {
+      "id": "desktop DV-21(1)/§4.2 map click selects 臺中市: name shown; count, on-map, highest, lowest all '—' (never 0 or any number); no station listed",
+      "pass": true,
+      "detail": {
+        "name": "臺中市",
+        "count": "—",
+        "onmap": "—",
+        "max": "—",
+        "min": "—",
+        "empty": "No stations to list: the Latest Observation is unavailable.",
+        "state": "Latest Observation unavailable — no station data to show. Reason: the CWA service answered with an error status — upstream_error.",
+        "chip": "UNAVAILABLE",
+        "reason": "Reason: the CWA service answered with an error status (HTTP 500) — upstream_error.",
+        "digits": []
+      }
+    },
+    {
+      "id": "desktop DV-21(1) with no station to fit, the map stays usable (keyboard pan works)",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "id": "desktop DV-21(1) keyboard chooser selects 花蓮縣 under Unavailable: same '—' context, state and Refresh visible; its shape is the view",
+      "pass": true,
+      "detail": {
+        "name": "花蓮縣",
+        "count": "—",
+        "max": "—",
+        "state": "Latest Observation unavailable — no station data to show. Reason: the CWA service answered with an error status — upstream_error."
+      }
+    },
+    {
+      "id": "desktop DV-21(1) Back to Taiwan works under Unavailable (county cleared, still Now mode, still Unavailable)",
+      "pass": true,
+      "detail": {
+        "visible": false,
+        "select": "",
+        "obsState": "unavailable"
+      }
+    },
+    {
+      "id": "desktop DV-21(1) a later successful Refresh: the kept county's context = the new response's valid stations",
+      "pass": true,
+      "detail": {
+        "obsState": "success",
+        "count": "61",
+        "onmap": "61",
+        "max": "27.0 °C · 和仁",
+        "min": "8.7 °C · 合歡山"
+      }
+    },
+    {
+      "id": "desktop DD-5(a) 花蓮縣 chosen with the keyboard: the view holds its stations and shape",
+      "pass": true,
+      "detail": {
+        "markers": 61,
+        "expected": 61,
+        "inView": true,
+        "clearOfPanel": true,
+        "shape": {
+          "x": 682,
+          "y": 327,
+          "r": 969,
+          "b": 835,
+          "mx": 504,
+          "my": 301,
+          "mr": 1148,
+          "mb": 861,
+          "panelRight": 491
+        }
+      }
+    },
+    {
+      "id": "desktop DV-21(2) county selected BEFORE the failure: Stale; context unchanged and = the retained response by hand",
+      "pass": true,
+      "detail": {
+        "obsState": "stale",
+        "count": "61",
+        "onmap": "61",
+        "max": "27.0 °C · 和仁",
+        "min": "8.7 °C · 合歡山"
+      }
+    },
+    {
+      "id": "desktop DV-21(2) the Stale marking and reason stay visible with the county selected (chip, County context, on-map notice)",
+      "pass": true,
+      "detail": {
+        "chip": "STALE",
+        "state": "Stale — the last successful Latest Observation (the last Refresh failed). Reason: the CWA service answered with an error status — upstream_error.",
+        "reason": "Reason: the CWA service answered with an error status (HTTP 429) — upstream_error.",
+        "notice": "Stale · last successful Latest Observation"
+      }
+    },
+    {
+      "id": "desktop DV-21(2) hover + map click select 臺東縣 AFTER the failure: context = the retained response by hand; Stale still shown",
+      "pass": true,
+      "detail": {
+        "count": "61",
+        "onmap": "61",
+        "max": "27.5 °C · 臺東",
+        "min": "12.9 °C · 向陽",
+        "state": "Stale — the last successful Latest Observation (the last Refresh failed). Reason: the CWA service answered with an error status — upstream_error."
+      }
+    },
+    {
+      "id": "desktop DV-21(2) station list selection works while Stale (detail = retained data)",
+      "pass": true,
+      "detail": {
+        "name": "臺東 station",
+        "place": "臺東縣 · 臺東市",
+        "id": "467660",
+        "temp": "27.5 °C",
+        "rh": "76 %",
+        "wind": "0.8 m/s",
+        "wdir": "320°",
+        "pres": "1011.6 hPa",
+        "rain": "0 mm",
+        "weather": "晴",
+        "time": "2026-09-25 23:00 +08:00",
+        "offmap": false
+      }
+    },
+    {
+      "id": "desktop DV-21(2) Back to Taiwan works while Stale (county cleared; still Stale)",
+      "pass": true,
+      "detail": {
+        "visible": false,
+        "obsState": "stale"
+      }
+    },
+    {
+      "id": "desktop DV-21(2) a not-newer Refresh clears Stale; County context = the displayed data",
+      "pass": true,
+      "detail": {
+        "obsState": "success",
+        "count": "61",
+        "max": "27.5 °C · 臺東"
+      }
+    },
+    {
+      "id": "desktop DV-21(2) after another failure, a newer Refresh clears Stale; County context = the new response",
+      "pass": true,
+      "detail": {
+        "obsState": "success",
+        "count": "61",
+        "max": "27.5 °C · 臺東",
+        "min": "12.9 °C · 向陽"
+      }
+    },
+    {
+      "id": "desktop F-1 every county path is out of the Tab order (tabindex=-1)",
+      "pass": true,
+      "detail": [
+        "-1"
+      ]
+    },
+    {
+      "id": "desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus",
+      "pass": true,
+      "detail": {
+        "stops": 12,
+        "inMap": 11,
+        "paths": 0,
+        "kinds": [
+          "marker",
+          "zoom"
+        ],
+        "markerStops": 9,
+        "expected": 9,
+        "access": {
+          "all": 22,
+          "stops": 9,
+          "culled": 13,
+          "culledVisible": 0
+        },
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            131,
+            431,
+            200,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "desktop F-1 a marker stop is operable (Enter selects its station and shows the detail)",
+      "pass": true,
+      "detail": {
+        "stop": "臺北 station, 臺北市: air temperature 27.1 °C (Latest O",
+        "detail": "臺北 station"
+      }
+    },
+    {
+      "id": "desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 臺中市 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "expected": 0,
+        "access": null,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            131,
+            752,
+            200,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 花蓮縣 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "expected": 0,
+        "access": null,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            131,
+            752,
+            200,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "desktop F-1 regression: hover shows the county name and a click still selects it",
+      "pass": true,
+      "detail": {
+        "county": "花蓮縣"
+      }
+    },
+    {
+      "id": "desktop F-1 regression: the station list is still reached with Tab and Enter shows the detail",
+      "pass": true,
+      "detail": {
+        "detail": "和仁 station",
+        "walk": {
+          "ok": true,
+          "first": "C0TA50",
+          "passed": [],
+          "focus": {
+            "ok": true,
+            "id": "county__item",
+            "rect": [
+              148,
+              470,
+              322,
+              44
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "375 375 AC-V2-10/12 keyboard chooser selects 臺北市: context = /api/; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "count": "19",
+        "onmap": "19",
+        "max": "28.4 °C · 石牌",
+        "min": "19.4 °C · 鞍部",
+        "scrollWidth": 375,
+        "innerWidth": 375
+      }
+    },
+    {
+      "id": "375 375 AC-V2-12 Tab into the list (past the info panel's Expand / Close) + Enter -> detail = /api/; focus visible; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "detail": {
+          "name": "石牌 station",
+          "place": "臺北市 · 北投區",
+          "id": "C0AI40",
+          "temp": "28.4 °C",
+          "rh": "78 %",
+          "wind": "1.7 m/s",
+          "wdir": "131°",
+          "pres": "1008.8 hPa",
+          "rain": "0 mm",
+          "weather": "晴",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        },
+        "walk": {
+          "ok": true,
+          "first": "C0AI40",
+          "passed": [
+            "sheet-expand",
+            "sheet-close"
+          ],
+          "focus": {
+            "ok": true,
+            "id": "county__item",
+            "rect": [
+              47,
+              732,
+              281,
+              44
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "375 375 AC-V2-12/DD-8 Back to Taiwan (Enter) clears the selection and returns the initial view",
+      "pass": true,
+      "detail": {
+        "select": ""
+      }
+    },
+    {
+      "id": "375 375 DD-4 hover shows a county name and a click on its polygon selects it (花蓮縣); no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "name": "花蓮縣",
+        "sw": 375
+      }
+    },
+    {
+      "id": "375 DV-20/MODE-4 Forecast mode: no county layer, no County context, six Region pills (county 臺中市)",
+      "pass": true,
+      "detail": {
+        "pills": 6,
+        "stations": 0,
+        "countyPaths": 0,
+        "nowPanel": false
+      }
+    },
+    {
+      "id": "375 DV-20 AC-V2-01 (i) after Now -> Forecast -> Now the county is still selected and the County context shows the same county",
+      "pass": true,
+      "detail": {
+        "name": "臺中市",
+        "select": "臺中市",
+        "selectedPaths": 1
+      }
+    },
+    {
+      "id": "375 DV-20 AC-V2-01 (ii) the view equals the view on leaving Now mode (not the county fit, not the initial view)",
+      "pass": true,
+      "detail": {
+        "before": {
+          "zoom": 9.003,
+          "center": [
+            23.79152,
+            120.95804
+          ],
+          "pane": "translate3d(0px, 0px, 0px)"
+        },
+        "after": {
+          "zoom": 9.003,
+          "center": [
+            23.79152,
+            120.95804
+          ],
+          "pane": "translate3d(0px, 0px, 0px)"
+        },
+        "countyFit": {
+          "zoom": 7.994,
+          "center": [
+            23.7862,
+            120.95697
+          ],
+          "pane": "translate3d(0px, 0px, 0px)"
+        }
+      }
+    },
+    {
+      "id": "375 DV-20 AC-V2-01 (iii) the station selected in the county and its detail are restored",
+      "pass": true,
+      "detail": {
+        "detail": {
+          "name": "大里 station",
+          "place": "臺中市 · 大里區",
+          "id": "C0F9N0",
+          "temp": "27.4 °C",
+          "rh": "79 %",
+          "wind": "0.6 m/s",
+          "wdir": "114°",
+          "pres": "1001.8 hPa",
+          "rain": "0 mm",
+          "weather": "晴",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        },
+        "active": [
+          "大里 station, 臺中市: air temperature 27.4 °C (Latest Observation, station value)"
+        ]
+      }
+    },
+    {
+      "id": "375 RSP-2 no horizontal scroll with a county and a station selected",
+      "pass": true,
+      "detail": [
+        375,
+        375
+      ]
+    },
+    {
+      "id": "375 375 DV-21(1) Unavailable (key_not_configured) + keyboard county: '—' only, state + Refresh visible, no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "obsState": "unavailable",
+        "count": "—",
+        "max": "—",
+        "state": "Latest Observation unavailable — no station data to show. Reason: the server has no CWA API key configured — key_not_configured.",
+        "reason": "Reason: the server has no CWA API key configured — key_not_configured.",
+        "scrollWidth": 375
+      }
+    },
+    {
+      "id": "375 375 DV-21(2) Stale (invalid_response) with 臺中市 selected: retained context = /api/, Stale shown, no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "obsState": "stale",
+        "count": "60",
+        "state": "Stale — the last successful Latest Observation (the last Refresh failed). Reason: the CWA response was not usable — invalid_response.",
+        "scrollWidth": 375
+      }
+    },
+    {
+      "id": "375 F-1 every county path is out of the Tab order (tabindex=-1)",
+      "pass": true,
+      "detail": [
+        "-1"
+      ]
+    },
+    {
+      "id": "375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus",
+      "pass": true,
+      "detail": {
+        "stops": 8,
+        "inMap": 7,
+        "paths": 0,
+        "kinds": [
+          "marker",
+          "zoom"
+        ],
+        "markerStops": 5,
+        "expected": 5,
+        "access": {
+          "all": 22,
+          "stops": 5,
+          "culled": 17,
+          "culledVisible": 0
+        },
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            32,
+            387,
+            311,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "375 F-1 a marker stop is operable (Enter selects its station and shows the detail)",
+      "pass": true,
+      "detail": {
+        "stop": "臺北 station, 臺北市: air temperature 27.1 °C (Latest O",
+        "detail": "臺北 station"
+      }
+    },
+    {
+      "id": "375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 臺中市 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "expected": 0,
+        "access": null,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            32,
+            386,
+            311,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 花蓮縣 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "expected": 0,
+        "access": null,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            32,
+            386,
+            311,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "375 F-1 regression: hover shows the county name and a click still selects it",
+      "pass": true,
+      "detail": {
+        "county": "花蓮縣"
+      }
+    },
+    {
+      "id": "375 F-1 regression: the station list is still reached with Tab and Enter shows the detail",
+      "pass": true,
+      "detail": {
+        "detail": "和仁 station",
+        "walk": {
+          "ok": true,
+          "first": "C0TA50",
+          "passed": [
+            "sheet-expand",
+            "sheet-close"
+          ],
+          "focus": {
+            "ok": true,
+            "id": "county__item",
+            "rect": [
+              47,
+              559,
+              281,
+              44
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "DV-21(3)/H-3 no data vs zero: success shows 0 with no state marking; Unavailable shows only '—' with the state marking",
+      "pass": true,
+      "detail": {
+        "success-zero": "連江縣\nValid stations\n0\nOn the map\n0\nHighest air temperature\n—\nLowest air temperature\n—\n\nStation values as published, per station; no county-level value is computed.\nStations (0)\n\nNo valid station in 連江縣 in this Latest Observation.",
+        "unavailable": "臺中市\n\nLatest Observation unavailable — no station data to show. Reason: the CWA service answered with an error status — upstream_error.\n\nValid stations\n—\nOn the map\n—\nHighest air temperature\n—\nLowest air temperature\n—\n\nStation values as published, per station; no county-level value is computed.\nStations\n\nNo stations to list: the Latest Observation is unavailable."
+      }
+    },
+    {
+      "id": "AC-V2-16/INV-V2-3 runtime network log: zero external requests (county layer and all scenarios)",
+      "pass": true,
+      "detail": {
+        "requests": 135,
+        "external": []
+      }
+    },
+    {
+      "id": "H-1 no key / upstream marker in any request URL",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "console: no JavaScript exception, no NaN / Invalid LatLng message",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "evidence": {
+    "desktop-success-zero_text": "連江縣\nValid stations\n0\nOn the map\n0\nHighest air temperature\n—\nLowest air temperature\n—\n\nStation values as published, per station; no county-level value is computed.\nStations (0)\n\nNo valid station in 連江縣 in this Latest Observation.",
+    "desktop-roundtrip-round_trip": {
+      "countyFit": {
+        "zoom": 9.003,
+        "center": [
+          24.21964,
+          120.95393
+        ],
+        "pane": "translate3d(0px, 0px, 0px)"
+      },
+      "beforeLeaving": {
+        "zoom": 9.999,
+        "center": [
+          24.21966,
+          120.95396
+        ],
+        "pane": "translate3d(0px, 0px, 0px)"
+      },
+      "afterReturn": {
+        "zoom": 9.999,
+        "center": [
+          24.21966,
+          120.95396
+        ],
+        "pane": "translate3d(0px, 0px, 0px)"
+      }
+    },
+    "desktop-unavailable-unavailable_text": "臺中市\n\nLatest Observation unavailable — no station data to show. Reason: the CWA service answered with an error status — upstream_error.\n\nValid stations\n—\nOn the map\n—\nHighest air temperature\n—\nLowest air temperature\n—\n\nStation values as published, per station; no county-level value is computed.\nStations\n\nNo stations to list: the Latest Observation is unavailable.",
+    "375-roundtrip-round_trip": {
+      "countyFit": {
+        "zoom": 7.994,
+        "center": [
+          23.7862,
+          120.95697
+        ],
+        "pane": "translate3d(0px, 0px, 0px)"
+      },
+      "beforeLeaving": {
+        "zoom": 9.003,
+        "center": [
+          23.79152,
+          120.95804
+        ],
+        "pane": "translate3d(0px, 0px, 0px)"
+      },
+      "afterReturn": {
+        "zoom": 9.003,
+        "center": [
+          23.79152,
+          120.95804
+        ],
+        "pane": "translate3d(0px, 0px, 0px)"
+      }
+    }
+  }
+}

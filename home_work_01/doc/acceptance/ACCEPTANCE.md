@@ -7,6 +7,12 @@ evidence reference. It is produced by Issue #25 (integration / final verificatio
 is an entry point for the forthcoming **Spec Integration Audit** (governance §4.7); it is
 **not** itself the independent audit.
 
+> **V2 reference (added by Issue #41; nothing below is rewritten).** This document records the
+> **V1** closed subject. The V2 Weather Map (Now mode, Latest Observation, Radar; Delta Spec
+> `doc/spec/SPEC-V2.md` v2.2) is accepted in [`ACCEPTANCE-V2.md`](ACCEPTANCE-V2.md), which maps
+> AC-V2-01…23 and the Spec §6.3 targeted revalidation of the V1 criteria. For the V2 deployment,
+> AC-07(e) is superseded by AC-V2-17 (SPEC-V2 §1.2 Δ-3) — see `ACCEPTANCE-V2.md` §3.
+
 ## 0. Subject, environment, status legend
 
 - **Final subject**: branch `home_work_01-hw10-implementation`, commit
