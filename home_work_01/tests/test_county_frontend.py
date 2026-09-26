@@ -152,6 +152,19 @@ def test_county_layer_is_interaction_geometry_never_coloured_by_data() -> None:
         assert event in build, event
 
 
+def test_county_polygons_are_never_keyboard_tab_stops() -> None:
+    """#38 cycle 1 F-1: the bound tooltip gives each path focus listeners, which
+    Chromium turns into an invisible, inert Tab stop. Every county path must get
+    tabindex="-1" each time it is (re)created on the map (DD-9(d), DD-9(e))."""
+    build = _body("buildCountyLayer")
+    add = build[build.index('layer.on("add"'):]
+    assert 'setAttribute("tabindex", "-1")' in add[:add.index("});")], (
+        "county paths must be taken out of the Tab order on every add")
+    assert "bindTooltip(" in build  # the reason the guard is needed stays visible here
+    # the keyboard path to a county is the chooser, a native <select>
+    assert _tree().by_id["county-select"]["tag"] == "select"
+
+
 def test_county_layer_is_on_the_map_only_in_now_mode() -> None:
     sync = _body("syncMap")
     forecast = sync[sync.index("if (mode === MODE_FORECAST)"):sync.index("} else {")]

@@ -799,6 +799,118 @@
       }
     },
     {
+      "id": "desktop F-1 every county path is out of the Tab order (tabindex=-1)",
+      "pass": true,
+      "detail": [
+        "-1"
+      ]
+    },
+    {
+      "id": "desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus",
+      "pass": true,
+      "detail": {
+        "stops": 25,
+        "inMap": 24,
+        "paths": 0,
+        "kinds": [
+          "marker",
+          "zoom"
+        ],
+        "markerStops": 22,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            131,
+            430,
+            200,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "desktop F-1 a marker stop is operable (Enter selects its station and shows the detail)",
+      "pass": true,
+      "detail": {
+        "stop": "基隆 station, 基隆市: air temperature 25.9 °C (Latest O",
+        "detail": "基隆 station"
+      }
+    },
+    {
+      "id": "desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 臺中市 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            131,
+            647,
+            200,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "desktop F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 花蓮縣 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            131,
+            647,
+            200,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "desktop F-1 regression: hover shows the county name and a click still selects it",
+      "pass": true,
+      "detail": {
+        "county": "花蓮縣"
+      }
+    },
+    {
+      "id": "desktop F-1 regression: the station list is still reached with Tab and Enter shows the detail",
+      "pass": true,
+      "detail": "和仁 station"
+    },
+    {
       "id": "375 375 AC-V2-10/12 keyboard chooser selects 臺北市: context = /api/; no horizontal scroll",
       "pass": true,
       "detail": {
@@ -958,6 +1070,118 @@
       }
     },
     {
+      "id": "375 F-1 every county path is out of the Tab order (tabindex=-1)",
+      "pass": true,
+      "detail": [
+        "-1"
+      ]
+    },
+    {
+      "id": "375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus",
+      "pass": true,
+      "detail": {
+        "stops": 25,
+        "inMap": 24,
+        "paths": 0,
+        "kinds": [
+          "marker",
+          "zoom"
+        ],
+        "markerStops": 22,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            32,
+            387,
+            311,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "375 F-1 a marker stop is operable (Enter selects its station and shows the detail)",
+      "pass": true,
+      "detail": {
+        "stop": "基隆 station, 基隆市: air temperature 25.9 °C (Latest O",
+        "detail": "基隆 station"
+      }
+    },
+    {
+      "id": "375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 臺中市 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            32,
+            667,
+            311,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "375 F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, 花蓮縣 view: no county-path stop; only the zoom buttons, focus visible",
+      "pass": true,
+      "detail": {
+        "stops": 3,
+        "inMap": 2,
+        "paths": 0,
+        "kinds": [
+          "zoom"
+        ],
+        "markerStops": 0,
+        "hidden": [],
+        "exit": {
+          "tag": "select",
+          "cls": "select",
+          "id": "region-select",
+          "inMap": false,
+          "visible": true,
+          "rect": [
+            32,
+            667,
+            311,
+            39
+          ],
+          "label": "Select Region"
+        }
+      }
+    },
+    {
+      "id": "375 F-1 regression: hover shows the county name and a click still selects it",
+      "pass": true,
+      "detail": {
+        "county": "花蓮縣"
+      }
+    },
+    {
+      "id": "375 F-1 regression: the station list is still reached with Tab and Enter shows the detail",
+      "pass": true,
+      "detail": "和仁 station"
+    },
+    {
       "id": "DV-21(3)/H-3 no data vs zero: success shows 0 with no state marking; Unavailable shows only '—' with the state marking",
       "pass": true,
       "detail": {
@@ -969,7 +1193,7 @@
       "id": "AC-V2-16/INV-V2-3 runtime network log: zero external requests (county layer and all scenarios)",
       "pass": true,
       "detail": {
-        "requests": 107,
+        "requests": 135,
         "external": []
       }
     },

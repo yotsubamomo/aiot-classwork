@@ -900,6 +900,98 @@ def mobile_states(s: S) -> None:
     s.shot("stale-county")
 
 
+# --- #38 cycle 1 F-1: Tab walk from the map ----------------------------------------------
+
+TAB_STOP_JS = r"""(function () {
+  var el = document.activeElement, map = document.getElementById('map');
+  var inMap = !!el && el !== map && map.contains(el);
+  var fv = __cty.focusVisible();
+  var cls = el ? (el.getAttribute('class') || '') : '';
+  return {tag: el ? el.tagName.toLowerCase() : null, cls: cls, id: el ? el.id : '', inMap: inMap,
+          visible: fv.ok, rect: fv.rect,
+          label: el ? (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').trim().slice(0, 50) : ''};
+})()"""
+
+
+def tab_walk(s: S) -> list[dict]:
+    """Focus the map, then press Tab until focus leaves the map (at most 60
+    presses); every stop is recorded with whether its focus is visible."""
+    b = s.b
+    b.js("document.getElementById('map').focus(); true")
+    stops = []
+    for _ in range(60):
+        b.key("Tab")
+        b.pump(0.15)
+        st = b.js(TAB_STOP_JS)
+        stops.append(st)
+        if not st["inMap"]:
+            break
+    return stops
+
+
+def walk_ok(stops: list[dict], markers_expected: bool) -> tuple[bool, dict]:
+    """No county path is a stop; every stop inside the map is an operable control
+    (a representative marker, the zoom buttons) and its focus is visible; the walk
+    leaves the map."""
+    inside = [x for x in stops if x["inMap"]]
+    paths = [x for x in stops if x["tag"] == "path"]
+    kinds = {("marker" if "spill" in x["cls"] else "zoom" if "leaflet-control-zoom" in x["cls"] else "other")
+             for x in inside}
+    hidden = [x for x in inside if not x["visible"]]
+    left = bool(stops) and not stops[-1]["inMap"]
+    markers = sum(1 for x in inside if "spill" in x["cls"])
+    ok = (not paths and "other" not in kinds and not hidden and left
+          and (markers == 22 if markers_expected else markers == 0))
+    return ok, {"stops": len(stops), "inMap": len(inside), "paths": len(paths), "kinds": sorted(kinds),
+                "markerStops": markers, "hidden": hidden[:3], "exit": stops[-1] if stops else None}
+
+
+def scenario_tab_walk(s: S) -> None:
+    b = s.b
+    s.rig.set("ok", "c0")
+    s.open()
+    tabidx = b.js("__cty.paths().map(function (p) { return p.getAttribute('tabindex'); })")
+    s.add("F-1 every county path is out of the Tab order (tabindex=-1)",
+          len(tabidx) == 22 and set(tabidx) == {"-1"}, sorted(set(map(str, tabidx))))
+    ok, det = walk_ok(tab_walk(s), markers_expected=True)
+    s.add("F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus",
+          ok, det)
+    # the first marker stop is operable: Enter selects its station
+    b.js("document.getElementById('map').focus(); true")
+    b.key("Tab")
+    b.pump(0.2)
+    first = b.js(TAB_STOP_JS)
+    b.key("Enter")
+    b.pump(0.4)
+    c = s.ctx()
+    s.add("F-1 a marker stop is operable (Enter selects its station and shows the detail)",
+          "spill" in first["cls"] and c["detail"] is not None and len(c["activeMarkers"]) == 1,
+          {"stop": first["label"], "detail": (c["detail"] or {}).get("name")})
+    for county in ("臺中市", "花蓮縣"):
+        s.choose(county)
+        ok, det = walk_ok(tab_walk(s), markers_expected=False)
+        s.add(f"F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, {county} view: no county-path stop; only the zoom buttons, focus visible",
+              ok and s.ctx()["name"] == county, det)
+    # after the fix: pointer hover/click, the chooser and the list still work
+    b.js("document.getElementById('back-to-taiwan').click(); true")
+    b.pump(0.8)
+    s.show_map()
+    county, pt = s.first_hoverable(("花蓮縣", "臺東縣", "臺中市", "南投縣"))
+    s.click(pt[0], pt[1]) if pt else None
+    b.pump(0.6)
+    c = s.ctx()
+    s.add("F-1 regression: hover shows the county name and a click still selects it",
+          pt is not None and c["name"] == county and c["visible"], {"county": county})
+    b.js("document.getElementById('back-to-taiwan').focus(); true")
+    b.key("Tab")
+    b.key("Enter")
+    b.pump(0.4)
+    c = s.ctx()
+    s.add("F-1 regression: the station list is still reached with Tab and Enter shows the detail",
+          c["detail"] is not None and b.js("__cty.focusVisible()")["ok"], (c["detail"] or {}).get("name"))
+    s.shot("tabwalk-after")
+
+
 def run(chrome: str, out: Path) -> Checks:
     checks = Checks()
     network: dict[str, list[str]] = {}
@@ -908,9 +1000,10 @@ def run(chrome: str, out: Path) -> Checks:
     add_variants(rig)
     plans = [
         ("desktop", 1280, 900, False, [("success", scenario_success), ("roundtrip", scenario_round_trip),
-                                       ("unavailable", scenario_unavailable), ("stale", scenario_stale)]),
+                                       ("unavailable", scenario_unavailable), ("stale", scenario_stale),
+                                       ("tabwalk", scenario_tab_walk)]),
         ("375", 375, 812, True, [("walk", mobile_walk), ("roundtrip", mobile_round_trip),
-                                 ("states", mobile_states)]),
+                                 ("states", mobile_states), ("tabwalk", scenario_tab_walk)]),
     ]
     consoles = []
     try:

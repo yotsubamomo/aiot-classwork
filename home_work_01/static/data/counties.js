@@ -1,8 +1,9 @@
 /* Taiwan Map county names for the Now mode's county interaction layer (Issue #38,
  * SPEC-V2 R-V2-DD-1, R-V2-DD-4). Project-authored data; do not reorder.
  *
- * Loaded as a same-origin <script> that sets window.TAIWAN_COUNTY_NAMES; the
- * browser makes NO request for it and it holds no URL and no key (INV-V2-3).
+ * Loaded as a same-origin <script> (/static/data/counties.js) that sets
+ * window.TAIWAN_COUNTY_NAMES: the browser fetches it from this app's own origin
+ * only — no external request — and it holds no URL and no key (INV-V2-3).
  *
  * Entry i is the CWA `CountyName` (verbatim, 「臺」 not 「台」) of polygon i of the
  * vendored basemap's `taiwan` layer (window.TAIWAN_BASEMAP.taiwan.geometries[i],

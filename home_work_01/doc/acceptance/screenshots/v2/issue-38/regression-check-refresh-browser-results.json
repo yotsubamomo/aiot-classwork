@@ -138,7 +138,7 @@
           "status": "Refresh failed: data is Stale."
         },
         "reason": "Reason: the CWA service answered with an error status (HTTP 429) — upstream_error.",
-        "seconds": 0.4
+        "seconds": 0.38
       }
     },
     {
@@ -180,7 +180,7 @@
           "status": "Refresh failed: data is Stale."
         },
         "reason": "Reason: the CWA response was not usable — invalid_response.",
-        "seconds": 0.38
+        "seconds": 0.39
       }
     },
     {
@@ -238,7 +238,7 @@
       "pass": true,
       "detail": {
         "status": 504,
-        "seconds": 8.34,
+        "seconds": 8.33,
         "state": "stale"
       }
     },
@@ -246,7 +246,7 @@
       "id": "desktop R-V2-OBS-13 stalled upstream with two requests queued ahead -> this Refresh still reaches Stale within 30 s",
       "pass": true,
       "detail": {
-        "seconds": 16.03,
+        "seconds": 16.04,
         "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable."
       }
     },
@@ -267,7 +267,7 @@
       "id": "desktop R-V2-OBS-13 no answer within the page's bound -> Stale ('did not answer in time') within 30 s",
       "pass": true,
       "detail": {
-        "seconds": 20.27,
+        "seconds": 20.26,
         "reason": "Reason: this site's server did not answer in time or could not be reached."
       }
     },
@@ -479,7 +479,7 @@
       "detail": {
         "api_status": 504,
         "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
-        "seconds": 0.38,
+        "seconds": 0.39,
         "page": {
           "state": "unavailable",
           "time": "—",
@@ -508,7 +508,7 @@
       "detail": {
         "api_status": 502,
         "reason": "Reason: the CWA service answered with an error status (HTTP 403) — upstream_error.",
-        "seconds": 0.43,
+        "seconds": 0.44,
         "page": {
           "state": "unavailable",
           "time": "—",
@@ -595,7 +595,7 @@
       "detail": {
         "api_status": 502,
         "reason": "Reason: this site's server gave an unexpected answer (HTTP 502).",
-        "seconds": 0.44,
+        "seconds": 0.45,
         "page": {
           "state": "unavailable",
           "time": "—",
@@ -840,7 +840,7 @@
           "status": "Refresh failed: data is Stale."
         },
         "reason": "Reason: the server has no CWA API key configured — key_not_configured.",
-        "seconds": 0.38
+        "seconds": 0.4
       }
     },
     {
@@ -877,7 +877,7 @@
       "pass": true,
       "detail": {
         "status": 504,
-        "seconds": 8.33,
+        "seconds": 8.34,
         "state": "stale"
       }
     },
@@ -885,7 +885,7 @@
       "id": "375 R-V2-OBS-13 stalled upstream with two requests queued ahead -> this Refresh still reaches Stale within 30 s",
       "pass": true,
       "detail": {
-        "seconds": 16.04,
+        "seconds": 16.03,
         "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable."
       }
     },
@@ -1118,7 +1118,7 @@
       "detail": {
         "api_status": 504,
         "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
-        "seconds": 0.38,
+        "seconds": 0.39,
         "page": {
           "state": "unavailable",
           "time": "—",

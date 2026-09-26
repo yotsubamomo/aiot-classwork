@@ -525,8 +525,11 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   county polygons as the basemap (see the Forecast mode section), joined with their
   county names by [`static/data/counties.js`](static/data/counties.js) (a same-origin
   `<script>`, project data: the CWA `CountyName` of each basemap polygon). They are
-  drawn transparent over the unchanged backdrop and load no data from anywhere; the
-  offline tests check each name against the sample's stations inside the polygon.
+  drawn transparent over the unchanged backdrop; the page loads the names file from
+  its own origin only (no external request). The shapes react to the pointer only —
+  they are not keyboard Tab stops; the `County` chooser is the keyboard way to pick a
+  county. The offline tests check each name against the sample's stations inside
+  the polygon.
 
 #### Representative station rule
 

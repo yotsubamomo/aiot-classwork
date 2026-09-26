@@ -923,9 +923,10 @@ img { max-width: 100%; }
 .county__item-temp { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
 .map-sel__offmap { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: #fcd34d; }
 
-/* A county polygon is a pointer target only (not a Tab stop; the County chooser is
-   the keyboard path, R-V2-DD-9(a)(d)); a click that focuses the SVG path must not
-   draw the browser's ring around the county's bounding box. */
+/* A county polygon is a pointer target only: app.js gives each path
+   tabindex="-1", so it is never a Tab stop (the County chooser is the keyboard
+   path, R-V2-DD-9(a)(d)). A mouse click can still focus the SVG path; that must
+   not draw the browser's ring around the county's bounding box. */
 .leaflet-overlay-pane path.leaflet-interactive:focus { outline: none; }
 
 /* The county name on hover (a Leaflet tooltip that follows the pointer). */

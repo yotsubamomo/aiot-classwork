@@ -28,14 +28,14 @@
             "Lowest air temperature"
           ],
           "time": "2026-09-25 23:00 +08:00",
-          "fetched": "2026-09-26 08:57:40 +08:00",
+          "fetched": "2026-09-26 09:58:01 +08:00",
           "count": "849",
           "refresh": "Refresh",
           "heading": "Latest Observation OBSERVED\n            UNAVAILABLE"
         },
         "api": {
           "observationTime": "2026-09-25T23:00:00+08:00",
-          "fetchedTime": "2026-09-26T08:57:40+08:00",
+          "fetchedTime": "2026-09-26T09:58:01+08:00",
           "validStationCount": 849
         }
       }
@@ -144,7 +144,7 @@
     {
       "id": "A-desktop AC-V2-02 Now mode shows no Select Date / derived legend / DERIVED / forecast pills",
       "pass": true,
-      "detail": "Latest Observation\nOBSERVED\n\nCWA station observations (O-A0001-001, hourly), shown as published.\n\nObservation Time\n2026-09-25 23:00 +08:00\nFetched Time\n2026-09-26 08:57:40 +08:00\nValid stations\n849\nRefresh\n\nEach marker is one representative station's air temperature (°C) — a station value, not a county temperature.\n\nCounty\nAll of Taiwan\n基隆市\n臺北市\n新北市\n桃園市\n新竹市\n新竹縣\n苗栗縣\n臺中市\n彰化縣\n南投縣\n雲林縣\n嘉義市\n嘉義縣\n臺南市\n高雄市\n屏"
+      "detail": "Latest Observation\nOBSERVED\n\nCWA station observations (O-A0001-001, hourly), shown as published.\n\nObservation Time\n2026-09-25 23:00 +08:00\nFetched Time\n2026-09-26 09:58:01 +08:00\nValid stations\n849\nRefresh\n\nEach marker is one representative station's air temperature (°C) — a station value, not a county temperature.\n\nCounty\nAll of Taiwan\n基隆市\n臺北市\n新北市\n桃園市\n新竹市\n新竹縣\n苗栗縣\n臺中市\n彰化縣\n南投縣\n雲林縣\n嘉義市\n嘉義縣\n臺南市\n高雄市\n屏"
     },
     {
       "id": "A-desktop AC-V2-02/23 no real-time / realtime / live wording; Latest Observation present",
@@ -222,7 +222,7 @@
       "detail": {
         "after": {
           "time": "2026-09-26 00:00 +08:00",
-          "fetched": "2026-09-26 08:57:44 +08:00",
+          "fetched": "2026-09-26 09:58:06 +08:00",
           "status": "Updated to a newer Latest Observation.",
           "temp": "26.4 °C"
         },
@@ -527,7 +527,7 @@
         "nowPressed": "true",
         "stations": 22,
         "time": "2026-09-25 23:00 +08:00",
-        "fetched": "2026-09-26 08:57:49 +08:00"
+        "fetched": "2026-09-26 09:58:11 +08:00"
       }
     },
     {

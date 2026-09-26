@@ -1309,6 +1309,17 @@
           styleCounties();
         });
         layer.on("click", function () { selectCounty(name); });
+        // Not a keyboard Tab stop (R-V2-DD-9(d)): the bound tooltip makes Leaflet
+        // add focus listeners to the SVG path, and Chromium then puts such a path
+        // in the sequential focus order — with no visible focus and no key
+        // action. An explicit tabindex="-1" takes it out of the Tab order; the
+        // keyboard path to a county is the County chooser (R-V2-DD-9(a)). Leaflet
+        // creates a new path element each time the layer is added, so this runs
+        // on every "add" (#38 cycle 1 F-1).
+        layer.on("add", function () {
+          var el = layer.getElement && layer.getElement();
+          if (el) el.setAttribute("tabindex", "-1");
+        });
       },
     });
   }
