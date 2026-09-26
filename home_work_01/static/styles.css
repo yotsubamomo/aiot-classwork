@@ -23,6 +23,11 @@
   --surface: #ffffff;
   --surface-2: #f4f6fa;
   --border: #d9e0ea;
+  /* Hairlines inside cards (chart grid, table row separators), the table header
+     band and the row hover — lighter than the card border (WI-UI-POLISH-1). */
+  --hairline: #e6ebf2;
+  --table-head: #f1f5fa;
+  --row-hover: #f7f9fc;
   --text: #1c2230;
   --muted: #5c6373;
   --heading: #10151f;
@@ -101,6 +106,9 @@
     --surface: #172030;
     --surface-2: #1d2839;
     --border: #2b3648;
+    --hairline: #243044;
+    --table-head: #1b2536;
+    --row-hover: rgba(255, 255, 255, .03);
     --text: #e6eaf2;
     --muted: #9aa4b6;
     --heading: #f2f5fa;
@@ -390,10 +398,9 @@ img { max-width: 100%; }
   .dashboard > .summary { grid-area: sum; }
   .dashboard > .grid { display: contents; }
   .dashboard .chart-card { grid-area: chart; }
-  .dashboard .table-card { grid-area: table; display: flex; flex-direction: column; }
-  /* The seven rows share the column's height instead of leaving a gap below. */
-  .table-card .table-scroll { flex: 1 1 auto; }
-  .table-card .table { height: 100%; }
+  /* The card spans the trend column's height; its rows keep their natural,
+     compact height (not stretched to fill it). */
+  .dashboard .table-card { grid-area: table; }
 }
 
 /* --- chart ------------------------------------------------------------------ */
@@ -406,13 +413,20 @@ img { max-width: 100%; }
 .chart__canvas svg { display: block; width: 100%; height: auto; }
 .chart__line--maxt { stroke: var(--maxt); }
 .chart__line--mint { stroke: var(--mint); }
+/* WI-UI-POLISH-1 (CSS only; the SVG drawn by app.js is unchanged): CSS overrides
+   the presentation attributes — heavier round-joined lines, larger dots with a
+   ring in the card colour, a solid hairline grid, and no separate axis lines
+   (the lowest tick is always the bottom of the scale, so its gridline is the
+   baseline). */
+.chart__line { stroke-width: 2.5px; stroke-linejoin: round; stroke-linecap: round; }
+.chart__dot { r: 4.5px; stroke: var(--surface); stroke-width: 2px; }
 .chart__dot--maxt { fill: var(--maxt); }
 .chart__dot--mint { fill: var(--mint); }
-.chart__dot--active { stroke: var(--surface); stroke-width: 2; }
-.chart__axis { stroke: var(--border); }
-.chart__grid { stroke: var(--border); stroke-dasharray: 3 4; opacity: .7; }
+.chart__dot--active { r: 6px; stroke: var(--surface); stroke-width: 2.5px; }
+.chart__axis { stroke: transparent; }
+.chart__grid { stroke: var(--hairline); }
 .chart__guide { stroke: var(--muted); stroke-dasharray: 4 4; opacity: .55; }
-.chart__tick-label { fill: var(--muted); font-size: 11px; }
+.chart__tick-label { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .chart__axis-label { fill: var(--muted); font-size: 12px; }
 .chart__hit { fill: transparent; cursor: crosshair; }
 
@@ -447,31 +461,61 @@ img { max-width: 100%; }
   font-size: .9rem;
   color: var(--muted);
 }
+/* The legend sits at the top, next to the chart heading (visual order only; the
+   DOM keeps the figcaption after the chart). */
+.chart { display: flex; flex-direction: column; }
+.chart .legend { order: -1; justify-content: flex-end; margin: 0 0 6px; font-size: .88rem; }
+.chart-card { position: relative; }
+@media (min-width: 561px) {
+  .chart-card .chart .legend { position: absolute; top: var(--pad); right: var(--pad); margin: 0; }
+}
 .legend__item { display: inline-flex; align-items: center; gap: 7px; }
 .swatch { width: 16px; height: 4px; border-radius: 2px; display: inline-block; }
+.legend__item { font-weight: 600; }
 .swatch--maxt { background: var(--maxt); }
 .swatch--mint { background: var(--mint); }
 
-/* --- table ------------------------------------------------------------------ */
+/* --- table (the Daily forecast card) ------------------------------------------ */
 
+/* WI-UI-POLISH-1: a clean dashboard table — hairline row separators (no zebra),
+   a pale cool header band, Date as each row's anchor, MinT / MaxT right-aligned
+   in tabular numerals in their existing blue / red, natural compact rows and a
+   faint row hover. Cell text and number format are unchanged. */
 .table-scroll { width: 100%; overflow-x: auto; }
-.table { width: 100%; border-collapse: collapse; font-size: .95rem; font-variant-numeric: tabular-nums; }
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: .95rem;
+  font-variant-numeric: tabular-nums;
+}
 .table th, .table td {
   text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
+  padding: 11px 16px;
   white-space: nowrap;
 }
+.table th:first-child, .table td:first-child { width: 46%; }
+.table th:nth-child(2), .table td:nth-child(2),
+.table th:nth-child(3), .table td:nth-child(3) { text-align: right; }
 .table thead th {
   color: var(--muted);
+  font-size: .82rem;
   font-weight: 600;
+  letter-spacing: .02em;
+  padding-top: 9px;
+  padding-bottom: 9px;
   position: sticky; top: 0;
-  background: var(--surface);
+  background: var(--table-head);
 }
+.table thead th:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.table thead th:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.table tbody td { border-bottom: 1px solid var(--hairline); transition: background-color .15s ease; }
 .table tbody tr:last-child td { border-bottom: none; }
-.table tbody tr:nth-child(even) td { background: var(--surface-2); }
-.table td:nth-child(2) { color: var(--mint); font-variant-numeric: tabular-nums; }
-.table td:nth-child(3) { color: var(--maxt); font-variant-numeric: tabular-nums; }
+.table tbody tr:hover td { background: var(--row-hover); }
+.table td:first-child { color: var(--heading); font-weight: 600; }
+.table td:nth-child(2) { color: var(--mint); font-weight: 500; }
+.table td:nth-child(3) { color: var(--maxt); font-weight: 500; }
 
 /* --- Taiwan Map (Issue #28): map-first, always-dark, floating panels --------- */
 
@@ -1330,5 +1374,5 @@ img { max-width: 100%; }
 /* Hover transitions (WI-UI-POLISH-1) are dropped under reduced motion. Last in the
    file so it wins over the rules that set them. */
 @media (prefers-reduced-motion: reduce) {
-  .mode-toggle__btn, .btn { transition: none; }
+  .mode-toggle__btn, .btn, .table tbody td { transition: none; }
 }
