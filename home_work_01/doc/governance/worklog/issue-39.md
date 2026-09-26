@@ -3,7 +3,7 @@
 - **Work item**：GitHub Issue #39（Formal lane，V2 Core；Blocked by #38——已 CLOSED）
 - **Executing role**：`executor`，以 `gov-executor` definition 派工（Bindings §3.1 mapping：`claude-opus-5-5`，effort `high`）。本 session 自述的模型為 Opus 5.5；**這不是 binding 證據**。Binding verification 依 Bindings §3.4 由派工者（Orchestrator）從 harness 紀錄核對並記入 run record 或 audit record；本 worklog 不複製 harness 日誌。
 - **Branch**：`home_work_01-v2-implementation`；**BASE ＝ `4651d33`**（#38 結案 commit）
-- **Subject**：**code anchor ＝ `ae0b9dc`**（BASE `4651d33`..`ae0b9dc` 為本票全部產物變更，含 evidence）；其後只改 `doc/governance/**` 的 commit（本 worklog）為 record-only（Bindings §7 P7）。
+- **Subject**：cycle 1 初始 code anchor ＝ `ae0b9dc`（R1 受審）；**cycle 1 targeted correction（F-1、DV-22）後的 code anchor ＝ `f3bf245`**（BASE `4651d33`..`f3bf245` 為本票全部產物變更，含 evidence；`ae0b9dc`..`f3bf245` 為 correction delta，見下方「Cycle 1 targeted correction」）；其後只改 `doc/governance/**` 的 commit（本 worklog）為 record-only（Bindings §7 P7）。
 - **開始／本次更新**：2026-09-26
 
 ## Contract reference
@@ -73,21 +73,45 @@
 - **V-8 H-2／不變產物**：`git diff --stat 4651d33` 對 `app.py`、`weather_query.py`、`ingestion/`、`data.db`、`smoke.py`、`vercel.json`、`requirements.txt`、`server.py`、`api/`、`observation.py`、`representative.py`、`.github/`、`doc/requirement/`、`static/data/`、`static/vendor/`、`CONTEXT.md` → 空。
 - **未執行／限制**：(a) resize 路徑的尺寸守衛只有**靜態**守衛能區分（M4）：在 vendored Leaflet 1.9.4 上，對隱藏容器直接 fit 未在瀏覽器中產生 NaN，所以瀏覽器情境證明「守衛存在時沒有 NaN」，不證明「沒有守衛就會有 NaN」；AC-V2-15 允許靜態守衛。(b) 拖曳、滾輪、點擊為 DevTools 合成的滑鼠事件；無實體觸控、無 pinch 測試；滑動關閉未實作（MAY）。(c) 只測 Chromium headless；未做螢幕閱讀器測試。(d) preview／Vercel 部署上的行為屬 #41。(e) 瀏覽器檢查不在 CI（需 Chrome），由 Reviewer 本機重現。
 
+## Cycle 1 targeted correction（R1 F-1 ＋ decision DV-22；2026-09-26）
+
+- **依據**：R1 audit record `home_work_01/doc/governance/audit/issue-39-c1-r1.md`（VERDICT: BLOCKING (F-1)；其餘分配項 PASS）；DA decision **DV-22** `home_work_01/doc/governance/decisions/decision-20260926-desktop-representative-marker-density.md` §4.1／§4.2（解決 R1 routing signal R-1，即本 worklog 原 concern 的 9／22）；Orchestrator 的 targeted correction 派工（同 branch、同 worklog identity、不結案、之後 R2）。另依派工允許順修 F-2；F-3、O-2 未處理（見下）。
+- **F-1 修正（HOW）**：原因是 ≥ 1024 px Now 面板整體 `overflow-y:auto`，選縣／選站時程式 `scrollIntoView` 把面板捲動，使狀態區離開可視區。修正：(1) ≥ 1024 px Now 面板改為**不捲動**（`overflow:hidden`、`height:562px`），以明確列的 CSS grid 排列——第 1 列標題、第 2 列 Stale／Unavailable 區塊、第 3 列三個時間、第 4 列 `Refresh`、第 5 列 `County` 選單與 `Back to Taiwan` 並排、第 6 列（`minmax(0,1fr)`）資訊部分；只有資訊部分 `#sheet-body`（County 脈絡、詳情、清單）捲動；欄寬 312 → **360 px**，使 Stale 狀態下狀態區仍精簡（1024 px 實測：狀態區約 330 px，資訊部分 ≥ 178 px）。(2) 選取程式不再呼叫任何 `scrollIntoView`，改為 `scrollInPanel(el, toTop)`：只調整 `#sheet-body.scrollTop`，並以該捲動區在視窗內的部分為準（短視窗時不讓項目落在視窗外）。選站時先把詳情捲到資訊部分頂端；清單項目若有**鍵盤**焦點（`:focus-visible`）再保持其可見（R-V2-DD-9(e)）。(3) County 狀態行已含原因（Decisions 9），狀態區又固定可見，Stale chip 與原因在所有選取狀態下都在畫面上。
+- **DV-22 §4.1（HOW）**：`markerBox` 改為只算**必要可點區**（氣溫 pill 擴大到 ≥ 44×44），不再含名稱標籤；碰撞仍為「相距不足 2 px」。名稱標籤（zoom ≥ 8 才顯示）改為讓位：與任何顯示中標記的必要可點區或較早顯示的標籤重疊時，標籤以 `label-off`（`visibility:hidden`）隱藏，標記不隱藏。圖層成員仍只來自 `/api/` 的 `representativeStationIds`。另把 Leaflet 縮放鈕列為「覆蓋物」：被縮放鈕蓋住的顯示中標記**不隱藏**，但暫時不是 Tab 停駐點（R1 O-4；DD-9(e)）。README「Marker density」段改寫為此規則（2 px、必要可點區、標籤讓位、排名、1280 顯示 9／22 與 375 顯示 5／22 為樣本資料下的結果）。
+- **F-2（順修）**：`ensureMapSized` 在等待尺寸時改為把每個延後步驟排入 `pendingSized`，尺寸到位後依序全部執行，不再丟棄（模式切換、resize、資訊面開合的延後步驟不會互相覆蓋）。
+- **未處理（non-blocking，依派工 MAY）**：F-3（< 1024 px expanded 狀態自清單選站後標記在資訊面下）——未改；R1 判定不是契約違反，交 SIA 觀察。O-2（下限時拖曳中暫態）——Leaflet 行為，R1 判定在 HOW 內，不處置。
+- **Artifacts（correction delta `ae0b9dc`..`f3bf245`）**：`static/app.js`（`updateMarkerAccess`、`markerBox`、`coveringRects`、`scrollInPanel`、`selectStation`、`selectCounty`、`toggleSheetExpanded`、`ensureMapSized`）、`static/styles.css`（≥ 1024 px 面板 grid、`label-off`）、`README.md`（Marker density、Layout）、`tests/test_fence_frontend.py`（＋3 守衛、2 處字串更新：欄寬 360 px、`it.hidden`）、`tests/check_fence_browser.py`（F-1 與 DV-22 情境；density 檢查只在資訊面真的疊在地圖上時才排除其下方的標記——原檢查在桌機誤把地圖下半排除，改正後量測範圍變大、未弱化）、`doc/acceptance/screenshots/v2/issue-39/*`（全部重產）。`index.html` 未改。`check_county_browser.py` 本次未改。
+- **Correction verification**（subject `f3bf245`；瀏覽器執行前後以 sha256 確認三個前端檔與 commit 相同）：
+  - **C-1 F-1 守衛（新瀏覽器情境，1024×768、1100×900、1280×900）**：success、Stale、Unavailable 各自：全臺、全臺＋點地圖代表標記選站、選縣、選縣＋**清單點選**選站、選縣＋**點地圖標記**選站——`#obs-time`、`#obs-fetched`、`#refresh-button`、`#mode-now`、`#mode-forecast`、`#county-select`、`#back-to-taiwan`（選縣時）、`#obs-state-chip`（Stale／Unavailable 時）的可見比例（計入所有 overflow 祖先與視窗）**全部 1.0** 且中心 `elementFromPoint` 命中；面板 `scrollTop` 恆為 0；選站後 `#obs-sel-name` 可見比例 1.0。鍵盤路徑（清單第 21 項 Enter）：焦點可見、面板未捲動、狀態元素未被面板裁切；1100／1280 視窗容得下地圖卡時狀態元素亦全部在視窗內；1024×768 視窗容不下地圖卡，瀏覽器自身的焦點捲動會把**頁面**捲下（不是面板遮蔽），此時只要求前兩項。9 個情境截圖 `f1-{1024,1100,1280}-*.png`。
+  - **C-2 DV-22 §4.1（新瀏覽器情境，1280 與 375；初始、重新載入、zoom 8、`Back to Taiwan` 後）**：(1) 全臺圖層＝`/api/` 代表集合 22／22，隱藏者 `visibility:hidden`、`tabindex=-1`、中心不可點；(2) 每個被隱藏者的必要可點區與至少一個**顯示中**代表的必要可點區相距 < 2 px（每一對的 `getBoundingClientRect` 讀數在 `browser-check-results.json` 的 `dv22`）；zoom 8 名稱標籤顯示時同樣成立、且至少一個標籤顯示；(3) 顯示者兩兩不重疊、≥ 44×44、地圖內者中心命中（375 zoom 8 有一個標記在縮放鈕下：保留顯示、非 Tab 停駐點，記於 `shownUnderZoomButtons`）；(4) 重新載入顯示集合相同；(5) 被隱藏縣抽驗 4 縣（基隆市、新北市、桃園市、新竹縣——含北部）：hover 顯示縣名並點選選縣（375 的基隆市、新北市在 zoom 10 才可指到多邊形，DD-4 不限縮放）、`County` 選單可選、滾輪放大到其代表標記出現並點選選取該站。顯示數：1280 初始 **9／22**（zoom 8：14）、375 初始 **5／22**。
+  - **C-3 全部 #39 瀏覽器檢查 `python tests/check_fence_browser.py` → 113/113 PASS**（原 74 項＋F-1 9 項＋DV-22 30 項；AC-V2-13／14／15、§6.3 AC-19、圍欄、44×44、768 全部仍 PASS）；**505** 個瀏覽器請求，外部 **0**。
+  - **C-4 回歸**：#36 `check_modes_browser.py` **37/37**；#37 `check_refresh_browser.py` **97/97**；#38 `check_county_browser.py` **72/72**；V1 `check_series_error_visible.py` PASS。結果複製為 `regression-check-issue-{36,37,38}-*.json`。
+  - **C-5 全套與 CI**：`pytest` **516 passed**（＋3 守衛）；BASE 494 id 仍全在；CI run **`36223369715`**（head `f3bf245`）**success**：`516 passed`、`credential scan passed: 733 tracked files`。
+  - **C-6 mutation（self-verification）**：M11「面板恢復整體捲動」→ 靜態 1＋瀏覽器 F-1 情境 2 項 FAIL；M12「必要可點區含名稱標籤」→ 靜態 1＋瀏覽器 DV-22 zoom 8 情境 4 項 FAIL；檔案以 sha256 確認還原。
+  - **C-7 憑證／不變產物**：`tools.credential_scan` passed；staged diff 450,872 bytes 以 `.env` 比對真金鑰字面 False；evidence 無哨兵金鑰／上游標記／`opendata.cwa.gov.tw`／`Authorization`；`git diff --stat 4651d33 f3bf245` 對 V-8 清單（含 `app.py`、`data.db`、`weather_query.py`、伺服器檔、`static/data`、`static/vendor`、workflows、`test_map_frontend.py`）為空。
+  - **限制**：同 V 節（合成滑鼠事件、只測 Chromium headless、無螢幕閱讀器）；1920 px 未另測（DV-22 為參考值）。
+
 ## High-risk 核對材料（decision A-1；供 R1 明記 H-2 核對段）
 
 - **H-2（老師概念詞、下方 dashboard、Grading App、標題）**：V-8 空 diff（`app.py`、`data.db`、`weather_query.py` 等）；`Taiwan Weather Forecast`、`Select Region`、`Select Date`、`Date`、`MinT`、`MaxT` 未改（`test_verbatim_labels` 等 #36 守衛通過；R-EN-1(1) 瀏覽器檢查讀 h1 逐字）；Forecast section 的 HTML 未動（`index.html` diff 只在 Taiwan Map 卡內）；#36 回歸 37/37（含下方 dashboard 兩模式相同、`Select Region` 六名與七列表、預報 503 時 section 層級 error）；768／375 Forecast mode 截圖。masthead 導言文字未改（只在 ≤ 640 px 縮小字級）。
 - **H-3（附帶）**：密度規則只隱藏／顯示標記，不計算任何值；County 脈絡計算未改（`test_county_context_computes_no_aggregate` 通過）；狀態行加的原因是固定類別文字、無數字（DV-21 §4.2；Unavailable＋縣無數字由 V-5 驗證）。
 - **H-1（附帶）**：伺服器與金鑰路徑未改；V-4。
 - **Diversity**：Executor 與 Primary Reviewer 同為 `claude-opus-5-5` 時，audit record 記 `diversity_lost`（Bindings §5）。
+- **Cycle 1 correction 對 H-2 的影響**：`ae0b9dc`..`f3bf245` 只改 `static/app.js`（Now 面板捲動與標記密度）、`static/styles.css`（≥ 1024 px Now 面板版面、`label-off`）、README、測試與 evidence；`index.html`、masthead、Forecast section、`app.py`、`data.db`、`weather_query.py` 皆未改（C-7 空 diff）；#36 回歸 37/37（下方 dashboard、`Select Region`、概念詞）；R-EN-1(1) 標題逐字檢查仍 PASS（C-3）。
 
 ## Audit status
 
-- **Required**：Formal mandatory independent audit（治理 §4.1；Bindings §5）。本 worklog 的瀏覽器檢查與 mutation checks 皆為 Executor self-verification，**不是**正式 audit。尚未派 R1（由 Orchestrator 派工）。
+- **Required**：Formal mandatory independent audit（治理 §4.1；Bindings §5）。本 worklog 的瀏覽器檢查與 mutation checks 皆為 Executor self-verification，**不是**正式 audit。
+- **Records**：cycle 1 R1 `home_work_01/doc/governance/audit/issue-39-c1-r1.md`——**VERDICT: BLOCKING (F-1)**（Medium）；F-2（Low，本次順修）、F-3（Low，未改）；routing signal R-1 由 DA decision DV-22 解決（§4.1 由 R2 核對）；O-1～O-4 為 observations。F-1 與 DV-22 §4.1 的 targeted correction 已完成（subject `f3bf245`），**待 R2 scoped closure review**（Orchestrator 派工）。Executor 的「已修正」不是 closure。
 
 ## Remaining work
 
-1. **正式 audit**：R1（Orchestrator 派工；Primary Reviewer）。結案條件依治理 §3.8；Executor 的完成敘述不是 closure。
-2. **Concerns（交有權角色判斷；Executor 未自行裁決）**：
+1. **正式 audit**：R2 closure review of F-1 ＋ DV-22 §4.1 (1)～(5)（含修正造成的回歸），Orchestrator 派工。結案條件依治理 §3.8。
+2. **Concerns（交有權角色判斷；Executor 未自行裁決）**——R1 已處置：(a) → O-1；(b) → R1 判定不衝突、不需 DA；(c) → 位置屬 HOW，捲動缺陷即 F-1（已修）；(d) → R1 §6 判定未弱化；(e) → SIA；(f) → R1 判定不是缺陷。本次 correction 新增的待 R2 核對點：
+   - (g) **1024×768 的鍵盤路徑**：視窗容不下地圖卡時，鍵盤焦點移到清單下方項目會由瀏覽器捲動**頁面**（不是面板），模式切換可能暫時在視窗上方之外；面板本身不捲動、狀態元素未被裁切或遮蔽。若 R2 認為此情形仍屬 F-1 範圍，authority：Primary Reviewer（依 §4.3 爭議流程）。
+   - (h) **縮放鈕下的標記**（R1 O-4）：保留顯示（DV-22 不允許因非碰撞理由隱藏）、被蓋住時非 Tab 停駐點；指標需平移後才能點選。
+   - (i) 桌機 Now 欄寬 312 → 360 px（地圖在 1280 由 692 → 約 644 px 寬）；AC-V2-13 全部重跑 PASS。
+   原 concerns 全文：
    - (a) **使用 vendored Leaflet 1.9.4 的內部 API**：`map._limitCenter`（reveal 的圍欄限制）與包裝 `L.Tooltip.prototype._setPosition`（tooltip 夾限）。版本已 pin，有靜態與瀏覽器檢查；更換 Leaflet 版本時須重驗。屬 HOW，提請 R1 判斷。
    - (b) **圍欄與縮放範圍同樣作用於 Forecast mode**（單一地圖）。V1 未規定任何縮放／邊界值；六標記與 AC-17／AC-18 在 #36 回歸中 PASS。若 Reviewer 認為與 R-V2-MODE-3「Forecast mode ＝ V1 地圖、語義不變」有張力，authority：Design Authority。
    - (c) **桌機 Now 面板改為地圖旁欄位**（Decisions 2）：Forecast mode 仍為 V1 浮動版面，兩模式在 ≥ 1180 px 的地圖寬度不同（模式切換路徑已處理尺寸）。附錄 A 的「沿用 V1 左上浮動面板」是 advisory（B-20）；提請 R1 核對。
