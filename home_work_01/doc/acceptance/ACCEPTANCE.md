@@ -82,6 +82,10 @@ is `35948664254` (`6407d8b2d0f04523f5057b0880083f3bd836c6a8`), 152 passed, Pytho
 
 Citations are line numbers in the final `home_work_01/README.md`.
 
+> Note (2026-09-26): these are line numbers of the README at the V1 phase acceptance. That README was
+> later extended by V2 and is now kept as `home_work_01/README.technical-reference.md`; `README.md` is a
+> concise overview. The citation rows below are unchanged.
+
 | # | Item | Status | README citation |
 | --- | --- | --- | --- |
 | 1 | F-A0010-001 originally assigned + delisted (external constraint) | PASS | lines 24–27 ("Originally assigned dataset: CWA `F-A0010-001` … **CWA delisted it on 2026-07-01** … external constraint, not a project choice"). |
