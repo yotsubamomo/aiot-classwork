@@ -2798,6 +2798,11 @@
     xTitle.textContent = "Date";
     svg.appendChild(xTitle);
 
+    // MinT–MaxT range band (WI-UI-POLISH-1 B5): the area between the two lines,
+    // drawn from the same series values under the lines, faint and pointer-free.
+    // The two lines stay the primary marks.
+    svg.appendChild(rangeBand(series, xAt, yAt));
+
     // Hover guide line (hidden until hover).
     var guide = svgEl("line", { class: "chart__guide", y1: m.top, y2: m.top + innerH });
     guide.setAttribute("visibility", "hidden");
@@ -2818,6 +2823,20 @@
       svg.appendChild(d1);
       svg.appendChild(d2);
     });
+
+    // The week's highest MaxT and lowest MinT (WI-UI-POLISH-1 B6): the same
+    // points the Weekly summary names — same rule as renderSummary, the first
+    // strict extreme — ringed, with their value; no other point gets a label.
+    var minI = 0;
+    var maxI = 0;
+    series.forEach(function (r, i) {
+      if (r.mint < series[minI].mint) minI = i;
+      if (r.maxt > series[maxI].maxt) maxI = i;
+    });
+    svg.appendChild(extremeMark(xAt(maxI), yAt(series[maxI].maxt), "maxt", series[maxI].maxt,
+                                maxI, n, m.top + innerH));
+    svg.appendChild(extremeMark(xAt(minI), yAt(series[minI].mint), "mint", series[minI].mint,
+                                minI, n, m.top + innerH));
 
     // Full-height transparent hit targets, one per date, drive the rich tooltip.
     // Each carries its own <title> so the values remain reachable natively even
@@ -2858,6 +2877,34 @@
       class: "chart__line chart__line--" + key,
       points: pts, fill: "none", "stroke-width": 2,
     });
+  }
+
+  // B5: one closed polygon — MaxT points left to right, then MinT points right to
+  // left — filled with one faint neutral tint (CSS). No gradient: an SVG gradient
+  // is a paint-server reference, which the frontend same-origin check disallows.
+  function rangeBand(series, xAt, yAt) {
+    var top = series.map(function (r, i) { return xAt(i) + "," + yAt(r.maxt); });
+    var bottom = series.map(function (r, i) { return xAt(i) + "," + yAt(r.mint); }).reverse();
+    return svgEl("polygon", { class: "chart__band", points: top.concat(bottom).join(" ") });
+  }
+
+  // B6: a soft halo, a thin ring and the value ("32.4°", the table's number
+  // format) above the MaxT point (it may use the top margin of the SVG) / below
+  // the MinT point (kept above the date labels); flipped when there is no room,
+  // and anchored inwards at the first / last date.
+  function extremeMark(x, y, key, value, i, n, plotBottom) {
+    var g = svgEl("g", { class: "chart__extreme chart__extreme--" + key });
+    g.appendChild(svgEl("circle", { class: "chart__extreme-halo", cx: x, cy: y, r: 13 }));
+    g.appendChild(svgEl("circle", { class: "chart__extreme-ring", cx: x, cy: y, r: 8.5 }));
+    var above = key === "maxt" ? y - 31 >= 0 : y + 30 > plotBottom;
+    var anchor = n > 1 && i === 0 ? "start" : n > 1 && i === n - 1 ? "end" : "middle";
+    var dx = anchor === "start" ? -4 : anchor === "end" ? 4 : 0;
+    var label = svgEl("text", {
+      class: "chart__extreme-label", x: x + dx, y: above ? y - 17 : y + 27, "text-anchor": anchor,
+    });
+    label.textContent = formatTemp(value) + "°";
+    g.appendChild(label);
+    return g;
   }
 
   function dot(x, y, key, date, value, label) {

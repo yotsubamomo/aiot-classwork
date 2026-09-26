@@ -1,0 +1,84 @@
+PASS 1440 map height
+PASS 1440 page container <= 1440 px and centred
+PASS 1440 no horizontal scroll (Now, Taiwan)
+PASS 1440 Leaflet size == map container after load; initial view holds the main island and 澎湖
+PASS 1440 mode switch visible without scrolling
+PASS 1440 desktop Now panel is 360 px wide, beside the map
+PASS 1440 desktop: the whole map is on the first screen
+PASS 1440 Forecast section composition A: summary above the chart (left), table in a right column of the same height
+PASS 1440 B5 region 1: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)
+PASS 1440 B6 region 1: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values
+PASS 1440 B6 region 1: the two value labels are inside the chart and clear of the axis labels
+PASS 1440 region 1: the per-date hit targets are still on top of every dot and both marks (7 targets)
+PASS 1440 region 1: hovering each date shows the tooltip with that row's date, MaxT and MinT
+PASS 1440 B5 region 4: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)
+PASS 1440 B6 region 4: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values
+PASS 1440 B6 region 4: the two value labels are inside the chart and clear of the axis labels
+PASS 1440 region 4: the per-date hit targets are still on top of every dot and both marks (7 targets)
+PASS 1440 region 4: hovering each date shows the tooltip with that row's date, MaxT and MinT
+PASS 1440 no horizontal scroll (Now, a county)
+PASS 1440 Leaflet size == map container with a county selected
+PASS 1440 Forecast mode: no horizontal scroll; Leaflet size == map container
+PASS 1440 back to Now: Leaflet size == map container; view holds the main island and 澎湖
+PASS 1440 zoom floor: at minZoom 6 the main island spans >= 25 % of the 640 px map
+PASS 1440 resize 1440 -> 768 -> 375 -> 1440: map height follows 440 / 360 / 640, Leaflet size == container, no horizontal scroll, the refitted view holds the main island and 澎湖
+PASS 1280 map height
+PASS 1280 page container <= 1440 px and centred
+PASS 1280 no horizontal scroll (Now, Taiwan)
+PASS 1280 Leaflet size == map container after load; initial view holds the main island and 澎湖
+PASS 1280 mode switch visible without scrolling
+PASS 1280 desktop Now panel is 360 px wide, beside the map
+PASS 1280 desktop: the whole map is on the first screen
+PASS 1280 Forecast section composition A: summary above the chart (left), table in a right column of the same height
+PASS 1280 no horizontal scroll (Now, a county)
+PASS 1280 Leaflet size == map container with a county selected
+PASS 1280 Forecast mode: no horizontal scroll; Leaflet size == map container
+PASS 1280 back to Now: Leaflet size == map container; view holds the main island and 澎湖
+PASS 1024 map height
+PASS 1024 page container <= 1440 px and centred
+PASS 1024 no horizontal scroll (Now, Taiwan)
+PASS 1024 Leaflet size == map container after load; initial view holds the main island and 澎湖
+PASS 1024 mode switch visible without scrolling
+PASS 1024 desktop Now panel is 360 px wide, beside the map
+PASS 1024 Forecast section composition A: summary above the chart (left), table in a right column of the same height
+PASS 1024 no horizontal scroll (Now, a county)
+PASS 1024 Leaflet size == map container with a county selected
+PASS 1024 Forecast mode: no horizontal scroll; Leaflet size == map container
+PASS 1024 back to Now: Leaflet size == map container; view holds the main island and 澎湖
+PASS 768 map height
+PASS 768 page container <= 1440 px and centred
+PASS 768 no horizontal scroll (Now, Taiwan)
+PASS 768 Leaflet size == map container after load; initial view holds the main island and 澎湖
+PASS 768 mode switch visible without scrolling
+PASS 768 narrow: Forecast section is one column in the order header, summary, chart, table
+PASS 768 no horizontal scroll (Now, a county)
+PASS 768 Leaflet size == map container with a county selected
+PASS 768 Forecast mode: no horizontal scroll; Leaflet size == map container
+PASS 768 back to Now: Leaflet size == map container; view holds the main island and 澎湖
+PASS 375 map height
+PASS 375 page container <= 1440 px and centred
+PASS 375 no horizontal scroll (Now, Taiwan)
+PASS 375 Leaflet size == map container after load; initial view holds the main island and 澎湖
+PASS 375 mode switch visible without scrolling
+PASS 375 narrow: Forecast section is one column in the order header, summary, chart, table
+PASS 375 B5 region 1: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)
+PASS 375 B6 region 1: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values
+PASS 375 B6 region 1: the two value labels are inside the chart and clear of the axis labels
+PASS 375 region 1: the per-date hit targets are still on top of every dot and both marks (7 targets)
+PASS 375 region 1: hovering each date shows the tooltip with that row's date, MaxT and MinT
+PASS 375 B5 region 4: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)
+PASS 375 B6 region 4: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values
+PASS 375 B6 region 4: the two value labels are inside the chart and clear of the axis labels
+PASS 375 region 4: the per-date hit targets are still on top of every dot and both marks (7 targets)
+PASS 375 region 4: hovering each date shows the tooltip with that row's date, MaxT and MinT
+PASS 375 no horizontal scroll (Now, a county)
+PASS 375 Leaflet size == map container with a county selected
+PASS 375 Forecast mode: no horizontal scroll; Leaflet size == map container
+PASS 375 back to Now: Leaflet size == map container; view holds the main island and 澎湖
+PASS 1440-dark B5 dark: one range band whose outline is exactly the MaxT dots then the MinT dots (same values)
+PASS 1440-dark B6 dark: exactly two marks, on the Weekly summary's highest-MaxT and lowest-MinT days, with its values
+PASS 1440-dark B6 dark: the two value labels are inside the chart and clear of the axis labels
+PASS 1440-dark dark: the per-date hit targets are still on top of every dot and both marks (7 targets)
+PASS 1440-dark dark: hovering each date shows the tooltip with that row's date, MaxT and MinT
+PASS 1440-dark dark scheme renders with no horizontal scroll and the 640 px map
+83/83 checks passed; evidence in doc\acceptance\screenshots\ui-polish\after

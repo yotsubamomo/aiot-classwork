@@ -1343,6 +1343,10 @@ def run(chrome: str, out: Path, only: str = "") -> Checks:
         ("f1-1024", 1024, 768, False, [("panel", scenario_f1)]),
         ("f1-1100", 1100, 900, False, [("panel", scenario_f1)]),
         ("f1-1280", 1280, 900, False, [("panel", scenario_f1)]),
+        ("f1-1440", 1440, 900, False, [("panel", scenario_f1)]),   # WI-UI-POLISH-1: 1440 px container
+        ("desktop-1440", 1440, 900, False, [("density", scenario_density),
+                                            ("panel", scenario_desktop_panel),
+                                            ("states", lambda s: scenario_states(s, {}))]),
     ]
     consoles = []
     try:

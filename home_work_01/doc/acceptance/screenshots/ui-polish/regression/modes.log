@@ -1,0 +1,39 @@
+PASS A-desktop AC-V2-01 opens in Now mode without user action
+PASS A-desktop AC-V2-04 Observation Time / Fetched Time / count equal the /api/ response
+PASS A-desktop AC-V2-03/DD-2 one marker per county, text = /api/ airTemperature, name = station
+PASS A-desktop H-3 marker never labelled as a county value
+PASS A-desktop AC-V2-02/MODE-6(b) observation markers use no derived band colour
+PASS A-desktop AC-V2-01 mode switch visible without scrolling, labels contain Now/Forecast
+PASS A-desktop AC-V2-02 Now mode shows no Select Date / derived legend / DERIVED / forecast pills
+PASS A-desktop AC-V2-02/23 no real-time / realtime / live wording; Latest Observation present
+PASS A-desktop AC-V2-02 Now Fetched Time distinguishable (text + position) from the forecast snapshot time
+PASS A-desktop DD-2 hover shows station name + county, labelled a station value
+PASS A-desktop AC-V2-01 mode switch reachable by keyboard (first Tab stop)
+PASS A-desktop AC-V2-03 selected station values = /api/; sentinel fields shown as —
+PASS A-desktop AC-V2-04/OBS-7(c) Refresh shows an in-progress indicator
+PASS A-desktop OBS-7 Refresh success applies the newer Latest Observation; a second press while busy is ignored
+PASS A-desktop AC-V2-01 Forecast mode: switch by keyboard, six Region markers visible
+PASS A-desktop AC-17 pill text/colour = /api/days/<d> derived value and band
+PASS A-desktop AC-17/AC-18 legend four bands + derived caveat; Select Date = seven days ascending, first default
+PASS A-desktop AC-V2-02 Forecast mode shows no Refresh / Observation Time / Fetched Time / station values
+PASS A-desktop AC-17 selecting a Region pill shows Region/Date/Min/Max/derived = endpoint
+PASS A-desktop AC-18 Select Date change updates pills and panel to that day, view not reset
+PASS A-desktop AC-V2-02 lower dashboard identical in both modes
+PASS A-desktop AC-V2-01/MODE-5 Now -> Forecast -> Now restores the Now selection and view
+PASS A-desktop AC-V2-15 no NaN / 0x0 markers after the mode switches
+PASS A-desktop AC-02/AC-03/AC-24 lower dashboard: title, Select Region six names in order, 7-row table = /api/
+PASS A-375 AC-V2-01 Now mode default; mode switch visible without scrolling; no horizontal scroll
+PASS A-375 AC-V2-01 Forecast mode: six Region markers visible; no horizontal scroll
+PASS A-375 AC-V2-15 no NaN / 0x0 markers after the mode switches
+PASS A console: no JavaScript exception, no NaN / Invalid LatLng message
+PASS B-desktop AC-V2-09(a) forecast 503: Now mode fully shown, section-level V1 error with server message
+PASS B-desktop AC-V2-09(a) Refresh works while the forecast snapshot is unavailable
+PASS B-desktop AC-V2-09(a)/AC-10 Forecast mode inline error with server message; Select Date disabled
+PASS B-desktop AC-V2-09(a) back in Now mode the forecast error does not cover the map
+PASS B-375 AC-V2-09(a) forecast 503: Now mode fully shown, section-level V1 error with server message
+PASS B-375 AC-V2-09(a) Refresh works while the forecast snapshot is unavailable
+PASS B-375 AC-V2-09(a)/AC-10 Forecast mode inline error with server message; Select Date disabled
+PASS B-375 AC-V2-09(a) back in Now mode the forecast error does not cover the map
+PASS AC-V2-16 runtime network log: zero external requests (Now mode and Forecast mode)
+37/37 checks passed; evidence in doc\acceptance\screenshots\ui-polish\regression\modes
+exit 0

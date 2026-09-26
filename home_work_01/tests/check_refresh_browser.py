@@ -675,15 +675,18 @@ def isolation(s: Session, state: str) -> None:
     dashboard works; coming back, the Now mode still shows its state."""
     b = s.b
     pane = "document.querySelector('#map .leaflet-map-pane').style.transform"
+    # zoom in first, then pan (WI-UI-POLISH-1): at the opening zoom the whole range
+    # E fits inside the wider desktop map, so the fence keeps E centred and a pan
+    # has nowhere to go (R-V2-MAP-1 (ii)); one level in, the view is smaller than E
+    d_before = b.js("(document.querySelector('#map .leaflet-overlay-pane path')||{}).getAttribute('d')")
+    b.js("document.querySelector('.leaflet-control-zoom-in').click(); true")
+    b.pump(0.8)
+    zoomed = b.js("(document.querySelector('#map .leaflet-overlay-pane path')||{}).getAttribute('d')") != d_before
     b.js("document.getElementById('map').focus(); true")
     t_before = b.js(pane)
     b.key("ArrowRight")
     b.pump(0.6)
     panned = b.js(pane) != t_before
-    d_before = b.js("(document.querySelector('#map .leaflet-overlay-pane path')||{}).getAttribute('d')")
-    b.js("document.querySelector('.leaflet-control-zoom-in').click(); true")
-    b.pump(0.8)
-    zoomed = b.js("(document.querySelector('#map .leaflet-overlay-pane path')||{}).getAttribute('d')") != d_before
     b.js("document.querySelector('.leaflet-control-zoom-out').click(); true")
     b.pump(0.6)
     s.add(f"AC-V2-09(b) observation {state}: the map still pans and zooms", panned and zoomed,
