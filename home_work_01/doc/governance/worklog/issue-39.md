@@ -43,7 +43,7 @@
 | `home_work_01/tests/check_county_browser.py` | 修改：Decisions 12 的 4 處 |
 | `home_work_01/tests/test_secrets.py` | 修改：3 個檔案加入憑證掃描清單（只加） |
 | `home_work_01/README.md` | 修改：新增「Now mode — map range, zoom range and layout」（R-V2-DOC-1(8)）；`Back to Taiwan` 位置；測試段 |
-| `home_work_01/doc/acceptance/screenshots/v2/issue-39/*` | 新增：62 張截圖（1280／375／768）、`browser-check-results.json`（每項觀察值＋`instruments`＋`fenceSweeps`）、`network-log.json`、`regression-check-issue-{36,37,38}-results.json`／`…-network-log.json` |
+| `home_work_01/doc/acceptance/screenshots/v2/issue-39/*` | 新增：60 張截圖（1280／375／768）、`browser-check-results.json`（每項觀察值＋`instruments`＋`fenceSweeps`）、`network-log.json`、`regression-check-issue-{36,37,38}-results.json`／`…-network-log.json` |
 
 未修改：`app.py`、`weather_query.py`、`ingestion/**`、`data.db`、`smoke.py`、`vercel.json`、`requirements.txt`、`server.py`、`api/**`、`observation.py`、`representative.py`、`CONTEXT.md`、`static/data/**`、`static/vendor/**`、`.github/workflows/**`、`doc/requirement/**`；單元目錄外無變更（RB-5）。
 
