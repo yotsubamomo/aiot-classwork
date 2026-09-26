@@ -21,7 +21,7 @@
 | [#38](https://github.com/yotsubamomo/aiot-classwork/issues/38) | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | H-3、H-2 | #36 | 已結案（audit `issue-38-c1-r1`/`r2`；R1 BLOCKING F-1 → R2 CLOSURE；DV-20/DV-21 獨立重驗 PASS） | `286ee9d` |
 | [#39](https://github.com/yotsubamomo/aiot-classwork/issues/39) | 地圖圍欄與響應式可用性：pan／zoom 圍欄、初始視野、375 px 底部資訊面、44×44、768 px 破版檢查 | V2 Core | H-2 | #38 | 已結案（audit `issue-39-c1-r1`/`r2`；R1 BLOCKING F-1 → R2 CLOSURE；DV-22 §4.1 核對 PASS） | `f3bf245` |
 | [#40](https://github.com/yotsubamomo/aiot-classwork/issues/40) | Radar overlay：`/api/` 代理、顯示／隱藏、雷達時間戳、獨立狀態與 1 km 地理對齊 oracle | V2 Radar | H-1、H-3 | #39 | 已結案（audit `issue-40-c1-r1`；R1 CLOSURE；AC-V2-19 對齊獨立重驗 ≤1km；F-1/F-2 Low → SIA/#41；R-1→DA） | `fedffdd` |
-| [#41](https://github.com/yotsubamomo/aiot-classwork/issues/41) | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class） | H-1、H-2、H-3 | #37、#40 | 待執行（AC-V2-17(c)、AC-V2-22 觀測部分在 acceptor 填入 Vercel 金鑰前為 BLOCKED，不是 FAIL） | |
+| [#41](https://github.com/yotsubamomo/aiot-classwork/issues/41) | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class） | H-1、H-2、H-3 | #37、#40 | 已結案（audit `issue-41-c1-r1`；R1 CLOSURE 可完成範圍；P-1..P-4＝AC-V2-17(c)／AC-V2-22 觀測／AC-V2-03 preview／A-6 在 acceptor 填入 Vercel 金鑰 RB-3 前為 **BLOCKED，不是 FAIL**） | `9902026` |
 
 狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。Commit 欄填結案時的 subject SHA。
 
