@@ -125,3 +125,11 @@ The run reached its **natural terminus** (governance §3.8; orch-default §8): a
 3. **DA (Orchestrator dispatch)**: write `decisions/phase-acceptance-SPEC-V2-addendum-<date>-postkey.md` closing the P-1..P-4 residue (and P-4/Vercel-limit vs the 8 s cap → derivation §11 #1 if it undercuts).
 4. **Acceptor (RB-1)**: merge `home_work_01-v2-implementation` → `main` — Bindings §5 release-gate material is otherwise present (all Ticket + SIA closures, phase acceptance for completable scope, README run, no tracked secret), but DA does not recommend merge until the addendum closes the pre-merge residue.
 5. **Acceptor (RB-2)**: submit the assignment; post-merge production smoke + observation sampling is release evidence.
+
+## Post-key verification (contract-internal follow-on, §8; run reopened 2026-09-26)
+
+Acceptor 2026-09-26 reported `CWA_API_KEY` configured for Vercel Preview + Production and gave preview deployment id `dpl_9yUXLsc98qzG4iHiFtR5TUPRWXPN`, instructing continuation of P-1..P-4 (no new authorization needed — DA phase-acceptance option (a); no credential value requested/exposed).
+
+- **Deployment mismatch found (control-plane check, no key read)**: Vercel `get_deployment(dpl_9yUX)` → `url aiot-hw01-weather-m7loalmy3-…`, **ref `main`, sha `08e158e`, target `production`**, alias `aiot-hw01-weather.vercel.app`. That is the **V1 baseline commit** (V2 is unmerged). Probe: `/api/health` 200 but `/api/observations/latest` and `/api/radar/latest` **404** (V2 endpoints absent at `08e158e`); production alias obs **404**. So `dpl_9yUX` cannot verify V2 P-1..P-3.
+- **V2-branch previews** (per-commit, incl. `9902026`, `ca2f657`) return obs/radar **503 `key_not_configured`** — built before the key; Vercel binds env at deploy time, so they need a fresh build to pick it up.
+- **Action (SA-1)**: push this record-only checkpoint to `home_work_01-v2-implementation` to trigger a fresh V2-branch Preview build (created after the key was set → should carry `CWA_API_KEY`). Then resolve its URL, probe obs status; if key-active, dispatch an independent `gov-primary-reviewer` for P-1..P-3 + P-4; if still 503, report to acceptor that the Preview env var is not applying to V2-branch previews (needs a V2-branch preview redeploy or env-scope check). No merge (RB-1).
