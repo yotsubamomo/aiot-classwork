@@ -111,3 +111,7 @@
    - (b) **Preview 分支 alias** 不可得（決定 3）；README 改為每 commit 的 GitHub Preview deployment URL。
    - (c) **SIA 交接項**（各結案 audit 指定，非本票裁決）：#38 F-2 與 #39 F-3、O-2、O-5、O-6、O-7（地圖可用性觀察）、#40 F-1（375 px Radar 按鈕使地圖下移）——列於 `ACCEPTANCE-V2.md` §8。
 4. **已在本票處理的交接項**：#35 R1 F-4（README 部署段）、#37 R1 F-2（截圖合成時鐘註記）、#37 R1 F-3（首次載入措辭）、#38 R2 N-1（#36 檢查去 flake）。
+
+---
+
+**Orchestrator 指標列（post-key，非本票 Executor 內容）**：P-1..P-4 的 post-key 驗證見 [`../audit/spec-SPEC-V2-c1-r1-postkey.md`](../audit/spec-SPEC-V2-c1-r1-postkey.md)（P-1..P-3 PASS、P-4 記錄、新 finding F-1）；DA 收尾見 [`../decisions/phase-acceptance-SPEC-V2-addendum-20260926-postkey.md`](../decisions/phase-acceptance-SPEC-V2-addendum-20260926-postkey.md)（P-1..P-4 closed、F-1 option (a) 非阻擋、SPEC-V2 phase acceptance 完整、pre-merge gate 清空）。詳見 run record。
