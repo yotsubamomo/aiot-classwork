@@ -25,6 +25,8 @@ from server import create_app
 UNIT_DIR = Path(__file__).resolve().parent.parent
 SAMPLE_PATH = Path(__file__).parent / "fixtures" / "O-A0001-001_sample.json"
 README = UNIT_DIR / "README.md"
+# The detailed README moved here unchanged (2026-09-26); README.md is now the overview.
+README_REFERENCE = UNIT_DIR / "README.technical-reference.md"
 SPEC_V2 = UNIT_DIR / "doc" / "spec" / "SPEC-V2.md"
 TAIPEI = timezone(timedelta(hours=8))
 T0 = datetime(2026, 9, 26, 0, 10, 5, tzinfo=TAIPEI)
@@ -180,10 +182,11 @@ def test_preferred_stations_are_valid_in_range_and_in_their_county_in_the_sample
 
 
 def test_readme_and_spec_do_not_enumerate_the_preference_ids() -> None:
-    """AC-V2-11: neither the Spec nor the README carries a list of the 22
-    StationIds as a contract. The README may use a few ids in worked examples."""
+    """AC-V2-11: neither the Spec nor the README (the overview and the technical
+    reference) carries a list of the 22 StationIds as a contract. A README may use
+    a few ids in worked examples."""
     ids = set(rep.PREFERRED_STATION.values())
-    for path, limit in ((README, 4), (SPEC_V2, 0)):
+    for path, limit in ((README, 4), (README_REFERENCE, 4), (SPEC_V2, 0)):
         text = path.read_text(encoding="utf-8")
         found = {i for i in ids if re.search(r"(?<![0-9A-Za-z])" + re.escape(i) + r"(?![0-9A-Za-z])", text)}
         assert len(found) <= limit, f"{path.name} enumerates preference ids: {sorted(found)}"

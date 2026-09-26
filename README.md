@@ -28,12 +28,14 @@ aiot-classwork/
 
 ## 作業（Homework）
 
-| 目錄 | 作業 | 狀態 |
-| --- | --- | --- |
-| [`home_work_01/`](./home_work_01/) | 依 `doc/` 內的說明文件（CWA API 天氣預測） | 尚未開始，目前只有老師提供的說明文件 |
+| 目錄 | 作業 | 內容 | Live Demo |
+| --- | --- | --- | --- |
+| [`home_work_01/`](./home_work_01/) | HW10 Taiwan Weather Forecast（CWA API 天氣預測） | CWA API × JSON × Python × SQLite × Streamlit：推導六大區域一週 MinT／MaxT 存入 SQLite，Streamlit 評分應用程式提供區域選單、折線圖與表格；另部署 Flask dashboard，含 Taiwan Map 的 Now mode（CWA 測站最新觀測、縣市下鑽、雷達）與 Forecast mode（六區預報地圖）。 | [開啟](https://aiot-hw01-weather.vercel.app) |
 
-作業說明文件放在各作業目錄的 `doc/`，其中的 PDF 未納入版本控制。
+作業說明文件放在各作業目錄的 `doc/requirement/`，其中的 PDF 未納入版本控制。
 
 ## GitHub Pages
 
 需要瀏覽器展示的單元從 `main` 分支根目錄發布，網址為 `https://yotsubamomo.github.io/aiot-classwork/<目錄名稱>/`。
+
+`home_work_01/` 需要伺服器端程式（Flask 與 CWA API 金鑰），所以不走 GitHub Pages，而是部署在 Vercel：<https://aiot-hw01-weather.vercel.app>（`main` 合併後更新）。

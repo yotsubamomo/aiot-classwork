@@ -121,7 +121,10 @@ records DV-20…DV-23).
 
 ## 2. AC-V2-21 documentation review — fourteen items (self-check)
 
-Line numbers refer to the final [`home_work_01/README.md`](../../README.md) (1191 lines).
+Line numbers refer to the final `home_work_01/README.md` (1191 lines), now kept unchanged as
+[`home_work_01/README.technical-reference.md`](../../README.technical-reference.md) (renamed 2026-09-26;
+`README.md` is now a concise overview). WI-UI-THEME-1 later added two lines after l. 845, so
+citations past l. 845 are two lower than the current file's line numbers.
 
 | # | Item | Status | Citation |
 | --- | --- | --- | --- |
