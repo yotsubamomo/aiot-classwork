@@ -25,6 +25,10 @@ It measures the layout the work item changes and nothing the other checks own:
   names, with the summary's value; labels inside the chart and clear of the axis
   labels; the per-date hit targets still on top of every dot and mark, and the
   tooltip for every date matching the table (two Regions);
+* the light / dark switch (WI-UI-THEME-1): it follows the system when nothing is
+  saved, switches the page tokens both ways, is remembered across a reload, leaves
+  the map card dark, keeps the mode switch as the first Tab stop, is >= 44 x 44
+  and adds no horizontal scroll at 375 px;
 * the zoom floor at the 640 px desktop map (the main island >= 25 % of the map's
   height at minZoom, SPEC-V2 §5.3);
 * screenshots of the first screen and the full page in light (and, at 1440, dark)
@@ -178,6 +182,68 @@ def chart_checks(s, tag: str, record: dict) -> None:
     b.pump(0.2)
     s.add(f"{tag}: hovering each date shows the tooltip with that row's date, MaxT and MinT",
           len(tips) == 7 and all(row_ok), {"tooltips": tips})
+
+
+THEME_JS = r"""(function () {
+  var t = document.getElementById('theme-toggle'), r = t.getBoundingClientRect();
+  var cs = getComputedStyle(document.documentElement);
+  return {theme: document.documentElement.getAttribute('data-theme'), pressed: t.getAttribute('aria-pressed'),
+          label: t.textContent.trim(), surface: cs.getPropertyValue('--surface').trim(),
+          bodyBg: getComputedStyle(document.body).backgroundColor,
+          heroBg: getComputedStyle(document.querySelector('.map-card')).backgroundImage,
+          size: [Math.round(r.width), Math.round(r.height)], inView: r.top >= 0 && r.bottom <= innerHeight,
+          sw: document.documentElement.scrollWidth, iw: innerWidth,
+          modeBottom: Math.round(document.querySelector('.mode-toggle').getBoundingClientRect().bottom),
+          ih: innerHeight};
+})()"""
+
+LIGHT_SURFACE, DARK_SURFACE = "#ffffff", "#172030"
+
+
+def scenario_theme(chrome: str, rig: Rig, out: Path, checks: Checks, record: dict, w: int, h: int,
+                   system_dark: bool) -> None:
+    label = f"theme-{w}-{'sysdark' if system_dark else 'syslight'}"
+    s = open_page(chrome, rig, out, checks, label, w, h, w < 768, dark=system_dark)
+    try:
+        b = s.b
+        g0 = b.js(THEME_JS)
+        sys_surface = DARK_SURFACE if system_dark else LIGHT_SURFACE
+        s.add("no saved choice: the page follows the system and the switch shows it",
+              g0["theme"] is None and g0["surface"] == sys_surface
+              and g0["pressed"] == ("true" if system_dark else "false"), g0)
+        s.add("the switch is a visible 'Dark mode' button, >= 44 x 44, on the first screen; no horizontal scroll",
+              "Dark mode" in g0["label"] and g0["size"][0] >= 44 and g0["size"][1] >= 44 and g0["inView"]
+              and g0["sw"] <= g0["iw"] and g0["modeBottom"] <= g0["ih"], g0)
+        b.js("document.activeElement && document.activeElement.blur(); window.scrollTo(0, 0); true")
+        b.key("Tab")
+        first = b.js("document.activeElement.id")
+        b.key("Tab")
+        b.key("Tab")
+        third = b.js("document.activeElement.id")
+        s.add("keyboard: the mode switch is still the first Tab stop; the theme switch follows it",
+              first == "mode-now" and third == "theme-toggle", {"first": first, "third": third})
+        b.key("Enter")
+        b.pump(0.4)
+        g1 = b.js(THEME_JS)
+        flipped = "light" if system_dark else "dark"
+        s.add("Enter on the switch flips the page theme (tokens, background) and aria-pressed",
+              g1["theme"] == flipped and g1["surface"] == (LIGHT_SURFACE if system_dark else DARK_SURFACE)
+              and g1["pressed"] == ("false" if system_dark else "true") and g1["bodyBg"] != g0["bodyBg"], g1)
+        s.add("the Taiwan Map card stays dark in both themes (P-1)", g1["heroBg"] == g0["heroBg"],
+              {"before": g0["heroBg"][:60], "after": g1["heroBg"][:60]})
+        shots(s, "flipped")
+        b.navigate(rig.base + "/")
+        b.pump(1.0)
+        g2 = b.js(THEME_JS)
+        s.add("the choice is remembered after a reload", g2["theme"] == flipped and g2["pressed"] == g1["pressed"]
+              and g2["surface"] == g1["surface"], g2)
+        b.js("document.getElementById('theme-toggle').click(); true")
+        b.pump(0.4)
+        g3 = b.js(THEME_JS)
+        s.add("clicking again switches back", g3["surface"] == sys_surface and g3["pressed"] == g0["pressed"], g3)
+        record[label] = {"initial": g0, "flipped": g1, "reloaded": g2, "back": g3}
+    finally:
+        s.close()
 
 
 def contains(view: dict | None, box: dict) -> bool:
@@ -337,6 +403,9 @@ def run(chrome: str, out: Path) -> Checks:
         for w, h in ((1440, 900), (1280, 900), (1024, 768), (768, 1024), (375, 812)):
             scenario_viewport(chrome, rig, out, checks, w, h, record)
         scenario_dark(chrome, rig, out, checks, record)
+        for w, h in ((1440, 900), (375, 812)):
+            for system_dark in (False, True):
+                scenario_theme(chrome, rig, out, checks, record, w, h, system_dark)
     finally:
         rig.close()
     out.mkdir(parents=True, exist_ok=True)
