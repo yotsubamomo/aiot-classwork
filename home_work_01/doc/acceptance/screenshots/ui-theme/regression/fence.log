@@ -1,0 +1,145 @@
+PASS desktop AC-V2-13(a)/R-V2-MAP-4 initial Now view contains the whole main island and 澎湖's main island (fence holds)
+PASS desktop AC-V2-13(c)/R-V2-MAP-2 zoom floor: the main island spans >= 25 % of the map height; − button disabled; key / wheel cannot zoom out further
+PASS desktop AC-V2-13(c) at the floor the fence holds after dragging to the end in each direction
+PASS desktop AC-V2-13(b)/R-V2-MAP-1 zoom 8: after dragging to the end W / E / N / S — centre in E; each axis map ⊆ E or E ⊆ map
+PASS desktop R-V2-MAP-1 keyboard panning (arrow keys, to the north-west end) stays inside the fence
+PASS desktop AC-V2-13(b) 金門縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds
+PASS desktop AC-V2-13(b) 金門縣 at the zoom ceiling: land in the map, station selected by a click; fence holds
+PASS desktop AC-V2-13(b) 連江縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds
+PASS desktop AC-V2-13(b) 連江縣 at the zoom ceiling: land in the map, station selected by a click; fence holds
+PASS desktop AC-V2-13(d)/R-V2-MAP-3 zoom ceiling: 1 km >= 20 CSS px and a 375 px map spans >= 5 km; + disabled; key cannot zoom further
+PASS desktop AC-V2-13(b) at the ceiling: dragged to the end W / E / N / S (the map reaches that edge of E) — the fence holds
+PASS desktop R-V2-MAP-4/DD-8 after Back to Taiwan the view contains the whole main island and 澎湖's main island
+PASS desktop AC-V2-13(d) 臺北市 at the ceiling: every on-map station is selected by a click on its marker, or shown and marked on the map after choosing it from the list
+PASS desktop R-V2-RSP-7/RSP-3 Taiwan-wide initial view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS desktop R-V2-RSP-7/RSP-3 Taiwan-wide, zoomed in two levels: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS desktop R-V2-RSP-7 zooming in shows more of the representative markers (density rule is per zoom)
+PASS desktop R-V2-RSP-7/RSP-3 臺中市 county view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS desktop R-V2-RSP-3 county + station selected: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px
+PASS desktop RSP-6 desktop: the Now panel is beside the map (no overlap); the selected station and the zoom buttons are visible and not covered; the panel shows the detail in view
+PASS desktop R-V2-RSP-3 desktop county + station: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px
+PASS desktop RSP-6 marker tooltips of markers about 36 px from the map's west, north, east and south edges lie wholly inside the map (not clipped)
+PASS desktop DV-22 §4.1(1) initial view: the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS desktop DV-22 §4.1(2) initial view: each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS desktop DV-22 §4.1(3) initial view: the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawn
+PASS desktop DV-22 §4.1(1) reloaded: the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS desktop DV-22 §4.1(2) reloaded: each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS desktop DV-22 §4.1(3) reloaded: the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawn
+PASS desktop DV-22 §4.1(4) deterministic: reloading with the same data and window shows the same set
+PASS desktop DV-22 §4.1(1) zoom 8 (name labels shown): the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS desktop DV-22 §4.1(2) zoom 8 (name labels shown): each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS desktop DV-22 §4.1(3) zoom 8 (name labels shown): the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawn
+PASS desktop DV-22 §4.1(2) zoom 8: name labels are shown where they fit and yield where they would overlap
+PASS desktop DV-22 §4.1(1) after Back to Taiwan: the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS desktop DV-22 §4.1(2) after Back to Taiwan: each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS desktop DV-22 §4.1(3) after Back to Taiwan: the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawn
+PASS desktop DV-22 §4.1(5) hidden counties (>= 3, incl. a northern one): hover shows the name and a click selects it (DD-4); the County chooser selects it (DD-9(a)); zooming in shows its representative and a click selects it
+PASS desktop R-EN-1(1) visual hierarchy: title verbatim, Taiwan Map card above the forecast section, headed Now panel; mode switch in the first screen
+PASS desktop R-EN-1(3) summary information: the valid-station count (Now) and the weekly summary (forecast) are shown
+PASS desktop R-EN-1(4) the chart is interactive and readable: legend, axis labels, hover tooltip (unchanged V1 chart)
+PASS 375 AC-V2-13(a)/R-V2-MAP-4 initial Now view contains the whole main island and 澎湖's main island (fence holds)
+PASS 375 AC-V2-13(c)/R-V2-MAP-2 zoom floor: the main island spans >= 25 % of the map height; − button disabled; key / wheel cannot zoom out further
+PASS 375 AC-V2-13(c) at the floor the fence holds after dragging to the end in each direction
+PASS 375 AC-V2-13(b)/R-V2-MAP-1 zoom 8: after dragging to the end W / E / N / S — centre in E; each axis map ⊆ E or E ⊆ map
+PASS 375 R-V2-MAP-1 keyboard panning (arrow keys, to the north-west end) stays inside the fence
+PASS 375 AC-V2-13(b) 金門縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds
+PASS 375 AC-V2-13(b) 金門縣 at the zoom ceiling: land in the map, station selected by a click; fence holds
+PASS 375 AC-V2-13(b) 連江縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds
+PASS 375 AC-V2-13(b) 連江縣 at the zoom ceiling: land in the map, station selected by a click; fence holds
+PASS 375 AC-V2-13(d)/R-V2-MAP-3 zoom ceiling: 1 km >= 20 CSS px and a 375 px map spans >= 5 km; + disabled; key cannot zoom further
+PASS 375 AC-V2-13(b) at the ceiling: dragged to the end W / E / N / S (the map reaches that edge of E) — the fence holds
+PASS 375 R-V2-MAP-4/DD-8 after Back to Taiwan the view contains the whole main island and 澎湖's main island
+PASS 375 DV-22 §4.1(1) initial view: the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS 375 DV-22 §4.1(2) initial view: each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS 375 DV-22 §4.1(3) initial view: the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawn
+PASS 375 DV-22 §4.1(1) reloaded: the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS 375 DV-22 §4.1(2) reloaded: each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS 375 DV-22 §4.1(3) reloaded: the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawnlatest observation failed: reason=upstream_error upstream_status=503
+latest observation failed: reason=key_not_configured upstream_status=None
+latest observation failed: reason=upstream_error upstream_status=503
+latest observation failed: reason=key_not_configured upstream_status=None
+latest observation failed: reason=upstream_error upstream_status=503
+latest observation failed: reason=key_not_configured upstream_status=None
+latest observation failed: reason=upstream_error upstream_status=503
+latest observation failed: reason=key_not_configured upstream_status=None
+
+PASS 375 DV-22 §4.1(4) deterministic: reloading with the same data and window shows the same set
+PASS 375 DV-22 §4.1(1) zoom 8 (name labels shown): the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS 375 DV-22 §4.1(2) zoom 8 (name labels shown): each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS 375 DV-22 §4.1(3) zoom 8 (name labels shown): the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawn
+PASS 375 DV-22 §4.1(2) zoom 8: name labels are shown where they fit and yield where they would overlap
+PASS 375 DV-22 §4.1(1) after Back to Taiwan: the Taiwan-wide layer is the /api/ representative set (22); hidden markers are invisible, not clickable and not Tab stops
+PASS 375 DV-22 §4.1(2) after Back to Taiwan: each hidden representative's required 44 x 44 area comes within 2 px of a SHOWN representative's required area (hidden only by collision)
+PASS 375 DV-22 §4.1(3) after Back to Taiwan: the shown representatives are pairwise apart, >= 44 x 44, and each one inside the map is hit where drawn
+PASS 375 DV-22 §4.1(5) hidden counties (>= 3, incl. a northern one): hover shows the name and a click selects it (DD-4); the County chooser selects it (DD-9(a)); zooming in shows its representative and a click selects it
+PASS 375 AC-V2-13(d) 臺北市 at the ceiling: every on-map station is selected by a click on its marker, or shown and marked on the map after choosing it from the list
+PASS 375 R-V2-RSP-7/RSP-3 Taiwan-wide initial view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS 375 R-V2-RSP-7/RSP-3 Taiwan-wide, zoomed in two levels: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS 375 R-V2-RSP-7 zooming in shows more of the representative markers (density rule is per zoom)
+PASS 375 R-V2-RSP-7/RSP-3 臺中市 county view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS 375 R-V2-RSP-3 county + station selected: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px
+PASS 375 375 RSP-5 no info panel before a selection
+PASS 375 375 RSP-5(b)(d)(g) county chosen -> info panel in peek: >= half the map uncovered; Close visible and not covered; zoom / mode switch / Refresh / Back to Taiwan not covered
+PASS 375 375 RSP-5(c)(g) Expand (Enter) shows the station list in the panel; the zoom buttons and other key controls stay uncovered
+PASS 375 375 RSP-5(f) choosing a station while the panel is open updates it (title + detail = /api/)
+PASS 375 375 RSP-6 in peek the selected station's marker is visible above the panel (not covered)
+PASS 375 375 RSP-5(f) choosing another county while the panel is open updates it (花蓮縣)
+PASS 375 375 RSP-5(f) clicking another station's marker while the panel is open updates it
+PASS 375 375 RSP-5(a)(d)(e) Close by keyboard (Enter) closes the panel (no swipe needed); focus moves to 'Details'; the selection is kept
+PASS 375 375 RSP-5 'Details' (Enter) reopens the panel with the same selection
+PASS 375 375 RSP-5(e) Esc inside the panel closes it too
+PASS 375 375 RSP-6 the southernmost 屏東縣 station (墾雷, 21.900836N) chosen from the list is kept visible above the panel; fence holds
+PASS 375 375 Back to Taiwan clears the selection and the panel
+PASS 375 R-V2-RSP-7/RSP-3 375 after Back to Taiwan: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS 375 R-EN-1(5) loading state visible (in-progress indicator) — screenshot
+PASS 375 R-EN-1(5) Stale state visible with its reason — screenshot
+PASS 375 Stale + county: the County context's state line carries the reason (visible with the county values)
+PASS 375 R-EN-1(5) Unavailable state visible with its reason — screenshot
+PASS 375 Unavailable + county: no digit in the County context (DV-21 §4.2 kept with the reason line)
+PASS 375 AC-V2-15/R-V2-MAP-5 no NaN / 0x0 marker and a valid fenced view after the info panel opens / expands / closes / reopens, mode switches, width and height resizes and a resize while the map had no size
+PASS 375 R-EN-1(1) visual hierarchy: title verbatim, Taiwan Map card above the forecast section, headed Now panel; mode switch in the first screen
+PASS 375 R-EN-1(3) summary information: the valid-station count (Now) and the weekly summary (forecast) are shown
+PASS 375 R-EN-1(4) the chart is interactive and readable: legend, axis labels, hover tooltip (unchanged V1 chart)
+PASS 768 R-V2-RSP-1 768 px breakage check: no overlapping controls and no horizontal scroll (Now default, county peek / expanded, Forecast); the map drags and zooms; the info panel keeps >= half the map; key controls not covered
+PASS desktop-states R-EN-1(5) loading state visible (in-progress indicator) — screenshot
+PASS desktop-states R-EN-1(5) Stale state visible with its reason — screenshot
+PASS desktop-states Stale + county: the County context's state line carries the reason (visible with the county values)
+PASS desktop-states R-EN-1(5) Unavailable state visible with its reason — screenshot
+PASS desktop-states Unavailable + county: no digit in the County context (DV-21 §4.2 kept with the reason line)
+PASS f1-1024 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop success: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1024 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop stale: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1024 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop unavailable: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1100 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop success: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1100 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop stale: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1100 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop unavailable: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1280 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop success: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrollslatest observation failed: reason=upstream_error upstream_status=503
+latest observation failed: reason=key_not_configured upstream_status=None
+latest observation failed: reason=upstream_error upstream_status=503
+latest observation failed: reason=key_not_configured upstream_status=None
+latest observation failed: reason=upstream_error upstream_status=503
+latest observation failed: reason=key_not_configured upstream_status=None
+
+PASS f1-1280 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop stale: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1280 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop unavailable: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1440 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop success: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1440 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop stale: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS f1-1440 #39 R1 F-1/OC S-1/R-V2-OBS-4(c)/RSP-6 desktop unavailable: Observation Time, Fetched Time, Refresh, mode switch, County, Back to Taiwan and the state chip stay wholly in view and uncovered (Taiwan-wide, station, county, county + station by list click and by map click; keyboard: focus visible, nothing clipped by the panel); the detail is in view; the Now panel itself never scrolls
+PASS desktop-1440 R-V2-RSP-7/RSP-3 Taiwan-wide initial view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS desktop-1440 R-V2-RSP-7/RSP-3 Taiwan-wide, zoomed in two levels: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS desktop-1440 R-V2-RSP-7 zooming in shows more of the representative markers (density rule is per zoom)
+PASS desktop-1440 R-V2-RSP-7/RSP-3 臺中市 county view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible
+PASS desktop-1440 R-V2-RSP-3 county + station selected: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px
+PASS desktop-1440 RSP-6 desktop: the Now panel is beside the map (no overlap); the selected station and the zoom buttons are visible and not covered; the panel shows the detail in view
+PASS desktop-1440 R-V2-RSP-3 desktop county + station: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px
+PASS desktop-1440 RSP-6 marker tooltips of markers about 36 px from the map's west, north, east and south edges lie wholly inside the map (not clipped)
+PASS desktop-1440 R-EN-1(5) loading state visible (in-progress indicator) — screenshot
+PASS desktop-1440 R-EN-1(5) Stale state visible with its reason — screenshot
+PASS desktop-1440 Stale + county: the County context's state line carries the reason (visible with the county values)
+PASS desktop-1440 R-EN-1(5) Unavailable state visible with its reason — screenshot
+PASS desktop-1440 Unavailable + county: no digit in the County context (DV-21 §4.2 kept with the reason line)
+PASS R-V2-RSP-2/§6.3 AC-19 375 px: no horizontal scroll in each state (default, county peek, expanded, station, closed, loading, Stale, Unavailable, with a county, Forecast mode)
+PASS AC-V2-16/INV-V2-3 runtime network log: zero external requests (all scenarios)
+PASS H-1 no key / upstream marker in any request URL
+PASS console: no JavaScript exception, no NaN / Invalid LatLng message
+129/129 checks passed; evidence in doc\acceptance\screenshots\ui-theme\regression\fence
+exit 0
