@@ -15,13 +15,13 @@
 
 | # | 票 | Scope class | High-risk | Blocked by | 狀態 | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
-| [#35](https://github.com/yotsubamomo/aiot-classwork/issues/35) | 伺服器端 Latest Observation 路徑：`/api/` 觀測回應、四類失敗分類與安全邊界 re-scope | V2 Core | H-1、H-2、H-3 | — | 待執行 | |
-| [#36](https://github.com/yotsubamomo/aiot-classwork/issues/36) | Now mode 與 Forecast mode：預設 Now、模式切換、全臺代表測站的 Latest Observation 與 Observation Time／Fetched Time | V2 Core | H-2、H-3 | #35 | 待執行 | |
-| [#37](https://github.com/yotsubamomo/aiot-classwork/issues/37) | Refresh 與狀態語義：newer／not-newer／failure、Stale／Unavailable、觀測失敗只影響 Now mode | V2 Core | H-1、H-3 | #36 | 待執行 | |
-| [#38](https://github.com/yotsubamomo/aiot-classwork/issues/38) | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | H-3、H-2 | #36 | 待執行 | |
-| [#39](https://github.com/yotsubamomo/aiot-classwork/issues/39) | 地圖圍欄與響應式可用性：pan／zoom 圍欄、初始視野、375 px 底部資訊面、44×44、768 px 破版檢查 | V2 Core | H-2 | #38 | 待執行 | |
-| [#40](https://github.com/yotsubamomo/aiot-classwork/issues/40) | Radar overlay：`/api/` 代理、顯示／隱藏、雷達時間戳、獨立狀態與 1 km 地理對齊 oracle | V2 Radar | H-1、H-3 | #39 | 待執行 | |
-| [#41](https://github.com/yotsubamomo/aiot-classwork/issues/41) | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class） | H-1、H-2、H-3 | #37、#40 | 待執行（AC-V2-17(c)、AC-V2-22 觀測部分在 acceptor 填入 Vercel 金鑰前為 BLOCKED，不是 FAIL） | |
+| [#35](https://github.com/yotsubamomo/aiot-classwork/issues/35) | 伺服器端 Latest Observation 路徑：`/api/` 觀測回應、四類失敗分類與安全邊界 re-scope | V2 Core | H-1、H-2、H-3 | — | 已結案（audit `issue-35-c1-r1`/`r2`；R1 BLOCKING F-1 → R2 CLOSURE） | `5f0dbc3` |
+| [#36](https://github.com/yotsubamomo/aiot-classwork/issues/36) | Now mode 與 Forecast mode：預設 Now、模式切換、全臺代表測站的 Latest Observation 與 Observation Time／Fetched Time | V2 Core | H-2、H-3 | #35 | 已結案（audit `issue-36-c1-r1`；R1 CLOSURE；F-1 Low、R-1→DA 追蹤） | `f63ebb1` |
+| [#37](https://github.com/yotsubamomo/aiot-classwork/issues/37) | Refresh 與狀態語義：newer／not-newer／failure、Stale／Unavailable、觀測失敗只影響 Now mode | V2 Core | H-1、H-3 | #36 | 已結案（audit `issue-37-c1-r1`；R1 CLOSURE；F-1/F-2/F-3 Low、R-1→DA） | `7a3b469` |
+| [#38](https://github.com/yotsubamomo/aiot-classwork/issues/38) | Taiwan → County → Station 下鑽：縣界互動圖層、County 脈絡、測站清單與詳情、Back to Taiwan、鍵盤路徑 | V2 Core | H-3、H-2 | #36 | 已結案（audit `issue-38-c1-r1`/`r2`；R1 BLOCKING F-1 → R2 CLOSURE；DV-20/DV-21 獨立重驗 PASS） | `286ee9d` |
+| [#39](https://github.com/yotsubamomo/aiot-classwork/issues/39) | 地圖圍欄與響應式可用性：pan／zoom 圍欄、初始視野、375 px 底部資訊面、44×44、768 px 破版檢查 | V2 Core | H-2 | #38 | 已結案（audit `issue-39-c1-r1`/`r2`；R1 BLOCKING F-1 → R2 CLOSURE；DV-22 §4.1 核對 PASS） | `f3bf245` |
+| [#40](https://github.com/yotsubamomo/aiot-classwork/issues/40) | Radar overlay：`/api/` 代理、顯示／隱藏、雷達時間戳、獨立狀態與 1 km 地理對齊 oracle | V2 Radar | H-1、H-3 | #39 | 已結案（audit `issue-40-c1-r1`；R1 CLOSURE；AC-V2-19 對齊獨立重驗 ≤1km；F-1/F-2 Low → SIA/#41；R-1→DA） | `fedffdd` |
+| [#41](https://github.com/yotsubamomo/aiot-classwork/issues/41) | V2 整合驗收：README 與 CONTEXT 最終審查、V2 驗收文件、定向 V1 重驗、CI 全綠與部署 preview 驗證 | INTEGRATION／FINAL VERIFICATION（非 scope class） | H-1、H-2、H-3 | #37、#40 | 已結案（audit `issue-41-c1-r1`；R1 CLOSURE 可完成範圍；P-1..P-4＝AC-V2-17(c)／AC-V2-22 觀測／AC-V2-03 preview／A-6 在 acceptor 填入 Vercel 金鑰 RB-3 前為 **BLOCKED，不是 FAIL**） | `9902026` |
 
 狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。Commit 欄填結案時的 subject SHA。
 
@@ -67,7 +67,10 @@
 
 ## 實作過程中的調整
 
-（執行後由 Orchestrator／Executor 依 worklog 補記。）
+- 2026-09-26 — **DV-20**（[`../governance/decisions/decision-20260926-ac-v2-01-county-round-trip-allocation.md`](../governance/decisions/decision-20260926-ac-v2-01-county-round-trip-allocation.md)；來源 #36 R1 的 routing signal R-1）：**#38** 追加 AC-V2-01「選縣往返部分」與 R-V2-MODE-5(a) 選縣部分的驗證與實作分配（逐字見 DV-20 §4.1）；Spec Integration Audit 仍為 AC-V2-01 的 Spec 層 owner；#36 分配與結案不變。#38 issue body 已更新（Acceptance criteria／Traceability／Decisions）。不改 accepted 語義（治理 §5.3 第 2 類）。
+- 2026-09-26 — **DV-21**（[`../governance/decisions/decision-20260926-county-layer-under-stale-unavailable-allocation.md`](../governance/decisions/decision-20260926-county-layer-under-stale-unavailable-allocation.md)；來源 #37 R1 的 routing signal R-1）：**#38** 追加 AC-V2-08(a)(b)「縣界互動圖層與 County 脈絡在 Stale／Unavailable 下」的驗證與實作分配（逐字見 DV-21 §4.1），含 §4.2 §3.6-A 釐清（Unavailable 縣脈絡缺值顯示「—」、不得為 0 或數值）；Spec Integration Audit 仍為 AC-V2-08／INV-V2-7 的 Spec 層 owner；#37 不變。#38 issue body 已更新。不改 accepted 語義（§5.3 第 2 類）。
+- 2026-09-26 — **DV-22**（[`../governance/decisions/decision-20260926-desktop-representative-marker-density.md`](../governance/decisions/decision-20260926-desktop-representative-marker-density.md)；來源 #39 R1 的 routing signal R-1）：桌機初始全臺視野隱藏部分代表標記**在契約內，但只限「44×44 碰撞」的最小隱藏**（§3.6-A 釐清；全臺圖層集合須完整、被隱藏縣須可達；BASE 22/22 本身違反 RSP-7）。#39 F-1 修正須滿足 DV-22 §4.1，由 R2 逐項核對；#39 分配不變；不改 accepted 語義（§5.3 第 2 類）。#39 issue body 已更新。
+- 2026-09-26 — **DV-23**（[`../governance/decisions/decision-20260926-spec-5-3-pixel-figure-correction.md`](../governance/decisions/decision-20260926-spec-5-3-pixel-figure-correction.md)；來源 #40 R1 的 routing signal R-1）：更正 SPEC-V2 §5.3（R-V2-RAD-5、R-V2-MAP-3）與 DV-11／DV-13 的 km↔px 儀器註記數值至正確的 Web Mercator 值（原文以 `〔DV-23 更正〕` 內聯保留）。**非規範性**——AC-V2-19／AC-V2-13 的 oracle 是 km／CSS-px 門檻，無 AC 判定改變；SPEC-V2 維持 v2.2（§10 加註）。SIA 讀取更正後的 §5.3。commit `2771a54`。
 
 ## Post-baseline 追加 work item（合併前）
 

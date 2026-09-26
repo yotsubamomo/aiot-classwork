@@ -7,7 +7,9 @@ This keeps a single Python function serving both the API and the page, matching
 the teacher-verified single-function pattern; the Vercel project's Root Directory
 is ``home_work_01`` and ``data.db`` is packaged beside ``server.py`` (R-DS-8).
 
-No environment variable or secret is read here or in ``server.py`` (R-SEC-3).
+No environment variable or secret is read here. The V2 observation path
+(``observation.py``, via ``server.py``) reads ``CWA_API_KEY`` from the Vercel
+project environment at request time; the forecast path needs none (INV-V2-1).
 
 **Percent-encoded PATH_INFO on Vercel (#21 F-1).** Vercel delivers ``PATH_INFO``
 to the WSGI app **still percent-encoded** — it does not URL-decode the path the

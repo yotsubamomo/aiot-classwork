@@ -1,0 +1,653 @@
+{
+  "checks": [
+    {
+      "id": "A-desktop AC-V2-01 opens in Now mode without user action",
+      "pass": true,
+      "detail": {
+        "nowPressed": "true",
+        "forecastPressed": "false",
+        "nowPanel": true,
+        "forecastPanel": false,
+        "legend": false,
+        "stations": 22,
+        "pills": 0
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-04 Observation Time / Fetched Time / count equal the /api/ response",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "dts": [
+            "Observation Time",
+            "Fetched Time",
+            "Valid stations"
+          ],
+          "time": "2026-09-25 23:00 +08:00",
+          "fetched": "2026-09-26 01:42:43 +08:00",
+          "count": "849",
+          "refresh": "Refresh",
+          "heading": "Latest Observation OBSERVED"
+        },
+        "api": {
+          "observationTime": "2026-09-25T23:00:00+08:00",
+          "fetchedTime": "2026-09-26T01:42:43+08:00",
+          "validStationCount": 849
+        }
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-03/DD-2 one marker per county, text = /api/ airTemperature, name = station",
+      "pass": true,
+      "detail": {
+        "markers": [
+          {
+            "text": "25.9°",
+            "label": "基隆 station, 基隆市: air temperature 25.9 °C (Latest Observation, station value)",
+            "name": "基隆"
+          },
+          {
+            "text": "27.1°",
+            "label": "臺北 station, 臺北市: air temperature 27.1 °C (Latest Observation, station value)",
+            "name": "臺北"
+          },
+          {
+            "text": "23.9°",
+            "label": "新北 station, 新北市: air temperature 23.9 °C (Latest Observation, station value)",
+            "name": "新北"
+          },
+          {
+            "text": "27.1°",
+            "label": "桃園 station, 桃園市: air temperature 27.1 °C (Latest Observation, station value)",
+            "name": "桃園"
+          },
+          {
+            "text": "25.7°",
+            "label": "新竹市東區 station, 新竹市: air temperature 25.7 °C (Latest Observation, station value)",
+            "name": "新竹市東區"
+          }
+        ],
+        "expected": [
+          {
+            "text": "25.9°",
+            "name": "基隆",
+            "county": "基隆市"
+          },
+          {
+            "text": "27.1°",
+            "name": "臺北",
+            "county": "臺北市"
+          },
+          {
+            "text": "23.9°",
+            "name": "新北",
+            "county": "新北市"
+          },
+          {
+            "text": "27.1°",
+            "name": "桃園",
+            "county": "桃園市"
+          },
+          {
+            "text": "25.7°",
+            "name": "新竹市東區",
+            "county": "新竹市"
+          }
+        ],
+        "count": 22
+      }
+    },
+    {
+      "id": "A-desktop H-3 marker never labelled as a county value",
+      "pass": true,
+      "detail": [
+        {
+          "text": "25.9°",
+          "label": "基隆 station, 基隆市: air temperature 25.9 °C (Latest Observation, station value)",
+          "name": "基隆"
+        },
+        {
+          "text": "27.1°",
+          "label": "臺北 station, 臺北市: air temperature 27.1 °C (Latest Observation, station value)",
+          "name": "臺北"
+        },
+        {
+          "text": "23.9°",
+          "label": "新北 station, 新北市: air temperature 23.9 °C (Latest Observation, station value)",
+          "name": "新北"
+        }
+      ]
+    },
+    {
+      "id": "A-desktop AC-V2-02/MODE-6(b) observation markers use no derived band colour",
+      "pass": true,
+      "detail": [
+        "rgb(242, 245, 250)"
+      ]
+    },
+    {
+      "id": "A-desktop AC-V2-01 mode switch visible without scrolling, labels contain Now/Forecast",
+      "pass": true,
+      "detail": {
+        "top": 236.3125,
+        "bottom": 288.3125,
+        "innerHeight": 900,
+        "scrollY": 0,
+        "now": "Now · Latest Observation",
+        "forecast": "Forecast · 7-day"
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-02 Now mode shows no Select Date / derived legend / DERIVED / forecast pills",
+      "pass": true,
+      "detail": "Latest Observation\nOBSERVED\n\nCWA station observations (O-A0001-001, hourly), shown as published.\n\nObservation Time\n2026-09-25 23:00 +08:00\nFetched Time\n2026-09-26 01:42:43 +08:00\nValid stations\n849\nRefresh\n\nEach marker is one representative station's air temperature (°C) — a station value, not a county temperature.\n\n25.9°\n27.1°\n23.9°\n27.1°\n25.7°\n26.6°\n25.6°\n27.1°\n26.1°\n26.6°\n26.3°\n26.2°\n26.3°\n29.1"
+    },
+    {
+      "id": "A-desktop AC-V2-02/23 no real-time / realtime / live wording; Latest Observation present",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "A-desktop AC-V2-02 Now Fetched Time distinguishable (text + position) from the forecast snapshot time",
+      "pass": true,
+      "detail": {
+        "ing": "Last updated (data fetched from CWA): 2026-09-24T02:24:50+08:00",
+        "fetchedRect": {
+          "x": 160,
+          "y": 463.90625,
+          "w": 258,
+          "h": 21
+        },
+        "ingRect": {
+          "x": 717.640625,
+          "y": 967,
+          "w": 431.359375,
+          "h": 20.390625
+        },
+        "fetchedInNow": true,
+        "ingInForecast": true
+      }
+    },
+    {
+      "id": "A-desktop DD-2 hover shows station name + county, labelled a station value",
+      "pass": true,
+      "detail": "澎湖 station\n澎湖縣 · 馬公市\nAir temperature 26.3 °C\nObservation Time 2026-09-25 23:00 +08:00\nStation value, not a county value"
+    },
+    {
+      "id": "A-desktop AC-V2-01 mode switch reachable by keyboard (first Tab stop)",
+      "pass": true,
+      "detail": "mode-now"
+    },
+    {
+      "id": "A-desktop AC-V2-03 selected station values = /api/; sentinel fields shown as —",
+      "pass": true,
+      "detail": {
+        "shown": {
+          "hidden": false,
+          "name": "臺北 station",
+          "place": "臺北市 · 中正區",
+          "temp": "27.1 °C",
+          "rh": "—",
+          "weather": "—",
+          "time": "2026-09-25 23:00 +08:00",
+          "active": 1
+        },
+        "api": {
+          "stationName": "臺北",
+          "airTemperature": 27.1,
+          "relativeHumidity": null,
+          "weather": null,
+          "observationTime": "2026-09-25T23:00:00+08:00"
+        }
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-04/OBS-7(c) Refresh shows an in-progress indicator",
+      "pass": true,
+      "detail": {
+        "aria": "true",
+        "cls": "obs-status obs-status--busy",
+        "text": "Refreshing the Latest Observation…",
+        "spinner": true,
+        "busyPanel": "true"
+      }
+    },
+    {
+      "id": "A-desktop OBS-7 Refresh success applies the newer Latest Observation; a second press while busy is ignored",
+      "pass": true,
+      "detail": {
+        "after": {
+          "time": "2026-09-26 00:00 +08:00",
+          "fetched": "2026-09-26 01:42:48 +08:00",
+          "status": "",
+          "temp": "26.4 °C"
+        },
+        "requests": 1
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-01 Forecast mode: switch by keyboard, six Region markers visible",
+      "pass": true,
+      "detail": {
+        "state": {
+          "nowPressed": "false",
+          "forecastPressed": "true",
+          "nowPanel": false,
+          "forecastPanel": true,
+          "legend": true,
+          "stations": 0,
+          "pills": 6
+        },
+        "pills": [
+          {
+            "text": "27.2°",
+            "bg": "rgb(214, 158, 46)",
+            "inside": true,
+            "label": "北部地區 2026-09-24 Min 23.3°C Max 31.0°C derived 27.2°C"
+          },
+          {
+            "text": "28.8°",
+            "bg": "rgb(214, 158, 46)",
+            "inside": true,
+            "label": "中部地區 2026-09-24 Min 24.8°C Max 32.8°C derived 28.8°C"
+          },
+          {
+            "text": "29.2°",
+            "bg": "rgb(214, 158, 46)",
+            "inside": true,
+            "label": "南部地區 2026-09-24 Min 26.3°C Max 32.0°C derived 29.2°C"
+          },
+          {
+            "text": "26.5°",
+            "bg": "rgb(214, 158, 46)",
+            "inside": true,
+            "label": "東北部地區 2026-09-24 Min 23.0°C Max 30.0°C derived 26.5°C"
+          },
+          {
+            "text": "27.0°",
+            "bg": "rgb(214, 158, 46)",
+            "inside": true,
+            "label": "東部地區 2026-09-24 Min 24.0°C Max 30.0°C derived 27.0°C"
+          },
+          {
+            "text": "27.5°",
+            "bg": "rgb(214, 158, 46)",
+            "inside": true,
+            "label": "東南部地區 2026-09-24 Min 24.0°C Max 31.0°C derived 27.5°C"
+          }
+        ]
+      }
+    },
+    {
+      "id": "A-desktop AC-17 pill text/colour = /api/days/<d> derived value and band",
+      "pass": true,
+      "detail": {
+        "pills": [
+          [
+            "27.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.8°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "29.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "26.5°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.0°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.5°",
+            "rgb(214, 158, 46)"
+          ]
+        ],
+        "api": [
+          [
+            "北部地區",
+            27.2,
+            "yellow"
+          ],
+          [
+            "中部地區",
+            28.8,
+            "yellow"
+          ],
+          [
+            "南部地區",
+            29.2,
+            "yellow"
+          ],
+          [
+            "東北部地區",
+            26.5,
+            "yellow"
+          ],
+          [
+            "東部地區",
+            27.0,
+            "yellow"
+          ],
+          [
+            "東南部地區",
+            27.5,
+            "yellow"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "A-desktop AC-17/AC-18 legend four bands + derived caveat; Select Date = seven days ascending, first default",
+      "pass": true,
+      "detail": {
+        "sw": [
+          "rgb(43, 108, 176)",
+          "rgb(47, 133, 90)",
+          "rgb(214, 158, 46)",
+          "rgb(197, 48, 48)"
+        ],
+        "note": "\n            Average = (MinT + MaxT) / 2, a derived value — not an observed daily mean.\n          ",
+        "dates": [
+          "2026-09-24",
+          "2026-09-25",
+          "2026-09-26",
+          "2026-09-27",
+          "2026-09-28",
+          "2026-09-29",
+          "2026-09-30"
+        ],
+        "selected": "2026-09-24",
+        "disabled": false
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-02 Forecast mode shows no Refresh / Observation Time / Fetched Time / station values",
+      "pass": true,
+      "detail": "Six-region forecast\nDERIVED\nSelect Date\n2026-09-24\n2026-09-25\n2026-09-26\n2026-09-27\n2026-09-28\n2026-09-29\n2026-09-30\n\nForecast Day: 2026-09-24\n\nSource: CWA F-D0047-091 (county-level) → project-derived six-region values\n\nHighest MaxT (this day)\n32.8°C\n中部地區\nLowest MinT (this day)\n23.0°C\n東北部地區\n\n北部地區\n\nDate\n2026-09-24\nMin\n23.3 °C\nMax\n31.0 °C\n\nDerived map temperature 27.2 °C\n\n(derived, not an observed daily mean)\n\n27.2°\n28.8°\n29.2°\n26.5°\n27.0°\n27.5°\n+\n−\nNatural Earth · 內政部 open data\nDerived map temper"
+    },
+    {
+      "id": "A-desktop AC-17 selecting a Region pill shows Region/Date/Min/Max/derived = endpoint",
+      "pass": true,
+      "detail": {
+        "block": {
+          "r": "中部地區",
+          "d": "2026-09-24",
+          "mn": "24.8 °C",
+          "mx": "32.8 °C",
+          "dv": "28.8"
+        },
+        "api": {
+          "colourBand": "yellow",
+          "derivedMapTemperature": 28.8,
+          "maxt": 32.8,
+          "mint": 24.8,
+          "regionName": "中部地區"
+        }
+      }
+    },
+    {
+      "id": "A-desktop AC-18 Select Date change updates pills and panel to that day, view not reset",
+      "pass": true,
+      "detail": {
+        "pills": [
+          [
+            "27.8°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.8°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "29.5°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.0°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.0°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.0°",
+            "rgb(214, 158, 46)"
+          ]
+        ],
+        "block": {
+          "d": "2026-09-26",
+          "dv": "28.8"
+        }
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-02 lower dashboard identical in both modes",
+      "pass": true,
+      "detail": 512
+    },
+    {
+      "id": "A-desktop AC-V2-01/MODE-5 Now -> Forecast -> Now restores the Now selection and view",
+      "pass": true,
+      "detail": {
+        "same_view": true,
+        "selection": {
+          "hidden": false,
+          "name": "臺北 station",
+          "active": [
+            "臺北 station, 臺北市: air temperature 26.4 °C (Latest Observation, station value)"
+          ]
+        }
+      }
+    },
+    {
+      "id": "A-desktop AC-V2-15 no NaN / 0x0 markers after the mode switches",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "A-desktop AC-02/AC-03/AC-24 lower dashboard: title, Select Region six names in order, 7-row table = /api/",
+      "pass": true,
+      "detail": {
+        "options": [
+          "北部地區",
+          "中部地區",
+          "南部地區",
+          "東北部地區",
+          "東部地區",
+          "東南部地區"
+        ],
+        "heading": "Temperature Forecast – 北部地區",
+        "rows": [
+          [
+            "2026-09-24",
+            "23.3",
+            "31"
+          ],
+          [
+            "2026-09-25",
+            "23.4",
+            "31.4"
+          ],
+          [
+            "2026-09-26",
+            "24.1",
+            "31.4"
+          ],
+          [
+            "2026-09-27",
+            "24.1",
+            "31.6"
+          ],
+          [
+            "2026-09-28",
+            "24.4",
+            "32.4"
+          ],
+          [
+            "2026-09-29",
+            "25.3",
+            "30.9"
+          ],
+          [
+            "2026-09-30",
+            "24.6",
+            "30.3"
+          ]
+        ],
+        "headers": [
+          "Date",
+          "MinT",
+          "MaxT"
+        ],
+        "title": "Taiwan Weather Forecast",
+        "label": "Select Region"
+      }
+    },
+    {
+      "id": "A-375 AC-V2-01 Now mode default; mode switch visible without scrolling; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "top": 253.328125,
+        "bottom": 305.328125,
+        "innerHeight": 812,
+        "innerWidth": 375,
+        "scrollY": 0,
+        "scrollWidth": 375,
+        "nowPressed": "true",
+        "stations": 22,
+        "time": "2026-09-25 23:00 +08:00",
+        "fetched": "2026-09-26 01:42:53 +08:00"
+      }
+    },
+    {
+      "id": "A-375 AC-V2-01 Forecast mode: six Region markers visible; no horizontal scroll",
+      "pass": true,
+      "detail": {
+        "nowPressed": "false",
+        "forecastPressed": "true",
+        "nowPanel": false,
+        "forecastPanel": true,
+        "legend": true,
+        "stations": 0,
+        "pills": 6
+      }
+    },
+    {
+      "id": "A-375 AC-V2-15 no NaN / 0x0 markers after the mode switches",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "A console: no JavaScript exception, no NaN / Invalid LatLng message",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "B-desktop AC-V2-09(a) forecast 503: Now mode fully shown, section-level V1 error with server message",
+      "pass": true,
+      "detail": {
+        "health": [
+          503,
+          "The forecast database is missing. Run the ingestion pipeline to create it."
+        ],
+        "page": {
+          "mode": "true",
+          "stations": 22,
+          "mapCard": true,
+          "nowPanel": true,
+          "error": true,
+          "errorRole": "alert",
+          "errorText": "The forecast database is missing. Run the ingestion pipeline to create it.",
+          "errorInSection": true,
+          "dashboard": false,
+          "toggleVisible": true
+        }
+      }
+    },
+    {
+      "id": "B-desktop AC-V2-09(a) Refresh works while the forecast snapshot is unavailable",
+      "pass": true,
+      "detail": "2026-09-26 00:00 +08:00"
+    },
+    {
+      "id": "B-desktop AC-V2-09(a)/AC-10 Forecast mode inline error with server message; Select Date disabled",
+      "pass": true,
+      "detail": {
+        "shown": true,
+        "role": "alert",
+        "text": "The forecast database is missing. Run the ingestion pipeline to create it.",
+        "dateDisabled": true,
+        "panel": true,
+        "pressed": "true"
+      }
+    },
+    {
+      "id": "B-desktop AC-V2-09(a) back in Now mode the forecast error does not cover the map",
+      "pass": true,
+      "detail": {
+        "status": false,
+        "stations": 22
+      }
+    },
+    {
+      "id": "B-375 AC-V2-09(a) forecast 503: Now mode fully shown, section-level V1 error with server message",
+      "pass": true,
+      "detail": {
+        "health": [
+          503,
+          "The forecast database is missing. Run the ingestion pipeline to create it."
+        ],
+        "page": {
+          "mode": "true",
+          "stations": 22,
+          "mapCard": true,
+          "nowPanel": true,
+          "error": true,
+          "errorRole": "alert",
+          "errorText": "The forecast database is missing. Run the ingestion pipeline to create it.",
+          "errorInSection": true,
+          "dashboard": false,
+          "toggleVisible": true
+        }
+      }
+    },
+    {
+      "id": "B-375 AC-V2-09(a) Refresh works while the forecast snapshot is unavailable",
+      "pass": true,
+      "detail": "2026-09-26 00:00 +08:00"
+    },
+    {
+      "id": "B-375 AC-V2-09(a)/AC-10 Forecast mode inline error with server message; Select Date disabled",
+      "pass": true,
+      "detail": {
+        "shown": true,
+        "role": "alert",
+        "text": "The forecast database is missing. Run the ingestion pipeline to create it.",
+        "dateDisabled": true,
+        "panel": true,
+        "pressed": "true"
+      }
+    },
+    {
+      "id": "B-375 AC-V2-09(a) back in Now mode the forecast error does not cover the map",
+      "pass": true,
+      "detail": {
+        "status": false,
+        "stations": 22
+      }
+    },
+    {
+      "id": "AC-V2-16 runtime network log: zero external requests (Now mode and Forecast mode)",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "all_pass": true
+}

@@ -1,0 +1,1287 @@
+{
+  "checks": [
+    {
+      "id": "desktop R-V2-OBS-7(c)/RSP-8 first load shows the loading state with an in-progress indicator",
+      "pass": true,
+      "detail": {
+        "state": "loading",
+        "result": null,
+        "busy": "true",
+        "panelBusy": "true",
+        "time": "—",
+        "fetched": "—",
+        "count": "—",
+        "status": "Loading the Latest Observation…",
+        "statusClass": "obs-status obs-status--busy",
+        "spinner": true,
+        "chip": null,
+        "banner": null,
+        "badge": null,
+        "mapStale": false,
+        "markers": [],
+        "markerFill": [],
+        "markerBorder": [],
+        "selected": null,
+        "nowPressed": "true",
+        "refreshVisible": true,
+        "toggleVisible": true,
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "id": "desktop first load success: data and both times = /api/, no state label, no notice",
+      "pass": true,
+      "detail": {
+        "page": {
+          "state": "success",
+          "time": "2026-09-25 23:00 +08:00",
+          "fetched": "2026-09-26 00:14:57 +08:00",
+          "count": "849",
+          "status": ""
+        },
+        "api": {
+          "observationTime": "2026-09-25T23:00:00+08:00",
+          "fetchedTime": "2026-09-26T00:14:57+08:00",
+          "validStationCount": 849
+        }
+      }
+    },
+    {
+      "id": "desktop selecting 臺北 shows its /api/ values",
+      "pass": true,
+      "detail": {
+        "name": "臺北 station",
+        "temp": "27.1 °C"
+      }
+    },
+    {
+      "id": "desktop AC-V2-06(c) same Fetched Time (reuse window) -> not-newer: display unchanged, 'already the latest', not Stale",
+      "pass": true,
+      "detail": {
+        "status": "Already the latest: no newer Latest Observation than the one shown.",
+        "result": "not-newer",
+        "state": "success"
+      }
+    },
+    {
+      "id": "desktop AC-V2-06(b) older Observation Time -> not-newer: data and both times unchanged, 'already the latest', not Stale",
+      "pass": true,
+      "detail": {
+        "api": {
+          "observationTime": "2026-09-25T22:00:00+08:00",
+          "fetchedTime": "2026-09-26T00:24:58+08:00"
+        },
+        "page": {
+          "time": "2026-09-25 23:00 +08:00",
+          "fetched": "2026-09-26 00:14:57 +08:00",
+          "status": "Already the latest: no newer Latest Observation than the one shown.",
+          "result": "not-newer"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-06(a) newer Observation Time -> newer: data, Observation Time and Fetched Time all update",
+      "pass": true,
+      "detail": {
+        "page": {
+          "time": "2026-09-26 00:00 +08:00",
+          "fetched": "2026-09-26 00:34:59 +08:00",
+          "status": "Updated to a newer Latest Observation.",
+          "selected": {
+            "name": "臺北 station",
+            "temp": "26.4 °C"
+          }
+        },
+        "api": {
+          "observationTime": "2026-09-26T00:00:00+08:00",
+          "fetchedTime": "2026-09-26T00:34:59+08:00"
+        }
+      }
+    },
+    {
+      "id": "desktop DV-4 equal Observation Time with a new Fetched Time is applied (Fetched Time and data update)",
+      "pass": true,
+      "detail": {
+        "page": {
+          "time": "2026-09-26 00:00 +08:00",
+          "fetched": "2026-09-26 00:45:00 +08:00",
+          "status": "Updated: fetched again; the Observation Time is unchanged."
+        },
+        "api": "2026-09-26T00:45:00+08:00"
+      }
+    },
+    {
+      "id": "desktop AC-V2-06(d) rapid repeated Refresh while in progress -> one request, one result applied in order",
+      "pass": true,
+      "detail": {
+        "requests": 1,
+        "mid_busy": "true",
+        "time": "2026-09-26 01:00 +08:00"
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(b) upstream_error after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          502,
+          "upstream_error",
+          429
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 00:55:01 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the CWA service answered with an error status (HTTP 429) — upstream_error.",
+        "seconds": 0.38
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(b) upstream_unreachable after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          504,
+          "upstream_unreachable",
+          null
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 00:55:01 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "seconds": 0.37
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(b) invalid_response after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          502,
+          "invalid_response",
+          null
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 00:55:01 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the CWA response was not usable — invalid_response.",
+        "seconds": 0.39
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(b) key_not_configured after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          503,
+          "key_not_configured",
+          null
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 00:55:01 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the server has no CWA API key configured — key_not_configured.",
+        "seconds": 0.39
+      }
+    },
+    {
+      "id": "desktop R-V2-OBS-12 the four failure classes are distinguishable in the page (upstream_error with its HTTP status)",
+      "pass": true,
+      "detail": {
+        "upstream_error": "Reason: the CWA service answered with an error status (HTTP 429) — upstream_error.",
+        "upstream_unreachable": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "invalid_response": "Reason: the CWA response was not usable — invalid_response.",
+        "key_not_configured": "Reason: the server has no CWA API key configured — key_not_configured."
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(c) a later newer success clears Stale and applies the data",
+      "pass": true,
+      "detail": {
+        "state": "success",
+        "time": "2026-09-26 02:00 +08:00",
+        "status": "Updated to a newer Latest Observation."
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(c) a later not-newer success also clears Stale, display unchanged",
+      "pass": true,
+      "detail": {
+        "state": "success",
+        "result": "not-newer",
+        "time": "2026-09-26 02:00 +08:00",
+        "status": "Already the latest: no newer Latest Observation than the one shown."
+      }
+    },
+    {
+      "id": "desktop AC-V2-06(e) upstream stall -> upstream_unreachable JSON (not a gateway page) and Stale within 30 s",
+      "pass": true,
+      "detail": {
+        "status": 504,
+        "seconds": 8.39,
+        "state": "stale"
+      }
+    },
+    {
+      "id": "desktop R-V2-OBS-13 stalled upstream with two requests queued ahead -> this Refresh still reaches Stale within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 16.04,
+        "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable."
+      }
+    },
+    {
+      "id": "desktop AC-V2-06(f) platform HTML 502 -> Stale with the 'unexpected answer' category, within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 0.38,
+        "reason": "Reason: this site's server gave an unexpected answer (HTTP 502)."
+      }
+    },
+    {
+      "id": "desktop H-1 the platform page body never reaches the page",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "desktop R-V2-OBS-13 no answer within the page's bound -> Stale ('did not answer in time') within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 20.38,
+        "reason": "Reason: this site's server did not answer in time or could not be reached."
+      }
+    },
+    {
+      "id": "desktop AC-V2-06(d)/OBS-7(e) a late answer after the bound is never applied",
+      "pass": true,
+      "detail": {
+        "state": "stale",
+        "time": "2026-09-26 02:00 +08:00",
+        "fetched": "2026-09-26 01:45:06 +08:00"
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) observation stale: the map still pans and zooms",
+      "pass": true,
+      "detail": {
+        "panned": true,
+        "zoomed": true
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) observation stale: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "pills": [
+          [
+            "27.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.8°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "29.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "26.5°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.0°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.5°",
+            "rgb(214, 158, 46)"
+          ]
+        ],
+        "dateDisabled": false,
+        "mapStatus": false,
+        "nowNotice": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) observation stale: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)",
+      "pass": true,
+      "detail": {
+        "visible": true,
+        "error": false,
+        "rows": [
+          "2026-09-24",
+          "2026-09-25",
+          "2026-09-26",
+          "2026-09-27",
+          "2026-09-28",
+          "2026-09-29",
+          "2026-09-30"
+        ],
+        "chart": 2
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) back in Now mode the stale state is still shown, unchanged",
+      "pass": true,
+      "detail": {
+        "state": "stale",
+        "chip": "STALE",
+        "nowPressed": "true"
+      }
+    },
+    {
+      "id": "desktop INV-V2-6 the displayed dataset Observation Time never decreased during the page's lifetime",
+      "pass": true,
+      "detail": {
+        "times": [
+          "—",
+          "2026-09-25 23:00 +08:00",
+          "2026-09-26 00:00 +08:00",
+          "2026-09-26 01:00 +08:00",
+          "2026-09-26 02:00 +08:00"
+        ],
+        "states": [
+          "loading",
+          "success",
+          "stale",
+          "success",
+          "stale",
+          "success",
+          "stale"
+        ]
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a) first-load key_not_configured -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 503,
+        "reason": "Reason: the server has no CWA API key configured — key_not_configured.",
+        "seconds": 0.42,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a)/H-3 key_not_configured: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) observation unavailable: the map still pans and zooms",
+      "pass": true,
+      "detail": {
+        "panned": true,
+        "zoomed": true
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) observation unavailable: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "pills": [
+          [
+            "27.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.8°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "29.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "26.5°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.0°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.5°",
+            "rgb(214, 158, 46)"
+          ]
+        ],
+        "dateDisabled": false,
+        "mapStatus": false,
+        "nowNotice": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) observation unavailable: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)",
+      "pass": true,
+      "detail": {
+        "visible": true,
+        "error": false,
+        "rows": [
+          "2026-09-24",
+          "2026-09-25",
+          "2026-09-26",
+          "2026-09-27",
+          "2026-09-28",
+          "2026-09-29",
+          "2026-09-30"
+        ],
+        "chart": 2
+      }
+    },
+    {
+      "id": "desktop AC-V2-09(b) back in Now mode the unavailable state is still shown, unchanged",
+      "pass": true,
+      "detail": {
+        "state": "unavailable",
+        "chip": "UNAVAILABLE",
+        "nowPressed": "true"
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a) first-load upstream_unreachable -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 504,
+        "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "seconds": 0.43,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a)/H-3 upstream_unreachable: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a) first-load upstream_error -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 502,
+        "reason": "Reason: the CWA service answered with an error status (HTTP 403) — upstream_error.",
+        "seconds": 0.42,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a)/H-3 upstream_error: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a) first-load invalid_response -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 502,
+        "reason": "Reason: the CWA response was not usable — invalid_response.",
+        "seconds": 0.42,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a)/H-3 invalid_response: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a) first-load stall -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 504,
+        "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "seconds": 8.42,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a)/H-3 stall: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a) first-load unexpected_response -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 502,
+        "reason": "Reason: this site's server gave an unexpected answer (HTTP 502).",
+        "seconds": 0.41,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-08(a)/H-3 unexpected_response: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "desktop R-V2-OBS-12 the four server failure classes are distinguishable on first load",
+      "pass": true,
+      "detail": {
+        "key_not_configured": "Reason: the server has no CWA API key configured — key_not_configured.",
+        "upstream_unreachable": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "upstream_error": "Reason: the CWA service answered with an error status (HTTP 403) — upstream_error.",
+        "invalid_response": "Reason: the CWA response was not usable — invalid_response.",
+        "stall": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "unexpected_response": "Reason: this site's server gave an unexpected answer (HTTP 502)."
+      }
+    },
+    {
+      "id": "desktop AC-V2-08 Refresh after Unavailable succeeds and clears Unavailable",
+      "pass": true,
+      "detail": {
+        "state": "success",
+        "time": "2026-09-25 23:00 +08:00",
+        "status": "Loaded the Latest Observation."
+      }
+    },
+    {
+      "id": "375 R-V2-OBS-7(c)/RSP-8 first load shows the loading state with an in-progress indicator",
+      "pass": true,
+      "detail": {
+        "state": "loading",
+        "result": null,
+        "busy": "true",
+        "panelBusy": "true",
+        "time": "—",
+        "fetched": "—",
+        "count": "—",
+        "status": "Loading the Latest Observation…",
+        "statusClass": "obs-status obs-status--busy",
+        "spinner": true,
+        "chip": null,
+        "banner": null,
+        "badge": null,
+        "mapStale": false,
+        "markers": [],
+        "markerFill": [],
+        "markerBorder": [],
+        "selected": null,
+        "nowPressed": "true",
+        "refreshVisible": true,
+        "toggleVisible": true,
+        "scrollWidth": 375,
+        "innerWidth": 375
+      }
+    },
+    {
+      "id": "375 first load success: data and both times = /api/, no state label, no notice",
+      "pass": true,
+      "detail": {
+        "page": {
+          "state": "success",
+          "time": "2026-09-25 23:00 +08:00",
+          "fetched": "2026-09-26 04:05:20 +08:00",
+          "count": "849",
+          "status": ""
+        },
+        "api": {
+          "observationTime": "2026-09-25T23:00:00+08:00",
+          "fetchedTime": "2026-09-26T04:05:20+08:00",
+          "validStationCount": 849
+        }
+      }
+    },
+    {
+      "id": "375 selecting 臺北 shows its /api/ values",
+      "pass": true,
+      "detail": {
+        "name": "臺北 station",
+        "temp": "27.1 °C"
+      }
+    },
+    {
+      "id": "375 AC-V2-06(c) same Fetched Time (reuse window) -> not-newer: display unchanged, 'already the latest', not Stale",
+      "pass": true,
+      "detail": {
+        "status": "Already the latest: no newer Latest Observation than the one shown.",
+        "result": "not-newer",
+        "state": "success"
+      }
+    },
+    {
+      "id": "375 AC-V2-06(b) older Observation Time -> not-newer: data and both times unchanged, 'already the latest', not Stale",
+      "pass": true,
+      "detail": {
+        "api": {
+          "observationTime": "2026-09-25T22:00:00+08:00",
+          "fetchedTime": "2026-09-26T04:15:21+08:00"
+        },
+        "page": {
+          "time": "2026-09-25 23:00 +08:00",
+          "fetched": "2026-09-26 04:05:20 +08:00",
+          "status": "Already the latest: no newer Latest Observation than the one shown.",
+          "result": "not-newer"
+        }
+      }
+    },
+    {
+      "id": "375 AC-V2-06(a) newer Observation Time -> newer: data, Observation Time and Fetched Time all update",
+      "pass": true,
+      "detail": {
+        "page": {
+          "time": "2026-09-26 00:00 +08:00",
+          "fetched": "2026-09-26 04:25:22 +08:00",
+          "status": "Updated to a newer Latest Observation.",
+          "selected": {
+            "name": "臺北 station",
+            "temp": "26.4 °C"
+          }
+        },
+        "api": {
+          "observationTime": "2026-09-26T00:00:00+08:00",
+          "fetchedTime": "2026-09-26T04:25:22+08:00"
+        }
+      }
+    },
+    {
+      "id": "375 DV-4 equal Observation Time with a new Fetched Time is applied (Fetched Time and data update)",
+      "pass": true,
+      "detail": {
+        "page": {
+          "time": "2026-09-26 00:00 +08:00",
+          "fetched": "2026-09-26 04:35:23 +08:00",
+          "status": "Updated: fetched again; the Observation Time is unchanged."
+        },
+        "api": "2026-09-26T04:35:23+08:00"
+      }
+    },
+    {
+      "id": "375 AC-V2-06(d) rapid repeated Refresh while in progress -> one request, one result applied in order",
+      "pass": true,
+      "detail": {
+        "requests": 1,
+        "mid_busy": "true",
+        "time": "2026-09-26 01:00 +08:00"
+      }
+    },
+    {
+      "id": "375 AC-V2-08(b) upstream_error after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          502,
+          "upstream_error",
+          429
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 04:45:24 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the CWA service answered with an error status (HTTP 429) — upstream_error.",
+        "seconds": 0.38
+      }
+    },
+    {
+      "id": "375 AC-V2-08(b) upstream_unreachable after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          504,
+          "upstream_unreachable",
+          null
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 04:45:24 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "seconds": 0.38
+      }
+    },
+    {
+      "id": "375 AC-V2-08(b) invalid_response after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          502,
+          "invalid_response",
+          null
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 04:45:24 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the CWA response was not usable — invalid_response.",
+        "seconds": 0.39
+      }
+    },
+    {
+      "id": "375 AC-V2-08(b) key_not_configured after success -> Stale: data and both times kept, Stale label and category, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api": [
+          503,
+          "key_not_configured",
+          null
+        ],
+        "page": {
+          "state": "stale",
+          "chip": "STALE",
+          "badge": "Stale · last successful Latest Observation",
+          "time": "2026-09-26 01:00 +08:00",
+          "fetched": "2026-09-26 04:45:24 +08:00",
+          "status": "Refresh failed: data is Stale."
+        },
+        "reason": "Reason: the server has no CWA API key configured — key_not_configured.",
+        "seconds": 0.38
+      }
+    },
+    {
+      "id": "375 R-V2-OBS-12 the four failure classes are distinguishable in the page (upstream_error with its HTTP status)",
+      "pass": true,
+      "detail": {
+        "upstream_error": "Reason: the CWA service answered with an error status (HTTP 429) — upstream_error.",
+        "upstream_unreachable": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "invalid_response": "Reason: the CWA response was not usable — invalid_response.",
+        "key_not_configured": "Reason: the server has no CWA API key configured — key_not_configured."
+      }
+    },
+    {
+      "id": "375 AC-V2-08(c) a later newer success clears Stale and applies the data",
+      "pass": true,
+      "detail": {
+        "state": "success",
+        "time": "2026-09-26 02:00 +08:00",
+        "status": "Updated to a newer Latest Observation."
+      }
+    },
+    {
+      "id": "375 AC-V2-08(c) a later not-newer success also clears Stale, display unchanged",
+      "pass": true,
+      "detail": {
+        "state": "success",
+        "result": "not-newer",
+        "time": "2026-09-26 02:00 +08:00",
+        "status": "Already the latest: no newer Latest Observation than the one shown."
+      }
+    },
+    {
+      "id": "375 AC-V2-06(e) upstream stall -> upstream_unreachable JSON (not a gateway page) and Stale within 30 s",
+      "pass": true,
+      "detail": {
+        "status": 504,
+        "seconds": 8.39,
+        "state": "stale"
+      }
+    },
+    {
+      "id": "375 R-V2-OBS-13 stalled upstream with two requests queued ahead -> this Refresh still reaches Stale within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 16.03,
+        "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable."
+      }
+    },
+    {
+      "id": "375 AC-V2-06(f) platform HTML 502 -> Stale with the 'unexpected answer' category, within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 0.38,
+        "reason": "Reason: this site's server gave an unexpected answer (HTTP 502)."
+      }
+    },
+    {
+      "id": "375 H-1 the platform page body never reaches the page",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "375 R-V2-OBS-13 no answer within the page's bound -> Stale ('did not answer in time') within 30 s",
+      "pass": true,
+      "detail": {
+        "seconds": 20.34,
+        "reason": "Reason: this site's server did not answer in time or could not be reached."
+      }
+    },
+    {
+      "id": "375 AC-V2-06(d)/OBS-7(e) a late answer after the bound is never applied",
+      "pass": true,
+      "detail": {
+        "state": "stale",
+        "time": "2026-09-26 02:00 +08:00",
+        "fetched": "2026-09-26 05:35:29 +08:00"
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) observation stale: the map still pans and zooms",
+      "pass": true,
+      "detail": {
+        "panned": true,
+        "zoomed": true
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) observation stale: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "pills": [
+          [
+            "27.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.8°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "29.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "26.5°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.0°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.5°",
+            "rgb(214, 158, 46)"
+          ]
+        ],
+        "dateDisabled": false,
+        "mapStatus": false,
+        "nowNotice": false
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) observation stale: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)",
+      "pass": true,
+      "detail": {
+        "visible": true,
+        "error": false,
+        "rows": [
+          "2026-09-24",
+          "2026-09-25",
+          "2026-09-26",
+          "2026-09-27",
+          "2026-09-28",
+          "2026-09-29",
+          "2026-09-30"
+        ],
+        "chart": 2
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) back in Now mode the stale state is still shown, unchanged",
+      "pass": true,
+      "detail": {
+        "state": "stale",
+        "chip": "STALE",
+        "nowPressed": "true"
+      }
+    },
+    {
+      "id": "375 INV-V2-6 the displayed dataset Observation Time never decreased during the page's lifetime",
+      "pass": true,
+      "detail": {
+        "times": [
+          "—",
+          "2026-09-25 23:00 +08:00",
+          "2026-09-26 00:00 +08:00",
+          "2026-09-26 01:00 +08:00",
+          "2026-09-26 02:00 +08:00"
+        ],
+        "states": [
+          "loading",
+          "success",
+          "stale",
+          "success",
+          "stale",
+          "success",
+          "stale"
+        ]
+      }
+    },
+    {
+      "id": "375 AC-V2-08(a) first-load key_not_configured -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 503,
+        "reason": "Reason: the server has no CWA API key configured — key_not_configured.",
+        "seconds": 0.42,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "375 AC-V2-08(a)/H-3 key_not_configured: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) observation unavailable: the map still pans and zooms",
+      "pass": true,
+      "detail": {
+        "panned": true,
+        "zoomed": true
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) observation unavailable: Forecast mode fully normal (six pills = /api/days, Select Date, legend, no Now state shown)",
+      "pass": true,
+      "detail": {
+        "pressed": "true",
+        "pills": [
+          [
+            "27.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "28.8°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "29.2°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "26.5°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.0°",
+            "rgb(214, 158, 46)"
+          ],
+          [
+            "27.5°",
+            "rgb(214, 158, 46)"
+          ]
+        ],
+        "dateDisabled": false,
+        "mapStatus": false,
+        "nowNotice": false
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) observation unavailable: the lower dashboard works (Select Region -> seven rows = /api/, chart drawn)",
+      "pass": true,
+      "detail": {
+        "visible": true,
+        "error": false,
+        "rows": [
+          "2026-09-24",
+          "2026-09-25",
+          "2026-09-26",
+          "2026-09-27",
+          "2026-09-28",
+          "2026-09-29",
+          "2026-09-30"
+        ],
+        "chart": 2
+      }
+    },
+    {
+      "id": "375 AC-V2-09(b) back in Now mode the unavailable state is still shown, unchanged",
+      "pass": true,
+      "detail": {
+        "state": "unavailable",
+        "chip": "UNAVAILABLE",
+        "nowPressed": "true"
+      }
+    },
+    {
+      "id": "375 AC-V2-08(a) first-load upstream_unreachable -> Unavailable: stays in Now mode, '—' times, category reason, Refresh usable",
+      "pass": true,
+      "detail": {
+        "api_status": 504,
+        "reason": "Reason: the CWA service could not be reached in time — upstream_unreachable.",
+        "seconds": 0.43,
+        "page": {
+          "state": "unavailable",
+          "time": "—",
+          "fetched": "—",
+          "count": "—",
+          "chip": "UNAVAILABLE",
+          "badge": "Latest Observation unavailable",
+          "nowPressed": "true"
+        }
+      }
+    },
+    {
+      "id": "375 AC-V2-08(a)/H-3 upstream_unreachable: map and county boundaries visible; no forecast value shown as observation",
+      "pass": true,
+      "detail": {
+        "frame": true,
+        "map": true,
+        "paths": 27,
+        "pills": 0,
+        "forecastStatus": false
+      }
+    },
+    {
+      "id": "375 AC-V2-08 Refresh after Unavailable succeeds and clears Unavailable",
+      "pass": true,
+      "detail": {
+        "state": "success",
+        "time": "2026-09-25 23:00 +08:00",
+        "status": "Loaded the Latest Observation."
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-2 no horizontal scroll at 375 px in this state sequence",
+      "pass": true,
+      "detail": {
+        "w": 375,
+        "i": 375
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-2 no horizontal scroll at 375 px in this state sequence",
+      "pass": true,
+      "detail": {
+        "w": 375,
+        "i": 375
+      }
+    },
+    {
+      "id": "age AC-V2-08(d) page clock advanced > 2 h with no failure -> still success, no Stale",
+      "pass": true,
+      "detail": {
+        "advanced_ms": 7500000,
+        "expired": true,
+        "state": "success",
+        "chip": null
+      }
+    },
+    {
+      "id": "age AC-V2-08(d) after the clock advance a not-newer Refresh is still success, not Stale",
+      "pass": true,
+      "detail": {
+        "state": "success",
+        "result": "not-newer",
+        "status": "Already the latest: no newer Latest Observation than the one shown."
+      }
+    },
+    {
+      "id": "desktop H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console",
+      "pass": true,
+      "detail": {
+        "answers": 16,
+        "dom_snapshots": 17,
+        "bad_answers": [],
+        "bad_dom": [],
+        "bad_console": []
+      }
+    },
+    {
+      "id": "desktop H-3 no real-time / realtime / live wording in any state",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "desktop console: no JavaScript exception",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "desktop H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console",
+      "pass": true,
+      "detail": {
+        "answers": 7,
+        "dom_snapshots": 7,
+        "bad_answers": [],
+        "bad_dom": [],
+        "bad_console": []
+      }
+    },
+    {
+      "id": "desktop H-3 no real-time / realtime / live wording in any state",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "desktop console: no JavaScript exception",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "375 H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console",
+      "pass": true,
+      "detail": {
+        "answers": 16,
+        "dom_snapshots": 17,
+        "bad_answers": [],
+        "bad_dom": [],
+        "bad_console": []
+      }
+    },
+    {
+      "id": "375 H-3 no real-time / realtime / live wording in any state",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "375 console: no JavaScript exception",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "375 H-1 no key / upstream URL / upstream body in any observation answer, page DOM (every state) or console",
+      "pass": true,
+      "detail": {
+        "answers": 3,
+        "dom_snapshots": 3,
+        "bad_answers": [],
+        "bad_dom": [],
+        "bad_console": []
+      }
+    },
+    {
+      "id": "375 H-3 no real-time / realtime / live wording in any state",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "375 console: no JavaScript exception",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "H-1 server log at DEBUG (Flask debug on) carries no key, upstream URL or upstream body",
+      "pass": true,
+      "detail": {
+        "bad": [],
+        "lines": 44
+      }
+    },
+    {
+      "id": "AC-V2-16/INV-V2-3 runtime network log: zero external requests in every state",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "all_pass": true
+}

@@ -9,11 +9,42 @@ SQLite, and shown in a web app.
 > **ingestion** stage (fetch → derive → persist), the **Streamlit Grading App**
 > (`app.py` + the shared query module `weather_query.py`), the **Flask dashboard**
 > (`server.py`, the `/api/` JSON API and the static frontend under `static/`) with its
-> ENHANCED **`Select Date` control and interactive Taiwan Map** (see
-> [Taiwan Map and `Select Date`](#taiwan-map-and-select-date-dashboard-enhanced)), the
+> interactive **Taiwan Map** in two modes — the V2 **Now mode** (Latest Observation of
+> CWA stations; see [Taiwan Map modes](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core))
+> and the **Forecast mode**, which is the Part A bonus six-region map with its ENHANCED
+> **`Select Date`** control (see
+> [Forecast mode](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)), the
 > **automated CI** ([Continuous integration](#continuous-integration-github-actions))
 > and the **Vercel deployment** with its smoke check
 > ([Deploy to Vercel](#deploy-to-vercel-public-url--smoke-check)).
+
+## Contents
+
+- [Data source and labeling (please read)](#data-source-and-labeling-please-read) — the
+  forecast values are project-derived; the observations are CWA's, as published
+- [Requirements](#requirements) · [Setup](#setup) ·
+  [Get a CWA key and create `.env`](#get-a-cwa-key-and-create-env)
+- [Run ingestion](#run-ingestion)
+- [Run the Grading App (`streamlit run app.py`)](#run-the-grading-app-streamlit-run-apppy)
+- [Run the dashboard (Flask) locally](#run-the-dashboard-flask-locally)
+  - [`/api/` endpoints](#api-endpoints) ·
+    [Latest Observation endpoint](#latest-observation-endpoint-v2-core) ·
+    [Radar endpoint](#radar-endpoint-v2-radar)
+  - [Taiwan Map modes: Now mode and Forecast mode](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core)
+    - [Now mode — Latest Observation](#now-mode--latest-observation)
+    - [Now mode — Taiwan → County → Station](#now-mode--taiwan--county--station)
+    - [Now mode — map range, zoom range and layout](#now-mode--map-range-zoom-range-and-layout-v2-core)
+    - [Now mode — Radar overlay](#now-mode--radar-overlay-v2-radar)
+    - [Representative station rule](#representative-station-rule)
+  - **[Forecast mode — the Part A bonus map: six-region Taiwan Map and `Select Date`](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)**
+- [Data licence and attribution (CWA open data)](#data-licence-and-attribution-cwa-open-data)
+- [Deploy to Vercel (public URL & smoke check)](#deploy-to-vercel-public-url--smoke-check)
+  — including the [Vercel key setup](#vercel-key-setup-acceptor-only-v2)
+- [Verify the database](#verify-the-database)
+- [Run the tests (offline)](#run-the-tests-offline)
+- [Continuous integration (GitHub Actions)](#continuous-integration-github-actions)
+- [Not built: the accepted Later list (V2)](#not-built-the-accepted-later-list-v2)
+- [Correspondence to the poster `HW10_Weather/` structure](#correspondence-to-the-poster-hw10_weather-structure)
 
 ## Data source and labeling (please read)
 
@@ -51,6 +82,24 @@ computed by this project, not published by CWA.
   mean across the Region's member counties**, rounded **half-up to one decimal**.
   They are **never** a CWA-issued six-region forecast, and the mapping above is
   **never** an authoritative CWA regional division.
+
+**A second, different kind of data (V2).** The dashboard's Taiwan Map opens in the
+**Now mode**, which shows the **Latest Observation**: air temperatures and other
+readings of individual CWA weather stations (dataset **O-A0001-001**), **as published
+by CWA** — observations, not forecasts, and **not** project-derived. No observation
+is averaged or combined: a county is never given a temperature of its own, and a
+representative station's marker is that one station's value. The two kinds of data
+are labelled differently and never share a panel, a legend or a colour scale:
+
+| | Latest Observation (Now mode) | Forecast values (Forecast mode, forecast dashboard, Grading App) |
+| --- | --- | --- |
+| What it is | CWA station observations, **as published** (label `OBSERVED`) | **Project-derived** compatibility values (label `DERIVED` / `PROJECT-DERIVED COMPATIBILITY VALUES`) |
+| Source | O-A0001-001, fetched by this app's server when a visitor loads or refreshes the Now mode | F-D0047-091, fetched once by ingestion and stored in `data.db` |
+| Times shown | `Observation Time` (CWA's observation time) and `Fetched Time` (when this server fetched it) | `Last updated (data fetched from CWA)` — when the forecast snapshot was acquired |
+
+See [Taiwan Map modes](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core) for the
+details and [Data licence and attribution](#data-licence-and-attribution-cwa-open-data)
+for the CWA attribution.
 
 ## Requirements
 
@@ -90,8 +139,16 @@ pip install -r requirements.txt
    ```
 
    `.env` is git-ignored (root `.gitignore`); only `.env.example` (variable name
-   only) is committed. The key is read solely by the ingestion fetch stage and is
-   never printed, logged, or written to any tracked file.
+   only) is committed. The key is read only by the online ingestion fetch stage and,
+   when you run the dashboard locally with `python server.py`, by the dashboard
+   server's Latest Observation and Radar endpoints (see
+   [Key — local run](#latest-observation-endpoint-v2-core)); it is never printed,
+   logged, or written to any tracked file, and it never reaches the browser. The
+   offline ingestion, the Grading App, the forecast endpoints, `/api/health` and the
+   tests need no key.
+3. The deployed dashboard does **not** read this file: on Vercel the same variable
+   name, `CWA_API_KEY`, is set by the repository owner in the Vercel project (see
+   [Vercel key setup](#vercel-key-setup-acceptor-only-v2)).
 
 ## Run ingestion
 
@@ -234,18 +291,32 @@ python server.py            # serves http://127.0.0.1:5000/
 flask --app server run
 ```
 
-Open <http://127.0.0.1:5000/>. The page is the same MVM experience as the
+`python server.py` reads `CWA_API_KEY` from `home_work_01/.env` (only that variable,
+never printed), so with a key in `.env` the Now mode shows the Latest Observation; with
+no key the Now mode shows "Latest Observation unavailable" (`key_not_configured`) and
+everything else — the Forecast mode, the forecast dashboard, `/api/health` — works
+unchanged.
+
+Open <http://127.0.0.1:5000/>. The Taiwan Map at the top opens in **Now mode**
+(see [Taiwan Map modes](#taiwan-map-modes-now-mode-and-forecast-mode-v2-core)); its
+**Forecast** button switches to the six-region forecast map. Below the map, the page
+is the same MVM experience as the
 Grading App — `Taiwan Weather Forecast`, a `Select Region` control over the six
 Regions in the fixed order, and, for the selected Region, a `MaxT` / `MinT`
 seven-day line chart and a `Date` / `MinT` / `MaxT` table equal to `data.db`,
 plus the snapshot's acquisition time. It is a static HTML/CSS/JS frontend (no
 build step) whose chart is drawn with plain inline SVG (no chart library, no key).
 Add `?region=<name>` to deep-link a Region (for example `?region=中部地區`). If the
-data is unavailable the page shows a clear message instead of a blank page.
+forecast data is unavailable the forecast section (and the Forecast mode map) shows a
+clear message instead of a blank page, while the Now mode keeps working.
 
 All data comes from this application's own JSON API under the `/api/` prefix; the
-browser never calls CWA and holds no key. The backend reads `data.db` only through
-the shared module [`weather_query.py`](weather_query.py) and imports no HTTP client.
+browser never calls CWA and holds no key. The forecast endpoints read `data.db` only
+through the shared module [`weather_query.py`](weather_query.py) and never call CWA.
+The only server-side CWA access is the V2 Latest Observation endpoint (see
+[below](#latest-observation-endpoint-v2-core)), implemented in
+[`observation.py`](observation.py), and the V2 Radar endpoint (see
+[Radar endpoint](#radar-endpoint-v2-radar)), implemented in [`radar.py`](radar.py).
 
 ### `/api/` endpoints
 
@@ -262,14 +333,500 @@ Every error response is JSON carrying a human-readable `error` message. The Verc
 structure lives beside the code — `server.py` (the app), `api/index.py` (the
 serverless entry that imports `app`), `vercel.json` (routes every request to that
 one function) and `requirements.txt`; `data.db` is packaged next to the code and
-opened read-only, and no environment variable or secret is needed at runtime.
+opened read-only. The forecast endpoints and `/api/health` need no environment
+variable or secret; only the Latest Observation and Radar endpoints below read
+`CWA_API_KEY`.
 
-### Taiwan Map and `Select Date` (dashboard, ENHANCED)
+### Latest Observation endpoint (V2 Core)
 
-The dashboard integrates a **`Select Date`** control and an interactive **Taiwan
-Map** on the same page (the "Taiwan Weather Dashboard"), alongside the Region
-chart/table/summary. These are **enhanced, dashboard-only** features — the
-Streamlit Grading App deliberately has neither.
+`GET /api/observations/latest` returns the **Latest Observation**: CWA station
+observations from the dataset **O-A0001-001** (氣象觀測站-全測站逐時氣象資料;
+CWA describes it as hourly station data), fetched **server-side** with the
+maintainer's key, then normalised and trimmed. The response never contains the
+upstream JSON structure, the upstream URL or the key. Observation values are
+**CWA station observations, as published** — not forecasts and not project-derived
+values. The browser only ever calls this `/api/` path.
+
+**Success — `200` JSON** (`Cache-Control: no-store`):
+
+| Field | Meaning |
+| --- | --- |
+| `dataset` | `"O-A0001-001"` |
+| `observationTime` | Dataset-level **Observation Time**: the latest `ObsTime` among the valid stations, exactly as CWA published it (for example `2026-09-25T23:00:00+08:00`). |
+| `fetchedTime` | **Fetched Time**: the server clock when the upstream fetch succeeded and produced this body — ISO 8601, `+08:00`, to the second. This is not the forecast snapshot's acquisition time shown by the forecast dashboard. |
+| `validStationCount` | Number of valid stations in `stations`. |
+| `receivedStationCount` | Number of station records CWA returned (diagnostic; includes invalid ones). |
+| `stations[]` | One entry per **valid** station: `stationId` (the stable identity — names can repeat), `stationName`, `countyName`, `townName`, `latitude` / `longitude` (WGS84), `observationTime` (that station's `ObsTime`, as published), `airTemperature` (°C). Optional, `null` when missing or a sentinel: `relativeHumidity` (%), `windSpeed` (m/s), `windDirection` (degrees), `airPressure` (hPa), `precipitation` (the dataset's `Now.Precipitation` field: accumulated precipitation for the current day, mm), `weather` (text). |
+| `representativeStationIds` | The `stationId` of each county's **representative station** for the Now mode's Taiwan-wide view — at most one per county, in a fixed county order (north to south, east coast, then 澎湖縣, 金門縣, 連江縣); see [Representative station rule](#representative-station-rule). |
+
+
+Numbers keep the published digits (no rounding, no unit conversion); a sentinel is
+never turned into a number.
+
+**Valid station.** A record is valid only if it has a non-empty `StationId`; an
+air temperature that is a finite number and not a sentinel; a finite WGS84
+latitude and longitude; a `CountyName` that is exactly one of the 22 counties
+(the 19 forecast-Region member counties plus 澎湖縣, 金門縣, 連江縣; `臺`, not
+`台`); and a published `ObsTime` that parses to a date with hour and minute (an
+`ObsTime` without an offset is read as `+08:00` for comparison only). Invalid
+records are left out of `stations`, the count and `observationTime`. Zero valid
+stations is a failure (`invalid_response`).
+
+**Sentinel codes, per field** (CWA data standard V1.05; matched as text and, for
+the numeric ones, by value such as `-99.0`). A code is applied only to the fields
+it is defined for; anywhere else the published value is a real reading and is
+returned as published — for example a station pressure or rainfall of `990.0`.
+
+| Code | Meaning | Applied to |
+| --- | --- | --- |
+| `X` | instrument failure | every field |
+| `-99` | missing / abnormal | every field (including the WGS84 coordinates) |
+| `T` | trace of rain | `precipitation` |
+| `-98` | continuous no precipitation | `precipitation` |
+| `990` | variable wind direction | `windDirection` |
+| all five | — | air-temperature validity (a station with any of them is not valid) |
+
+A code that applies turns an optional field into `null` (shown as "—"), never a
+number. The mapping is the `FIELD_SENTINELS` constant in `observation.py` and can
+be replaced through `LatestObservationService(field_sentinels=...)`.
+
+**Failure — non-2xx JSON** `{ dataset, reason, error }` with exactly one `reason`:
+
+| `reason` | HTTP | When |
+| --- | --- | --- |
+| `key_not_configured` | `503` | The server has no `CWA_API_KEY` (no upstream request is made). |
+| `upstream_unreachable` | `504` | DNS / connection failure, or the upstream did not finish within the time bound. |
+| `upstream_error` | `502` | CWA answered with a non-2xx status (e.g. `401` / `403` auth, `429` quota, `500`); the numeric status is added as `upstreamStatus`. |
+| `invalid_response` | `502` | CWA answered 2xx but the body is not JSON, `success` is not `"true"`, the structure or dataset id is wrong, or no station is valid. |
+
+`error` is a fixed human-readable sentence per reason; it and the server log carry
+only the reason (and the numeric upstream status) — never the key, the upstream
+URL, request headers or the upstream body. The server never answers with old data
+after a failure: a response is either a success or a classified failure.
+
+**Time bound and reuse window.** The upstream request uses a 3 s connect timeout
+and a 5 s read timeout, and the whole upstream exchange is capped at **8 s**, after
+which the answer is `upstream_unreachable` — below Vercel's smallest default
+function duration (10 s), so a stalled CWA yields this JSON rather than a platform
+error page. The page itself waits at most 20 s for this endpoint and treats no
+answer, or a non-JSON / unclassified answer, as a failure (see the Now mode's
+**Time bound**). A success is **reused for 300 s** (5 minutes; the contract ceiling is
+10 minutes): within that window every request gets the same body, including the
+same `observationTime` and `fetchedTime`; after it, the next request fetches again.
+Only successes are reused. The cache lives in the function's memory (no persistent
+server state). There is no polling and no automatic refresh; with CWA's general
+member quota (20,000 requests / day) the reuse window and the time bound are the
+only throttles, and an exhausted quota shows up as `upstream_error`.
+
+**Key — local run.** The key is read only from the process environment variable
+`CWA_API_KEY`, at request time. Locally its source is the untracked
+`home_work_01/.env` (see [Get a CWA key and create `.env`](#get-a-cwa-key-and-create-env)):
+`python server.py` copies `CWA_API_KEY` from that file into the environment
+before starting (it reads no other file and never prints the value). With
+`flask --app server run`, set `CWA_API_KEY` in the environment yourself. Without a
+key the endpoint answers `key_not_configured` and every forecast endpoint and
+`/api/health` keep working unchanged. On Vercel the same variable name is read from
+the project's environment variables, which only the repository owner fills in (see
+[Vercel key setup](#vercel-key-setup-acceptor-only-v2)).
+
+**Sample.** [`tests/fixtures/O-A0001-001_sample.json`](tests/fixtures/O-A0001-001_sample.json)
+is one **real** O-A0001-001 response captured **2026-09-26 00:04:56 +08:00**
+(observation time 2026-09-25 23:00), **not reduced** (all 876 station records; only
+re-serialised as compact JSON). It was checked key-free before it was committed
+and is covered by the credential scans. The offline tests derive every
+counter-example from it.
+
+### Radar endpoint (V2 Radar)
+
+`GET /api/radar/latest` returns the **latest CWA radar echo image** for the Now mode's
+Radar overlay: the CWA product **O-A0058-006**
+(雷達整合回波圖-臺灣(鄰近地區)_透明底圖 — the composite radar echo around Taiwan on a
+**transparent background**, a 3600 × 3600 PNG covering longitude 118.0–124.0 and
+latitude 20.5–26.5, published every 10 minutes). The server fetches it in **one
+server-side operation**: first the product's metadata from CWA's file API (this
+needs the key, so it only ever happens on the server; the key goes in the
+`Authorization` header), then the image the metadata points to on CWA's public
+open-data storage (without the key). The browser only ever calls this `/api/` path;
+it never sees the key, the metadata or any upstream URL.
+
+**Success — `200` `image/png`** (`Cache-Control: no-store`): the image bytes, with
+
+| Header | Meaning |
+| --- | --- |
+| `X-Radar-Time` | The **radar time**: the product time from the metadata (`DateTime`), exactly as CWA published it (for example `2026-09-26T14:40:00+08:00`). It comes from the **same** fetch as the image in the body. |
+| `X-Radar-Fetched-Time` | When this server fetched that image (`+08:00`, to the second). |
+| `X-Radar-Dataset` | `O-A0058-006` |
+
+Because the image and its radar time travel in one response, the page can never
+show an image with another fetch's time.
+
+**Product checks.** The server accepts only what the overlay can place correctly:
+the metadata must name `O-A0058-006`, a parseable `DateTime`, exactly the extent
+longitude `118.0-124.0` / latitude `20.5-26.5` and the dimension `3600x3600`, a PNG
+resource and an `https` image URL on CWA's open-data host
+(`cwaopendata.s3.ap-northeast-1.amazonaws.com` — the metadata cannot send the server
+anywhere else); the image must be a PNG of 3600 × 3600 pixels and at most 4 MB.
+Anything else is `invalid_response`.
+
+**Failure — non-2xx JSON** `{ dataset, reason, error }` with exactly one `reason`, the
+same four codes as the Latest Observation endpoint:
+
+| `reason` | HTTP | When |
+| --- | --- | --- |
+| `key_not_configured` | `503` | The server has no `CWA_API_KEY` (no upstream request is made). |
+| `upstream_unreachable` | `504` | DNS / connection failure on the metadata or the image request, or the two did not finish within the time bound. |
+| `upstream_error` | `502` | The metadata or the image request answered a non-2xx status (e.g. `401` / `403`, `429` quota, `500`); the numeric status is added as `upstreamStatus`. |
+| `invalid_response` | `502` | The metadata is not JSON or not the expected product (see the product checks), or the image is not the expected PNG. |
+
+`error` is a fixed sentence per reason ("Radar is unavailable: …"); it and the server
+log carry only the reason, the numeric upstream status and the radar time — never
+the key, a URL, request headers, the metadata or an upstream body.
+
+**Time bound and reuse window.** Each of the two upstream requests uses a 3 s
+connect and 5 s read timeout, and the whole exchange (metadata + image) is capped at
+**8 s**, after which the answer is `upstream_unreachable` — below Vercel's smallest
+default function duration (10 s). A success is **reused for 120 s** (the contract
+ceiling is 5 minutes): within that window every request gets the same image, radar
+time and fetched time; after it the next request fetches again. Only successes are
+reused; the cache is in the function's memory (no persistent server state). The
+radar is fetched only when a visitor shows it (or presses Refresh while it is
+shown) — there is no polling; the quota facts of the Latest Observation endpoint
+apply (the file API has its own daily quota).
+
+**Sample.** [`tests/fixtures/O-A0058-006_metadata_sample.json`](tests/fixtures/O-A0058-006_metadata_sample.json)
+is one **real** O-A0058-006 metadata response captured **2026-09-26 14:51 +08:00**
+(radar time 2026-09-26 14:40), **not reduced** (only re-indented). It was checked
+key-free before it was committed and is covered by the credential scans. The radar
+image itself is not committed: the offline tests use a synthetic PNG of the product's
+size, and the browser check draws a synthetic test pattern (see
+[Run the tests](#run-the-tests-offline)).
+
+### Taiwan Map modes: Now mode and Forecast mode (V2 Core)
+
+The **Taiwan Map** at the top of the dashboard has exactly two modes, switched with
+the **Now** and **Forecast** buttons in the map's header (real buttons: click them, or
+Tab to them and press Enter or Space; the filled one is the current mode). The page
+always opens in **Now mode**, whatever the state of the forecast snapshot. Both modes
+are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
+
+| | **Now mode** (default) | **Forecast mode** (Part A bonus map, [below](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)) |
+| --- | --- | --- |
+| Shows | The **Latest Observation**: CWA station air temperatures, **as published by CWA** | The six-region seven-day forecast: **project-derived** values |
+| Data | `GET /api/observations/latest` | `GET /api/days`, `GET /api/days/<date>` |
+| Markers | At most one **representative station** per county, a neutral light marker with the station's temperature and name; with a county selected, that county's stations | Six Region pills coloured by the derived band |
+| Panel and controls | `Observation Time`, `Fetched Time`, valid-station count, `Refresh`; the county layer, the `County` chooser, the County context, the station list and detail, `Back to Taiwan`; the **Radar** show / hide control and `Radar Time` ([Radar overlay](#now-mode--radar-overlay-v2-radar)) | `Select Date`, the `DERIVED` panel, the four-band legend |
+| Never shown | `Select Date`, the derived legend, any forecast value | Any observation value, `Refresh`, the radar |
+
+- **Two meanings kept apart.** An observation value is a CWA station observation, as
+  published — not a forecast, not a project-derived value, and never an average of a
+  county. A forecast value is a project-derived compatibility value (see
+  [Data source and labeling](#data-source-and-labeling-please-read)). The two modes
+  never share a panel, a legend or a colour scale: the Now mode's markers have no
+  colour scale at all.
+- **`Fetched Time` is not the forecast's "Last updated".** In the Now panel,
+  `Fetched Time` is when this server fetched the Latest Observation from CWA. The
+  line `Last updated (data fetched from CWA): …` beside `Select Region` below the map
+  is the time the **forecast snapshot** was acquired. They are different times, with
+  different labels, in different places.
+- **Switching keeps your place.** Leaving Now mode remembers its view (zoom and
+  position), the selected county and the selected station; coming back restores
+  them all — the view is the one you left, not the county's own view. Entering Forecast
+  mode keeps the current view when all six Region markers are already visible clear
+  of the panels, and otherwise widens it just enough to show them.
+- **Independent of the forecast.** The Now mode loads on its own and never waits for
+  `/api/health`. If the forecast snapshot is unavailable, the forecast section below
+  the map and the Forecast mode map show the forecast's error message (the V1 error
+  states, now limited to the forecast part of the page), while the Now mode and the
+  mode switch keep working.
+- Both modes use the same vendored map and make **no external request**: the page
+  only calls this app's own `/static/` and `/api/` URLs.
+
+#### Now mode — Latest Observation
+
+- **Source and cadence.** CWA open data **O-A0001-001** (氣象觀測站-全測站逐時氣象資料),
+  which CWA describes as hourly data from its weather stations. The server fetches it
+  (see [Latest Observation endpoint](#latest-observation-endpoint-v2-core)); the
+  browser never contacts CWA. When CWA publishes a new hour is up to CWA, so the
+  **Observation Time** shown is the CWA observation time of the data, not the time
+  you are looking at the page.
+- **Panel.** The *Latest Observation* panel (tagged `OBSERVED`) shows
+  **`Observation Time`** — the latest station `ObsTime` in the data, to the minute,
+  with its UTC offset as published — **`Fetched Time`** — when the server fetched the
+  data, to the second — the number of **valid stations**, and the **`Refresh`**
+  button.
+- **`Refresh`.** Only a manual Refresh loads newer data; the page never updates by
+  itself. While a Refresh runs, a spinner and "Refreshing the Latest Observation…"
+  are shown and further presses are ignored (only one request is ever in flight, and
+  only its answer is applied). Every Refresh ends in exactly one of three results,
+  shown next to the button (the page's first load ends in the same way, except that a
+  successful first load shows the data itself and no separate message):
+  - **newer** — the answer's Observation Time is the same as or later than the one
+    shown and it is a new fetch: the markers, `Observation Time` and `Fetched Time`
+    all update together ("Updated to a newer Latest Observation", or "Updated:
+    fetched again; the Observation Time is unchanged");
+  - **not-newer** — the answer's Observation Time is older than the one shown, or it
+    is the very answer already shown (same `Fetched Time`, the server's reuse window):
+    nothing changes and the page says "Already the latest". This is not Stale —
+    nothing failed. An older Observation Time never replaces a newer one, so the
+    Observation Time shown never goes back while the page is open;
+  - **failure** — see Stale and Unavailable below.
+- **Time bound.** The page waits at most **20 s** for an answer. The server itself
+  answers within about 8 s even when CWA stalls (`upstream_unreachable`, see the
+  endpoint section), so the page normally gets a classified answer first. If no
+  answer arrives in 20 s (the network is down, or the platform holds the request),
+  the request is abandoned and the Refresh counts as a failure; an answer that is not
+  a usable JSON answer — such as the hosting platform's own HTML error page — counts
+  as a failure as soon as it arrives. A Refresh never stays in progress.
+- **Stale and Unavailable.** A failed Refresh while data is shown makes the Now mode
+  **Stale**: the last successful data stays on the map with its own `Observation Time`
+  and `Fetched Time`, a `STALE` label and a "Stale" note with the reason appear in the
+  panel and on the map, and the markers are drawn with a dashed border. A failure with
+  no data to show (for example on first load) makes it **Unavailable**: the map and the
+  county boundaries stay visible, both times show "—", no station value is shown, and
+  an `UNAVAILABLE` label and a "Latest Observation unavailable" note give the reason.
+  In both, `Refresh` stays usable, the page stays in Now mode (it never switches to
+  Forecast mode by itself), and the mode switch, Forecast mode and the forecast
+  dashboard below keep working — an observation failure affects only the Now mode's
+  observation layer. The next successful Refresh (newer or not-newer) clears Stale or
+  Unavailable. Stale is decided **only by a failure, never by the data's age**: data
+  that is hours old but was fetched successfully is not Stale.
+- **Failure reasons.** The reason is a fixed category text, never a server or CWA
+  message: "the server has no CWA API key configured" (`key_not_configured`), "the
+  CWA service could not be reached in time" (`upstream_unreachable`), "the CWA
+  service answered with an error status" with its HTTP status (`upstream_error`),
+  "the CWA response was not usable" (`invalid_response`), and two for answers that
+  never got a classified reason: "this site's server did not answer in time or
+  could not be reached" and "this site's server gave an unexpected answer" (with the
+  HTTP status, e.g. a platform `502` page).
+- **Markers.** Each marker shows one representative station's air temperature in °C
+  (the published value, shown with at least one decimal). Its station name is shown
+  under it when zoomed in; hovering or focusing it shows the station name, county and
+  town, its temperature and its Observation Time; clicking it (or pressing Enter)
+  selects it and the panel lists that station's values, with "—" for any missing
+  value. A marker is always a **station value**: it is never presented as "the
+  county's temperature", and no county average is computed.
+
+#### Now mode — Taiwan → County → Station
+
+- **Choosing a county.** Point at a county on the map: its outline and a faint fill
+  light up and its name is shown. Click it to select it. Without the map, use the
+  **`County`** chooser in the Now panel (Tab to it; the arrow keys pick a county;
+  "All of Taiwan" clears the choice). The county shapes react to the pointer only in
+  Now mode; they are never coloured by any data value.
+- **The county view.** Selecting a county zooms the map to the county and its
+  stations and shows **every valid station of the county** as a marker (the
+  Taiwan-wide representative markers are replaced; in the county view a marker's
+  name label appears on the selected one, and hovering shows every marker's name).
+- **County context.** The panel shows the county's name, its number of **valid
+  stations** and how many of them are **on the map**, the station with the
+  **highest** and the one with the **lowest** air temperature (its value and name),
+  and the list of the county's stations with their air temperatures, highest first.
+  Every number here is a published **station value** or a count of stations — **no
+  county average or any other combined value is computed**. On an equal
+  temperature, the station with the smaller `stationId` (character-code order, as in
+  the representative rule) is listed first and is the one named as highest or
+  lowest. A county with no valid station in the Latest Observation can still be
+  selected: it shows `0` stations and "—" for the highest and lowest — that is not an
+  error.
+- **Station list and detail.** Each station in the list is a button: Tab to it and
+  press Enter or Space (or click it, or click its marker) to see the **station
+  detail**: its name and `StationId`, county and town, its own `Observation Time`, its
+  air temperature, and its relative humidity, wind speed, wind direction (degrees),
+  air pressure (hPa), precipitation (the dataset's `Now.Precipitation`: accumulated
+  precipitation for the current day, mm) and weather — each "—" when CWA published
+  no valid value.
+- **`Back to Taiwan`.** The button under the `County` chooser (shown while a county is
+  selected) clears the county and the station and returns the map to the Taiwan-wide
+  view it opens with.
+- **Stale and Unavailable.** The county shapes, the `County` chooser, the list and
+  `Back to Taiwan` keep working when the Latest Observation fails. **Stale**: the
+  County context shows the last successful data, marked Stale. **Unavailable**: the
+  county's name is shown but every count and value is "—" (never `0`: with no Latest
+  Observation there is no station set to count) and no station is listed.
+- **Stations outside the map range.** A valid station whose position is outside the
+  useful Taiwan map range — latitude **21.2 – 26.7**, longitude **117.6 – 122.9**, the
+  same range as the representative rule below (for example 高雄市's **東沙島**,
+  `468100`, at longitude 116.73) — is **not placed on the map**, but it **is counted**
+  in its county's valid stations (the context shows e.g. "57 (1 not on the map)"),
+  **listed** in the county's station list marked **"not on the map"**, and its
+  **detail** can be opened from the list.
+- **County shapes.** The interactive county shapes are the same vendored 內政部
+  county polygons as the basemap (see the Forecast mode section), joined with their
+  county names by [`static/data/counties.js`](static/data/counties.js) (a same-origin
+  `<script>`, project data: the CWA `CountyName` of each basemap polygon). They are
+  drawn transparent over the unchanged backdrop; the page loads the names file from
+  its own origin only (no external request). The shapes react to the pointer only —
+  they are not keyboard Tab stops; the `County` chooser is the keyboard way to pick a
+  county. The offline tests check each name against the sample's stations inside
+  the polygon.
+
+#### Now mode — map range, zoom range and layout (V2 Core)
+
+- **The map stays on Taiwan (the fence).** The map can be dragged (with the mouse,
+  a finger or the arrow keys) only within the **useful Taiwan map range** — latitude
+  **21.2 – 26.7**, longitude **117.6 – 122.9**, the same range as the off-map station
+  rule above; it covers the main island, 澎湖, 金門, 連江 (馬祖), 蘭嶼 and 綠島. On each
+  axis the map either stays inside that range or, when the map is wider or taller
+  than the whole range (zoomed out), keeps the whole range in view, centred — so the
+  middle of the map is always inside the range and you can never drag Taiwan out of
+  sight into empty sea or a neighbouring coast. 金門 and 連江 are inside the range:
+  drag (or zoom) towards them and click their stations as anywhere else. The same
+  range applies in Forecast mode (one map).
+- **Zoom range: 6 to 12.** Zooming out stops at level **6**, where the main island
+  still fills at least a quarter of the map's height (about 170 px of a 360–560 px
+  tall map); the range above does not need to fit the map at that level. Zooming in
+  stops at level **12**, where 1 km is about 28 px — close enough to pick single
+  stations in the densest county (臺北市) — but not so close that a phone-width map
+  shows less than about 13 km. The `+` / `−` buttons are disabled at the limits.
+- **Opening view.** The Now mode opens — and `Back to Taiwan` returns — on the whole
+  main island and 澎湖 (金門 and 連江 may be outside it; drag or zoom to reach them).
+- **Marker density.** The Taiwan-wide view always holds **every** representative
+  station of the Latest Observation (one per county with a valid station); only
+  their display is managed. Each marker's required touch area is its temperature
+  marker grown to at least **44 × 44 px**. Where that area would come within **2 px**
+  of the touch area of a marker already shown at the current zoom, the marker is
+  hidden at that zoom — never for any other reason. Markers are placed in this order:
+  the selected station first, then, Taiwan-wide, the counties in a fixed order spread
+  over the island (臺北市, 高雄市, 臺中市, 花蓮縣, 臺東縣, 澎湖縣, 金門縣, 連江縣, 宜蘭縣,
+  臺南市, 屏東縣, 嘉義縣, 南投縣, 新竹縣, 桃園市, 新北市, 基隆市, 苗栗縣, 彰化縣, 雲林縣,
+  嘉義市, 新竹市) and, in a county view, its highest and lowest station and its
+  representative first. A station's name label (shown from zoom 8) never hides a
+  marker: where it would overlap another shown marker or an earlier label, the label
+  is left out instead. A hidden marker appears when you zoom in, and its county can
+  still be pointed at and clicked on the map and chosen in the `County` chooser; every
+  station is in its county's station list. So the markers you see are never on top of
+  each other and each can be read and clicked. At the opening zoom the Taiwan-wide
+  view shows 9 of the 22 representatives at 1280 px and 5 on a phone (with the
+  committed sample data).
+- **Layout.** At **1024 px and wider** the Now panel (times, `Refresh`, `County`,
+  `Back to Taiwan`, the County context, the station detail and list) is a column
+  **beside** the map, so it never covers the map. Its top part — the state, the two
+  times, `Refresh`, `County` and `Back to Taiwan` — never scrolls away; only the
+  County context, station detail and list below it scroll. **Below 1024 px** a compact bar
+  above the map holds the times, `Refresh`, `County` and `Back to Taiwan`, and the
+  county / station details open in a **bottom info panel** over the lower part of
+  the map when you select a county or a station:
+  - normally it covers **at most half** of the map, and the selected station's marker
+    is moved (or, at the edge of the range, zoomed) so it stays visible above it;
+  - **Expand** shows the county's station list (the zoom buttons above it stay
+    uncovered); **Collapse** returns to the smaller size;
+  - **Close** (a button — or Esc inside the panel) hides it and keeps the selection;
+    **Details** under the `County` chooser opens it again. No swipe is needed;
+  - selecting another station or county while it is open updates it;
+  - the zoom buttons, the mode switch, `Refresh` and `Back to Taiwan` are never covered.
+- **Tooltips** are kept inside the map, also for markers near its edges. Buttons,
+  the `County` chooser, list items and the zoom buttons are at least 44 × 44 px.
+
+#### Now mode — Radar overlay (V2 Radar)
+
+- **Show / hide.** The **`Radar: Off`** button next to `Refresh` shows the latest
+  radar echo over the map; it then reads **`Radar: On`** (and is filled). It is a real
+  button (click, or Tab to it and press Enter or Space) and is **off when the page
+  opens**. The radar belongs to the Now mode only: Forecast mode has neither the
+  button nor the overlay; coming back to Now mode brings a shown radar back.
+- **Source and time.** The overlay is CWA's **雷達整合回波圖-臺灣(鄰近地區)_透明底圖
+  (O-A0058-006)**, fetched through this app's
+  [`/api/radar/latest`](#radar-endpoint-v2-radar). While it is shown, the panel shows
+  **`Radar Time`** — the radar product time CWA published for that image, to the
+  minute — in its own row under the buttons, apart from `Observation Time` (the
+  stations' observation time) and `Fetched Time` (when the stations were fetched):
+  three different times with three different labels. Areas without echo are
+  transparent, so the map shows through; the echo colours are CWA's (slightly
+  see-through over the map).
+- **Drawing order and use.** The echo is drawn above the map backdrop and **below**
+  the county layer and the station markers: counties can still be pointed at and
+  clicked, stations clicked and read, and the map dragged and zoomed as before.
+- **Getting a newer image — the re-fetch trigger.** The radar is fetched when you
+  **switch it on** (switching it off and on again fetches the latest image) and when
+  you press **`Refresh` while it is shown** (Refresh then updates the Latest
+  Observation and the radar, each with its own result). The page never updates the
+  radar by itself and never polls. An image whose radar time is older than the one
+  shown (possible when a different server instance still reuses an older image)
+  never replaces it; "Already the latest radar image." is shown instead.
+- **Its own state, independent of the observation.** While the radar loads, a
+  spinner and "Loading the radar image…" (or "Updating…" when an image is already
+  shown) appear under the button. If the first fetch fails, no overlay is drawn and
+  **"Radar unavailable"** is shown with the reason's category (the same four reasons
+  as the endpoint, or "did not answer in time" / "unexpected answer" from this site's
+  server; the page waits at most 20 s). If a later fetch fails while an image is shown,
+  that image and its `Radar Time` **stay**, marked **"Radar Stale"** with the reason;
+  the next successful fetch clears it. A radar failure never changes the Latest
+  Observation (its data, times or Stale / Unavailable state) or the forecast, and an
+  observation or forecast failure never changes the radar.
+- **Alignment.** The CWA image is an equal-angle grid: its 3600 rows are equally
+  spaced in **latitude** (1/600° each) over 26.5° N – 20.5° N, and its columns equally
+  spaced in longitude over 118° E – 124° E. The map is Web Mercator, whose vertical
+  scale grows with latitude, so stretching the whole image between its projected
+  corners (a plain Leaflet image overlay) would put mid-image rows up to about
+  **3.8 km** off. The overlay therefore draws the image in **24 horizontal strips**
+  of 150 rows (0.25° of latitude each): each strip is placed exactly between the
+  projected positions of its top and bottom latitudes, and only its own rows are
+  scaled into it. Within a strip the remaining difference is at most about
+  **0.01 km**; across, longitude is linear on both, so every column is exact. Every
+  image pixel therefore lands within well under 1 km of where the map projects its
+  latitude / longitude (the acceptance criterion is 1 km), at every zoom (6–12). The
+  map's projection is unchanged (Web Mercator), so the map range and zoom range above
+  are unaffected. The browser check measures this in the page at zoom 7 and 10 (see
+  [Run the tests](#run-the-tests-offline)).
+- **Known limits.** The radar time is the product time CWA publishes in the metadata;
+  CWA makes a product available several minutes after that time (in a local check a
+  15:10 product was the latest at 15:20), so the Radar Time is usually 5–15 minutes
+  before the time you look. The metadata and the image are two separate CWA files
+  that CWA replaces every 10 minutes; the server reads the image immediately after
+  the metadata, but if CWA replaces the image between the two reads, the image can be
+  one cycle newer than the Radar Time shown until the next fetch. A shown radar is
+  not refreshed on its own; switch it off and on, or press Refresh. The echo covers
+  longitude 118–124 / latitude 20.5–26.5 only (all 22 counties).
+- **Data licence.** Radar data: **交通部中央氣象署 雷達整合回波圖-臺灣(鄰近地區)_透明底圖
+  (O-A0058-006)**, CWA open data under the **Open Government Data License
+  (政府資料開放授權條款)**. The same attribution is under the map in Now mode.
+
+#### Representative station rule
+
+The Now mode's Taiwan-wide view shows at most one marker per county. Anyone can
+recompute the choice by hand from a `GET /api/observations/latest` response (the
+rule is implemented in [`representative.py`](representative.py) and its result is the
+response's `representativeStationIds`):
+
+1. **Candidates.** For a county, take the entries of `stations[]` with that
+   `countyName` whose `latitude` is within **21.2 – 26.7** and `longitude` within
+   **117.6 – 122.9** (the useful Taiwan map range, including 金門, 連江, 澎湖, 蘭嶼 and
+   綠島). Every entry of `stations[]` is already a valid station.
+2. **Preferred station.** If the county's preferred station is a candidate, it is the
+   representative.
+3. **Fallback.** Otherwise the candidate with the **smallest `stationId`**, comparing
+   the characters by code (digits before capital letters, e.g.
+   `"466910" < "466930" < "A0A010" < "C0A980"`), is the representative.
+4. **No candidate, no marker.** A county without any candidate has no marker; that
+   is not an error.
+
+The preferred stations are **project data, not a contract**: the constant
+`PREFERRED_STATION` in `representative.py` names, for each county, a lowland station
+in the county's seat or named after the county or its seat — the CWA manned weather
+station when there is one (for example 臺北 for 臺北市), otherwise an automatic
+station in the seat's town (for example 太保 for 嘉義縣). They are listed only in
+that file. Worked examples with the committed sample:
+
+- **臺北市** — the preferred station 臺北 (`466920`) is valid, so it is the marker.
+- **臺北市, if 臺北 had an invalid temperature** — the candidates start 鞍部 `466910`,
+  陽明山 `466930`, 臺灣大學 `A0A010`, …; the smallest id, 鞍部, would be the marker.
+- **高雄市, if its preferred station were invalid** — 東沙島 (`468100`, longitude
+  116.73) is outside the map range and never a candidate; the smallest remaining id,
+  `72V140` (高改旗南分場), would be the marker.
+- **連江縣, if none of its stations were valid** — no marker for 連江縣.
+
+The offline tests ([`tests/test_representative.py`](tests/test_representative.py))
+check the rule on the sample and on derived samples (the preferred station of three
+counties made invalid, an out-of-range station, a county with no valid station).
+
+### Forecast mode — the Part A bonus map: six-region Taiwan Map and `Select Date`
+
+**Forecast mode** is the V1 six-region seven-day Taiwan Map, unchanged: press
+**Forecast** in the map's header to see it. It is the **Part A bonus map**. The
+dashboard integrates its **`Select Date`** control and the map on the same page (the
+"Taiwan Weather Dashboard"), alongside the Region chart/table/summary. These are
+**enhanced, dashboard-only** features — the Streamlit Grading App deliberately has
+neither.
 
 - **`Select Date`** lists the snapshot's seven Forecast Days in ascending order and
   defaults to the first day. It lives **inside the Taiwan Map's floating info panel**
@@ -316,6 +873,23 @@ Streamlit Grading App deliberately has neither.
   `GET /api/days/<date>`; the frontend colours directly by that band and re-derives
   nothing.
 
+## Data licence and attribution (CWA open data)
+
+The data shown by this project is CWA open data, used under the **Open Government
+Data License (政府資料開放授權條款)**:
+
+| Where it is used | Attribution |
+| --- | --- |
+| Now mode — Latest Observation | **交通部中央氣象署 氣象觀測站-全測站逐時氣象資料 (O-A0001-001)** |
+| Now mode — Radar overlay | **交通部中央氣象署 雷達整合回波圖-臺灣(鄰近地區)_透明底圖 (O-A0058-006)** |
+| Forecast values (ingestion, `data.db`, Forecast mode, forecast dashboard, Grading App) | **交通部中央氣象署 臺灣各縣市鄉鎮未來1週逐12小時天氣預報 (F-D0047-091)** — the values shown are project-derived from it (see [Data source and labeling](#data-source-and-labeling-please-read)) |
+
+In the app, the notes under the map in Now mode name the observation dataset (CWA,
+O-A0001-001) and the radar dataset with its full attribution. The vendored basemap's
+own sources and licences are listed in the
+[Forecast mode](#forecast-mode--the-part-a-bonus-map-six-region-taiwan-map-and-select-date)
+section.
+
 ## Deploy to Vercel (public URL & smoke check)
 
 The dashboard deploys to Vercel as a **single Python serverless function** that
@@ -324,9 +898,41 @@ inside this unit directory: `vercel.json` (one `@vercel/python` build of
 `api/index.py`, every route sent to it, `data.db` packaged with `includeFiles`),
 `requirements.txt`, `data.db` (packaged and opened read-only), and
 [`.python-version`](.python-version) which **pins Python `3.12`** so the local
-environment, CI and the Vercel runtime all use the same interpreter. The running
-function needs **no environment variable and no secret** — the CWA key is never
-part of the deployment.
+environment, CI and the Vercel runtime all use the same interpreter.
+
+**What needs a key.** The forecast part of the deployment — the page itself, the
+forecast endpoints, `/api/health`, the Forecast mode and the forecast dashboard —
+needs **no environment variable and no secret**, exactly as in V1. Only the V2
+Latest Observation and Radar endpoints need the CWA key: the function reads
+`CWA_API_KEY` from the Vercel project's environment variables **at request time,
+on the server only**. The key is never part of the build, the repository, a
+response, a log or the browser. Without it those two endpoints answer
+`key_not_configured` (the Now mode shows "Latest Observation unavailable") while
+everything else keeps working, and `/api/health` stays `200`.
+
+### Vercel key setup (acceptor only, V2)
+
+Only the repository owner does this, in the Vercel dashboard; an agent never enters,
+reads, prints or exports the key (reserved boundary RB-3). No repository file changes.
+
+1. Open the Vercel project (**aiot-hw01-weather**) → **Settings** → **Environment
+   Variables**.
+2. Add one variable: **Key** `CWA_API_KEY` (the same name as in `.env.example`);
+   **Value** your own CWA key, typed or pasted by you (never copied into this
+   repository, an issue, a pull request, a log or a screenshot); **Environments**
+   **Production** and **Preview** (Development is not needed — local runs use
+   `.env`). Mark it **Sensitive** if Vercel offers it.
+3. Save, then **redeploy**: a new value only reaches deployments built after it (use
+   *Redeploy* on the latest preview deployment of the branch, or push a commit;
+   production gets it with the merge to `main`).
+4. Check without revealing the key: on that deployment,
+   `GET /api/observations/latest` returns `200` with `stations` (instead of `503`
+   `key_not_configured`), `GET /api/radar/latest` returns `200` `image/png` with an
+   `X-Radar-Time` header, the Now mode shows the Latest Observation, and
+   `/api/health` is still `200`. Do not use `vercel env pull` or any command that
+   writes or prints the value.
+
+### Project setup, preview and production
 
 **Acceptor-only setup (one-time).** Creating the Vercel project, linking it to
 `yotsubamomo/aiot-classwork`, setting the project **Root Directory = `home_work_01`**,
@@ -337,18 +943,20 @@ touch billing/account settings outside an agent's authority. No repository files
 change for this.
 
 **Production vs preview.** Pushing the topic branch makes Vercel build a
-**preview** automatically; the branch-preview alias is a public, no-login URL that
-serves the branch's most recent **successful** build (Vercel moves the alias when a
-build succeeds; a failed build leaves it on the previous commit), so it verifies
-the audited commit once that commit's build is ready — confirm the served
-deployment id matches the commit rather than assuming it.
+**preview** of every commit automatically. Each preview deployment has its own
+public, no-login URL, which GitHub lists as the commit's *Preview* deployment (the
+"View deployment" link); the branch-preview alias serves the branch's most recent
+**successful** build (Vercel moves the alias when a build succeeds; a failed build
+leaves it on the previous commit). Either way, confirm that the served deployment id
+(`data-deployment-id` in the page) belongs to the commit you are checking rather
+than assuming it.
 The **production** URL updates only when the branch is merged into `main` — that
 merge is a release action, so re-running the smoke check against production after
 merge is release evidence, not a completion condition for the deployment work.
 
 | | URL |
 | --- | --- |
-| Public preview (audited commit; no login) | `https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app` |
+| Public preview of one commit (no login) | `https://aiot-hw01-weather-<deployment>-nchu-aiot-class.vercel.app` — from the commit's GitHub *Preview* deployment; the one checked for the V2 acceptance is recorded in [`doc/acceptance/ACCEPTANCE-V2.md`](doc/acceptance/ACCEPTANCE-V2.md) |
 | Production (updates on merge to `main`) | `https://aiot-hw01-weather.vercel.app` |
 
 **Smoke check.** [`smoke.py`](smoke.py) verifies the public deployment: `GET /`
@@ -360,13 +968,16 @@ injects):
 
 ```bash
 cd home_work_01
-python smoke.py https://aiot-hw01-weather-git-homework01-hw10-im-8efc12-nchu-aiot-class.vercel.app
+python smoke.py https://aiot-hw01-weather-<deployment>-nchu-aiot-class.vercel.app
 # or, reading the URL from the environment / repository variable:
 HW01_DEPLOY_URL=https://<public-host> python smoke.py
 ```
 
 It is standard-library only (no dependency to install) and is reused unchanged by
-the `workflow_dispatch` smoke workflow (Issue #22).
+the `workflow_dispatch` smoke workflow (Issue #22). It checks only the key-free part
+of the deployment, so it passes with or without the Vercel key; the Latest
+Observation and Radar endpoints are checked as in step 4 of the
+[Vercel key setup](#vercel-key-setup-acceptor-only-v2).
 
 ## Verify the database
 
@@ -416,13 +1027,89 @@ displayed ingestion time). For the Flask dashboard (Issue #20) it covers the
 backend via the Flask test client (`GET /` with the page text, `/api/health` 200
 and 503, and every data endpoint's normal / 404 / 503 responses) and the INV-2
 comparison that the API's series equals the shared module for all six Regions.
-Static checks confirm the Streamlit app and the Flask backend hold no SQL, import
-no HTTP client (dotted forms such as `from urllib import request` included), and
-carry no CWA URL / key, and that the frontend's data requests target only `/api/`;
-`app.py` also carries no map / `Select Date` / folium. (The browser-level check
-that the dashboard shows a visible message when `/series` fails on first load,
-[`tests/check_series_error_visible.py`](tests/check_series_error_visible.py), needs
-a real Chrome and so runs separately from the offline `pytest` suite.) The test fixture
+Static checks confirm the Streamlit app, the shared module and their unit-local
+import closure import no HTTP client (dotted forms such as
+`from urllib import request` included) and carry no CWA URL / key; that SQL lives
+only in the shared module (the Flask backend and `observation.py` hold none); and
+that every frontend request form targets only same-origin `/api/` or `/static/`;
+`app.py` also carries no map / `Select Date` / folium. For the V2 Latest
+Observation endpoint, `tests/test_observation.py` covers normalisation of the real
+sample, the valid-station rules and eight derived counter-examples, the four
+failure reasons with a sentinel key (asserted absent from responses, logs and
+console output), the reuse window with a controllable clock, the time bound
+against a stalled or slow loopback server, and the forecast endpoints answering
+unchanged with the network blocked and no key. For the Taiwan Map's two modes,
+`tests/test_representative.py` checks the representative station rule on the sample
+and derived samples, and `tests/test_modes_frontend.py` holds static guards on the
+frontend source (the page opens in Now mode; the labelled mode buttons; the Now
+mode loads without waiting for `/api/health`; each mode's controls and legend; the
+verbatim labels; no colour shared between observation markers and derived bands; the
+map size guard on the mode-switch path), and `tests/test_refresh_frontend.py` holds
+static guards on the Refresh semantics (the page's time bound between the server's
+bound and 30 s; no polling; one Refresh at a time; the not-newer rules; Stale and
+Unavailable set only by a failure, with no clock or age test; fixed, distinct texts
+for the failure reasons and no response text ever displayed), and
+`tests/test_county_frontend.py` holds static guards on Taiwan → County → Station (the
+22 county names, one per basemap polygon, each checked against the sample's
+stations inside it; the frontend's map range equal to `representative.py`'s; no
+aggregate and no data colouring in the county code; "—", never 0, with no Latest
+Observation; the list items as buttons, the `County` chooser and the verbatim
+`Back to Taiwan`; the mode switch never clearing the county), and
+`tests/test_fence_frontend.py` holds static guards on the map range and zoom range
+(the fence equals the map range with a hard edge; the zoom floor and ceiling
+recomputed against their criteria; the opening view's box), the info panel (a
+Close button with visible text, Esc, the peek and expanded sizes), 44 × 44 targets,
+the marker density rule, the side-by-side desktop layout, and the map size guard on
+the info panel and resize paths. For the Radar overlay, `tests/test_radar.py` covers
+the radar endpoint with the real metadata sample and a synthetic PNG (the image and
+radar time of one fetch, the product checks, the key sent only to the metadata
+request, the reuse window, the four failure reasons with a sentinel key, a stalled
+upstream, and the radar, observation and forecast paths failing independently), and
+`tests/test_radar_frontend.py` holds static guards on the radar frontend (the
+labelled control, off by default, fetched only by showing it or by Refresh; the image
+and time from `/api/radar/latest` only; `Radar Time` apart from the other two times;
+its own stale / unavailable state; the drawing order) and recomputes the strip
+placement for every image row at zoom 6–12 (within 0.05 km; a plain image overlay
+would be about 3.8 km off). (Six browser-level
+checks need a real Chrome and so run separately from the offline `pytest` suite: the
+check that the dashboard shows a visible message when `/series` fails on first load,
+[`tests/check_series_error_visible.py`](tests/check_series_error_visible.py); the
+Now mode / Forecast mode check
+[`tests/check_modes_browser.py`](tests/check_modes_browser.py), which runs the app
+on loopback with the sample-fed observation path and the forecast OK or unavailable,
+drives both modes at 1280 px and 375 px, and records every browser request; and the
+Refresh check [`tests/check_refresh_browser.py`](tests/check_refresh_browser.py),
+which drives the three Refresh results, Stale and Unavailable for each failure
+reason, a stalled upstream, a platform `502` page and a held request, a page clock
+moved two hours ahead, and the rest of the page while the observation fails, with a
+sentinel key that must not appear in the page, the console or the server log; and
+the county check [`tests/check_county_browser.py`](tests/check_county_browser.py),
+which hovers and selects counties on the map and with the keyboard, compares the
+County context with values worked out from the `/api/` response, walks the station
+list and detail, `Back to Taiwan`, the off-map 東沙島 station, a county with no valid
+station, the Now → Forecast → Now round trip, and the county layer under Stale and
+Unavailable, at 1280 px and 375 px; and the map fence check
+[`tests/check_fence_browser.py`](tests/check_fence_browser.py), which drags the map to
+every edge at zoom 6, 8 and 12 and reads the view back, reaches 金門 and 連江, measures
+the zoom floor and ceiling, clicks every 臺北市 station at the ceiling, drives the
+phone info panel (peek, expand, Close, Esc, Details), measures 44 × 44 targets and
+marker overlap, checks 768 px for breakage and repeats resizes and panel changes
+while watching for broken markers; and the radar check
+[`tests/check_radar_browser.py`](tests/check_radar_browser.py), which draws a synthetic
+test pattern (squares on known pixels) through the real radar endpoint and measures,
+at zoom 7 and 10, where every reference pixel (the product's corners, edge midpoints
+and centre, and points on the island) is drawn against the map's projection — from the
+drawn image's geometry and from the rendered pixels — and does the same for a plain
+image overlay to show the measurement tells them apart; it also drives the control by
+keyboard, the re-fetch triggers, radar unavailable and stale for each failure reason,
+the observation and forecast failing on their own, the drawing order and map use with
+the radar shown, 375 px, and a sentinel key; `--real-image` / `--coastline` add
+screenshots with a real O-A0058-006 image and a real O-A0058-003 image (coastlines
+and county borders) over the app's basemap —
+`python tests/check_modes_browser.py`, `python tests/check_refresh_browser.py`,
+`python tests/check_county_browser.py`, `python tests/check_fence_browser.py`,
+`python tests/check_radar_browser.py`; they also need the `websocket-client` package.)
+The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two
 temperature weather elements per county (structure preserved); the negative cases
@@ -442,9 +1129,10 @@ sets up **Python 3.12**, installs [`requirements.txt`](requirements.txt), runs t
 full offline `pytest` suite, and then runs the credential mechanical checks
 (`python -m tools.credential_scan`): `git ls-files` tracks no `.env` (only
 `.env.example`); no tracked file and no committed diff in history contains a
-CWA-key-format string (the ignored local `.env` is excluded); and the fixture and
-saved raw JSON hold no `Authorization` value. The check prints only findings, never
-a secret. The whole run needs no network, no `.env` and no secret.
+CWA-key-format string (the ignored local `.env` is excluded); and the committed
+samples — the forecast fixture and saved raw JSON, and the V2 O-A0001-001 and
+O-A0058-006 metadata samples — hold no `Authorization` value. The check prints only
+findings, never a secret. The whole run needs no network, no `.env` and no secret.
 
 **Smoke — [`home_work_01-smoke.yml`](../.github/workflows/home_work_01-smoke.yml).**
 Runs on demand only (**`workflow_dispatch`**); it never runs on push. It reuses
@@ -460,6 +1148,28 @@ before that merge** — run the identical check locally with
 `python smoke.py <preview-url>` meanwhile. After the merge, the default dispatch
 uses the production `HW01_DEPLOY_URL` variable and is **release evidence**
 (DR-12, DR-18); the `url` input then lets you smoke-check any other URL.
+
+## Not built: the accepted Later list (V2)
+
+The V2 Taiwan Map (Now mode, Radar) is ENHANCED work on the deployed dashboard only;
+it does not change the graded Part A behaviour. The following ideas were explicitly
+left out of V2 when its scope was accepted. They are **not** part of this
+deliverable, and doing any of them would need a new decision:
+
+- a separate rainfall layer (O-A0002-001);
+- radar animation or history playback;
+- a heatmap;
+- automatic updates or polling (the page updates only on a manual `Refresh`);
+- county filtering and station search;
+- URL deep-linking of the map state (the forecast dashboard's `?region=` link is
+  V1 and unchanged) and browser-history integration;
+- upgrading to the 10-minute dataset (O-A0003-001);
+- storing observation history;
+- Windy;
+- forecasts for all 22 counties;
+- any V2 behaviour in the Streamlit Grading App;
+- rate limiting of the public endpoints (the reuse windows and the time bounds are
+  the only throttles; see the endpoint sections).
 
 ## Correspondence to the poster `HW10_Weather/` structure
 
@@ -477,5 +1187,5 @@ ingestion stages into a clearly named `ingestion` package.
 | `requirements.txt` | [`requirements.txt`](requirements.txt) |
 | `README.md` | this file |
 | `app.py` (Streamlit) | [`app.py`](app.py) — the Grading App (Issue #19), reading through [`weather_query.py`](weather_query.py) |
-| (deployed web app) | [`server.py`](server.py) + [`static/`](static/) + [`api/index.py`](api/index.py) + [`vercel.json`](vercel.json) — the Flask dashboard (Issue #20), also reading through [`weather_query.py`](weather_query.py) |
+| (deployed web app) | [`server.py`](server.py) + [`static/`](static/) + [`api/index.py`](api/index.py) + [`vercel.json`](vercel.json) — the Flask dashboard (Issue #20), also reading through [`weather_query.py`](weather_query.py); V2 adds [`observation.py`](observation.py) (Latest Observation), [`representative.py`](representative.py) (representative station rule) and [`radar.py`](radar.py) (Radar), none of which touches `data.db` |
 | `weather_data.csv` (optional) | not used |

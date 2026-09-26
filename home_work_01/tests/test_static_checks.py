@@ -27,12 +27,32 @@ Coverage:
            re-implement no query (no direct ``sqlite3`` use).
 * AC-26   ``app.py`` and its imports use no map / ``Select Date`` / folium in
           code; ``requirements.txt`` does not list folium (Grading App scope).
+
+**V2 re-scope (SPEC-V2 R-V2-SEC-4, DV-15, AC-V2-16; Issue #35 — add-only).**
+* (a') The set that must hold no HTTP client and no ``opendata.cwa.gov.tw`` /
+       ``CWA_API_KEY`` literal is now ``app.py``, ``weather_query.py`` **and their
+       unit-local import closure** (computed from the import graph, so any unit
+       module the forecast path starts importing is pulled in automatically).
+       ``server.py``, ``api/index.py`` and the V2 observation module leave that
+       set: the deployed backend may access CWA server-side for the observation
+       path. They remain covered by the credential scans (``tests/test_secrets.py``
+       and ``tools/credential_scan.py``). The HTTP-client detector itself and its
+       regression probes are unchanged.
+* (b)  Extended: in the first-party frontend files every request form --
+       ``fetch``/``fetchJson``, ``.src =``, ``L.imageOverlay``, ``L.tileLayer``,
+       ``new Image``, HTML ``src``/``<link href>``, CSS ``url()`` -- may only have a
+       same-origin ``/api/`` or ``/static/`` literal target. The absolute-URL
+       whitelist keeps only non-request constants.
+* (c)  SQL still lives only in ``weather_query.py``; the V2 observation module is
+       added to the no-SQL / no-``sqlite3`` set.
+* (d)  Unchanged.
 """
 
 from __future__ import annotations
 
 import ast
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -48,13 +68,17 @@ _STATIC_DIR = _UNIT_DIR / "static"
 # The Streamlit Grading App side (Issue #19), used by the AC-26 checks.
 _APP_SIDE = (_APP, _SHARED)
 
-# Every Python file on the presentation side that must be CWA-free and hold no
-# HTTP client (AC-04(a): app.py, shared module, Flask backend).
-_PYTHON_SIDE = (_APP, _SHARED, _SERVER, _API_ENTRY)
+# V2 server-side observation module (SPEC-V2 R-V2-SEC-2(a); Issue #35).
+_OBSERVATION = _UNIT_DIR / "observation.py"
 
 # Python files that must contain no SQL and must not open the database directly
-# (AC-04(c)/(d)): everything except the single SQL owner (the shared module).
-_NON_SHARED_PYTHON = (_APP, _SERVER, _API_ENTRY)
+# (AC-04(c)/(d), R-V2-SEC-4(c)): everything on the presentation side except the
+# single SQL owner (the shared module), including the V2 observation module.
+# Issue #36 adds the pure representative-station rule module to the same set.
+_REPRESENTATIVE = _UNIT_DIR / "representative.py"
+# Issue #40 adds the V2 radar module (server-side CWA radar access).
+_RADAR = _UNIT_DIR / "radar.py"
+_NON_SHARED_PYTHON = (_APP, _SERVER, _API_ENTRY, _OBSERVATION, _REPRESENTATIVE, _RADAR)
 
 # HTTP client top-level packages that must never appear on the presentation side
 # (R-SHR-5). Dotted modules are matched exactly as well.
@@ -143,13 +167,102 @@ def _code_string_literals(path: Path) -> list[str]:
     ]
 
 
+def _unit_module_files(name: str, importer: Path, level: int = 0) -> list[Path]:
+    """Resolve an import name to the unit-local source files it loads.
+
+    ``weather_query`` -> ``weather_query.py``; ``pkg.mod`` -> ``pkg/__init__.py``
+    and ``pkg/mod.py`` (or ``pkg/mod/__init__.py``). Relative imports (``level``
+    > 0) resolve against the importer's package. Names that are not unit-local
+    (standard library, third-party) resolve to nothing.
+    """
+    base = _UNIT_DIR if level == 0 else importer.parent
+    for _ in range(max(level - 1, 0)):
+        base = base.parent
+    files: list[Path] = []
+    current = base
+    for part in [p for p in name.split(".") if p]:
+        package_init = current / part / "__init__.py"
+        module_file = current / f"{part}.py"
+        if package_init.is_file():
+            files.append(package_init)
+            current = current / part
+        elif module_file.is_file():
+            files.append(module_file)
+            break
+        else:
+            break
+    return files
+
+
+def _unit_import_closure(roots: tuple[Path, ...]) -> tuple[Path, ...]:
+    """Every unit-local Python file reachable from ``roots`` through imports."""
+    seen: set[Path] = set()
+    pending = [r.resolve() for r in roots]
+    while pending:
+        path = pending.pop()
+        if path in seen:
+            continue
+        seen.add(path)
+        for node in ast.walk(_tree(path)):
+            names: list[tuple[str, int]] = []
+            if isinstance(node, ast.Import):
+                names = [(alias.name, 0) for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module or ""
+                names = [(module, node.level)]
+                names += [
+                    (f"{module}.{a.name}" if module else a.name, node.level)
+                    for a in node.names
+                ]
+            for name, level in names:
+                for found in _unit_module_files(name, path, level):
+                    if found.resolve() not in seen:
+                        pending.append(found.resolve())
+    return tuple(sorted(seen))
+
+
+# AC-04(a) re-scoped (R-V2-SEC-4(a')): the forecast / Grading-App side that must
+# be CWA-free and hold no HTTP client is app.py, the shared module and their
+# unit-local import closure.
+_PYTHON_SIDE = _unit_import_closure((_APP, _SHARED))
+
+
 def _imports_http_client(targets: set[str]) -> set[str]:
     offending = {t for t in targets if t in _HTTP_CLIENT_DOTTED}
     offending |= {t for t in targets if t.split(".")[0] in _HTTP_CLIENT_ROOTS}
     return offending
 
 
-# --- AC-04(a) no HTTP client, no CWA URL / key (app + shared + backend) ---------
+# --- AC-04(a) no HTTP client, no CWA URL / key (app + shared + import closure) --
+
+
+def test_python_side_is_app_and_shared_module_closure() -> None:
+    """R-V2-SEC-4(a'): the checked set is exactly app.py + weather_query.py and
+    their unit-local imports; the forecast side does not reach the V2 observation
+    module (INV-V2-1)."""
+    names = {p.relative_to(_UNIT_DIR.resolve()).as_posix() for p in _PYTHON_SIDE}
+    assert {"app.py", "weather_query.py"} <= names
+    assert "observation.py" not in names
+    assert "server.py" not in names and "api/index.py" not in names
+
+
+def test_import_closure_follows_unit_local_imports(tmp_path, monkeypatch) -> None:
+    """The closure must pull in any unit module the roots import (directly,
+    through a package, or relatively), so the (a') check cannot be bypassed by
+    moving an HTTP client into a helper module."""
+    monkeypatch.setattr(sys.modules[__name__], "_UNIT_DIR", tmp_path)
+    (tmp_path / "root.py").write_text("import helper\nfrom pkg import sub\n", encoding="utf-8")
+    (tmp_path / "helper.py").write_text("import requests\n", encoding="utf-8")
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "__init__.py").write_text("", encoding="utf-8")
+    (tmp_path / "pkg" / "sub.py").write_text("from . import leaf\n", encoding="utf-8")
+    (tmp_path / "pkg" / "leaf.py").write_text("import json\n", encoding="utf-8")
+    closure = _unit_import_closure((tmp_path / "root.py",))
+    assert {p.name for p in closure} == {"root.py", "helper.py", "__init__.py", "sub.py", "leaf.py"}
+    offending: set[str] = set()
+    for path in closure:
+        offending |= _imports_http_client(_import_targets(path))
+    assert offending == {"requests"}
 
 
 def test_python_side_imports_no_http_client() -> None:
@@ -238,6 +351,67 @@ def test_frontend_makes_no_external_absolute_url_requests() -> None:
             assert url in _ALLOWED_FRONTEND_URLS, f"{path.name} references {url!r}"
 
 
+# R-V2-SEC-4(b): literal targets of every request form in the first-party
+# frontend. Vendored third-party files keep the absolute-URL whitelist check above
+# (their internal ``.src =`` assignments use variables, not literals).
+_FIRST_PARTY_FRONTEND = ("index.html", "app.js", "styles.css", "data/basemap.js", "data/counties.js")
+_Q = "[`'\"]"
+_NOT_Q = "[^`'\"]*"
+_REQUEST_FORMS = (
+    re.compile(r"\bfetch(?:Json)?\(\s*" + _Q + "(?P<target>" + _NOT_Q + ")"),
+    re.compile(r"\.src\s*=\s*" + _Q + "(?P<target>" + _NOT_Q + ")"),
+    re.compile(r"\bL\.imageOverlay\(\s*" + _Q + "(?P<target>" + _NOT_Q + ")"),
+    re.compile(r"\bL\.tileLayer(?:\.\w+)?\(\s*" + _Q + "(?P<target>" + _NOT_Q + ")"),
+    re.compile(
+        r"<(?:img|script|iframe|source|video|audio|embed)\b[^>]*\bsrc\s*=\s*[\"'](?P<target>[^\"']*)",
+        re.IGNORECASE,
+    ),
+    re.compile(r"<link\b[^>]*\bhref\s*=\s*[\"'](?P<target>[^\"']*)", re.IGNORECASE),
+    re.compile(r"url\(\s*[\"']?(?P<target>[^)\"']*)"),
+)
+_ALLOWED_TARGET_PREFIXES = ("/api/", "/static/")
+
+
+def _request_targets(text: str) -> list[str]:
+    return [m.group("target") for rx in _REQUEST_FORMS for m in rx.finditer(text)]
+
+
+def test_first_party_request_forms_target_only_api_or_static() -> None:
+    found = 0
+    for rel in _FIRST_PARTY_FRONTEND:
+        path = _STATIC_DIR / rel
+        assert path.is_file(), rel
+        for target in _request_targets(path.read_text(encoding="utf-8")):
+            found += 1
+            assert target.startswith(_ALLOWED_TARGET_PREFIXES), (
+                f"{rel}: request target {target!r} is not same-origin /api/ or /static/"
+            )
+    assert found, "no request-form literal targets found at all"
+
+
+@pytest.mark.parametrize(
+    "snippet",
+    [
+        'new Image().src = "https://example.test/radar.png";',
+        'img.src = "//cdn.example.test/x.png";',
+        'L.imageOverlay("https://example.test/r.png", bounds);',
+        'L.tileLayer("https://{s}.tile.example.test/{z}/{x}/{y}.png");',
+        '<img src="https://example.test/a.png">',
+        '<script src="https://cdn.example.test/lib.js"></script>',
+        '<link rel="stylesheet" href="https://fonts.example.test/css">',
+        'fetch("https://example.test/data")',
+        'background: url("https://example.test/bg.png");',
+        'fetchJson("radar/latest")',
+    ],
+)
+def test_request_form_check_catches_external_targets(snippet) -> None:
+    """Regression guard: each request form with a non-/api/, non-/static/
+    literal target is caught by the (b) extension."""
+    targets = _request_targets(snippet)
+    assert targets, snippet
+    assert not all(t.startswith(_ALLOWED_TARGET_PREFIXES) for t in targets), snippet
+
+
 def test_frontend_requests_use_the_api_prefix() -> None:
     """Positive check: the frontend's request helper is fed only /api/ paths."""
     app_js = (_STATIC_DIR / "app.js").read_text(encoding="utf-8")
@@ -274,6 +448,18 @@ def test_backend_imports_shared_module() -> None:
     assert "weather_query" in _import_targets(_SERVER), (
         "server.py must import the shared query module"
     )
+
+
+def test_observation_module_is_in_the_no_sql_set() -> None:
+    """R-V2-SEC-4(c): the new V2 module is checked for SQL / sqlite3 too."""
+    assert _OBSERVATION.is_file()
+    assert _OBSERVATION in _NON_SHARED_PYTHON
+
+
+def test_radar_module_is_in_the_no_sql_set() -> None:
+    """R-V2-SEC-4(c) (Issue #40): the V2 radar module holds no SQL / sqlite3."""
+    assert _RADAR.is_file()
+    assert _RADAR in _NON_SHARED_PYTHON
 
 
 def test_python_side_does_not_touch_sqlite_directly() -> None:

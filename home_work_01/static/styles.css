@@ -54,6 +54,20 @@
   --band-green: #2f855a;
   --band-yellow: #d69e2e;
   --band-red: #c53030;
+
+  /* V2 mode switch (#36): the pressed mode. */
+  --toggle-on-bg: #1f5fae;
+  --toggle-on-text: #ffffff;
+
+  /* V2 Now mode station markers (#36). A neutral light marker with a dark text,
+     deliberately NOT any of the four derived band colours: the observation has
+     no colour scale and never shares one with the Forecast mode (R-V2-MODE-6(b)). */
+  --obs-pill-bg: #f2f5fa;
+  --obs-pill-text: #10151f;
+  --obs-pill-border: #38bdf8;
+  --obs-pill-active: #fbbf24;
+  --obs-stale-bg: #cfd6e1;
+  --obs-stale-border: #9aa4b6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,6 +94,8 @@
     --empty-bg: #1a2231;
     --empty-border: #2b3648;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+    --toggle-on-bg: #6ba6e8;
+    --toggle-on-text: #0b1220;
   }
 }
 
@@ -370,11 +386,12 @@ img { max-width: 100%; }
 
 /* --- Taiwan Map (Issue #28): map-first, always-dark, floating panels --------- */
 
+/* Heading and the V2 mode switch on the left, the caption pushed right. */
 .map-card__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-start;
   gap: 8px 16px;
   margin-bottom: 12px;
 }
@@ -629,6 +646,355 @@ img { max-width: 100%; }
 .map-tip__row { display: block; font-size: 13px; line-height: 1.5; }
 .map-tip__note { color: var(--map-muted); }
 
+/* --- V2 (#36): mode switch, Now mode panel, station markers ------------------ */
+
+/* The forecast section below the map (V1 dashboard). Its page-level states are
+   scoped to this section (R-V2-DEG-3), so they sit below the map card. */
+.map-card { margin-bottom: 20px; }
+
+/* Mode switch: two real buttons, the pressed one filled (R-V2-MODE-2). Each
+   button is at least 44 px tall (touch target). */
+.mode-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+.mode-toggle__btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mode-toggle__btn:hover { background: var(--surface); }
+.mode-toggle__btn[aria-pressed="true"] {
+  background: var(--toggle-on-bg);
+  color: var(--toggle-on-text);
+}
+.mode-toggle__btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mode-toggle__sub { font-weight: 500; }
+
+/* Now mode panel (Latest Observation). */
+.chip--obs { background: #103a2c; color: #8ff0c4; border-color: #1f6b4f; }
+/* Each row: the verbatim label above its value, so a full time with its UTC
+   offset fits the 288 px floating panel without wrapping mid-value. */
+.obs-times { margin: 8px 0; display: grid; gap: 6px; }
+.obs-times__row { display: grid; gap: 0; font-variant-numeric: tabular-nums; }
+.obs-times__row dt { font-size: 12px; color: var(--map-muted); font-weight: 600; }
+.obs-times__row dd { margin: 0; font-size: 14px; color: var(--map-text); font-weight: 600; }
+.obs-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 6px 0 8px; }
+.btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn--refresh {
+  background: var(--map-surface-2);
+  color: var(--map-text);
+  border: 1px solid var(--map-accent);
+}
+.btn--refresh:hover { background: #26354c; }
+.btn--refresh:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.btn--refresh[aria-disabled="true"] { opacity: .6; cursor: progress; }
+.obs-status { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--map-muted); }
+.obs-status--busy { color: #a9cdf2; }
+.obs-status--error { color: #ffb4b4; font-weight: 600; }
+.obs-status--done { color: #8ff0c4; }
+
+/* Radar (#40, R-V2-RAD-3/4): the show / hide button states its state in its
+   text ("Radar: Off" / "Radar: On") and is filled while on; the Radar Time and
+   the radar's own status take a full row under the buttons, only while shown. */
+.btn--radar {
+  background: var(--map-surface-2);
+  color: var(--map-text);
+  border: 1px solid var(--map-border);
+  white-space: nowrap;
+}
+.btn--radar:hover { background: #26354c; }
+.btn--radar:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.btn--radar.is-on { background: #173a55; border-color: #5fb3f0; color: #d8eeff; }
+.radar-info { flex: 1 1 100%; min-width: 0; margin: 0; }
+.radar-info .radar-times { margin: 0; }
+.radar-status {
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--map-muted);
+}
+.radar-status:empty { display: none; }
+.radar-status--busy { color: #a9cdf2; }
+.radar-status--stale { color: #fcd34d; font-weight: 600; }
+.radar-status--unavailable { color: #ffb4b4; font-weight: 600; }
+
+/* The radar layer (app.js createRadarLayer): horizontal strips, each clipping
+   the full image scaled to its own rows. Never takes the pointer. */
+.radar-layer { position: absolute; left: 0; top: 0; pointer-events: none; }
+.radar-layer__strip { position: absolute; left: 0; overflow: hidden; pointer-events: none; }
+.radar-layer__img {
+  position: absolute;
+  left: 0;
+  max-width: none !important;
+  max-height: none !important;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Stale / Unavailable (#37, R-V2-OBS-10(e)): each has its own chip, explanation
+   block, on-map notice and look, distinct from success and from each other. */
+/* The Now panel title wraps its chips instead of overflowing the panel. */
+.map-panel--now .map-panel__title { flex-wrap: wrap; justify-content: flex-start; }
+.chip--stale { background: #3d2e05; color: #fcd34d; border-color: #8a6a12; }
+.chip--unavailable { background: #3a1515; color: #ffb4b4; border-color: #7a2b2b; }
+.obs-state {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--map-border);
+  border-left-width: 4px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.obs-state p { margin: 0; }
+.obs-state__title { font-weight: 700; font-size: 14px; }
+.obs-state .obs-state__reason { margin-top: 4px; color: var(--map-text); font-weight: 600; }
+.obs-state--stale { background: rgba(245, 184, 61, .10); border-color: #8a6a12; border-left-color: #f5b83d; }
+.obs-state--stale .obs-state__title { color: #fcd34d; }
+.obs-state--unavailable { background: rgba(248, 113, 113, .10); border-color: #7a2b2b; border-left-color: #f87171; }
+.obs-state--unavailable .obs-state__title { color: #ffb4b4; }
+.obs-state__body { color: var(--map-muted); }
+/* The on-map notice sits in the empty south-west sea of the initial view, above
+   the attribution line; it
+   never takes the pointer, so the map stays fully operable under it. */
+.obs-map-state-wrap { position: absolute; left: 12px; bottom: 28px; z-index: 650; pointer-events: none; }
+.obs-map-state {
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(15, 25, 39, .92);
+  border: 1px solid var(--map-border);
+  max-width: calc(100vw - 72px);
+}
+.obs-map-state--stale { color: #fcd34d; border-color: #8a6a12; }
+.obs-map-state--unavailable { color: #ffb4b4; border-color: #7a2b2b; }
+.spinner--sm { width: 16px; height: 16px; border-width: 2px; }
+.map-sel__place { font-size: 13px; color: var(--map-muted); margin: 0 0 4px; }
+.map-sel__row--stack { display: grid; }
+
+/* Representative-station markers (L.marker + L.divIcon). A rounded rectangle in
+   a neutral light fill — visibly a different kind of marker from the Forecast
+   mode's band-coloured pills. As with the pills, only the marker itself is
+   interactive (the icon box and label ignore the pointer). */
+.leaflet-div-icon.station-icon { background: transparent; border: 0; }
+.station-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  pointer-events: none !important;
+}
+.spill {
+  position: relative;
+  min-width: 48px;
+  height: 26px;
+  padding: 0 7px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--obs-pill-text);
+  background: var(--obs-pill-bg);
+  border: 2px solid var(--obs-pill-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .45);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform .12s ease;
+  pointer-events: auto;
+}
+.spill::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  min-width: 44px;
+  height: 44px;
+}
+.spill:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.station-icon:hover .spill,
+.station-icon:focus-within .spill { transform: scale(1.08); }
+.station-icon.is-active .spill {
+  transform: scale(1.12);
+  border-color: var(--obs-pill-active);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, .35), 0 2px 8px rgba(0, 0, 0, .45);
+}
+.slabel {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(15, 25, 39, .82);
+  padding: 1px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.map--labels-hidden .slabel { display: none; }
+
+/* Stale markers: the same values, drawn with a dashed border on a greyer fill so
+   they read as "last successful data" (never a derived band colour). */
+.map--obs-stale .spill {
+  border-style: dashed;
+  border-color: var(--obs-stale-border);
+  background: var(--obs-stale-bg);
+}
+
+/* --- V2 (#38): Taiwan → County → Station --------------------------------------- */
+
+/* County chooser (the keyboard path that does not use the map, R-V2-DD-9(a)). */
+.county-pick { margin: 10px 0 8px; }
+.county-pick .map-select { min-height: 44px; }
+.map-select:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+
+/* County context: fixed neutral styling — nothing here is coloured by data. */
+.county { border-top: 1px solid var(--map-border); padding-top: 8px; margin-top: 4px; }
+.county__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.county__name { margin: 0; font-size: 16px; color: var(--map-heading); }
+.btn--back {
+  background: var(--map-surface-2);
+  color: var(--map-text);
+  border: 1px solid #fbbf24;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.btn--back:hover { background: #26354c; }
+.btn--back:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.county__state {
+  margin: 6px 0 0;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--map-border);
+  border-left-width: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.county__state--stale { color: #fcd34d; border-color: #8a6a12; border-left-color: #f5b83d; background: rgba(245, 184, 61, .10); }
+.county__state--unavailable { color: #ffb4b4; border-color: #7a2b2b; border-left-color: #f87171; background: rgba(248, 113, 113, .10); }
+.county__facts { margin: 8px 0 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.county__fact { display: grid; min-width: 0; }
+.county__fact--wide { grid-column: 1 / -1; }
+.county__fact dt { font-size: 12px; color: var(--map-muted); font-weight: 600; }
+.county__fact dd { margin: 0; font-size: 14px; font-weight: 600; color: var(--map-text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+/* The station list: its own scroll box so a long county list never pushes the
+   rest of the panel away; each item is a >= 44 px tall button. */
+.county-stations { border-top: 1px solid var(--map-border); margin-top: 8px; padding-top: 6px; }
+.county__list-title { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--map-muted); }
+.county__empty { margin: 0; font-size: 13px; color: var(--map-muted); }
+.county__list {
+  list-style: none;
+  margin: 0;
+  padding: 2px;
+  max-height: 232px;
+  overflow-y: auto;
+  display: grid;
+  gap: 2px;
+}
+.county__item {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--map-text);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.county__item:hover { background: var(--map-surface-2); }
+.county__item:focus-visible { outline: 3px solid #9ed0ff; outline-offset: -3px; }
+.county__item.is-active { border-color: var(--obs-pill-active); background: rgba(251, 191, 36, .10); }
+.county__item-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; min-width: 0; font-weight: 600; }
+.county__item-town { font-weight: 400; font-size: 12px; color: var(--map-muted); }
+.county__item-off {
+  font-weight: 700;
+  font-size: 11px;
+  color: #fcd34d;
+  border: 1px solid #8a6a12;
+  border-radius: 999px;
+  padding: 0 6px;
+}
+.county__item-temp { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.map-sel__offmap { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: #fcd34d; }
+
+/* A county polygon is a pointer target only: app.js gives each path
+   tabindex="-1", so it is never a Tab stop (the County chooser is the keyboard
+   path, R-V2-DD-9(a)(d)). A mouse click can still focus the SVG path; that must
+   not draw the browser's ring around the county's bounding box. */
+.leaflet-overlay-pane path.leaflet-interactive:focus { outline: none; }
+
+/* The county name on hover (a Leaflet tooltip that follows the pointer). */
+.leaflet-tooltip.county-tip {
+  background: var(--map-surface);
+  color: var(--map-heading);
+  border: 1px solid #9ed0ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+.leaflet-tooltip.county-tip::before { border-top-color: #9ed0ff; }
+
+/* County-view station markers: compact — the name label only on the selected
+   marker — so a dense county stays readable and selectable. */
+.station-icon--county .slabel { display: none; }
+.station-icon--county.is-active .slabel { display: block; }
+.station-icon--county .spill { min-width: 44px; height: 24px; padding: 0 5px; font-size: 12px; }
+
+/* On narrow screens the mode names stay; the descriptive suffix is visually
+   hidden but still part of each button's accessible name. */
+@media (max-width: 560px) {
+  .mode-toggle__sub {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0; border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .map-card__head .section-heading { flex: 1 1 auto; }
+}
+
 /* --- narrow screens (down to 375px) ----------------------------------------- */
 
 @media (max-width: 560px) {
@@ -664,4 +1030,185 @@ img { max-width: 100%; }
 @media (max-width: 640px) {
   .map { height: 360px; }
   .leaflet-control-attribution { font-size: 12px; }
+}
+
+/* --- V2 (#39): map layout, info panel, touch targets, marker density ---------- */
+
+/* Leaflet's zoom buttons are 44 x 44 touch targets (R-V2-RSP-3). */
+.leaflet-control-zoom a,
+.leaflet-touch .leaflet-control-zoom a {
+  width: 44px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  font-size: 22px !important;
+}
+.leaflet-control-zoom a:focus-visible { outline: 3px solid #9ed0ff; outline-offset: -3px; }
+
+/* Marker density (R-V2-RSP-7): a station marker whose touch area would overlap
+   one ranked before it is hidden at this zoom — invisible, not clickable, not a
+   Tab stop (app.js updateMarkerAccess). It keeps its box, so it reappears in place
+   when zooming in. */
+.station-icon.is-culled { visibility: hidden; }
+/* An optional name label that would overlap a shown marker's touch area or an
+   earlier label yields (the marker stays shown; decision DV-22). */
+.station-icon.label-off .slabel { visibility: hidden; }
+
+/* "Back to Taiwan" and "Details" beside the County chooser. */
+.county-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.county-actions .btn { margin: 0 0 8px; }
+.btn--sheet {
+  background: var(--map-surface-2);
+  color: var(--map-text);
+  border: 1px solid var(--map-accent);
+  padding: 0 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.btn--sheet:hover { background: #26354c; }
+.btn--sheet:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.btn--close { border-color: #9aa4b6; }
+
+/* The info panel: in the side column it is just the lower part of the panel. */
+.sheet__head { display: none; }
+.sheet__title { margin: 0; }
+
+/* Now mode notes under the map (the card is light or dark with the page). */
+.now-notes { margin-top: 10px; display: grid; gap: 2px; }
+.now-notes p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+/* >= 1024 px, Now mode: the panel is a column BESIDE the map, never over it, so
+   the whole map stays clear (R-V2-RSP-6) and the map fence can reach every edge
+   of E, e.g. 金門 at any zoom (R-V2-MAP-1). Forecast mode keeps the V1 layout
+   (floating >= 1180 px, stacked below). */
+@media (min-width: 1024px) {
+  .map-shell.map-shell--now {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 12px;
+    align-items: stretch;
+  }
+  /* The panel itself never scrolls (#39 R1 F-1): its status part — title, state,
+     Observation Time, Fetched Time, Refresh, the County chooser and Back to
+     Taiwan — keeps fixed rows at the top in every selection state, and only the
+     info part below it (#sheet-body: County context, station detail, station
+     list) scrolls, within the map's height. Explicit rows, so a hidden state
+     block leaves its row empty instead of moving the others. */
+  .map-shell--now .map-panel--now {
+    position: static;
+    width: auto;
+    max-width: none;
+    height: 562px;
+    max-height: none;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto auto auto auto minmax(0, 1fr);
+    column-gap: 8px;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--map-surface-2);
+    box-shadow: none;
+  }
+  .map-shell--now .map-panel--now > .map-panel__title { grid-row: 1; grid-column: 1 / -1; }
+  .map-shell--now .map-panel--now > .obs-state { grid-row: 2; grid-column: 1 / -1; margin: 2px 0 6px; padding: 6px 8px; }
+  .map-shell--now .map-panel--now > .obs-times {
+    grid-row: 3; grid-column: 1 / -1; margin: 2px 0; gap: 2px;
+  }
+  .map-shell--now .map-panel--now .obs-times__row { grid-template-columns: 112px minmax(0, 1fr); align-items: baseline; gap: 6px; }
+  .map-shell--now .map-panel--now .obs-times__row dd { font-size: 13px; }
+  .map-shell--now .map-panel--now > .obs-actions { grid-row: 4; grid-column: 1 / -1; margin: 4px 0; }
+  .map-shell--now .map-panel--now > .county-pick { grid-row: 5; grid-column: 1; margin: 2px 0 8px; }
+  .map-shell--now .map-panel--now > .county-actions { grid-row: 5; grid-column: 2; align-self: start; margin-top: 2px; }
+  .map-shell--now .map-panel--now > .county-actions .btn { margin: 0; }
+  .map-shell--now .map-panel--now > .sheet {
+    grid-row: 6;
+    grid-column: 1 / -1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--map-border);
+  }
+  .map-shell--now .sheet__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+  }
+  .map-shell--now .sheet .county { border-top: 0; }
+  .sheet .county__list { max-height: none; overflow: visible; }
+  .map-shell--now .map-frame { grid-column: 2; }
+  .now-notes { margin-left: 372px; }
+  .sheet-reopen { display: none !important; }
+}
+
+/* Below 1024 px, Now mode: a compact status bar above the map and the county /
+   station detail in a closable bottom info panel over the lower part of the map
+   (R-V2-RSP-5). Peek keeps at least half the map visible; expanded shows the
+   station list and stops below the zoom buttons; closed hides it ("Details"
+   reopens it). The panel lies over the map only — the mode switch, Refresh,
+   the County chooser and "Back to Taiwan" are above the map, never covered. */
+@media (max-width: 1023px) {
+  /* The bar wraps: title, state and times each take a row; Refresh and the
+     County chooser share one when they fit. */
+  /* z-index auto: as a flex item with a z-index the panel would be a stacking
+     context below Leaflet's marker pane, and the info panel inside it could not
+     lie over the markers. */
+  .map-panel--now { z-index: auto; padding: 10px 12px; display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; }
+  .map-panel--now > * { flex: 1 1 100%; min-width: 0; }
+  .map-panel--now .map-panel__title { margin-bottom: 4px; }
+  .map-panel--now .obs-times { margin: 2px 0; gap: 2px; }
+  .map-panel--now .obs-times__row { grid-template-columns: 104px minmax(0, 1fr); align-items: baseline; gap: 6px; }
+  .map-panel--now .obs-times__row dd { font-size: 13px; }
+  .map-panel--now .obs-actions { flex: 0 1 auto; margin: 6px 0; }
+  .map-panel--now .county-pick { flex: 1 1 150px; margin: 6px 0; }
+  .map-panel--now .obs-state { margin: 4px 0 6px; padding: 6px 8px; }
+
+  .sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    background: var(--map-surface-2);
+    color: var(--map-text);
+    border: 1px solid var(--map-border);
+    border-radius: 14px 14px 12px 12px;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, .5);
+  }
+  .sheet[data-sheet="empty"], .sheet[data-sheet="closed"] { display: none; }
+  .sheet[data-sheet="peek"] { max-height: 212px; }                /* <= 50 % of 440 px */
+  .sheet[data-sheet="expanded"] { max-height: calc(440px - 104px); } /* zoom buttons clear */
+  .sheet__head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 12px;
+    border-bottom: 1px solid var(--map-border);
+  }
+  .sheet__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--map-heading);
+    overflow-wrap: anywhere;
+  }
+  .sheet__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 12px 10px;
+  }
+  .sheet .county { border-top: 0; }
+  /* One scroll box only: the list scrolls with the panel. */
+  .sheet .county__list { max-height: none; overflow: visible; }
+}
+@media (max-width: 640px) {
+  .sheet[data-sheet="peek"] { max-height: 172px; }                 /* <= 50 % of 360 px */
+  .sheet[data-sheet="expanded"] { max-height: calc(360px - 104px); }
+  .masthead { margin-bottom: 14px; }
+  .masthead__lead { font-size: .92rem; }
 }
