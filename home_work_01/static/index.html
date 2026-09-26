@@ -58,21 +58,22 @@
         <p id="map-caption" class="caption caption--map"></p>
       </div>
 
-      <div class="map-shell">
+      <div class="map-shell map-shell--now" id="map-shell">
         <!-- NOW MODE panel (R-V2-DD-10, R-V2-OBS-4(c), R-V2-OBS-7). Observation
              Time and Fetched Time are always both shown (values "—" until a
              Latest Observation is displayed); the Fetched Time here is the time
              THIS server fetched the observations and is labelled and placed apart
              from the forecast snapshot's acquisition time in the dashboard below
-             (R-V2-MODE-6(d), DR-17 unchanged). -->
+             (R-V2-MODE-6(d), DR-17 unchanged).
+             Layout (#39, R-V2-RSP-*): at >= 1024 px it is a column BESIDE the map,
+             so it never covers the map; below 1024 px its status part is a compact
+             bar ABOVE the map and the county / station detail (#info-sheet) is a
+             closable bottom info panel over the lower part of the map. -->
         <div id="now-panel" class="map-panel map-panel--info map-panel--now" data-mode="now" data-obs-state="loading">
           <h3 class="map-panel__title">
             Latest Observation <span class="chip chip--obs">OBSERVED</span>
             <span id="obs-state-chip" class="chip chip--stale" hidden>STALE</span>
           </h3>
-          <p class="map-meta map-meta--source">
-            CWA station observations (O-A0001-001, hourly), shown as published.
-          </p>
           <!-- Stale / Unavailable (R-V2-OBS-10, R-V2-OBS-12; Issue #37). Shown only
                after a failed Refresh: Stale while the last successful data is still
                shown, Unavailable when there is none. It carries the failure's
@@ -101,66 +102,83 @@
             <button type="button" id="refresh-button" class="btn btn--refresh">Refresh</button>
             <span id="obs-status" class="obs-status" role="status" aria-live="polite"></span>
           </div>
-          <p class="map-sel__note" id="obs-marker-note">
-            Each marker is one representative station's air temperature (°C) — a
-            station value, not a county temperature.
-          </p>
           <!-- Taiwan → County → Station (#38, R-V2-DD-4..9). Choosing a county here
                is the keyboard path that does not go through the map (R-V2-DD-9(a));
-               hovering / clicking a county on the map does the same. -->
+               hovering / clicking a county on the map does the same. "Back to
+               Taiwan" sits here, outside the info panel, so it stays usable when
+               the phone info panel is closed (R-V2-DD-8, R-V2-RSP-5(g)); "Details"
+               reopens a closed info panel (phones / tablets only). -->
           <div class="map-control county-pick">
             <label class="map-control__label" for="county-select">County</label>
             <select id="county-select" class="map-select">
               <option value="">All of Taiwan</option>
             </select>
           </div>
-          <!-- County context (R-V2-DD-5(b), R-V2-DD-6, R-V2-DD-11): station values
-               only — the valid-station count, the highest and lowest station and
-               the station list; no county average or any other aggregate
-               (R-V2-DD-5(c), INV-V2-5). With no Latest Observation (Unavailable)
-               every value here is "—", never 0 (R-V2-OBS-6, DV-21 §4.2). -->
-          <section id="county-context" class="county" hidden aria-labelledby="county-name">
-            <div class="county__head">
-              <h4 id="county-name" class="county__name">–</h4>
-              <button type="button" id="back-to-taiwan" class="btn btn--back">Back to Taiwan</button>
-            </div>
-            <p id="county-state" class="county__state" hidden></p>
-            <dl class="county__facts">
-              <div class="county__fact"><dt>Valid stations</dt><dd id="county-count">—</dd></div>
-              <div class="county__fact"><dt>On the map</dt><dd id="county-onmap">—</dd></div>
-              <div class="county__fact county__fact--wide"><dt>Highest air temperature</dt><dd id="county-max">—</dd></div>
-              <div class="county__fact county__fact--wide"><dt>Lowest air temperature</dt><dd id="county-min">—</dd></div>
-            </dl>
-            <p class="map-sel__note">
-              Station values as published, per station; no county-level value is
-              computed.
-            </p>
-          </section>
-          <!-- Selected station: its detail (R-V2-DD-7) — click / Enter on a marker
-               or a station of the county list. Any missing value is "—". It sits
-               above the county's station list so it stays near the county facts. -->
-          <div id="obs-selected" class="map-sel" hidden>
-            <p class="map-sel__name" id="obs-sel-name">–</p>
-            <p class="map-sel__place" id="obs-sel-place">–</p>
-            <p id="obs-sel-offmap" class="map-sel__offmap" hidden>Not on the map — outside the map range</p>
-            <div class="map-sel__row"><span>StationId</span><span id="obs-sel-id">–</span></div>
-            <div class="map-sel__row"><span>Air temperature</span><span id="obs-sel-temp">–</span></div>
-            <div class="map-sel__row"><span>Relative humidity</span><span id="obs-sel-rh">–</span></div>
-            <div class="map-sel__row"><span>Wind speed</span><span id="obs-sel-wind">–</span></div>
-            <div class="map-sel__row"><span>Wind direction</span><span id="obs-sel-wdir">–</span></div>
-            <div class="map-sel__row"><span>Air pressure</span><span id="obs-sel-pres">–</span></div>
-            <div class="map-sel__row"><span>Precipitation (today)</span><span id="obs-sel-rain">–</span></div>
-            <div class="map-sel__row"><span>Weather</span><span id="obs-sel-weather">–</span></div>
-            <div class="map-sel__row map-sel__row--stack"><span>Observation Time</span><span id="obs-sel-time">–</span></div>
+          <div class="county-actions">
+            <button type="button" id="back-to-taiwan" class="btn btn--back" hidden>Back to Taiwan</button>
+            <button type="button" id="sheet-reopen" class="btn btn--sheet sheet-reopen" aria-controls="info-sheet" hidden>Details</button>
           </div>
-          <!-- The selected county's station list (R-V2-DD-6): every valid station
-               with its air temperature; each item is a button (Tab to it, Enter or
-               Space selects it, R-V2-DD-9(b)); a station outside the map range is
-               listed and marked "not on the map" (R-V2-DD-11). -->
-          <section id="county-stations" class="county-stations" hidden aria-labelledby="county-list-title">
-            <p class="county__list-title" id="county-list-title">Stations</p>
-            <p id="county-list-empty" class="county__empty" hidden></p>
-            <ul id="county-list" class="county__list"></ul>
+          <!-- The info panel: county context, station detail and station list.
+               >= 1024 px: part of the column beside the map. Below 1024 px: a
+               bottom info panel over the map (R-V2-RSP-5) — peek (at most half the
+               map's height), expanded (the station list; the zoom buttons stay
+               clear) or closed. "Close" is a real button (and Esc works inside the
+               panel); swiping is not needed to close it. -->
+          <section id="info-sheet" class="sheet" data-sheet="empty" aria-labelledby="sheet-title">
+            <div class="sheet__head">
+              <p id="sheet-title" class="sheet__title">Details</p>
+              <button type="button" id="sheet-expand" class="btn btn--sheet" aria-controls="info-sheet" aria-expanded="false">Expand</button>
+              <button type="button" id="sheet-close" class="btn btn--sheet btn--close" aria-controls="info-sheet" aria-label="Close details"><span aria-hidden="true">✕</span> Close</button>
+            </div>
+            <div id="sheet-body" class="sheet__body">
+              <!-- County context (R-V2-DD-5(b), R-V2-DD-6, R-V2-DD-11): station values
+                   only — the valid-station count, the highest and lowest station and
+                   the station list; no county average or any other aggregate
+                   (R-V2-DD-5(c), INV-V2-5). With no Latest Observation (Unavailable)
+                   every value here is "—", never 0 (R-V2-OBS-6, DV-21 §4.2). -->
+              <section id="county-context" class="county" hidden aria-labelledby="county-name">
+                <div class="county__head">
+                  <h4 id="county-name" class="county__name">–</h4>
+                </div>
+                <p id="county-state" class="county__state" hidden></p>
+                <dl class="county__facts">
+                  <div class="county__fact"><dt>Valid stations</dt><dd id="county-count">—</dd></div>
+                  <div class="county__fact"><dt>On the map</dt><dd id="county-onmap">—</dd></div>
+                  <div class="county__fact county__fact--wide"><dt>Highest air temperature</dt><dd id="county-max">—</dd></div>
+                  <div class="county__fact county__fact--wide"><dt>Lowest air temperature</dt><dd id="county-min">—</dd></div>
+                </dl>
+                <p class="map-sel__note">
+                  Station values as published, per station; no county-level value is
+                  computed.
+                </p>
+              </section>
+              <!-- Selected station: its detail (R-V2-DD-7) — click / Enter on a marker
+                   or a station of the county list. Any missing value is "—". It sits
+                   above the county's station list so it stays near the county facts. -->
+              <div id="obs-selected" class="map-sel" hidden>
+                <p class="map-sel__name" id="obs-sel-name">–</p>
+                <p class="map-sel__place" id="obs-sel-place">–</p>
+                <p id="obs-sel-offmap" class="map-sel__offmap" hidden>Not on the map — outside the map range</p>
+                <div class="map-sel__row"><span>StationId</span><span id="obs-sel-id">–</span></div>
+                <div class="map-sel__row"><span>Air temperature</span><span id="obs-sel-temp">–</span></div>
+                <div class="map-sel__row"><span>Relative humidity</span><span id="obs-sel-rh">–</span></div>
+                <div class="map-sel__row"><span>Wind speed</span><span id="obs-sel-wind">–</span></div>
+                <div class="map-sel__row"><span>Wind direction</span><span id="obs-sel-wdir">–</span></div>
+                <div class="map-sel__row"><span>Air pressure</span><span id="obs-sel-pres">–</span></div>
+                <div class="map-sel__row"><span>Precipitation (today)</span><span id="obs-sel-rain">–</span></div>
+                <div class="map-sel__row"><span>Weather</span><span id="obs-sel-weather">–</span></div>
+                <div class="map-sel__row map-sel__row--stack"><span>Observation Time</span><span id="obs-sel-time">–</span></div>
+              </div>
+              <!-- The selected county's station list (R-V2-DD-6): every valid station
+                   with its air temperature; each item is a button (Tab to it, Enter or
+                   Space selects it, R-V2-DD-9(b)); a station outside the map range is
+                   listed and marked "not on the map" (R-V2-DD-11). -->
+              <section id="county-stations" class="county-stations" hidden aria-labelledby="county-list-title">
+                <p class="county__list-title" id="county-list-title">Stations</p>
+                <p id="county-list-empty" class="county__empty" hidden></p>
+                <ul id="county-list" class="county__list"></ul>
+              </section>
+            </div>
           </section>
         </div>
 
@@ -237,6 +255,19 @@
             Average = (MinT + MaxT) / 2, a derived value — not an observed daily mean.
           </p>
         </div>
+      </div>
+
+      <!-- Now mode notes, under the map (#39: moved out of the Now panel so the
+           phone layout keeps the map near the top). The source line labels the
+           markers as CWA station observations as published (R-V2-MODE-6(a)). -->
+      <div class="now-notes" data-mode="now">
+        <p class="now-notes__source">
+          CWA station observations (O-A0001-001, hourly), shown as published.
+        </p>
+        <p class="now-notes__note" id="obs-marker-note">
+          Each marker is one representative station's air temperature (°C) — a
+          station value, not a county temperature.
+        </p>
       </div>
     </section>
 

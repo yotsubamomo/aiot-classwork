@@ -614,26 +614,33 @@ def scenario_success(s: S) -> None:
     b.js("var s=document.getElementById('county-select'); s.selectedIndex=0; s.dispatchEvent(new Event('change')); true")
     b.pump(0.6)
 
-    # a representative marker under the floating panel: focusing it brings it clear
+    # DD-9(e)/RSP-6 (#39 layout): >= 1024 px the Now panel is a column BESIDE the
+    # map, so nothing covers the map; a representative marker that is outside the
+    # clear map area (here: off-screen after zooming in) is brought fully into
+    # view when it receives keyboard focus (focus never fully covered).
     if not s.mobile:
-        b.js("document.getElementById('map').focus(); true")
-        for _ in range(6):
-            b.key("ArrowRight")
-            b.pump(0.4)  # Leaflet ignores a pan key while a pan animates
-        under = b.js("""(function(){var p=document.getElementById('now-panel').getBoundingClientRect();
-            var hit=null; document.querySelectorAll('.station-icon .spill').forEach(function(el){
+        apart = b.js("""(function(){var p=document.getElementById('now-panel').getBoundingClientRect(),
+            m=document.getElementById('map').getBoundingClientRect();
+            return p.right <= m.left || p.left >= m.right || p.bottom <= m.top || p.top >= m.bottom;})()""")
+        for _ in range(2):
+            b.js("document.querySelector('.leaflet-control-zoom-in').click(); true")
+            b.pump(0.8)
+        away = b.js("""(function(){var m=document.getElementById('map').getBoundingClientRect(), hit=null;
+            document.querySelectorAll('.station-icon:not(.is-culled) .spill').forEach(function(el){
               var r=el.getBoundingClientRect(); var x=r.x+r.width/2, y=r.y+r.height/2;
-              if(!hit && x>p.x && x<p.x+p.width && y>p.y && y<p.y+p.height) hit=el.getAttribute('aria-label');});
+              if(!hit && (x<m.left || x>m.right || y<m.top || y>m.bottom)) hit=el.getAttribute('aria-label');});
             return hit;})()""")
-        if under:
-            b.js(f"Array.from(document.querySelectorAll('.station-icon .spill')).filter(function(e){{return e.getAttribute('aria-label')==={json.dumps(under)};}})[0].focus(); true")
+        if away:
+            b.js(f"Array.from(document.querySelectorAll('.station-icon .spill')).filter(function(e){{return e.getAttribute('aria-label')==={json.dumps(away)};}})[0].focus(); true")
             b.pump(0.4)
             fv = b.js("__cty.focusVisible()")
         else:
-            fv = {"ok": False, "why": "no marker under the panel after panning"}
-        s.add("DD-9(e)/RSP-6 a marker focused while under the floating panel is brought clear (focus never fully covered)",
-              bool(under) and fv["ok"], {"marker": under, "focus": fv})
+            fv = {"ok": False, "why": "no marker outside the map after zooming in"}
+        s.add("DD-9(e)/RSP-6 the Now panel never covers the map (beside it); a marker focused while off-screen is brought fully into view",
+              apart and bool(away) and fv["ok"], {"apart": apart, "marker": away, "focus": fv})
         s.press("#back-to-taiwan", "Enter") if b.js("__chk.visible(document.getElementById('back-to-taiwan'))") else None
+        b.js("var s=document.getElementById('county-select'); s.selectedIndex=0; s.dispatchEvent(new Event('change')); true")
+        b.pump(0.6)
 
 
 # --- scenario 2: DV-20 — AC-V2-01 county round trip -----------------------------------
@@ -830,6 +837,25 @@ def scenario_stale(s: S) -> None:
           {k: c[k] for k in ("obsState", "count", "max", "min")})
 
 
+def tab_into_list(s) -> dict:
+    """From ``Back to Taiwan``, Tab into the county's station list. On phones the
+    info panel's own controls (Expand, Close — #39) come first; they are the only
+    stops allowed on the way, and each stop's focus must be visible."""
+    b = s.b
+    b.js("document.getElementById('back-to-taiwan').focus(); true")
+    passed = []
+    for _ in range(4):
+        b.key("Tab")
+        b.pump(0.15)
+        st = b.js("""({id: document.activeElement.id, item: document.activeElement.classList.contains('county__item'),
+                      sid: document.activeElement.getAttribute('data-station-id'), fv: __cty.focusVisible()})""")
+        if st["item"]:
+            return {"ok": all(p["id"] in ("sheet-expand", "sheet-close") and p["fv"]["ok"] for p in passed)
+                    and st["fv"]["ok"], "first": st["sid"], "passed": [p["id"] for p in passed], "focus": st["fv"]}
+        passed.append(st)
+    return {"ok": False, "first": None, "passed": [p["id"] for p in passed], "focus": None}
+
+
 def mobile_walk(s: S) -> None:
     """375 px: the county paths, list keyboard, detail, Back to Taiwan and no
     horizontal scroll in the selected states (the full 375 panel is #39)."""
@@ -845,16 +871,15 @@ def mobile_walk(s: S) -> None:
           context_matches(c, exp, "臺北市") and c["scrollWidth"] <= c["innerWidth"] and county_fitted(s, exp)[0],
           {k: c[k] for k in ("count", "onmap", "max", "min", "scrollWidth", "innerWidth")})
     s.shot("county-context")
-    b.js("document.getElementById('back-to-taiwan').focus(); true")
-    b.key("Tab")
-    fv = b.js("__cty.focusVisible()")
+    walk = tab_into_list(s)
     b.key("Enter")
     b.pump(0.4)
     c = s.ctx()
     by_id = {x["stationId"]: x for x in body["stations"]}
-    s.add("375 AC-V2-12 Tab into the list + Enter -> detail = /api/; focus visible; no horizontal scroll",
-          c["detail"] == expected_detail(by_id[exp["order"][0]]) and fv["ok"] and c["scrollWidth"] <= c["innerWidth"],
-          {"detail": c["detail"], "focus": fv})
+    s.add("375 AC-V2-12 Tab into the list (past the info panel's Expand / Close) + Enter -> detail = /api/; focus visible; no horizontal scroll",
+          walk["ok"] and walk["first"] == exp["order"][0]
+          and c["detail"] == expected_detail(by_id[exp["order"][0]]) and c["scrollWidth"] <= c["innerWidth"],
+          {"detail": c["detail"], "walk": walk})
     s.shot("station-detail")
     s.press("#back-to-taiwan", "Enter")
     c = s.ctx()
@@ -929,10 +954,26 @@ def tab_walk(s: S) -> list[dict]:
     return stops
 
 
-def walk_ok(stops: list[dict], markers_expected: bool) -> tuple[bool, dict]:
+# Markers that may be Tab stops (#39): shown (not hidden by the density rule,
+# R-V2-RSP-7) and not under a panel or notice; every other marker must have
+# tabindex -1 or be invisible, so a Tab stop is never hidden.
+MARKER_ACCESS_JS = r"""(function () {
+  var all = Array.from(document.querySelectorAll('.station-icon'));
+  var stops = all.filter(function (el) { return !el.classList.contains('is-culled') &&
+    el.querySelector('.spill').getAttribute('tabindex') === '0'; });
+  var bad = all.filter(function (el) { return el.classList.contains('is-culled') &&
+    getComputedStyle(el).visibility !== 'hidden'; });
+  return {all: all.length, stops: stops.length, culled: all.length - all.filter(function (el) {
+    return !el.classList.contains('is-culled'); }).length, culledVisible: bad.length};
+})()"""
+
+
+def walk_ok(stops: list[dict], markers_expected: bool, access: dict | None = None) -> tuple[bool, dict]:
     """No county path is a stop; every stop inside the map is an operable control
     (a representative marker, the zoom buttons) and its focus is visible; the walk
-    leaves the map."""
+    leaves the map. Taiwan-wide, the marker stops are exactly the markers the page
+    offers as stops (shown by the density rule and not covered — #39; at least one);
+    no hidden marker is visible."""
     inside = [x for x in stops if x["inMap"]]
     paths = [x for x in stops if x["tag"] == "path"]
     kinds = {("marker" if "spill" in x["cls"] else "zoom" if "leaflet-control-zoom" in x["cls"] else "other")
@@ -940,10 +981,13 @@ def walk_ok(stops: list[dict], markers_expected: bool) -> tuple[bool, dict]:
     hidden = [x for x in inside if not x["visible"]]
     left = bool(stops) and not stops[-1]["inMap"]
     markers = sum(1 for x in inside if "spill" in x["cls"])
+    expected = (access or {}).get("stops", 22) if markers_expected else 0
     ok = (not paths and "other" not in kinds and not hidden and left
-          and (markers == 22 if markers_expected else markers == 0))
+          and markers == expected and (not markers_expected or markers >= 1)
+          and not (access or {}).get("culledVisible"))
     return ok, {"stops": len(stops), "inMap": len(inside), "paths": len(paths), "kinds": sorted(kinds),
-                "markerStops": markers, "hidden": hidden[:3], "exit": stops[-1] if stops else None}
+                "markerStops": markers, "expected": expected, "access": access,
+                "hidden": hidden[:3], "exit": stops[-1] if stops else None}
 
 
 def scenario_tab_walk(s: S) -> None:
@@ -953,7 +997,8 @@ def scenario_tab_walk(s: S) -> None:
     tabidx = b.js("__cty.paths().map(function (p) { return p.getAttribute('tabindex'); })")
     s.add("F-1 every county path is out of the Tab order (tabindex=-1)",
           len(tabidx) == 22 and set(tabidx) == {"-1"}, sorted(set(map(str, tabidx))))
-    ok, det = walk_ok(tab_walk(s), markers_expected=True)
+    access = b.js(MARKER_ACCESS_JS)
+    ok, det = walk_ok(tab_walk(s), markers_expected=True, access=access)
     s.add("F-1/DD-9(d)(e)/RSP-6 Tab walk from the map, Taiwan-wide: no county-path stop; only markers + zoom buttons, all with visible focus",
           ok, det)
     # the first marker stop is operable: Enter selects its station
@@ -982,13 +1027,13 @@ def scenario_tab_walk(s: S) -> None:
     c = s.ctx()
     s.add("F-1 regression: hover shows the county name and a click still selects it",
           pt is not None and c["name"] == county and c["visible"], {"county": county})
-    b.js("document.getElementById('back-to-taiwan').focus(); true")
-    b.key("Tab")
+    walk = tab_into_list(s)
     b.key("Enter")
     b.pump(0.4)
     c = s.ctx()
     s.add("F-1 regression: the station list is still reached with Tab and Enter shows the detail",
-          c["detail"] is not None and b.js("__cty.focusVisible()")["ok"], (c["detail"] or {}).get("name"))
+          walk["ok"] and c["detail"] is not None and b.js("__cty.focusVisible()")["ok"],
+          {"detail": (c["detail"] or {}).get("name"), "walk": walk})
     s.shot("tabwalk-after")
 
 

@@ -720,10 +720,6 @@ img { max-width: 100%; }
    block, on-map notice and look, distinct from success and from each other. */
 /* The Now panel title wraps its chips instead of overflowing the panel. */
 .map-panel--now .map-panel__title { flex-wrap: wrap; justify-content: flex-start; }
-/* Floating (>= 1180 px) the Now panel never extends past the map: it scrolls. */
-@media (min-width: 1180px) {
-  .map-panel--now { max-height: calc(100% - 28px); overflow-y: auto; }
-}
 .chip--stale { background: #3d2e05; color: #fcd34d; border-color: #8a6a12; }
 .chip--unavailable { background: #3a1515; color: #ffb4b4; border-color: #7a2b2b; }
 .obs-state {
@@ -747,7 +743,6 @@ img { max-width: 100%; }
    the attribution line; it
    never takes the pointer, so the map stays fully operable under it. */
 .obs-map-state-wrap { position: absolute; left: 12px; bottom: 28px; z-index: 650; pointer-events: none; }
-@media (min-width: 1180px) { .obs-map-state-wrap { left: 344px; } }
 .obs-map-state {
   margin: 0;
   padding: 5px 10px;
@@ -763,10 +758,6 @@ img { max-width: 100%; }
 .spinner--sm { width: 16px; height: 16px; border-width: 2px; }
 .map-sel__place { font-size: 13px; color: var(--map-muted); margin: 0 0 4px; }
 .map-sel__row--stack { display: grid; }
-@media (max-width: 640px) {
-  /* Phones: the three Now-panel values sit two per row so the map starts higher. */
-  .obs-times { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 12px; }
-}
 
 /* Representative-station markers (L.marker + L.divIcon). A rounded rectangle in
    a neutral light fill — visibly a different kind of marker from the Forecast
@@ -997,4 +988,143 @@ img { max-width: 100%; }
 @media (max-width: 640px) {
   .map { height: 360px; }
   .leaflet-control-attribution { font-size: 12px; }
+}
+
+/* --- V2 (#39): map layout, info panel, touch targets, marker density ---------- */
+
+/* Leaflet's zoom buttons are 44 x 44 touch targets (R-V2-RSP-3). */
+.leaflet-control-zoom a,
+.leaflet-touch .leaflet-control-zoom a {
+  width: 44px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  font-size: 22px !important;
+}
+.leaflet-control-zoom a:focus-visible { outline: 3px solid #9ed0ff; outline-offset: -3px; }
+
+/* Marker density (R-V2-RSP-7): a station marker whose touch area would overlap
+   one ranked before it is hidden at this zoom — invisible, not clickable, not a
+   Tab stop (app.js updateMarkerAccess). It keeps its box, so it reappears in place
+   when zooming in. */
+.station-icon.is-culled { visibility: hidden; }
+
+/* "Back to Taiwan" and "Details" beside the County chooser. */
+.county-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.county-actions .btn { margin: 0 0 8px; }
+.btn--sheet {
+  background: var(--map-surface-2);
+  color: var(--map-text);
+  border: 1px solid var(--map-accent);
+  padding: 0 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.btn--sheet:hover { background: #26354c; }
+.btn--sheet:focus-visible { outline: 3px solid #9ed0ff; outline-offset: 2px; }
+.btn--close { border-color: #9aa4b6; }
+
+/* The info panel: in the side column it is just the lower part of the panel. */
+.sheet__head { display: none; }
+.sheet__title { margin: 0; }
+
+/* Now mode notes under the map (the card is light or dark with the page). */
+.now-notes { margin-top: 10px; display: grid; gap: 2px; }
+.now-notes p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+
+/* >= 1024 px, Now mode: the panel is a column BESIDE the map, never over it, so
+   the whole map stays clear (R-V2-RSP-6) and the map fence can reach every edge
+   of E, e.g. 金門 at any zoom (R-V2-MAP-1). It scrolls within the map's height.
+   Forecast mode keeps the V1 layout (floating >= 1180 px, stacked below). */
+@media (min-width: 1024px) {
+  .map-shell.map-shell--now {
+    display: grid;
+    grid-template-columns: 312px minmax(0, 1fr);
+    gap: 12px;
+    align-items: stretch;
+  }
+  .map-shell--now .map-panel--now {
+    position: static;
+    width: auto;
+    max-width: none;
+    max-height: 562px;
+    overflow-y: auto;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--map-surface-2);
+    box-shadow: none;
+  }
+  .map-shell--now .map-frame { grid-column: 2; }
+  .now-notes { margin-left: 324px; }
+  .sheet-reopen { display: none !important; }
+}
+
+/* Below 1024 px, Now mode: a compact status bar above the map and the county /
+   station detail in a closable bottom info panel over the lower part of the map
+   (R-V2-RSP-5). Peek keeps at least half the map visible; expanded shows the
+   station list and stops below the zoom buttons; closed hides it ("Details"
+   reopens it). The panel lies over the map only — the mode switch, Refresh,
+   the County chooser and "Back to Taiwan" are above the map, never covered. */
+@media (max-width: 1023px) {
+  /* The bar wraps: title, state and times each take a row; Refresh and the
+     County chooser share one when they fit. */
+  /* z-index auto: as a flex item with a z-index the panel would be a stacking
+     context below Leaflet's marker pane, and the info panel inside it could not
+     lie over the markers. */
+  .map-panel--now { z-index: auto; padding: 10px 12px; display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; }
+  .map-panel--now > * { flex: 1 1 100%; min-width: 0; }
+  .map-panel--now .map-panel__title { margin-bottom: 4px; }
+  .map-panel--now .obs-times { margin: 2px 0; gap: 2px; }
+  .map-panel--now .obs-times__row { grid-template-columns: 104px minmax(0, 1fr); align-items: baseline; gap: 6px; }
+  .map-panel--now .obs-times__row dd { font-size: 13px; }
+  .map-panel--now .obs-actions { flex: 0 1 auto; margin: 6px 0; }
+  .map-panel--now .county-pick { flex: 1 1 150px; margin: 6px 0; }
+  .map-panel--now .obs-state { margin: 4px 0 6px; padding: 6px 8px; }
+
+  .sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    background: var(--map-surface-2);
+    color: var(--map-text);
+    border: 1px solid var(--map-border);
+    border-radius: 14px 14px 12px 12px;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, .5);
+  }
+  .sheet[data-sheet="empty"], .sheet[data-sheet="closed"] { display: none; }
+  .sheet[data-sheet="peek"] { max-height: 212px; }                /* <= 50 % of 440 px */
+  .sheet[data-sheet="expanded"] { max-height: calc(440px - 104px); } /* zoom buttons clear */
+  .sheet__head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 12px;
+    border-bottom: 1px solid var(--map-border);
+  }
+  .sheet__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--map-heading);
+    overflow-wrap: anywhere;
+  }
+  .sheet__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 12px 10px;
+  }
+  .sheet .county { border-top: 0; }
+  /* One scroll box only: the list scrolls with the panel. */
+  .sheet .county__list { max-height: none; overflow: visible; }
+}
+@media (max-width: 640px) {
+  .sheet[data-sheet="peek"] { max-height: 172px; }                 /* <= 50 % of 360 px */
+  .sheet[data-sheet="expanded"] { max-height: calc(360px - 104px); }
+  .masthead { margin-bottom: 14px; }
+  .masthead__lead { font-size: .92rem; }
 }

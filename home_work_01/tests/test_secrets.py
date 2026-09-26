@@ -44,6 +44,10 @@ V2_CODE = [
     UNIT_DIR / "static" / "data" / "counties.js",
     UNIT_DIR / "tests" / "test_county_frontend.py",
     UNIT_DIR / "tests" / "check_county_browser.py",
+    # Issue #39: map fence / responsive guards, stylesheet and browser check.
+    UNIT_DIR / "static" / "styles.css",
+    UNIT_DIR / "tests" / "test_fence_frontend.py",
+    UNIT_DIR / "tests" / "check_fence_browser.py",
 ]
 
 

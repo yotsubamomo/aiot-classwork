@@ -1,0 +1,102 @@
+{
+  "desktop-refresh": {
+    "total_requests": 36,
+    "urls": {
+      "http://127.0.0.1:<port>/": 1,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.css": 1,
+      "http://127.0.0.1:<port>/static/styles.css": 1,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.js": 1,
+      "http://127.0.0.1:<port>/static/data/basemap.js": 1,
+      "http://127.0.0.1:<port>/static/data/counties.js": 1,
+      "http://127.0.0.1:<port>/static/app.js": 1,
+      "http://127.0.0.1:<port>/api/observations/latest": 19,
+      "http://127.0.0.1:<port>/api/health": 1,
+      "http://127.0.0.1:<port>/favicon.ico": 1,
+      "http://127.0.0.1:<port>/api/regions": 1,
+      "http://127.0.0.1:<port>/api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 1,
+      "http://127.0.0.1:<port>/api/days": 2,
+      "http://127.0.0.1:<port>/api/days/2026-09-24": 2,
+      "http://127.0.0.1:<port>/api/regions/%E5%8D%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 2
+    }
+  },
+  "desktop-unavailable": {
+    "total_requests": 84,
+    "urls": {
+      "http://127.0.0.1:<port>/": 6,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.css": 6,
+      "http://127.0.0.1:<port>/static/styles.css": 6,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.js": 6,
+      "http://127.0.0.1:<port>/static/data/basemap.js": 6,
+      "http://127.0.0.1:<port>/static/data/counties.js": 6,
+      "http://127.0.0.1:<port>/static/app.js": 6,
+      "http://127.0.0.1:<port>/api/observations/latest": 7,
+      "http://127.0.0.1:<port>/api/health": 6,
+      "http://127.0.0.1:<port>/favicon.ico": 1,
+      "http://127.0.0.1:<port>/api/regions": 6,
+      "http://127.0.0.1:<port>/api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 6,
+      "http://127.0.0.1:<port>/api/days": 7,
+      "http://127.0.0.1:<port>/api/days/2026-09-24": 7,
+      "http://127.0.0.1:<port>/api/regions/%E5%8D%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 2
+    }
+  },
+  "375-refresh": {
+    "total_requests": 36,
+    "urls": {
+      "http://127.0.0.1:<port>/": 1,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.css": 1,
+      "http://127.0.0.1:<port>/static/styles.css": 1,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.js": 1,
+      "http://127.0.0.1:<port>/static/data/basemap.js": 1,
+      "http://127.0.0.1:<port>/static/data/counties.js": 1,
+      "http://127.0.0.1:<port>/static/app.js": 1,
+      "http://127.0.0.1:<port>/api/observations/latest": 19,
+      "http://127.0.0.1:<port>/api/health": 1,
+      "http://127.0.0.1:<port>/favicon.ico": 1,
+      "http://127.0.0.1:<port>/api/regions": 1,
+      "http://127.0.0.1:<port>/api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 1,
+      "http://127.0.0.1:<port>/api/days": 2,
+      "http://127.0.0.1:<port>/api/days/2026-09-24": 2,
+      "http://127.0.0.1:<port>/api/regions/%E5%8D%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 2
+    }
+  },
+  "375-unavailable": {
+    "total_requests": 32,
+    "urls": {
+      "http://127.0.0.1:<port>/": 2,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.css": 2,
+      "http://127.0.0.1:<port>/static/styles.css": 2,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.js": 2,
+      "http://127.0.0.1:<port>/static/data/basemap.js": 2,
+      "http://127.0.0.1:<port>/static/data/counties.js": 2,
+      "http://127.0.0.1:<port>/static/app.js": 2,
+      "http://127.0.0.1:<port>/api/observations/latest": 3,
+      "http://127.0.0.1:<port>/api/health": 2,
+      "http://127.0.0.1:<port>/favicon.ico": 1,
+      "http://127.0.0.1:<port>/api/regions": 2,
+      "http://127.0.0.1:<port>/api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 2,
+      "http://127.0.0.1:<port>/api/days": 3,
+      "http://127.0.0.1:<port>/api/days/2026-09-24": 3,
+      "http://127.0.0.1:<port>/api/regions/%E5%8D%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 2
+    }
+  },
+  "age": {
+    "total_requests": 15,
+    "urls": {
+      "http://127.0.0.1:<port>/": 1,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.css": 1,
+      "http://127.0.0.1:<port>/static/styles.css": 1,
+      "http://127.0.0.1:<port>/static/vendor/leaflet.js": 1,
+      "http://127.0.0.1:<port>/static/data/basemap.js": 1,
+      "http://127.0.0.1:<port>/static/data/counties.js": 1,
+      "http://127.0.0.1:<port>/static/app.js": 1,
+      "http://127.0.0.1:<port>/api/observations/latest": 2,
+      "http://127.0.0.1:<port>/api/health": 1,
+      "http://127.0.0.1:<port>/favicon.ico": 1,
+      "http://127.0.0.1:<port>/api/regions": 1,
+      "http://127.0.0.1:<port>/api/regions/%E5%8C%97%E9%83%A8%E5%9C%B0%E5%8D%80/series": 1,
+      "http://127.0.0.1:<port>/api/days": 1,
+      "http://127.0.0.1:<port>/api/days/2026-09-24": 1
+    }
+  },
+  "external_requests": []
+}

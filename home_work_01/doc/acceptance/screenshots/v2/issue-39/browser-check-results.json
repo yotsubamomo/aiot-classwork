@@ -1,0 +1,3763 @@
+{
+  "checks": [
+    {
+      "id": "desktop AC-V2-13(a)/R-V2-MAP-4 initial Now view contains the whole main island and 澎湖's main island (fence holds)",
+      "pass": true,
+      "detail": {
+        "zoom": 7.0,
+        "center": [
+          23.97621,
+          120.24536
+        ],
+        "west_east": [
+          116.4441,
+          124.0466
+        ],
+        "south_north": [
+          21.1357,
+          26.7554
+        ],
+        "centreInE": true,
+        "lngAxis": "E within map",
+        "latAxis": "E within map"
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(c)/R-V2-MAP-2 zoom floor: the main island spans >= 25 % of the map height; − button disabled; key / wheel cannot zoom out further",
+      "pass": true,
+      "detail": {
+        "zoom": 6.0,
+        "mainIslandNS_px": 168.9,
+        "mapHeight": 560,
+        "fraction": 0.302
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(c) at the floor the fence holds after dragging to the end in each direction",
+      "pass": true,
+      "detail": {
+        "west": {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        "east": {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        "north": {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        "south": {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(b)/R-V2-MAP-1 zoom 8: after dragging to the end W / E / N / S — centre in E; each axis map ⊆ E or E ⊆ map",
+      "pass": true,
+      "detail": {
+        "west": {
+          "zoom": 8.0,
+          "center": [
+            23.97621,
+            119.49829
+          ],
+          "west_east": [
+            117.5977,
+            121.3989
+          ],
+          "south_north": [
+            22.5633,
+            25.3738
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "east": {
+          "zoom": 8.0,
+          "center": [
+            23.97621,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            22.5633,
+            25.3738
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "north": {
+          "zoom": 8.0,
+          "center": [
+            25.3192,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            23.921,
+            26.7015
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "south": {
+          "zoom": 8.0,
+          "center": [
+            22.62922,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            21.2023,
+            24.0414
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      }
+    },
+    {
+      "id": "desktop R-V2-MAP-1 keyboard panning (arrow keys, to the north-west end) stays inside the fence",
+      "pass": true,
+      "detail": {
+        "zoom": 8.0,
+        "center": [
+          25.31424,
+          119.50378
+        ],
+        "west_east": [
+          117.6031,
+          121.4044
+        ],
+        "south_north": [
+          23.916,
+          26.6965
+        ],
+        "centreInE": true,
+        "lngAxis": "map within E",
+        "latAxis": "map within E"
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(b) 金門縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 8.0,
+          "center": [
+            24.41214,
+            119.49829
+          ],
+          "west_east": [
+            117.5977,
+            121.3989
+          ],
+          "south_north": [
+            23.0039,
+            25.8048
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 581.9921875,
+          "y": 580.8125,
+          "culled": false
+        },
+        "detail": "金門 station"
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(b) 金門縣 at the zoom ceiling: land in the map, station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 12.0,
+          "center": [
+            24.36524,
+            118.42163
+          ],
+          "west_east": [
+            118.3028,
+            118.5404
+          ],
+          "south_north": [
+            24.2776,
+            24.4528
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 416.9921875,
+          "y": 444.8125,
+          "culled": false
+        },
+        "detail": "金門 station"
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(b) 連江縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 8.0,
+          "center": [
+            25.3192,
+            119.92126
+          ],
+          "west_east": [
+            118.0206,
+            121.8219
+          ],
+          "south_north": [
+            23.921,
+            26.7015
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 801.9921875,
+          "y": 407.8125,
+          "culled": false
+        },
+        "detail": "馬祖 station"
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(b) 連江縣 at the zoom ceiling: land in the map, station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 12.0,
+          "center": [
+            26.12801,
+            119.92332
+          ],
+          "west_east": [
+            119.8045,
+            120.0421
+          ],
+          "south_north": [
+            26.0417,
+            26.2143
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 801.9921875,
+          "y": 444.8125,
+          "culled": false
+        },
+        "detail": "馬祖 station"
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(d)/R-V2-MAP-3 zoom ceiling: 1 km >= 20 CSS px and a 375 px map spans >= 5 km; + disabled; key cannot zoom further",
+      "pass": true,
+      "detail": {
+        "zoom": 12.0,
+        "px_per_km": 28.95,
+        "km_per_375px": 12.96,
+        "mapWidth_km": 23.91
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(b) at the ceiling: dragged to the end W / E / N / S (the map reaches that edge of E) — the fence holds",
+      "pass": true,
+      "detail": {
+        "west": [
+          {
+            "zoom": 12.0,
+            "center": [
+              25.95681,
+              117.71885
+            ],
+            "west_east": [
+              117.6001,
+              117.8376
+            ],
+            "south_north": [
+              25.8703,
+              26.0432
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": 6e-05
+          }
+        ],
+        "east": [
+          {
+            "zoom": 12.0,
+            "center": [
+              25.95187,
+              122.78114
+            ],
+            "west_east": [
+              122.6624,
+              122.8999
+            ],
+            "south_north": [
+              25.8654,
+              26.0383
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": 7e-05
+          }
+        ],
+        "north": [
+          {
+            "zoom": 12.0,
+            "center": [
+              26.61401,
+              120.99792
+            ],
+            "west_east": [
+              120.8791,
+              121.1167
+            ],
+            "south_north": [
+              26.528,
+              26.6999
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": 8e-05
+          }
+        ],
+        "south": [
+          {
+            "zoom": 12.0,
+            "center": [
+              21.28969,
+              120.99792
+            ],
+            "west_east": [
+              120.8791,
+              121.1167
+            ],
+            "south_north": [
+              21.2001,
+              21.3792
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": 0.0001
+          }
+        ]
+      }
+    },
+    {
+      "id": "desktop R-V2-MAP-4/DD-8 after Back to Taiwan the view contains the whole main island and 澎湖's main island",
+      "pass": true,
+      "detail": {
+        "zoom": 7.0,
+        "center": [
+          23.97822,
+          120.24866
+        ],
+        "west_east": [
+          116.4474,
+          124.0499
+        ],
+        "south_north": [
+          21.1378,
+          26.7574
+        ],
+        "centreInE": true,
+        "lngAxis": "E within map",
+        "latAxis": "E within map"
+      }
+    },
+    {
+      "id": "desktop AC-V2-13(d) 臺北市 at the ceiling: every on-map station is selected by a click on its marker, or shown and marked on the map after choosing it from the list",
+      "pass": true,
+      "detail": {
+        "onMap": 19,
+        "selectedByMarkerClick": 16,
+        "shownAndMarkedAfterListChoice": 4,
+        "problems": []
+      }
+    },
+    {
+      "id": "desktop R-V2-RSP-7/RSP-3 Taiwan-wide initial view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible",
+      "pass": true,
+      "detail": {
+        "all": 22,
+        "shown": 9,
+        "overlaps": 0,
+        "measured": 9,
+        "touchMisses": 0,
+        "unreadable": 0,
+        "culledVisible": 0
+      }
+    },
+    {
+      "id": "desktop R-V2-RSP-7/RSP-3 Taiwan-wide, zoomed in two levels: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible",
+      "pass": true,
+      "detail": {
+        "all": 22,
+        "shown": 18,
+        "overlaps": 0,
+        "measured": 6,
+        "touchMisses": 0,
+        "unreadable": 0,
+        "culledVisible": 0
+      }
+    },
+    {
+      "id": "desktop R-V2-RSP-7 zooming in shows more of the representative markers (density rule is per zoom)",
+      "pass": true,
+      "detail": {
+        "initial": 9,
+        "zoomedIn": 18
+      }
+    },
+    {
+      "id": "desktop R-V2-RSP-7/RSP-3 臺中市 county view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible",
+      "pass": true,
+      "detail": {
+        "all": 60,
+        "shown": 11,
+        "overlaps": 0,
+        "measured": 9,
+        "touchMisses": 0,
+        "unreadable": 0,
+        "culledVisible": 0
+      }
+    },
+    {
+      "id": "desktop R-V2-RSP-3 county + station selected: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px",
+      "pass": true,
+      "detail": {
+        "sizes": {
+          "#mode-now": [
+            211.8,
+            44
+          ],
+          "#mode-forecast": [
+            146,
+            44
+          ],
+          "#refresh-button": [
+            84.7,
+            44
+          ],
+          "#county-select": [
+            232.1,
+            44
+          ],
+          "#back-to-taiwan": [
+            118.3,
+            44
+          ],
+          ".leaflet-control-zoom-in": [
+            44,
+            44
+          ],
+          ".leaflet-control-zoom-out": [
+            44,
+            44
+          ],
+          "list items": [
+            278,
+            44
+          ]
+        },
+        "small": {}
+      }
+    },
+    {
+      "id": "desktop RSP-6 desktop: the Now panel is beside the map (no overlap); the selected station and the zoom buttons are visible and not covered; the panel shows the detail in view",
+      "pass": true,
+      "detail": {
+        "apart": true,
+        "selectedHit": true,
+        "selectedInMap": true,
+        "zoomHit": true,
+        "detail": true
+      }
+    },
+    {
+      "id": "desktop R-V2-RSP-3 desktop county + station: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px",
+      "pass": true,
+      "detail": {
+        "sizes": {
+          "#mode-now": [
+            211.8,
+            44
+          ],
+          "#mode-forecast": [
+            146,
+            44
+          ],
+          "#refresh-button": [
+            84.7,
+            44
+          ],
+          "#county-select": [
+            232.1,
+            44
+          ],
+          "#back-to-taiwan": [
+            118.3,
+            44
+          ],
+          ".leaflet-control-zoom-in": [
+            44,
+            44
+          ],
+          ".leaflet-control-zoom-out": [
+            44,
+            44
+          ],
+          "list items": [
+            278,
+            44
+          ]
+        },
+        "small": {}
+      }
+    },
+    {
+      "id": "desktop RSP-6 marker tooltips of markers about 36 px from the map's west, north, east and south edges lie wholly inside the map (not clipped)",
+      "pass": true,
+      "detail": [
+        {
+          "marker": "金門 station, 金門縣:",
+          "edge": "west",
+          "at": [
+            36,
+            280
+          ],
+          "tooltip": {
+            "inside": true,
+            "rect": [
+              4,
+              138,
+              286,
+              117
+            ],
+            "map": [
+              692,
+              560
+            ]
+          }
+        },
+        {
+          "marker": "馬祖 station, 連江縣:",
+          "edge": "north",
+          "at": [
+            346,
+            36
+          ],
+          "tooltip": {
+            "inside": true,
+            "rect": [
+              203,
+              63,
+              286,
+              117
+            ],
+            "map": [
+              692,
+              560
+            ]
+          }
+        },
+        {
+          "marker": "臺東 station, 臺東縣:",
+          "edge": "east",
+          "at": [
+            656,
+            280
+          ],
+          "tooltip": {
+            "inside": true,
+            "rect": [
+              402,
+              138,
+              286,
+              117
+            ],
+            "map": [
+              692,
+              560
+            ]
+          }
+        },
+        {
+          "marker": "高雄 station, 高雄市:",
+          "edge": "south",
+          "at": [
+            346,
+            524
+          ],
+          "tooltip": {
+            "inside": true,
+            "rect": [
+              203,
+              383,
+              286,
+              117
+            ],
+            "map": [
+              692,
+              560
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "desktop R-EN-1(1) visual hierarchy: title verbatim, Taiwan Map card above the forecast section, headed Now panel; mode switch in the first screen",
+      "pass": true,
+      "detail": {
+        "h1": "Taiwan Weather Forecast",
+        "h2": [
+          "Taiwan Map",
+          "Weekly summary",
+          "Temperature Forecast – 北部地區",
+          "Daily forecast"
+        ],
+        "h3": "Latest Observation OBSERVED UNAVAILABLE",
+        "mapBeforeDashboard": true,
+        "toggleInView": true
+      }
+    },
+    {
+      "id": "desktop R-EN-1(3) summary information: the valid-station count (Now) and the weekly summary (forecast) are shown",
+      "pass": true,
+      "detail": {
+        "count": "849",
+        "weekly": "23.3"
+      }
+    },
+    {
+      "id": "desktop R-EN-1(4) the chart is interactive and readable: legend, axis labels, hover tooltip (unchanged V1 chart)",
+      "pass": true,
+      "detail": {
+        "tooltip": true,
+        "legend": 2,
+        "axis": [
+          "Temperature (°C)",
+          "Date"
+        ]
+      }
+    },
+    {
+      "id": "375 AC-V2-13(a)/R-V2-MAP-4 initial Now view contains the whole main island and 澎湖's main island (fence holds)",
+      "pass": true,
+      "detail": {
+        "zoom": 6.0,
+        "center": [
+          23.98364,
+          120.25415
+        ],
+        "west_east": [
+          116.8594,
+          123.6489
+        ],
+        "south_north": [
+          20.3213,
+          27.5447
+        ],
+        "centreInE": true,
+        "lngAxis": "E within map",
+        "latAxis": "E within map"
+      }
+    },
+    {
+      "id": "375 AC-V2-13(c)/R-V2-MAP-2 zoom floor: the main island spans >= 25 % of the map height; − button disabled; key / wheel cannot zoom out further",
+      "pass": true,
+      "detail": {
+        "zoom": 6.0,
+        "mainIslandNS_px": 168.9,
+        "mapHeight": 360,
+        "fraction": 0.469
+      }
+    },
+    {
+      "id": "375 AC-V2-13(c) at the floor the fence holds after dragging to the end in each direction",
+      "pass": true,
+      "detail": {
+        "west": {
+          "zoom": 6.0,
+          "center": [
+            23.98364,
+            120.25415
+          ],
+          "west_east": [
+            116.8594,
+            123.6489
+          ],
+          "south_north": [
+            20.3213,
+            27.5447
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        "east": {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        "north": {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        "south": {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      }
+    },
+    {
+      "id": "375 AC-V2-13(b)/R-V2-MAP-1 zoom 8: after dragging to the end W / E / N / S — centre in E; each axis map ⊆ E or E ⊆ map",
+      "pass": true,
+      "detail": {
+        "west": {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            118.44635
+          ],
+          "west_east": [
+            117.5977,
+            119.295
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "east": {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "north": {
+          "zoom": 8.0,
+          "center": [
+            25.81473,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            24.9213,
+            26.7015
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "south": {
+          "zoom": 8.0,
+          "center": [
+            22.12127,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            21.2023,
+            23.0342
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      }
+    },
+    {
+      "id": "375 R-V2-MAP-1 keyboard panning (arrow keys, to the north-west end) stays inside the fence",
+      "pass": true,
+      "detail": {
+        "zoom": 8.0,
+        "center": [
+          25.80978,
+          118.45184
+        ],
+        "west_east": [
+          117.6031,
+          119.3005
+        ],
+        "south_north": [
+          24.9163,
+          26.6965
+        ],
+        "centreInE": true,
+        "lngAxis": "map within E",
+        "latAxis": "map within E"
+      }
+    },
+    {
+      "id": "375 AC-V2-13(b) 金門縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 8.0,
+          "center": [
+            24.41214,
+            118.44635
+          ],
+          "west_east": [
+            117.5977,
+            119.295
+          ],
+          "south_north": [
+            23.5086,
+            25.3093
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 158.9921875,
+          "y": 405.890625,
+          "culled": false
+        },
+        "detail": "金門 station"
+      }
+    },
+    {
+      "id": "375 AC-V2-13(b) 金門縣 at the zoom ceiling: land in the map, station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 12.0,
+          "center": [
+            24.38119,
+            118.28911
+          ],
+          "west_east": [
+            118.2361,
+            118.3422
+          ],
+          "south_north": [
+            24.3249,
+            24.4375
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 187.9921875,
+          "y": 320.890625,
+          "culled": false
+        },
+        "detail": "金門 station"
+      }
+    },
+    {
+      "id": "375 AC-V2-13(b) 連江縣 reached by dragging at zoom 8: its land in the map, its station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 8.0,
+          "center": [
+            25.75537,
+            119.91852
+          ],
+          "west_east": [
+            119.0698,
+            120.7672
+          ],
+          "south_north": [
+            24.8615,
+            26.6425
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 187.9921875,
+          "y": 320.890625,
+          "culled": false
+        },
+        "detail": "馬祖 station"
+      }
+    },
+    {
+      "id": "375 AC-V2-13(b) 連江縣 at the zoom ceiling: land in the map, station selected by a click; fence holds",
+      "pass": true,
+      "detail": {
+        "view": {
+          "zoom": 12.0,
+          "center": [
+            26.14373,
+            119.92332
+          ],
+          "west_east": [
+            119.8703,
+            119.9764
+          ],
+          "south_north": [
+            26.0882,
+            26.1992
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        "marker": {
+          "x": 187.9921875,
+          "y": 320.890625,
+          "culled": false
+        },
+        "detail": "馬祖 station"
+      }
+    },
+    {
+      "id": "375 AC-V2-13(d)/R-V2-MAP-3 zoom ceiling: 1 km >= 20 CSS px and a 375 px map spans >= 5 km; + disabled; key cannot zoom further",
+      "pass": true,
+      "detail": {
+        "zoom": 12.0,
+        "px_per_km": 29.06,
+        "km_per_375px": 12.9,
+        "mapWidth_km": 10.63
+      }
+    },
+    {
+      "id": "375 AC-V2-13(b) at the ceiling: dragged to the end W / E / N / S (the map reaches that edge of E) — the fence holds",
+      "pass": true,
+      "detail": {
+        "west": [
+          {
+            "zoom": 12.0,
+            "center": [
+              26.20935,
+              117.65327
+            ],
+            "west_east": [
+              117.6002,
+              117.7063
+            ],
+            "south_north": [
+              26.1539,
+              26.2648
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": 0.00023
+          }
+        ],
+        "east": [
+          {
+            "zoom": 12.0,
+            "center": [
+              26.21428,
+              122.84706
+            ],
+            "west_east": [
+              122.794,
+              122.9001
+            ],
+            "south_north": [
+              26.1588,
+              26.2697
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": -0.0001
+          }
+        ],
+        "north": [
+          {
+            "zoom": 12.0,
+            "center": [
+              26.6447,
+              122.04712
+            ],
+            "west_east": [
+              121.9941,
+              122.1002
+            ],
+            "south_north": [
+              26.5894,
+              26.6999
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": 8e-05
+          }
+        ],
+        "south": [
+          {
+            "zoom": 12.0,
+            "center": [
+              21.2577,
+              122.04712
+            ],
+            "west_east": [
+              121.9941,
+              122.1002
+            ],
+            "south_north": [
+              21.2001,
+              21.3153
+            ],
+            "centreInE": true,
+            "lngAxis": "map within E",
+            "latAxis": "map within E"
+          },
+          {
+            "distanceToEdgeDeg": 0.0001
+          }
+        ]
+      }
+    },
+    {
+      "id": "375 R-V2-MAP-4/DD-8 after Back to Taiwan the view contains the whole main island and 澎湖's main island",
+      "pass": true,
+      "detail": {
+        "zoom": 6.0,
+        "center": [
+          23.98364,
+          120.25415
+        ],
+        "west_east": [
+          116.8594,
+          123.6489
+        ],
+        "south_north": [
+          20.3213,
+          27.5447
+        ],
+        "centreInE": true,
+        "lngAxis": "E within map",
+        "latAxis": "E within map"
+      }
+    },
+    {
+      "id": "375 AC-V2-13(d) 臺北市 at the ceiling: every on-map station is selected by a click on its marker, or shown and marked on the map after choosing it from the list",
+      "pass": true,
+      "detail": {
+        "onMap": 19,
+        "selectedByMarkerClick": 11,
+        "shownAndMarkedAfterListChoice": 10,
+        "problems": []
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-7/RSP-3 Taiwan-wide initial view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible",
+      "pass": true,
+      "detail": {
+        "all": 22,
+        "shown": 5,
+        "overlaps": 0,
+        "measured": 5,
+        "touchMisses": 0,
+        "unreadable": 0,
+        "culledVisible": 0
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-7/RSP-3 Taiwan-wide, zoomed in two levels: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible",
+      "pass": true,
+      "detail": {
+        "all": 22,
+        "shown": 10,
+        "overlaps": 0,
+        "measured": 1,
+        "touchMisses": 0,
+        "unreadable": 0,
+        "culledVisible": 0
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-7 zooming in shows more of the representative markers (density rule is per zoom)",
+      "pass": true,
+      "detail": {
+        "initial": 5,
+        "zoomedIn": 10
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-7/RSP-3 臺中市 county view: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible",
+      "pass": true,
+      "detail": {
+        "all": 60,
+        "shown": 3,
+        "overlaps": 0,
+        "measured": 3,
+        "touchMisses": 0,
+        "unreadable": 0,
+        "culledVisible": 0
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-3 county + station selected: every visible control (mode switch, Refresh, County, Back to Taiwan, info panel controls, zoom, list items) is at least 44 x 44 CSS px",
+      "pass": true,
+      "detail": {
+        "sizes": {
+          "#mode-now": [
+            66.6,
+            44
+          ],
+          "#mode-forecast": [
+            93.7,
+            44
+          ],
+          "#refresh-button": [
+            84.7,
+            44
+          ],
+          "#county-select": [
+            126.4,
+            44
+          ],
+          "#back-to-taiwan": [
+            118.3,
+            44
+          ],
+          "#sheet-expand": [
+            71.3,
+            44
+          ],
+          "#sheet-close": [
+            73.2,
+            44
+          ],
+          ".leaflet-control-zoom-in": [
+            44,
+            44
+          ],
+          ".leaflet-control-zoom-out": [
+            44,
+            44
+          ],
+          "list items": [
+            281,
+            44
+          ]
+        },
+        "small": {}
+      }
+    },
+    {
+      "id": "375 375 RSP-5 no info panel before a selection",
+      "pass": true,
+      "detail": {
+        "state": "empty",
+        "open": false,
+        "top": 0,
+        "bottom": 0,
+        "mapTop": 554.390625,
+        "mapBottom": 914.390625,
+        "mapH": 360,
+        "clearFrac": 1,
+        "title": "Details",
+        "closeVisible": false,
+        "closeHit": false,
+        "reopen": false,
+        "expanded": "false",
+        "focus": "",
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 375 RSP-5(b)(d)(g) county chosen -> info panel in peek: >= half the map uncovered; Close visible and not covered; zoom / mode switch / Refresh / Back to Taiwan not covered",
+      "pass": true,
+      "detail": {
+        "sheet": {
+          "state": "peek",
+          "open": true,
+          "top": 640,
+          "bottom": 812,
+          "mapTop": 451,
+          "mapBottom": 811,
+          "mapH": 360,
+          "clearFrac": 0.525,
+          "title": "臺中市",
+          "closeVisible": true,
+          "closeHit": true,
+          "reopen": false,
+          "expanded": "false",
+          "focus": "county-select",
+          "sw": 375,
+          "iw": 375
+        },
+        "controls": {
+          ".leaflet-control-zoom-in": true,
+          ".leaflet-control-zoom-out": true,
+          "#mode-now": true,
+          "#mode-forecast": true,
+          "#refresh-button": true,
+          "#back-to-taiwan": true
+        }
+      }
+    },
+    {
+      "id": "375 375 RSP-5(c)(g) Expand (Enter) shows the station list in the panel; the zoom buttons and other key controls stay uncovered",
+      "pass": true,
+      "detail": {
+        "sheet": {
+          "state": "expanded",
+          "open": true,
+          "top": 556,
+          "bottom": 812,
+          "mapTop": 451,
+          "mapBottom": 811,
+          "mapH": 360,
+          "clearFrac": 0.2916666666666667,
+          "title": "臺中市",
+          "closeVisible": true,
+          "closeHit": true,
+          "reopen": false,
+          "expanded": "true",
+          "focus": "sheet-expand",
+          "sw": 375,
+          "iw": 375
+        },
+        "list": {
+          "n": 60,
+          "firstInPanel": true
+        },
+        "controls": {
+          ".leaflet-control-zoom-in": true,
+          ".leaflet-control-zoom-out": true,
+          "#mode-now": true,
+          "#mode-forecast": true,
+          "#refresh-button": true,
+          "#back-to-taiwan": true
+        }
+      }
+    },
+    {
+      "id": "375 375 RSP-5(f) choosing a station while the panel is open updates it (title + detail = /api/)",
+      "pass": true,
+      "detail": {
+        "title": "潭子 station · 臺中市",
+        "detail": {
+          "name": "潭子 station",
+          "place": "臺中市 · 潭子區",
+          "id": "C0F9O0",
+          "temp": "28.8 °C",
+          "rh": "76 %",
+          "wind": "0.8 m/s",
+          "wdir": "131°",
+          "pres": "990.8 hPa",
+          "rain": "0 mm",
+          "weather": "晴",
+          "time": "2026-09-25 23:00 +08:00",
+          "offmap": false
+        }
+      }
+    },
+    {
+      "id": "375 375 RSP-6 in peek the selected station's marker is visible above the panel (not covered)",
+      "pass": true,
+      "detail": {
+        "marker": {
+          "bottom": 558.4400024414062,
+          "hit": true
+        },
+        "sheet": {
+          "state": "peek",
+          "open": true,
+          "top": 640,
+          "bottom": 812,
+          "mapTop": 451,
+          "mapBottom": 811,
+          "mapH": 360,
+          "clearFrac": 0.525,
+          "title": "潭子 station · 臺中市",
+          "closeVisible": true,
+          "closeHit": true,
+          "reopen": false,
+          "expanded": "false",
+          "focus": "sheet-expand",
+          "sw": 375,
+          "iw": 375
+        }
+      }
+    },
+    {
+      "id": "375 375 RSP-5(f) choosing another county while the panel is open updates it (花蓮縣)",
+      "pass": true,
+      "detail": {
+        "title": "花蓮縣"
+      }
+    },
+    {
+      "id": "375 375 RSP-5(f) clicking another station's marker while the panel is open updates it",
+      "pass": true,
+      "detail": {
+        "clicked": "和仁 station, 花蓮縣: air temperature 27.0 °C (Latest Observation, station value)",
+        "detail": "和仁 station"
+      }
+    },
+    {
+      "id": "375 375 RSP-5(a)(d)(e) Close by keyboard (Enter) closes the panel (no swipe needed); focus moves to 'Details'; the selection is kept",
+      "pass": true,
+      "detail": {
+        "state": "closed",
+        "open": false,
+        "top": 0,
+        "bottom": 0,
+        "mapTop": 451,
+        "mapBottom": 811,
+        "mapH": 360,
+        "clearFrac": 1,
+        "title": "和仁 station · 花蓮縣",
+        "closeVisible": false,
+        "closeHit": false,
+        "reopen": true,
+        "expanded": "false",
+        "focus": "sheet-reopen",
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 375 RSP-5 'Details' (Enter) reopens the panel with the same selection",
+      "pass": true,
+      "detail": {
+        "state": "peek",
+        "open": true,
+        "top": 640,
+        "bottom": 812,
+        "mapTop": 451,
+        "mapBottom": 811,
+        "mapH": 360,
+        "clearFrac": 0.525,
+        "title": "和仁 station · 花蓮縣",
+        "closeVisible": true,
+        "closeHit": true,
+        "reopen": false,
+        "expanded": "false",
+        "focus": "sheet-close",
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 375 RSP-5(e) Esc inside the panel closes it too",
+      "pass": true,
+      "detail": {
+        "state": "closed",
+        "open": false,
+        "top": 0,
+        "bottom": 0,
+        "mapTop": 451,
+        "mapBottom": 811,
+        "mapH": 360,
+        "clearFrac": 1,
+        "title": "和仁 station · 花蓮縣",
+        "closeVisible": false,
+        "closeHit": false,
+        "reopen": true,
+        "expanded": "false",
+        "focus": "sheet-reopen",
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 375 RSP-6 the southernmost 屏東縣 station (墾雷, 21.900836N) chosen from the list is kept visible above the panel; fence holds",
+      "pass": true,
+      "detail": {
+        "marker": {
+          "bottom": 557.4400024414062,
+          "hit": true
+        },
+        "sheet": {
+          "state": "peek",
+          "open": true,
+          "top": 640,
+          "bottom": 812,
+          "mapTop": 451,
+          "mapBottom": 811,
+          "mapH": 360,
+          "clearFrac": 0.525,
+          "title": "墾雷 station · 屏東縣",
+          "closeVisible": true,
+          "closeHit": true,
+          "reopen": false,
+          "expanded": "false",
+          "focus": "county-select",
+          "sw": 375,
+          "iw": 375
+        },
+        "view": {
+          "zoom": 9.0,
+          "center": [
+            21.6827,
+            120.8551
+          ],
+          "west_east": [
+            120.4308,
+            121.2794
+          ],
+          "south_north": [
+            21.2226,
+            22.1414
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      }
+    },
+    {
+      "id": "375 375 Back to Taiwan clears the selection and the panel",
+      "pass": true,
+      "detail": {
+        "state": "empty",
+        "open": false,
+        "top": 0,
+        "bottom": 0,
+        "mapTop": 419.390625,
+        "mapBottom": 779.390625,
+        "mapH": 360,
+        "clearFrac": 1,
+        "title": "Details",
+        "closeVisible": false,
+        "closeHit": false,
+        "reopen": false,
+        "expanded": "false",
+        "focus": "county-select",
+        "sw": 375,
+        "iw": 375
+      }
+    },
+    {
+      "id": "375 R-V2-RSP-7/RSP-3 375 after Back to Taiwan: shown markers never overlap; each shown marker is hit where drawn and its whole 44 x 44 touch area selects it; hidden markers are invisible",
+      "pass": true,
+      "detail": {
+        "all": 22,
+        "shown": 5,
+        "overlaps": 0,
+        "measured": 5,
+        "touchMisses": 0,
+        "unreadable": 0,
+        "culledVisible": 0
+      }
+    },
+    {
+      "id": "375 R-EN-1(5) loading state visible (in-progress indicator) — screenshot",
+      "pass": true,
+      "detail": {
+        "state": "loading",
+        "status": "Loading the Latest Observation…"
+      }
+    },
+    {
+      "id": "375 R-EN-1(5) Stale state visible with its reason — screenshot",
+      "pass": true,
+      "detail": {
+        "obsState": "stale",
+        "chip": "STALE",
+        "reason": "Reason: the CWA service answered with an error status (HTTP 503) — upstream_error."
+      }
+    },
+    {
+      "id": "375 Stale + county: the County context's state line carries the reason (visible with the county values)",
+      "pass": true,
+      "detail": "Stale — the last successful Latest Observation (the last Refresh failed). Reason: the CWA service answered with an error status — upstream_error."
+    },
+    {
+      "id": "375 R-EN-1(5) Unavailable state visible with its reason — screenshot",
+      "pass": true,
+      "detail": {
+        "obsState": "unavailable",
+        "chip": "UNAVAILABLE",
+        "reason": "Reason: the server has no CWA API key configured — key_not_configured."
+      }
+    },
+    {
+      "id": "375 Unavailable + county: no digit in the County context (DV-21 §4.2 kept with the reason line)",
+      "pass": true,
+      "detail": "花蓮縣\n\nLatest Observation unavailable — no station data to show. Reason: the server has no CWA API key configured — key_not_configured.\n\nValid stations\n—\nOn the map\n—\nHighest air temperature\n—\nLowest ai"
+    },
+    {
+      "id": "375 AC-V2-15/R-V2-MAP-5 no NaN / 0x0 marker and a valid fenced view after the info panel opens / expands / closes / reopens, mode switches, width and height resizes and a resize while the map had no size",
+      "pass": true,
+      "detail": [
+        {
+          "step": "load 375",
+          "nan": [],
+          "markers": 22,
+          "shown": 5,
+          "zoom": 6.0,
+          "fence": true
+        },
+        {
+          "step": "county -> panel peek",
+          "nan": [],
+          "markers": 60,
+          "shown": 3,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "panel expanded",
+          "nan": [],
+          "markers": 60,
+          "shown": 3,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "station chosen",
+          "nan": [],
+          "markers": 60,
+          "shown": 3,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "panel closed",
+          "nan": [],
+          "markers": 60,
+          "shown": 2,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "panel reopened",
+          "nan": [],
+          "markers": 60,
+          "shown": 2,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "-> Forecast (panel open)",
+          "nan": [],
+          "markers": 6,
+          "shown": 6,
+          "zoom": 7.0,
+          "fence": true
+        },
+        {
+          "step": "-> Now",
+          "nan": [],
+          "markers": 60,
+          "shown": 2,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "resize 768x1024",
+          "nan": [],
+          "markers": 60,
+          "shown": 11,
+          "zoom": 9.0,
+          "fence": true
+        },
+        {
+          "step": "resize 1280x900",
+          "nan": [],
+          "markers": 60,
+          "shown": 11,
+          "zoom": 9.0,
+          "fence": true
+        },
+        {
+          "step": "resize 1024x768",
+          "nan": [],
+          "markers": 60,
+          "shown": 11,
+          "zoom": 9.0,
+          "fence": true
+        },
+        {
+          "step": "resize 375x812",
+          "nan": [],
+          "markers": 60,
+          "shown": 2,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "resize 375x640",
+          "nan": [],
+          "markers": 60,
+          "shown": 2,
+          "zoom": 8.0,
+          "fence": true
+        },
+        {
+          "step": "resize while hidden, panel toggled, shown again",
+          "nan": [],
+          "markers": 60,
+          "shown": 11,
+          "zoom": 9.0,
+          "fence": true
+        },
+        {
+          "step": "resize back to 375",
+          "nan": [],
+          "markers": 60,
+          "shown": 2,
+          "zoom": 8.0,
+          "fence": true
+        }
+      ]
+    },
+    {
+      "id": "375 R-EN-1(1) visual hierarchy: title verbatim, Taiwan Map card above the forecast section, headed Now panel; mode switch in the first screen",
+      "pass": true,
+      "detail": {
+        "h1": "Taiwan Weather Forecast",
+        "h2": [
+          "Taiwan Map",
+          "Weekly summary",
+          "Temperature Forecast – 北部地區",
+          "Daily forecast"
+        ],
+        "h3": "Latest Observation OBSERVED UNAVAILABLE",
+        "mapBeforeDashboard": true,
+        "toggleInView": true
+      }
+    },
+    {
+      "id": "375 R-EN-1(3) summary information: the valid-station count (Now) and the weekly summary (forecast) are shown",
+      "pass": true,
+      "detail": {
+        "count": "849",
+        "weekly": "23.3"
+      }
+    },
+    {
+      "id": "375 R-EN-1(4) the chart is interactive and readable: legend, axis labels, hover tooltip (unchanged V1 chart)",
+      "pass": true,
+      "detail": {
+        "tooltip": true,
+        "legend": 2,
+        "axis": [
+          "Temperature (°C)",
+          "Date"
+        ]
+      }
+    },
+    {
+      "id": "768 R-V2-RSP-1 768 px breakage check: no overlapping controls and no horizontal scroll (Now default, county peek / expanded, Forecast); the map drags and zooms; the info panel keeps >= half the map; key controls not covered",
+      "pass": true,
+      "detail": {
+        "states": {
+          "now": {
+            "controls": 9,
+            "overlaps": [],
+            "sw": 768,
+            "iw": 768
+          },
+          "county-peek": {
+            "controls": 12,
+            "overlaps": [],
+            "sw": 768,
+            "iw": 768
+          },
+          "county-expanded": {
+            "controls": 12,
+            "overlaps": [],
+            "sw": 768,
+            "iw": 768
+          },
+          "forecast": {
+            "controls": 8,
+            "overlaps": [],
+            "sw": 768,
+            "iw": 768
+          }
+        },
+        "operable": true,
+        "sheet": {
+          "state": "peek",
+          "open": true,
+          "top": 791.921875,
+          "bottom": 1003.921875,
+          "mapTop": 562.921875,
+          "mapBottom": 1002.921875,
+          "mapH": 440,
+          "clearFrac": 0.5204545454545455,
+          "title": "臺中市",
+          "closeVisible": true,
+          "closeHit": true,
+          "reopen": false,
+          "expanded": "false",
+          "focus": "county-select",
+          "sw": 768,
+          "iw": 768
+        },
+        "controls": {
+          ".leaflet-control-zoom-in": true,
+          ".leaflet-control-zoom-out": true,
+          "#mode-now": true,
+          "#mode-forecast": true,
+          "#refresh-button": true,
+          "#back-to-taiwan": true
+        }
+      }
+    },
+    {
+      "id": "desktop-states R-EN-1(5) loading state visible (in-progress indicator) — screenshot",
+      "pass": true,
+      "detail": {
+        "state": "loading",
+        "status": "Loading the Latest Observation…"
+      }
+    },
+    {
+      "id": "desktop-states R-EN-1(5) Stale state visible with its reason — screenshot",
+      "pass": true,
+      "detail": {
+        "obsState": "stale",
+        "chip": "STALE",
+        "reason": "Reason: the CWA service answered with an error status (HTTP 503) — upstream_error."
+      }
+    },
+    {
+      "id": "desktop-states Stale + county: the County context's state line carries the reason (visible with the county values)",
+      "pass": true,
+      "detail": "Stale — the last successful Latest Observation (the last Refresh failed). Reason: the CWA service answered with an error status — upstream_error."
+    },
+    {
+      "id": "desktop-states R-EN-1(5) Unavailable state visible with its reason — screenshot",
+      "pass": true,
+      "detail": {
+        "obsState": "unavailable",
+        "chip": "UNAVAILABLE",
+        "reason": "Reason: the server has no CWA API key configured — key_not_configured."
+      }
+    },
+    {
+      "id": "desktop-states Unavailable + county: no digit in the County context (DV-21 §4.2 kept with the reason line)",
+      "pass": true,
+      "detail": "花蓮縣\n\nLatest Observation unavailable — no station data to show. Reason: the server has no CWA API key configured — key_not_configured.\n\nValid stations\n—\nOn the map\n—\nHighest air temperature\n—\nLowest ai"
+    },
+    {
+      "id": "R-V2-RSP-2/§6.3 AC-19 375 px: no horizontal scroll in each state (default, county peek, expanded, station, closed, loading, Stale, Unavailable, with a county, Forecast mode)",
+      "pass": true,
+      "detail": {
+        "states": {
+          "now-default": [
+            375,
+            375
+          ],
+          "county-peek": [
+            375,
+            375
+          ],
+          "expanded": [
+            375,
+            375
+          ],
+          "station-expanded": [
+            375,
+            375
+          ],
+          "closed": [
+            375,
+            375
+          ],
+          "loading": [
+            375,
+            375
+          ],
+          "stale": [
+            375,
+            375
+          ],
+          "stale-county": [
+            375,
+            375
+          ],
+          "unavailable": [
+            375,
+            375
+          ],
+          "unavailable-county": [
+            375,
+            375
+          ],
+          "forecast": [
+            375,
+            375
+          ]
+        },
+        "wide": {}
+      }
+    },
+    {
+      "id": "AC-V2-16/INV-V2-3 runtime network log: zero external requests (all scenarios)",
+      "pass": true,
+      "detail": {
+        "requests": 224,
+        "external": []
+      }
+    },
+    {
+      "id": "H-1 no key / upstream marker in any request URL",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "console: no JavaScript exception, no NaN / Invalid LatLng message",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "instruments": {
+    "desktop-initial": {
+      "zoom": 7.0,
+      "center": [
+        23.97621,
+        120.24536
+      ],
+      "west_east": [
+        116.4441,
+        124.0466
+      ],
+      "south_north": [
+        21.1357,
+        26.7554
+      ],
+      "centreInE": true,
+      "lngAxis": "E within map",
+      "latAxis": "E within map"
+    },
+    "desktop-floor": {
+      "zoom": 6.0,
+      "mainIslandNS_px": 168.9,
+      "mapHeight": 560,
+      "fraction": 0.302
+    },
+    "desktop-ceiling": {
+      "zoom": 12.0,
+      "px_per_km": 28.95,
+      "km_per_375px": 12.96,
+      "mapWidth_km": 23.91
+    },
+    "desktop-taipei-ceiling": {
+      "onMap": 19,
+      "selectedByMarkerClick": 16,
+      "shownAndMarkedAfterListChoice": 4,
+      "problems": []
+    },
+    "375-initial": {
+      "zoom": 6.0,
+      "center": [
+        23.98364,
+        120.25415
+      ],
+      "west_east": [
+        116.8594,
+        123.6489
+      ],
+      "south_north": [
+        20.3213,
+        27.5447
+      ],
+      "centreInE": true,
+      "lngAxis": "E within map",
+      "latAxis": "E within map"
+    },
+    "375-floor": {
+      "zoom": 6.0,
+      "mainIslandNS_px": 168.9,
+      "mapHeight": 360,
+      "fraction": 0.469
+    },
+    "375-ceiling": {
+      "zoom": 12.0,
+      "px_per_km": 29.06,
+      "km_per_375px": 12.9,
+      "mapWidth_km": 10.63
+    },
+    "375-taipei-ceiling": {
+      "onMap": 19,
+      "selectedByMarkerClick": 11,
+      "shownAndMarkedAfterListChoice": 10,
+      "problems": []
+    }
+  },
+  "fenceSweeps": {
+    "desktop-z6": {
+      "west": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ],
+      "east": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ],
+      "north": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ],
+      "south": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.97621,
+            120.24536
+          ],
+          "west_east": [
+            112.6428,
+            127.8479
+          ],
+          "south_north": [
+            18.2398,
+            29.4683
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ]
+    },
+    "desktop-z8": {
+      "west": [
+        {
+          "zoom": 8.0,
+          "center": [
+            23.97621,
+            119.49829
+          ],
+          "west_east": [
+            117.5977,
+            121.3989
+          ],
+          "south_north": [
+            22.5633,
+            25.3738
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.97621,
+            119.49829
+          ],
+          "west_east": [
+            117.5977,
+            121.3989
+          ],
+          "south_north": [
+            22.5633,
+            25.3738
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "east": [
+        {
+          "zoom": 8.0,
+          "center": [
+            23.97621,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            22.5633,
+            25.3738
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.97621,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            22.5633,
+            25.3738
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "north": [
+        {
+          "zoom": 8.0,
+          "center": [
+            25.3192,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            23.921,
+            26.7015
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            25.3192,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            23.921,
+            26.7015
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "south": [
+        {
+          "zoom": 8.0,
+          "center": [
+            23.35739,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            21.938,
+            24.7618
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            22.62922,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            21.2023,
+            24.0414
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            22.62922,
+            120.99792
+          ],
+          "west_east": [
+            119.0973,
+            122.8986
+          ],
+          "south_north": [
+            21.2023,
+            24.0414
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ]
+    },
+    "desktop-z12": {
+      "west": [
+        {
+          "zoom": 12.0,
+          "center": [
+            25.95681,
+            117.78786
+          ],
+          "west_east": [
+            117.6691,
+            117.9066
+          ],
+          "south_north": [
+            25.8703,
+            26.0432
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            25.95681,
+            117.71885
+          ],
+          "west_east": [
+            117.6001,
+            117.8376
+          ],
+          "south_north": [
+            25.8703,
+            26.0432
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            25.95681,
+            117.71885
+          ],
+          "west_east": [
+            117.6001,
+            117.8376
+          ],
+          "south_north": [
+            25.8703,
+            26.0432
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "east": [
+        {
+          "zoom": 12.0,
+          "center": [
+            25.95187,
+            122.70836
+          ],
+          "west_east": [
+            122.5896,
+            122.8271
+          ],
+          "south_north": [
+            25.8654,
+            26.0383
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            25.95187,
+            122.78114
+          ],
+          "west_east": [
+            122.6624,
+            122.8999
+          ],
+          "south_north": [
+            25.8654,
+            26.0383
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            25.95187,
+            122.78114
+          ],
+          "west_east": [
+            122.6624,
+            122.8999
+          ],
+          "south_north": [
+            25.8654,
+            26.0383
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "north": [
+        {
+          "zoom": 12.0,
+          "center": [
+            26.55322,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            26.4672,
+            26.6392
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.61401,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            26.528,
+            26.6999
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.61401,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            26.528,
+            26.6999
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "south": [
+        {
+          "zoom": 12.0,
+          "center": [
+            22.66344,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            22.5747,
+            22.7521
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            22.5392,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            22.4504,
+            22.628
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            22.41484,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            22.3259,
+            22.5037
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            22.29037,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            22.2014,
+            22.3793
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            22.16579,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            22.0767,
+            22.2548
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            22.04109,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.952,
+            22.1302
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.91629,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.8271,
+            22.0054
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.79138,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.7021,
+            21.8806
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.66636,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.577,
+            21.7557
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.54123,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.4518,
+            21.6306
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.416,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.3265,
+            21.5055
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.29065,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.2011,
+            21.3802
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.28969,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.2001,
+            21.3792
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.28969,
+            120.99792
+          ],
+          "west_east": [
+            120.8791,
+            121.1167
+          ],
+          "south_north": [
+            21.2001,
+            21.3792
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ]
+    },
+    "375-z6": {
+      "west": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98364,
+            120.25415
+          ],
+          "west_east": [
+            116.8594,
+            123.6489
+          ],
+          "south_north": [
+            20.3213,
+            27.5447
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98364,
+            120.25415
+          ],
+          "west_east": [
+            116.8594,
+            123.6489
+          ],
+          "south_north": [
+            20.3213,
+            27.5447
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ],
+      "east": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ],
+      "north": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ],
+      "south": [
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        },
+        {
+          "zoom": 6.0,
+          "center": [
+            23.98625,
+            120.26733
+          ],
+          "west_east": [
+            116.8726,
+            123.6621
+          ],
+          "south_north": [
+            20.324,
+            27.5472
+          ],
+          "centreInE": true,
+          "lngAxis": "E within map",
+          "latAxis": "E within map"
+        }
+      ]
+    },
+    "375-z8": {
+      "west": [
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            119.08905
+          ],
+          "west_east": [
+            118.2404,
+            119.9377
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            118.44635
+          ],
+          "west_east": [
+            117.5977,
+            119.295
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            118.44635
+          ],
+          "west_east": [
+            117.5977,
+            119.295
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "east": [
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            119.63287
+          ],
+          "west_east": [
+            118.7842,
+            120.4816
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            120.8194
+          ],
+          "west_east": [
+            119.9707,
+            121.6681
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            122.00592
+          ],
+          "west_east": [
+            121.1572,
+            122.8546
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.98625,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            23.0797,
+            24.8864
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "north": [
+        {
+          "zoom": 8.0,
+          "center": [
+            25.0657,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            24.1668,
+            25.958
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            25.81473,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            24.9213,
+            26.7015
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            25.81473,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            24.9213,
+            26.7015
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "south": [
+        {
+          "zoom": 8.0,
+          "center": [
+            24.74184,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            23.8406,
+            25.6366
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            23.65962,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            22.7509,
+            24.5621
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            22.56837,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            21.6523,
+            23.4784
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            22.12127,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            21.2023,
+            23.0342
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 8.0,
+          "center": [
+            22.12127,
+            122.04987
+          ],
+          "west_east": [
+            121.2012,
+            122.8986
+          ],
+          "south_north": [
+            21.2023,
+            23.0342
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ]
+    },
+    "375-z12": {
+      "west": [
+        {
+          "zoom": 12.0,
+          "center": [
+            26.20935,
+            117.78236
+          ],
+          "west_east": [
+            117.7293,
+            117.8354
+          ],
+          "south_north": [
+            26.1539,
+            26.2648
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.20935,
+            117.70821
+          ],
+          "west_east": [
+            117.6552,
+            117.7612
+          ],
+          "south_north": [
+            26.1539,
+            26.2648
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.20935,
+            117.65327
+          ],
+          "west_east": [
+            117.6002,
+            117.7063
+          ],
+          "south_north": [
+            26.1539,
+            26.2648
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.20935,
+            117.65327
+          ],
+          "west_east": [
+            117.6002,
+            117.7063
+          ],
+          "south_north": [
+            26.1539,
+            26.2648
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "east": [
+        {
+          "zoom": 12.0,
+          "center": [
+            26.21428,
+            122.71385
+          ],
+          "west_east": [
+            122.6608,
+            122.7669
+          ],
+          "south_north": [
+            26.1588,
+            26.2697
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.21428,
+            122.78801
+          ],
+          "west_east": [
+            122.735,
+            122.8411
+          ],
+          "south_north": [
+            26.1588,
+            26.2697
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.21428,
+            122.84706
+          ],
+          "west_east": [
+            122.794,
+            122.9001
+          ],
+          "south_north": [
+            26.1588,
+            26.2697
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.21428,
+            122.84706
+          ],
+          "west_east": [
+            122.794,
+            122.9001
+          ],
+          "south_north": [
+            26.1588,
+            26.2697
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "north": [
+        {
+          "zoom": 12.0,
+          "center": [
+            26.53018,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            26.4749,
+            26.5855
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.59682,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            26.5415,
+            26.6521
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.6447,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            26.5894,
+            26.6999
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            26.6447,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            26.5894,
+            26.6999
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ],
+      "south": [
+        {
+          "zoom": 12.0,
+          "center": [
+            22.20203,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            22.1448,
+            22.2592
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            22.13335,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            22.0761,
+            22.1906
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            22.06464,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            22.0074,
+            22.1219
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.9959,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.9386,
+            22.0532
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.92712,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.8698,
+            21.9844
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.85831,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.8009,
+            21.9157
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.78947,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.7321,
+            21.8468
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.72059,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.6632,
+            21.778
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.65168,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.5942,
+            21.7091
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.58274,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.5253,
+            21.6402
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.51377,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.4563,
+            21.5712
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.44476,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.3872,
+            21.5023
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.37572,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.3182,
+            21.4333
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.30665,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.2491,
+            21.3642
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.2577,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.2001,
+            21.3153
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        },
+        {
+          "zoom": 12.0,
+          "center": [
+            21.2577,
+            122.04712
+          ],
+          "west_east": [
+            121.9941,
+            122.1002
+          ],
+          "south_north": [
+            21.2001,
+            21.3153
+          ],
+          "centreInE": true,
+          "lngAxis": "map within E",
+          "latAxis": "map within E"
+        }
+      ]
+    }
+  }
+}

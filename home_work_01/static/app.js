@@ -204,6 +204,32 @@
   // it is counted, listed as "not on the map" and has its detail (R-V2-DD-11).
   var MAP_RANGE = { latitude: [21.2, 26.7], longitude: [117.6, 122.9] };
   var COUNTY_MAX_ZOOM = 11;    // the closest a county fit zooms (a one-station county)
+
+  // --- map fence and zoom range (R-V2-MAP-1..4, SPEC-V2 §5.3; Issue #39) ---------
+  // The pan fence is the map range E itself, enforced by Leaflet's maxBounds with
+  // viscosity 1 (a hard edge). Leaflet applies it per axis: an axis on which the
+  // map is narrower than E stays inside E, an axis on which it is wider keeps E
+  // centred — so the centre is always in E and E is never pushed out of the map.
+  // The zoom range: 6 (the main island still spans at least a quarter of the map
+  // height) to 12 (1 km is at least twenty px; a 375 px map still spans over 5 km).
+  var MIN_ZOOM = 6;
+  var MAX_ZOOM = 12;
+  // Marker density (R-V2-RSP-7): where two station markers' touch areas would
+  // overlap at the current zoom, only the one ranked first is shown (the other
+  // appears when zoomed in, and is always in the County chooser / station list).
+  // Taiwan-wide ranking: the selected, then the focused station, then this
+  // county order — spread over the island first, so the map keeps a marker in
+  // every part of Taiwan when it is zoomed out.
+  var DENSITY_PRIORITY = [
+    "臺北市", "高雄市", "臺中市", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣",
+    "宜蘭縣", "臺南市", "屏東縣", "嘉義縣", "南投縣", "新竹縣", "桃園市", "新北市",
+    "基隆市", "苗栗縣", "彰化縣", "雲林縣", "嘉義市", "新竹市",
+  ];
+  var TOUCH = 44;              // the minimum touch area of a marker, CSS px (R-V2-RSP-3)
+
+  // --- the info panel below 1024 px (R-V2-RSP-5; Issue #39) ----------------------
+  var sheetOpen = false;       // shown (a selection exists and it was not closed)
+  var sheetExpanded = false;   // expanded (station list) rather than peek
   var countyLayer = null;      // L.geoJSON of the 22 named county polygons (Now mode only)
   var countyShapes = {};       // countyName -> its polygon layer
   var selectedCounty = null;   // Now-mode county selection, kept across mode switches
@@ -317,6 +343,14 @@
     els.countyListEmpty = document.getElementById("county-list-empty");
     els.countyList = document.getElementById("county-list");
     els.backToTaiwan = document.getElementById("back-to-taiwan");
+    // Map layout + info panel (#39).
+    els.mapShell = document.getElementById("map-shell");
+    els.sheet = document.getElementById("info-sheet");
+    els.sheetBody = document.getElementById("sheet-body");
+    els.sheetTitle = document.getElementById("sheet-title");
+    els.sheetExpand = document.getElementById("sheet-expand");
+    els.sheetClose = document.getElementById("sheet-close");
+    els.sheetReopen = document.getElementById("sheet-reopen");
 
     els.regionSelect.addEventListener("change", function () {
       loadRegion(els.regionSelect.value);
@@ -348,31 +382,32 @@
     });
     // A real <button>: click, Enter and Space (R-V2-DD-8, R-V2-DD-9(c)).
     els.backToTaiwan.addEventListener("click", backToTaiwan);
+    // The info panel's controls (#39, R-V2-RSP-5): real buttons, so click, Enter
+    // and Space all work; Esc inside the panel closes it too — swiping is never
+    // the only way to close it.
+    els.sheetClose.addEventListener("click", closeSheet);
+    els.sheetExpand.addEventListener("click", toggleSheetExpanded);
+    els.sheetReopen.addEventListener("click", reopenSheet);
+    els.sheet.addEventListener("keydown", function (e) {
+      if ((e.key === "Escape" || e.key === "Esc") && sheetLayout() && sheetOpen) {
+        e.preventDefault();
+        closeSheet();
+      }
+    });
 
     // Redraw the chart at the new width on resize (the SVG is drawn at the
     // container's own pixel width so its labels stay legible) and drop any open
-    // tooltip so its pixel maths never goes stale. Also keep Leaflet in sync.
+    // tooltip so its pixel maths never goes stale. Also keep Leaflet in sync —
+    // through the same non-zero-size guard as page load and the mode switch
+    // (R-V2-MAP-5): a map whose container has no size yet is left alone until it
+    // has one.
     window.addEventListener("resize", function () {
       hideTooltip();
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
         if (currentSeries) renderChart(currentSeries);
-        if (map) {
-          if (window.innerWidth !== lastFitWidth) {
-            // The WIDTH changed, so the layout mode (floating >= 1180px vs stacked)
-            // and the reserved padding may differ — re-fit the current mode's view
-            // so the markers stay clear of the panels at the new width (#28 F-1).
-            // Only a width change re-fits; a Select Date change never does (P-12).
-            // A selected county keeps its county view (#38).
-            if (mode === MODE_NOW && selectedCounty) fitCounty(selectedCounty);
-            else fitToMarkers();
-          } else {
-            // A height-only change (e.g. a mobile browser toolbar showing/hiding on
-            // scroll): keep Leaflet's size in sync WITHOUT re-fitting, so the user's
-            // zoom/pan is preserved (#28 R2 N-2).
-            map.invalidateSize();
-          }
-        }
+        renderSheet();
+        if (map) ensureMapSized(resizeMap);
       }, 150);
     });
 
@@ -419,6 +454,11 @@
     Array.prototype.forEach.call(els.modeOwned, function (el) {
       el.hidden = el.getAttribute("data-mode") !== mode;
     });
+    // The map card's layout follows the mode: Now mode puts its panel beside the
+    // map (>= 1024 px) or above it with the bottom info panel (#39); Forecast mode
+    // keeps the V1 layout (floating panels >= 1180 px). The map's size may change
+    // with it, which the mode-switch path measures before any view change.
+    if (els.mapShell) els.mapShell.classList.toggle("map-shell--now", mode === MODE_NOW);
     renderMapStatus();
     renderCaption();
     if (els.mapEl) {
@@ -839,13 +879,15 @@
 
   // The failure's user-visible category: fixed text, the reason code for the
   // four server reasons, and a numeric HTTP status where known (R-V2-OBS-12).
-  function failureText(failure) {
+  // `noStatus` leaves the HTTP status out — for the County context's state line,
+  // where no number may appear while there is no data (DV-21 §4.2).
+  function failureText(failure, noStatus) {
     if (!failure) return "";
     var category = OBS_FAILURE_TEXT.hasOwnProperty(failure.category)
       ? failure.category : "unexpected_response";
     var text = OBS_FAILURE_TEXT[category];
-    if (failure.upstreamStatus) text += " (HTTP " + failure.upstreamStatus + ")";
-    else if (failure.httpStatus) text += " (HTTP " + failure.httpStatus + ")";
+    if (!noStatus && failure.upstreamStatus) text += " (HTTP " + failure.upstreamStatus + ")";
+    else if (!noStatus && failure.httpStatus) text += " (HTTP " + failure.httpStatus + ")";
     if (OBS_SERVER_REASONS.indexOf(category) >= 0) text += " — " + category;
     return text + ".";
   }
@@ -881,9 +923,15 @@
     // (Unavailable) — R-V2-OBS-10(b)(e), DV-21 §4.2(5).
     els.countyState.hidden = !shown;
     els.countyState.className = "county__state county__state--" + (stale ? "stale" : "unavailable");
-    els.countyState.textContent = stale
+    // The reason is repeated here too, so it is in view next to the county's
+    // values wherever the panel is scrolled (#38 R1 F-3, R-V2-RSP-6).
+    els.countyState.textContent = (stale
       ? "Stale — the last successful Latest Observation (the last Refresh failed)."
-      : "Latest Observation unavailable — no station data to show.";
+      : "Latest Observation unavailable — no station data to show.") +
+      (shown ? " Reason: " + failureText(obsFailure, true) : "");
+    // The on-map notice may now cover a marker: re-check which markers are
+    // clear to take keyboard focus.
+    updateMarkerAccess();
   }
 
   function representativeIds() {
@@ -898,6 +946,7 @@
     els.obsCount.textContent = obs ? String(obs.validStationCount) : MISSING;
     renderCountyContext();
     renderSelectedStation();
+    renderSheet(); // a Refresh can drop the selected station
   }
 
   // Show the in-progress indicator while a Refresh is running (R-V2-OBS-7(c)).
@@ -1001,7 +1050,9 @@
       // must not hide it) until focus leaves it.
       pill.addEventListener("focus", function () {
         marker.setZIndexOffset(2000);
-        keepInClearArea(marker.getLatLng());
+        // Only keyboard focus moves the map: a mouse press also focuses the pill,
+        // and moving the map under the pointer then would lose the click (#39).
+        if (!pill.matches || pill.matches(":focus-visible")) keepInClearArea(marker.getLatLng());
       });
       pill.addEventListener("blur", function () {
         marker.setZIndexOffset(id === selectedStationId ? 1000 : 0);
@@ -1010,34 +1061,75 @@
     el.classList.toggle("is-active", id === selectedStationId);
   }
 
-  // Pan the map, only if needed, so `latlng` lies in the map area not covered by
-  // the current mode's floating panel (and, while shown, the Stale / Unavailable
-  // notice at the bottom of the map).
+  // Bring `latlng` into the map area not covered by the panels and notices (the
+  // phone info panel, the Stale / Unavailable notice), only if it is not already
+  // there — so a focused or selected marker is never hidden (R-V2-DD-9(e),
+  // R-V2-RSP-6).
   function keepInClearArea(latlng) {
-    if (!map) return;
+    reveal(latlng);
+  }
+
+  // The map area a marker may sit in, in container px: the map minus the
+  // current mode's padding, the part covered by the phone info panel and the
+  // on-map notice, and half a marker at each edge.
+  function clearBox() {
+    var size = map.getSize();
     var pad = fitPadding(mode);
-    var bottom = els.obsMapState && !els.obsMapState.hidden ? Math.max(pad.br[1], 72) : pad.br[1];
-    map.panInside(latlng, {
-      paddingTopLeft: pad.tl, paddingBottomRight: [pad.br[0], bottom], animate: false,
-    });
+    var bottom = Math.max(pad.br[1], noticeShown() ? 72 : 0);
+    return {
+      x0: pad.tl[0] + TOUCH / 2, y0: pad.tl[1] + TOUCH / 2,
+      x1: size.x - pad.br[0] - TOUCH / 2, y1: size.y - bottom - TOUCH / 2,
+    };
+  }
+
+  // Move the view, only if needed, so `latlng` is in clearBox(): first by panning
+  // at the current zoom; if the map fence (E) stops the pan short of it — e.g. a
+  // southern station under the phone info panel — by zooming in until the fence
+  // allows it. Each candidate view is limited to the fence before it is used, so
+  // Leaflet never has to bounce it back (R-V2-MAP-1).
+  function reveal(latlng) {
+    if (!map) return;
+    var box = clearBox();
+    function inside(p) { return p.x >= box.x0 && p.x <= box.x1 && p.y >= box.y0 && p.y <= box.y1; }
+    if (inside(map.latLngToContainerPoint(latlng))) return;
+    var half = map.getSize().divideBy(2);
+    var aim = L.point((box.x0 + box.x1) / 2, (box.y0 + box.y1) / 2);
+    for (var z = map.getZoom(); z <= map.getMaxZoom(); z++) {
+      var p = map.project(latlng, z);
+      var center = map._limitCenter(map.unproject(p.subtract(aim).add(half), z), z, map.options.maxBounds);
+      if (inside(p.subtract(map.project(center, z)).add(half))) {
+        map.setView(center, z, { animate: false });
+        return;
+      }
+    }
   }
 
   // Select a station (a marker, or an item of the county's station list): the
-  // marker is highlighted and raised, and the panel shows the station's detail.
+  // marker is highlighted and raised, the panel shows the station's detail — on
+  // phones the info panel opens (or updates, if open) — and the marker is kept
+  // clear of the panel.
   function selectStation(id) {
     if (!obsById[id]) return;
     selectedStationId = id;
+    sheetOpen = true;
     highlightStations();
     markListSelection();
     renderSelectedStation();
+    renderSheet();
     // The detail opening above the list can push the focused list item out of
     // the panel's visible area: bring it back, so keyboard focus is never hidden
-    // (R-V2-DD-9(e)).
+    // (R-V2-DD-9(e)). Otherwise (a marker was chosen) show the detail at the top
+    // of the phone info panel.
     var focused = document.activeElement;
     if (focused && focused.classList && focused.classList.contains("county__item") &&
         typeof focused.scrollIntoView === "function") {
       focused.scrollIntoView({ block: "nearest" });
+    } else if (sheetLayout()) {
+      els.sheetBody.scrollTop = Math.max(0, els.obsSelected.offsetTop - els.sheetBody.offsetTop);
+    } else if (typeof els.obsSelected.scrollIntoView === "function") {
+      els.obsSelected.scrollIntoView({ block: "nearest" }); // the side panel scrolls to the detail
     }
+    afterSheetChange(!sheetExpanded);
   }
 
   function highlightStations() {
@@ -1048,6 +1140,208 @@
       if (el) el.classList.toggle("is-active", on);
       marker.setZIndexOffset(on ? 1000 : 0); // the selected marker is drawn on top
     });
+    updateMarkerAccess();
+  }
+
+  // Marker density and keyboard access (R-V2-RSP-3, RSP-7, R-V2-DD-9(e)). In
+  // rank order, a station marker is shown only when its touch area (at least
+  // 44 x 44 px, with its name label when shown) does not overlap one already
+  // shown; a hidden marker ("is-culled": invisible, not clickable, not a Tab stop)
+  // reappears when zooming in, and every station stays reachable through the
+  // County chooser and the station list. A Taiwan-wide marker is a Tab stop only
+  // while no panel or notice covers it, so keyboard focus can never land under
+  // one. County-view markers are never Tab stops (the station list is their
+  // keyboard path, R-V2-DD-9(b)(d)).
+  function updateMarkerAccess() {
+    if (!map) return;
+    var ids = Object.keys(stationMarkers);
+    var focusedId = null;
+    var active = document.activeElement;
+    var items = [];
+    ids.forEach(function (id) {
+      var el = stationMarkers[id].getElement();
+      if (!el) return;
+      if (active && el.contains(active)) focusedId = id;
+      items.push({ id: id, el: el, box: markerBox(el) });
+    });
+    var rank = densityRank(focusedId);
+    items.sort(function (a, b) {
+      return rank(a.id) - rank(b.id) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    });
+    var covers = coveringRects();
+    var kept = [];
+    items.forEach(function (it) {
+      var hidden = kept.some(function (k) { return overlaps(k, it.box); });
+      if (!hidden) kept.push(it.box);
+      var covered = !hidden && covers.some(function (r) { return overlaps(r, it.box); });
+      it.el.classList.toggle("is-culled", hidden);
+      var pill = it.el.querySelector(".spill");
+      if (pill) pill.setAttribute("tabindex", renderedCounty || hidden || covered ? "-1" : "0");
+    });
+  }
+
+  // Lower is shown first: the selected station, the focused one, then — in a
+  // county view — its highest and lowest station and its representative, else
+  // the Taiwan-wide county order DENSITY_PRIORITY.
+  function densityRank(focusedId) {
+    var hi = null, lo = null, reps = representativeIds();
+    if (renderedCounty) {
+      var list = countyStations(renderedCounty).filter(onMap);
+      hi = highestStation(list);
+      lo = lowestStation(list);
+    }
+    return function (id) {
+      if (id === selectedStationId) return -3;
+      if (id === focusedId) return -2;
+      if (renderedCounty) {
+        if (hi && id === hi.stationId) return 0;
+        if (lo && id === lo.stationId) return 1;
+        return reps.indexOf(id) >= 0 ? 2 : 3;
+      }
+      var s = obsById[id];
+      var i = s ? DENSITY_PRIORITY.indexOf(s.countyName) : -1;
+      return i < 0 ? DENSITY_PRIORITY.length : i;
+    };
+  }
+
+  // A marker's touch area in page px: its pill, grown to at least 44 x 44 around
+  // the pill's centre (the pill's ::before hit area), plus its name label when
+  // the label is shown.
+  function markerBox(el) {
+    var pill = el.querySelector(".spill");
+    var r = (pill || el).getBoundingClientRect();
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    var w = Math.max(r.width, TOUCH) / 2, h = Math.max(r.height, TOUCH) / 2;
+    var box = { l: cx - w, t: cy - h, r: cx + w, b: cy + h };
+    var label = el.querySelector(".slabel");
+    var lr = label ? label.getBoundingClientRect() : null;
+    if (lr && lr.width > 0 && lr.height > 0) {
+      box = { l: Math.min(box.l, lr.left), t: Math.min(box.t, lr.top),
+              r: Math.max(box.r, lr.right), b: Math.max(box.b, lr.bottom) };
+    }
+    return box;
+  }
+
+  // Two boxes closer than 2 px count as overlapping, so neighbouring touch areas
+  // never share a pixel.
+  function overlaps(a, b) {
+    return a.l < b.r + 2 && b.l < a.r + 2 && a.t < b.b + 2 && b.t < a.b + 2;
+  }
+
+  // What may cover the map in Now mode: the phone info panel and the on-map
+  // Stale / Unavailable notice.
+  function coveringRects() {
+    var out = [];
+    if (sheetShown()) out.push(boxOf(els.sheet));
+    if (noticeShown()) out.push(boxOf(els.obsMapState));
+    return out;
+  }
+
+  function boxOf(el) {
+    var r = el.getBoundingClientRect();
+    return { l: r.left, t: r.top, r: r.right, b: r.bottom };
+  }
+
+  function noticeShown() {
+    return mode === MODE_NOW && !!els.obsMapState && !els.obsMapState.hidden;
+  }
+
+  // --- the info panel below 1024 px (R-V2-RSP-5; Issue #39) ---------------------
+  // Below 1024 px the county context, station detail and station list sit in a
+  // bottom info panel over the lower part of the map (CSS positions it; this code
+  // reads that from the computed style, so the two never disagree). It opens on a
+  // county or station selection — or updates in place if already open — in its
+  // peek size (at most half the map's height), can be expanded to the station
+  // list (the zoom buttons above it stay clear), and closed with its Close button
+  // or Esc; "Details" reopens it. Closing it keeps the selection.
+
+  function sheetLayout() {
+    return !!els.sheet && window.getComputedStyle(els.sheet).position === "absolute";
+  }
+
+  function sheetShown() {
+    var st = els.sheet ? els.sheet.getAttribute("data-sheet") : "empty";
+    return mode === MODE_NOW && sheetLayout() && (st === "peek" || st === "expanded");
+  }
+
+  // Map px covered by the info panel from the map's bottom edge (0 when closed or
+  // not a bottom panel).
+  function sheetCover() {
+    if (!sheetShown() || !els.mapEl) return 0;
+    var m = els.mapEl.getBoundingClientRect();
+    return Math.max(0, Math.min(m.height, m.bottom - els.sheet.getBoundingClientRect().top));
+  }
+
+  // Reflect the selection and the panel state in the panel's attributes, title
+  // and buttons, and in "Back to Taiwan" / "Details" beside the County chooser.
+  function renderSheet() {
+    if (!els.sheet) return;
+    var s = selectedStationId ? obsById[selectedStationId] : null;
+    var has = !!selectedCounty || !!s;
+    if (!has) { sheetOpen = false; sheetExpanded = false; }
+    var state = !has ? "empty" : !sheetOpen ? "closed" : sheetExpanded ? "expanded" : "peek";
+    els.sheet.setAttribute("data-sheet", state);
+    els.sheetExpand.setAttribute("aria-expanded", state === "expanded" ? "true" : "false");
+    els.sheetExpand.textContent = state === "expanded" ? "Collapse" : "Expand";
+    els.sheetTitle.textContent = s
+      ? stationName(s) + " station · " + s.countyName
+      : (selectedCounty || "Details");
+    els.backToTaiwan.hidden = !selectedCounty;
+    els.sheetReopen.hidden = state !== "closed";
+  }
+
+  function closeSheet() {
+    var focusInside = els.sheet.contains(document.activeElement);
+    sheetOpen = false;
+    sheetExpanded = false;
+    renderSheet();
+    // Focus leaves with the panel: it goes to "Details", which reopens it.
+    if (focusInside && !els.sheetReopen.hidden) els.sheetReopen.focus();
+    afterSheetChange(false);
+  }
+
+  function reopenSheet() {
+    sheetOpen = true;
+    renderSheet();
+    if (sheetLayout()) els.sheetClose.focus();
+    afterSheetChange(true);
+  }
+
+  // Expanded shows the county's station list (R-V2-RSP-5(c)): the panel scrolls to
+  // the selected list item, or to the list's start.
+  function toggleSheetExpanded() {
+    sheetExpanded = !sheetExpanded;
+    renderSheet();
+    if (sheetExpanded && sheetLayout() && !els.countyStations.hidden) {
+      var item = els.countyList.querySelector(".county__item.is-active");
+      if (item && typeof item.scrollIntoView === "function") item.scrollIntoView({ block: "nearest" });
+      else els.sheetBody.scrollTop = Math.max(0, els.countyStations.offsetTop - els.sheetBody.offsetTop);
+    }
+    afterSheetChange(!sheetExpanded);
+  }
+
+  // After the info panel opens, closes, resizes or changes content: on phones
+  // keep the whole map (and so the panel) on screen; then, through the map's
+  // non-zero-size guard (R-V2-MAP-5), measure the map before any view change,
+  // keep the selected station clear of the panel (peek) and re-check which
+  // markers may take keyboard focus.
+  function afterSheetChange(revealSelected) {
+    if (sheetShown() && els.mapFrame && typeof els.mapFrame.scrollIntoView === "function") {
+      var r = els.mapFrame.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > window.innerHeight) els.mapFrame.scrollIntoView({ block: "nearest" });
+    }
+    if (!map || mode !== MODE_NOW) return;
+    ensureMapSized(function () {
+      map.invalidateSize();
+      if (revealSelected) revealSelection();
+      updateMarkerAccess();
+    });
+  }
+
+  // Keep the selected station's marker (if it is on the map) in the clear area.
+  function revealSelection() {
+    var marker = selectedStationId ? stationMarkers[selectedStationId] : null;
+    if (marker) reveal(marker.getLatLng());
   }
 
   // The selected-station detail (R-V2-DD-7): the station's name and StationId,
@@ -1133,15 +1427,21 @@
     selectedCounty = name;
     var s = selectedStationId ? obsById[selectedStationId] : null;
     if (!s || s.countyName !== name) selectedStationId = null;
+    // Phones / tablets: the info panel opens (peek) — or updates, if open — and
+    // shows the county from its top (#39, R-V2-RSP-5(f)).
+    sheetOpen = true;
+    sheetExpanded = false;
     renderCountySelection();
+    if (els.sheetBody) els.sheetBody.scrollTop = 0;
     if (map && mode === MODE_NOW) {
+      // The county is fitted into the map area the open info panel leaves clear.
       fitCounty(name);
       renderStations();
     }
-    // Floating panel (>= 1180 px): scroll it so the County context is in view
-    // (the chooser just above it stays in view too). Stacked layouts keep the
-    // page where it is.
-    if (window.innerWidth >= 1180 && typeof els.county.scrollIntoView === "function") {
+    afterSheetChange(false);
+    // Side panel (>= 1024 px): scroll it so the County context is in view (the
+    // chooser just above it stays in view too).
+    if (!sheetLayout() && window.innerWidth >= 1024 && typeof els.county.scrollIntoView === "function") {
       els.county.scrollIntoView({ block: "nearest" });
     }
   }
@@ -1154,11 +1454,12 @@
     var hadFocus = document.activeElement === els.backToTaiwan;
     selectedCounty = null;
     selectedStationId = null;
-    renderCountySelection();
+    renderCountySelection(); // nothing selected: the info panel closes
     if (map && mode === MODE_NOW) {
       fitToMarkers();
       renderStations();
     }
+    afterSheetChange(false);
     if (hadFocus) els.countySelect.focus();
   }
 
@@ -1171,6 +1472,7 @@
     renderCaption();
     renderCountyContext();
     renderSelectedStation();
+    renderSheet();
     els.obsMarkerNote.textContent = selectedCounty
       ? "Each marker is one " + selectedCounty + " station's air temperature (°C) — a " +
         "station value. Stations outside the map range are listed only."
@@ -1674,6 +1976,7 @@
     if (typeof L === "undefined") return false;
 
     var basemap = window.TAIWAN_BASEMAP || {};
+    keepTooltipsInsideMap();
 
     map = L.map("map", {
       zoomControl: false,          // added at top-right below (R-EN-4, "zoomable")
@@ -1681,6 +1984,15 @@
       attributionControl: true,
       center: [23.75, 121.0],
       zoom: 7,
+      // The map fence and zoom range (R-V2-MAP-1..3, #39): dragging, keyboard
+      // panning and every programmatic move stay within E; zoom stays 6..12.
+      minZoom: MIN_ZOOM,
+      maxZoom: MAX_ZOOM,
+      maxBounds: L.latLngBounds(
+        [MAP_RANGE.latitude[0], MAP_RANGE.longitude[0]],
+        [MAP_RANGE.latitude[1], MAP_RANGE.longitude[1]]
+      ),
+      maxBoundsViscosity: 1.0,
     });
     L.control.zoom({ position: "topright" }).addTo(map);
     map.attributionControl.setPrefix(false);
@@ -1796,6 +2108,32 @@
       var m = stationMarkers[id];
       if (m._tipHtml) bindOrUpdateTip(m, m._tipHtml);
     });
+    // The zoom (and the label visibility just set) changes which markers overlap.
+    updateMarkerAccess();
+  }
+
+  // Tooltips never clipped by the map's edge (R-V2-RSP-6, #39): after Leaflet
+  // places a tooltip (a marker's details, a county's name — also one that follows
+  // the pointer), shift it just enough to lie wholly inside the map container.
+  // The direction rule above (tipDir) still picks top / bottom; this only
+  // corrects what would overflow, e.g. a marker near the left or right edge.
+  // Installed once, on the vendored (pinned) Leaflet 1.9.4 Tooltip.
+  function keepTooltipsInsideMap() {
+    var proto = L.Tooltip && L.Tooltip.prototype;
+    if (!proto || typeof proto._setPosition !== "function" || proto._setPosition.keepsInside) return;
+    var place = proto._setPosition;
+    proto._setPosition = function (pos) {
+      place.call(this, pos);
+      var m = this._map, el = this._container;
+      if (!m || !el) return;
+      var size = m.getSize();
+      var at = L.DomUtil.getPosition(el);
+      var c = m.layerPointToContainerPoint(at);
+      var dx = clamp(c.x, 4, Math.max(4, size.x - el.offsetWidth - 4)) - c.x;
+      var dy = clamp(c.y, 4, Math.max(4, size.y - el.offsetHeight - 4)) - c.y;
+      if (dx || dy) L.DomUtil.setPosition(el, at.add(L.point(dx, dy)));
+    };
+    proto._setPosition.keepsInside = true;
   }
 
   // Map padding that keeps markers clear of the mode's panels. When the info
@@ -1804,7 +2142,10 @@
   // bottom-right legend) so no marker or its tooltip sits under them (P-7c, #28
   // F-1/F-2/F-3); below 1180px the panels are stacked OUTSIDE the map (CSS), so
   // modest padding keeps the pills separated and their tooltips inside the frame
-  // (V-3, V-4). The Forecast mode values are the V1 ones unchanged.
+  // (V-3, V-4). The Forecast mode values are the V1 ones unchanged. The Now mode
+  // panel never floats over the map (#39: beside it >= 1024 px, above it below),
+  // so its padding is a plain margin — plus, on phones / tablets, the part of the
+  // map the open info panel covers.
   function fitPadding(forMode) {
     var floating = window.innerWidth >= 1180;
     if (forMode === MODE_FORECAST) {
@@ -1812,9 +2153,7 @@
         ? { tl: [392, 64], br: [300, 56] }
         : { tl: [26, 52], br: [26, 44] };
     }
-    return floating
-      ? { tl: [330, 24], br: [24, 24] }
-      : { tl: [24, 24], br: [24, 24] };
+    return { tl: [24, 24], br: [24, 24 + sheetCover()] };
   }
 
   // Fit the view: to `bounds` when given, otherwise to the current mode's initial
@@ -1835,12 +2174,36 @@
     map.invalidateSize();
     var pad = fitPadding(mode);
     var target = bounds || (mode === MODE_FORECAST ? regionPoints() : NOW_INITIAL_BOUNDS);
+    // Not animated, and settled inside the map fence right away (#39): the view
+    // is final when this returns, instead of Leaflet bouncing it back into the
+    // fence with a later animation — so what follows (keeping a selected marker
+    // clear of the info panel, marker density) measures the real view.
     map.fitBounds(target, {
       paddingTopLeft: pad.tl,
       paddingBottomRight: pad.br,
       maxZoom: maxZoom || 8,
+      animate: false,
     });
+    map.panInsideBounds(map.options.maxBounds, { animate: false });
     lastFitWidth = window.innerWidth; // remember the width this fit was for (#28 R2 N-2)
+  }
+
+  // A window resize, run through the non-zero-size guard (R-V2-MAP-5). A WIDTH
+  // change may change the layout (Now: side panel >= 1024 px vs the bottom info
+  // panel; Forecast: floating >= 1180 px vs stacked), so the current mode's view
+  // is fitted again and the selected station kept clear (#28 F-1); a selected
+  // county keeps its county view (#38). A height-only change (e.g. a mobile
+  // browser toolbar showing/hiding) only re-measures, keeping the user's zoom and
+  // position (#28 R2 N-2). A Select Date change never re-fits (P-12).
+  function resizeMap() {
+    if (window.innerWidth !== lastFitWidth) {
+      if (mode === MODE_NOW && selectedCounty) fitCounty(selectedCounty);
+      else fitToMarkers();
+      if (mode === MODE_NOW) revealSelection();
+    } else {
+      map.invalidateSize();
+    }
+    updateMarkerAccess();
   }
 
   // A pill was clicked/activated: reflect the selection in the panel and pills.

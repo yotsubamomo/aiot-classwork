@@ -507,8 +507,9 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   air pressure (hPa), precipitation (the dataset's `Now.Precipitation`: accumulated
   precipitation for the current day, mm) and weather — each "—" when CWA published
   no valid value.
-- **`Back to Taiwan`.** The button beside the county's name clears the county and the
-  station and returns the map to the Taiwan-wide view it opens with.
+- **`Back to Taiwan`.** The button under the `County` chooser (shown while a county is
+  selected) clears the county and the station and returns the map to the Taiwan-wide
+  view it opens with.
 - **Stale and Unavailable.** The county shapes, the `County` chooser, the list and
   `Back to Taiwan` keep working when the Latest Observation fails. **Stale**: the
   County context shows the last successful data, marked Stale. **Unavailable**: the
@@ -530,6 +531,53 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   they are not keyboard Tab stops; the `County` chooser is the keyboard way to pick a
   county. The offline tests check each name against the sample's stations inside
   the polygon.
+
+#### Now mode — map range, zoom range and layout (V2 Core)
+
+- **The map stays on Taiwan (the fence).** The map can be dragged (with the mouse,
+  a finger or the arrow keys) only within the **useful Taiwan map range** — latitude
+  **21.2 – 26.7**, longitude **117.6 – 122.9**, the same range as the off-map station
+  rule above; it covers the main island, 澎湖, 金門, 連江 (馬祖), 蘭嶼 and 綠島. On each
+  axis the map either stays inside that range or, when the map is wider or taller
+  than the whole range (zoomed out), keeps the whole range in view, centred — so the
+  middle of the map is always inside the range and you can never drag Taiwan out of
+  sight into empty sea or a neighbouring coast. 金門 and 連江 are inside the range:
+  drag (or zoom) towards them and click their stations as anywhere else. The same
+  range applies in Forecast mode (one map).
+- **Zoom range: 6 to 12.** Zooming out stops at level **6**, where the main island
+  still fills at least a quarter of the map's height (about 170 px of a 360–560 px
+  tall map); the range above does not need to fit the map at that level. Zooming in
+  stops at level **12**, where 1 km is about 28 px — close enough to pick single
+  stations in the densest county (臺北市) — but not so close that a phone-width map
+  shows less than about 13 km. The `+` / `−` buttons are disabled at the limits.
+- **Opening view.** The Now mode opens — and `Back to Taiwan` returns — on the whole
+  main island and 澎湖 (金門 and 連江 may be outside it; drag or zoom to reach them).
+- **Marker density.** Where two station markers would overlap at the current zoom,
+  only one is shown: the selected station first, then, Taiwan-wide, the counties in a
+  fixed order spread over the island (臺北市, 高雄市, 臺中市, 花蓮縣, 臺東縣, 澎湖縣,
+  金門縣, 連江縣, 宜蘭縣, 臺南市, 屏東縣, 嘉義縣, 南投縣, 新竹縣, 桃園市, 新北市, 基隆市,
+  苗栗縣, 彰化縣, 雲林縣, 嘉義市, 新竹市) and, in a county view, its highest and lowest
+  station and its representative first. A hidden marker appears when you zoom in; every
+  county stays in the `County` chooser and every station in the county's station list.
+  So the markers you see are never on top of each other and each can be read and
+  clicked (its touch area is at least 44 × 44 px). On a phone the Taiwan-wide view at
+  the opening zoom shows only a few representative markers.
+- **Layout.** At **1024 px and wider** the Now panel (times, `Refresh`, `County`,
+  `Back to Taiwan`, the County context, the station detail and list) is a column
+  **beside** the map, so it never covers the map. **Below 1024 px** a compact bar
+  above the map holds the times, `Refresh`, `County` and `Back to Taiwan`, and the
+  county / station details open in a **bottom info panel** over the lower part of
+  the map when you select a county or a station:
+  - normally it covers **at most half** of the map, and the selected station's marker
+    is moved (or, at the edge of the range, zoomed) so it stays visible above it;
+  - **Expand** shows the county's station list (the zoom buttons above it stay
+    uncovered); **Collapse** returns to the smaller size;
+  - **Close** (a button — or Esc inside the panel) hides it and keeps the selection;
+    **Details** under the `County` chooser opens it again. No swipe is needed;
+  - selecting another station or county while it is open updates it;
+  - the zoom buttons, the mode switch, `Refresh` and `Back to Taiwan` are never covered.
+- **Tooltips** are kept inside the map, also for markers near its edges. Buttons,
+  the `County` chooser, list items and the zoom buttons are at least 44 × 44 px.
 
 #### Representative station rule
 
@@ -750,7 +798,13 @@ for the failure reasons and no response text ever displayed), and
 stations inside it; the frontend's map range equal to `representative.py`'s; no
 aggregate and no data colouring in the county code; "—", never 0, with no Latest
 Observation; the list items as buttons, the `County` chooser and the verbatim
-`Back to Taiwan`; the mode switch never clearing the county). (Four browser-level
+`Back to Taiwan`; the mode switch never clearing the county), and
+`tests/test_fence_frontend.py` holds static guards on the map range and zoom range
+(the fence equals the map range with a hard edge; the zoom floor and ceiling
+recomputed against their criteria; the opening view's box), the info panel (a
+Close button with visible text, Esc, the peek and expanded sizes), 44 × 44 targets,
+the marker density rule, the side-by-side desktop layout, and the map size guard on
+the info panel and resize paths. (Five browser-level
 checks need a real Chrome and so run separately from the offline `pytest` suite: the
 check that the dashboard shows a visible message when `/series` fails on first load,
 [`tests/check_series_error_visible.py`](tests/check_series_error_visible.py); the
@@ -768,10 +822,16 @@ which hovers and selects counties on the map and with the keyboard, compares the
 County context with values worked out from the `/api/` response, walks the station
 list and detail, `Back to Taiwan`, the off-map 東沙島 station, a county with no valid
 station, the Now → Forecast → Now round trip, and the county layer under Stale and
-Unavailable, at 1280 px and 375 px —
+Unavailable, at 1280 px and 375 px; and the map fence check
+[`tests/check_fence_browser.py`](tests/check_fence_browser.py), which drags the map to
+every edge at zoom 6, 8 and 12 and reads the view back, reaches 金門 and 連江, measures
+the zoom floor and ceiling, clicks every 臺北市 station at the ceiling, drives the
+phone info panel (peek, expand, Close, Esc, Details), measures 44 × 44 targets and
+marker overlap, checks 768 px for breakage and repeats resizes and panel changes
+while watching for broken markers —
 `python tests/check_modes_browser.py`, `python tests/check_refresh_browser.py`,
-`python tests/check_county_browser.py`; they also need the `websocket-client`
-package.)
+`python tests/check_county_browser.py`, `python tests/check_fence_browser.py`; they
+also need the `websocket-client` package.)
 The test fixture
 [`tests/fixtures/F-D0047-091_sample.json`](tests/fixtures/F-D0047-091_sample.json)
 is a **real** `F-D0047-091` response captured **2026-09-24**, **reduced** to the two
