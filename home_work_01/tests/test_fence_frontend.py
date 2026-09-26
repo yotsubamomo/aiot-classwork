@@ -36,7 +36,7 @@ _HTML = (_STATIC / "index.html").read_text(encoding="utf-8")
 EARTH_M = 40075016.686
 MAIN_ISLAND = {"s": 21.90, "n": 25.30, "w": 120.03, "e": 122.01}
 PENGHU_MAIN = {"s": 23.52, "n": 23.66, "w": 119.52, "e": 119.70}
-MAP_HEIGHTS = {"desktop": 560, "tablet": 440, "phone": 360}  # styles.css .map heights (DR-20 P-1)
+MAP_HEIGHTS = {"desktop": 640, "tablet": 440, "phone": 360}  # styles.css .map heights (DR-20 P-1; desktop 640 per WI-UI-POLISH-1)
 
 
 def _body(name: str) -> str:
@@ -74,7 +74,7 @@ def test_leaflet_map_is_fenced_to_the_map_range_with_the_zoom_range() -> None:
 
 def test_zoom_floor_keeps_the_main_island_at_least_a_quarter_of_the_map_height() -> None:
     """R-V2-MAP-2: at minZoom the main island's north–south extent is >= 25 % of the
-    map's height in every layout (the map is at most 560 px tall)."""
+    map's height in every layout (the map is at most 640 px tall)."""
     z = _num("MIN_ZOOM")
     ns = _y(MAIN_ISLAND["s"], z) - _y(MAIN_ISLAND["n"], z)
     for layout, height in MAP_HEIGHTS.items():
@@ -236,7 +236,7 @@ def test_desktop_status_part_never_scrolls_out_of_view() -> None:
     block = block[:block.index("\n}\n")]
     panel = block[block.index(".map-shell--now .map-panel--now {"):]
     panel = panel[:panel.index("}")]
-    assert "overflow: hidden;" in panel and "display: grid;" in panel and "height: 562px;" in panel
+    assert "overflow: hidden;" in panel and "display: grid;" in panel and "height: 642px;" in panel
     assert "grid-template-rows: auto auto auto auto auto minmax(0, 1fr);" in panel
     for cls, row in ((".map-panel__title", 1), (".obs-state", 2), (".obs-times", 3), (".obs-actions", 4),
                      (".county-pick", 5), (".county-actions", 5), (".sheet", 6)):

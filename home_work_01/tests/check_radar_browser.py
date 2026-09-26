@@ -512,8 +512,10 @@ def rendered(pg: Page, points, save: str | None = None) -> tuple[list[dict], dic
     """Rendered-pixel measurement in the current view: radar visible vs hidden
     (markers and tooltips hidden in both), the changed-pixel blobs' centroids vs
     the projection of each on-screen square's centre."""
-    hide = ("document.querySelectorAll('.leaflet-marker-pane, .leaflet-tooltip-pane, .obs-map-state-wrap')"
-            ".forEach(function(e){e.style.visibility='hidden'}); true")
+    # the map controls are hidden too (WI-UI-POLISH-1): on the wider desktop map a
+    # square can lie under the zoom buttons, which would hide it from the capture
+    hide = ("document.querySelectorAll('.leaflet-marker-pane, .leaflet-tooltip-pane, .obs-map-state-wrap, "
+            ".leaflet-control-container').forEach(function(e){e.style.visibility='hidden'}); true")
     pg.b.js(hide)
     pg.b.pump(0.3)
     on, dx, dy = pg.capture_map()
@@ -521,8 +523,8 @@ def rendered(pg: Page, points, save: str | None = None) -> tuple[list[dict], dic
     pg.b.pump(0.3)
     off, _, _ = pg.capture_map()
     pg.b.js("document.querySelector('.leaflet-radar-pane').style.visibility=''; "
-            "document.querySelectorAll('.leaflet-marker-pane, .leaflet-tooltip-pane, .obs-map-state-wrap')"
-            ".forEach(function(e){e.style.visibility=''}); true")
+            "document.querySelectorAll('.leaflet-marker-pane, .leaflet-tooltip-pane, .obs-map-state-wrap, "
+            ".leaflet-control-container').forEach(function(e){e.style.visibility=''}); true")
     if save:
         on.save(pg.out / f"{pg.label}-{save}-radar-on.png")
         off.save(pg.out / f"{pg.label}-{save}-radar-hidden.png")

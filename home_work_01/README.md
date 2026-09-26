@@ -673,7 +673,7 @@ are ENHANCED, dashboard-only features; the Streamlit Grading App has neither.
   drag (or zoom) towards them and click their stations as anywhere else. The same
   range applies in Forecast mode (one map).
 - **Zoom range: 6 to 12.** Zooming out stops at level **6**, where the main island
-  still fills at least a quarter of the map's height (about 170 px of a 360–560 px
+  still fills at least a quarter of the map's height (about 170 px of a 360–640 px
   tall map); the range above does not need to fit the map at that level. Zooming in
   stops at level **12**, where 1 km is about 28 px — close enough to pick single
   stations in the densest county (臺北市) — but not so close that a phone-width map
