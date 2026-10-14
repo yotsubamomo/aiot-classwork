@@ -2,8 +2,8 @@
 
 本檔是本 repo 依 Minimal Operational Governance v2.2 §5.1 宣告的 Project Bindings：哪些範圍採用治理，以及採用範圍內的權限來源、角色與模型、lane、assurance、工具與紀錄位置。
 
-- **Bindings 版本**：b4（2026-10-14）
-- **生效條件**：acceptor 把引入本版的 PR 合併進 `main`，即代表接受並授權本檔全部內容（含第 2.5 節的 standing authorizations）。合併前本版只是提案，b3 仍有效。
+- **Bindings 版本**：b5（2026-10-14）
+- **生效條件**：acceptor 把引入本版的 PR 合併進 `main`，即代表接受並授權本檔全部內容（含第 2.5 節的 standing authorizations）。合併前本版只是提案，b4 仍有效。
 - **優先順序**（治理 §5.3；orch-default §1）：治理本文 ＞ 本檔 ＞ Accepted Work Contract ＞ Implementation Profile ＞ Orchestrator Contract ＞ Runtime 工具。Root `CLAUDE.md` 的其他規則在治理啟用的範圍內視為本檔的一部分；與治理 MUST 衝突時以治理為準。
 - **整體取向：Lightweight 優先。** 本專案是個人課程作業。在治理允許的範圍內一律選最輕的做法：預設 Lightweight lane（第 4 節）、Lightweight 預設不做 independent audit（第 5 節）、bounded assignments 只採用 `investigator` 與 `bounded_worker` 兩種（第 3.4 節）、不宣告額外的 escalation trigger 或 diversity 要求。治理的 MUST 不因此放寬。
 
@@ -70,6 +70,9 @@ Root `CLAUDE.md` 的「不要自行補出老師沒有提出的要求」，在治
 | --- | --- | --- |
 | SA-1 | 依 `docs/conventions/git-commit-rules.md` 建立 topic branch、在 topic branch 上 commit，並 push topic branch 到 `origin`。 | 在 `main` 上 commit；force push；刪除或改寫既有歷史。 |
 | SA-2 | 從 topic branch 對 `main` 開 Pull Request，PR 描述依 git 規則撰寫。 | 合併 PR（見 RB-1）。 |
+| SA-3 | 把單元的 topic branch，經 SA-2 開的 PR，以 merge commit 合併進 `main`。下列條件須全部成立：(1) 該單元**已接受的 Outcome Contract 明確引用 SA-3**（opt-in；未引用者仍屬 RB-1）；(2) 第 5 節的 integration／release gates 全部滿足，含 SA-3 merge gates（Lightweight 另須 independent review 已 closure）；(3) 由 Formal 的 Orchestrator，或 Lightweight 的 direct-execution Executor 執行；(4) 依第 7 節記錄合併紀錄，並完成第 5 節的合併後驗證。 | PR diff 含該單元目錄以外的檔案（RB-5，含 `docs/governance/`、`.claude/`、root 與其他單元）；任何 gate 未滿足或證據不全；squash 或 rebase 合併；RB-6 的動作；繳交（RB-2）；部署平台的設定、環境變數或回滾（RB-3）。 |
+
+SA-3 是治理 §5.2 所稱的 merge／release 授權與 release authority 宣告。Work item 完成本身不授予合併（治理 §5.2）；SA-3 只在上述條件成立時授予。
 
 ### 2.6 Reserved boundaries
 
@@ -77,7 +80,7 @@ Root `CLAUDE.md` 的「不要自行補出老師沒有提出的要求」，在治
 
 | ID | 保留的決定／動作 |
 | --- | --- |
-| RB-1 | 合併任何分支進 `main`（`main` 同時是 GitHub Pages 的發布來源）。 |
+| RB-1 | 合併任何分支進 `main`（`main` 同時是 GitHub Pages 的發布來源）；第 2.5 節 SA-3 明確涵蓋的合併除外。 |
 | RB-2 | 繳交作業或任何對外提交。 |
 | RB-3 | 申請、輪替或填寫 API key 等憑證；第三方帳號操作。金鑰只能放在兩個授權位置：(a) 未追蹤的本機 `.env`；(b) 部署平台（Vercel）專案的環境變數——只由 acceptor 親自填入，Agents 不得填入、讀出、印出或匯出其值；部署的應用程式只在伺服器端執行期讀取，不得傳給前端、不得寫入 build／runtime log 或 evidence。無論位置為何，金鑰任何時候都不得進 git、log、前端程式或文件。 |
 | RB-4 | 任何需要付費的動作（付費方案、付費 API 額度）。 |
@@ -241,10 +244,18 @@ Claude Code 的自動記憶（memory）不是權威紀錄：不得以它代替 r
 - **Lightweight audit 預設**：不要求 independent audit。worklog 如實標示「完成且依 policy 未要求 independent audit」，不得寫成 audit PASS。
 - **Lightweight audit 觸發條件**：acceptor 要求；變更涉及該單元 Design Authority 確認的高風險類別；Design Authority 裁決要求。
 - **高風險類別**：治理 §5.1 規定由 Design Authority 決定，以單元的 decision record 承載。初始候選為 H-1 憑證與機密（API key 是否可能進入瀏覽器端程式、git、log 或文件）與 H-2 老師指定的介面或資料格式（評分直接依賴的檔名、資料表結構、API endpoint、輸出格式）；每份作業第一次正式 audit 或 Formal activation 前，由 Design Authority 確認或修改。`home_work_01/` 已確認並新增 H-3（`home_work_01/doc/governance/decisions/decision-20260923-high-risk-categories.md`）。本檔不以任何高風險類別作為 capability escalation trigger。
-- **Integration／release gates**：release 指合併進 `main`（RB-1，保留給 acceptor）。請 acceptor 合併前須具備：
+- **Integration／release gates**：release 指合併進 `main`。合併由 acceptor 進行（RB-1），或在 SA-3 涵蓋時由 SA-3 的執行者進行。不論由誰合併，合併前須具備：
   - Formal：全部 Ticket 依 orch-default §7 結案、每份 Spec 的 Spec Integration Audit 已 closure、Design Authority phase acceptance 已完成。
   - 單元 `README.md` 的安裝與執行步驟有變動時，已實際跑過，結果與證據記在 worklog。
   - 沒有追蹤中的機密：`git ls-files` 不含 `.env`，diff 內沒有金鑰字串。
+- **SA-3 merge gates**（只在依 SA-3 合併時適用；是上列各項之外的條件，不取代它們）：
+  - 該 work item 符合治理 §3.8 的完成條件，包括依治理 §4.1 與本節 Lightweight audit 觸發條件所需的 audit 已 closure。
+  - **Lightweight**：另須該 work item 的 independent review 已 closure。審查依治理 §4.4 的 R1／R2／一次 Alternate Review／Final Adjudication 流程，由第 3.7 節的機制派工，受審 subject 為合併時的 PR head。這是 SA-3 的合併條件，不改變 Lightweight 的 audit 預設；不依 SA-3 合併的 Lightweight 工作仍適用上面的預設。
+  - Gate 證據對應的 subject（PR head SHA）與合併時的 head SHA 相同；之後若有新的 commit，依 orch-default §7 P7 處理後重新核對。
+  - `git diff --name-only origin/main...<PR head>` 的每個路徑都在該單元目錄內（RB-5）。
+  - PR 上已執行的 GitHub checks（例如 Vercel preview、單元 CI）全部成功。`main` 沒有 branch protection，這項由執行者核對並記錄。
+  - 以 merge commit 合併，不 squash、不 rebase，保留受審 commit 的 identity（orch-default §7 P7）。
+- **SA-3 合併後驗證**：合併進 `main` 會重建整個 repo 的 GitHub Pages，並觸發 Vercel production 部署（目前是 `home_work_01` 的專案），與合併的單元無關。合併後，執行者以 GitHub deployments API 核對該 merge commit 觸發的每個部署（`github-pages`、Vercel `Production`），狀態都須為 success；並以各已部署單元既有的 smoke 檢查（例如 `home_work_01/smoke.py` 對 production URL）確認仍可用。任一失敗時，不自行回滾、重新部署或改寫歷史（RB-3、RB-6），寫 stop report 交 acceptor；修正以新的 work item 處理。
 - **Model diversity**（治理 §2.2 V22-11；Profile §5）：因 O-1，Executor、Primary Reviewer、Alternate Reviewer 預設同為 `claude-opus-5-5`，Profile §5 的 D1、D3 在本專案的拓樸下不成立；本檔不宣告任何 diversity 關係（D1–D4 皆記「未宣告」），所以不記 `diversity_lost`。Audit record 分兩欄記載：(a) context independence 四項 properties 的滿足方式；(b) Executor、Primary、Alternate 的實際 model（引用第 3.6 節證據），相同時記「無 model diversity」，不得主張 diversity。Diversity 不影響 independence 的判定；本專案沒有要求恢復 diversity 才能 audit 的類別。
 
 ## 6. Skills and runtime
@@ -286,6 +297,7 @@ home_workNN/doc/
 | Audit record | Ticket：`doc/governance/audit/issue-<n>-c<cycle>-<r1\|r2\|alt>.md`；Spec Integration Audit：`doc/governance/audit/spec-<spec>-c<cycle>-<r1\|r2\|alt>.md` |
 | Run record | `doc/governance/run/run-<YYYYMMDD>-<slug>.md` |
 | Escalation／substitution record | 派工者的 worklog（Lightweight）或 run record（Formal）；review／adjudication 角色提出的 escalation 記在自己的 audit record 或 ruling（Profile §8） |
+| Merge record（SA-3） | Formal：run record；Lightweight：worklog。內容：PR URL、PR head SHA、merge commit SHA、各 gate 的證據引用（Lightweight 含 independent review record）、合併後驗證的結果 |
 
 - 資料夾在真的產出該類紀錄時才建立。
 - `doc/governance/**` 是 **record-only paths**：只改這些路徑的 delta 不影響受審 subject 的 identity（orch-default §7 P7）。
@@ -324,3 +336,4 @@ home_workNN/doc/
 | b4（合併前修訂 2） | 2026-10-14 | 第 3.4 節新增 O-3：`investigator` 與 `bounded_worker`（`standard`）改為 Sonnet 5.5／`high`；`bounded_worker`（`mechanical`）改為 Haiku 5.5／`high`（仍須通過 qualification probe，之前依 `standard` 派工）。第 3.1 節 F-BW、F-IN 依新 effort 改寫，第 3.2 節 E-BW 目標相應更新，E-IN 維持 Profile 原值；definitions `gov-investigator`、`gov-bounded-worker` 的 effort 改為 `high`；第 8.2 節 #3 的 probe 相應更新。 | acceptor 2026-10-14 決議：「mechanical 可以改為 haiku 5.5 high，沒問題，sonnet 5.5 的 2 個也拉高到 high，這是我現在的決議。」 | 隨 b4 一同待合併 |
 | b4（合併前修訂 3） | 2026-10-14 | 第 3.2 節 E-IN 的 escalated mapping 由 Opus 5.5／`medium` 改為 Opus 5.5／`high`（併入 O-3）；第 3.1 節 F-IN\* 與第 8.2 節 #3 的 probe 相應更新。 | acceptor 2026-10-14 對「E-IN 是否也改成 Opus 5.5／high」回覆「改成 high」。 | 隨 b4 一同待合併 |
 | b4（合併前修訂 4） | 2026-10-14 | 記錄 Haiku qualification probe 通過（`gov-bounded-worker`＋`model: haiku`、`effort: high`，觀測 `claude-haiku-5-5`／`high`）；`mechanical` 自 b4 生效起以 Haiku 5.5／`high` 派工。 | acceptor 2026-10-14 指示「這邊測試 haiku 的指派」；probe 結果見 `binding-verification.md` b4 節。 | 隨 b4 一同待合併 |
+| b5 | 2026-10-14 | 第 2.5 節新增 **SA-3**：常設授權，在單元已接受的 Outcome Contract 明確引用時，由 Orchestrator（Formal）或 direct-execution Executor（Lightweight），在 gates 滿足後經 PR 以 merge commit 把單元 topic branch 合併進 `main`。RB-1 改為豁免 SA-3 明確涵蓋的合併。第 5 節 release gates 的開頭句改為涵蓋 SA-3，原有三項 gate 不變；新增 SA-3 merge gates（完成條件與 audit、Lightweight 的 independent review closure、subject identity、diff 範圍、PR checks、merge commit）與 SA-3 合併後驗證（GitHub Pages 與 Vercel production 部署狀態、各已部署單元的 smoke；失敗時交 acceptor，不自行回滾）。第 7 節新增 Merge record。SA-1、SA-2、RB-2～RB-6 與其他內容不變。 | acceptor 2026-10-14 決定：採用 SA-3 standing authorization model；Formal 在全部適用的 independent audit、integration 與 release gates 通過後可自主合併；Lightweight 在依 SA-3 自主合併前另須完成 independent review；Agents 可建立 branch、commit、push topic branch、開 PR 與執行已授權的合併；不自主執行破壞性 Git 操作；iLearning 繳交保留給 acceptor。 | 待合併引入本變更的 PR 後生效。本變更本身不受 SA-3 涵蓋，依 RB-1 由 acceptor 2026-10-14 對「此一 b5 governance PR」的一次性明確授權合併。不適用生效前已開始的 work item（治理 §5.3）；SA-3 只對明確引用它的 Outcome Contract 適用 |
