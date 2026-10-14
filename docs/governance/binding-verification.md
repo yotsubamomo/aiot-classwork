@@ -82,36 +82,67 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 
 # Binding verification — b4（Package v2.2 re-pin，Project Bindings §3.1、§8.2 #3）
 
-- **狀態**：**待辦**。b4 修改了 `gov-*` definitions 的 frontmatter 與內文，修改當下的 session 看不到新版本（Bindings §6），所以 dry-run 必須在 b4 合併後新開的 session 執行。上方 b1、b2 的結果只證明舊 mapping，不能沿用為 b4 的證據。
-- **方法**：同 b1、b2，對九個 definition 各以 Agent tool 派一次不做事的任務（只回一行 ack），再以 Bindings §3.6 的核對指令讀 harness 紀錄。另依下表的派工參數各派一次，核對 per-dispatch alias／effort 的實際 model（Bindings §3.1、§3.2、§3.4）。
-- **全程核對**：每個 agent 的 (model, effort) 集合必須只有一個元素並等於預期值。
+- **日期**：2026-10-14（b4 經 PR #47 合併進 `main` `6a75345` 之後）
+- **執行者**：以 `claude -p --session-id 71b409f6-4592-4887-bcab-0f16b0f08a64 --model claude-opus-5-5 --effort high --allowedTools Agent` 啟動的全新 CLI session（無角色，只派工），依 acceptor 2026-10-14 指示「在新 session 跑 b4 binding dry-run」。核對與紀錄由另一個無角色 session（`8943ecf6-f2b0-4c4d-8e41-c796a644c4b4`）以 Bindings §3.6 指令讀 harness 紀錄完成。
+- **方法**：在同一則訊息平行派出 12 個不做事的任務（只回一行 ack，不呼叫工具）：九個 definition 各一次，另加三個 per-dispatch 參數組合。除表列參數外不指定 model 或 effort。
+- **Definitions 版本**：`main` `6a75345` 的 `.claude/agents/gov-*.md`（新 process 載入，Bindings §6）。
+- **全程核對**：每個 agent 的 (model, effort) 集合都只有一個元素。
 
-## 預期（待填觀測值）
+## 結果
 
-| Identifier | Definition（`agentType`） | 派工參數 | 預期 model／effort | agentId | 觀測 | 結果 |
+| # | Identifier | Definition（`agentType`） | 派工參數 | 預期 model／effort | agentId | 觀測（則數） | Tool uses | 結果 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | `design_authority` | `gov-design-authority` | — | `claude-opus-5-5` ／ `high` | `afba561c5711ffb35` | `claude-opus-5-5` ／ `high`（2） | 0 | **PASS** |
+| 2 | `executor` | `gov-executor` | — | `claude-opus-5-5` ／ `high` | `aa9dc75658ef8ffd7` | `claude-opus-5-5` ／ `high`（2） | 0 | **PASS** |
+| 3 | `executor`（fallback） | `gov-executor-fallback` | — | `claude-opus-4-8` ／ `high` | `a8a6e63cec562396a` | `claude-opus-4-8` ／ `high`（1） | 0 | **PASS** |
+| 4 | `primary_reviewer` | `gov-primary-reviewer` | — | `claude-opus-5-5` ／ `xhigh` | `ab159a53f6db2b9ec` | `claude-opus-5-5` ／ `xhigh`（2） | 0 | **PASS** |
+| 5 | `alternate_reviewer` | `gov-alternate-reviewer` | — | `claude-opus-5-5` ／ `xhigh` | `a3887e983c6633123` | `claude-opus-5-5` ／ `xhigh`（2） | 0 | **PASS** |
+| 6 | `final_adjudicator` | `gov-final-adjudicator` | — | `claude-opus-5-5` ／ `xhigh` | `a13ee76c608c36126` | `claude-opus-5-5` ／ `xhigh`（1） | 0 | **PASS** |
+| 7 | `orchestrator` | `gov-orchestrator` | — | `claude-opus-5-5` ／ `medium` | `a8e881e15d322e4e8` | `claude-opus-5-5` ／ `medium`（1） | 0 | **PASS**（見備註 1） |
+| 8 | `investigator` | `gov-investigator` | — | `claude-sonnet-5-5` ／ `high` | `aae8e8216602a9d6e` | `claude-sonnet-5-5` ／ `high`（1） | 0 | **PASS** |
+| 9 | `bounded_worker`（`standard`） | `gov-bounded-worker` | — | `claude-sonnet-5-5` ／ `high` | `a00b832bd8528fb3d` | `claude-sonnet-5-5` ／ `high`（1） | 0 | **PASS** |
+| 10 | Fable 路徑（E-DA／E-AR／E-FA、F-DA／R-PR／F-FA） | `gov-alternate-reviewer` | `model: fable` | `claude-fable-5-1` ／ `xhigh` | `a4425ebc2d2f5c963` | 無完成的回覆（`<synthetic>` 錯誤訊息 1 則） | 0 | **未完成**（見備註 2） |
+| 11 | `investigator`（E-IN） | `gov-investigator` | `model: opus` | `claude-opus-5-5` ／ `high` | `a501693770510067e` | `claude-opus-5-5` ／ `high`（2） | 0 | **PASS** |
+| 12 | `bounded_worker`（`mechanical`，文件化派工方式） | `gov-bounded-worker` | `model: haiku` | `claude-haiku-5-5` ／ `high` | `a65084a1a47b1fcbd` | `claude-haiku-5-5` ／ `high`（1） | 0 | **PASS** |
+
+**總判定：11／12 PASS；#10 未完成**（不是 binding 不符，是當次不可用）。無 replacement。
+
+核對指令輸出（原樣，Bindings §3.6 指令加上 tool-use 與 error 計數）：
+
+```text
+root-session 71b409f6-4592-4887-bcab-0f16b0f08a64 {('claude-opus-5-5', 'high'): 16}
+agent-afba561c5711ffb35 gov-design-authority {('claude-opus-5-5', 'high'): 2} tools= 0 []
+agent-aa9dc75658ef8ffd7 gov-executor {('claude-opus-5-5', 'high'): 2} tools= 0 []
+agent-a8a6e63cec562396a gov-executor-fallback {('claude-opus-4-8', 'high'): 1} tools= 0 []
+agent-ab159a53f6db2b9ec gov-primary-reviewer {('claude-opus-5-5', 'xhigh'): 2} tools= 0 []
+agent-a3887e983c6633123 gov-alternate-reviewer {('claude-opus-5-5', 'xhigh'): 2} tools= 0 []
+agent-a13ee76c608c36126 gov-final-adjudicator {('claude-opus-5-5', 'xhigh'): 1} tools= 0 []
+agent-a8e881e15d322e4e8 gov-orchestrator {('claude-opus-5-5', 'medium'): 1} tools= 0 []
+agent-aae8e8216602a9d6e gov-investigator {('claude-sonnet-5-5', 'high'): 1} tools= 0 []
+agent-a00b832bd8528fb3d gov-bounded-worker {('claude-sonnet-5-5', 'high'): 1} tools= 0 []
+agent-a4425ebc2d2f5c963 gov-alternate-reviewer {('<synthetic>', None): 1} tools= 0 ['rate_limit']
+agent-a501693770510067e gov-investigator {('claude-opus-5-5', 'high'): 2} tools= 0 []
+agent-a65084a1a47b1fcbd gov-bounded-worker {('claude-haiku-5-5', 'high'): 1} tools= 0 []
+```
+
+## 備註
+
+1. **Orchestrator**：Bindings §3.5 規定 Orchestrator 由 acceptor 指定的主 session 擔任，不以 subagent 派工。本列只核對 definition 的 binding；正式 Formal run 時以 root session transcript 核對（Bindings §3.6）。
+2. **#10 Fable**：派工回傳 `Agent terminated early due to an API error: You've reached your Fable limit. ... (error type rate_limit, HTTP 429, request id req_011Cg1HaLGkRbuP6wYiaZFoW, model sent to the API: claude-fable-5-1)`。錯誤顯示 `model: fable` 送出的是 `claude-fable-5-1`，但沒有完成的 assistant 回覆，不構成 binding 證據。這是當次的可用性證據（Profile v2.4 §3 rule 1）：日後實際派 Fable 時若仍不可用，依 Bindings §3.1 的 fallback 列替代（例如 F-AR\*、F-DA\*、F-FA\* → Opus 5.5／`xhigh`）。Fable 額度恢復後重跑本列。
+3. **#12** 是 Haiku 以 Bindings §3.4 文件化的派工方式（只帶 `model: haiku`，effort 取自 frontmatter）再測一次；前一次的 qualification probe（per-dispatch `effort: high`）見下方註記。
+4. 12 個派工的 tool uses 皆為 0。
+
+## Haiku qualification probe（2026-10-14，b4 合併前）
+
+| Identifier | Definition | 派工參數 | 預期 | agentId | 觀測 | 結果 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `design_authority` | `gov-design-authority` | — | `claude-opus-5-5` ／ `high` | | | |
-| `executor` | `gov-executor` | — | `claude-opus-5-5` ／ `high` | | | |
-| `executor`（fallback） | `gov-executor-fallback` | — | `claude-opus-4-8` ／ `high` | | | |
-| `primary_reviewer` | `gov-primary-reviewer` | — | `claude-opus-5-5` ／ `xhigh` | | | |
-| `alternate_reviewer` | `gov-alternate-reviewer` | — | `claude-opus-5-5` ／ `xhigh` | | | |
-| `final_adjudicator` | `gov-final-adjudicator` | — | `claude-opus-5-5` ／ `xhigh` | | | |
-| `orchestrator` | `gov-orchestrator` | — | `claude-opus-5-5` ／ `medium`（只核對 definition；正式 run 以 root session transcript 核對） | | | |
-| E-AR／F-FA 等的 alias 路徑 | `gov-alternate-reviewer` | `model: fable` | `claude-fable-5-1` ／ `xhigh` | | | |
-| `investigator` | `gov-investigator` | — | `claude-sonnet-5-5` ／ `high` | | | |
-| `investigator`（E-IN） | `gov-investigator` | `model: opus` | `claude-opus-5-5` ／ `high` | | | |
-| `bounded_worker`（`standard`） | `gov-bounded-worker` | — | `claude-sonnet-5-5` ／ `high` | | | |
-| Haiku qualification probe（`mechanical`，O-3） | `gov-bounded-worker` | `model: haiku`、`effort: high` | `claude-haiku-5-5` ／ `high` | `aa0de2f2aaac46a23` | `claude-haiku-5-5` ／ `high`（1 則） | **PASS**（2026-10-14，見下方註記） |
+| `bounded_worker`（`mechanical`，O-3） | `gov-bounded-worker` | `model: haiku`、`effort: high` | `claude-haiku-5-5` ／ `high` | `aa0de2f2aaac46a23` | `claude-haiku-5-5` ／ `high`（1 則） | **PASS** |
 
-### Haiku qualification probe 註記（2026-10-14）
-
-- **Session**：`8943ecf6-f2b0-4c4d-8e41-c796a644c4b4`（主 session，無角色；依 acceptor 2026-10-14 指示「這邊測試 haiku 的指派」執行）。
-- **派工**：Agent tool，`subagent_type: gov-bounded-worker`，per-dispatch `model: haiku`、`effort: high`，指示不讀、不寫、不執行，只回一行 ack。回覆 `binding dry-run ack: bounded_worker mechanical haiku`，tool uses 0。
-- **核對指令輸出**（Bindings §3.6，原樣）：
+- **Session**：`8943ecf6-f2b0-4c4d-8e41-c796a644c4b4`（主 session，無角色；依 acceptor 2026-10-14 指示「這邊測試 haiku 的指派」執行）。回覆 `binding dry-run ack: bounded_worker mechanical haiku`，tool uses 0。
+- **核對指令輸出**：
 
 ```text
 agent-aa0de2f2aaac46a23 gov-bounded-worker {('claude-haiku-5-5', 'high'): 1}
 ```
 
-- **判定**：PASS。實際 model 等於宣告 id `claude-haiku-5-5`，effort 等於 O-3 的 `high`，全程只有一個 (model, effort) 組合。
-- **限制**：本 session 載入的 `gov-bounded-worker` 是 O-3 之前的版本（frontmatter effort `medium`），所以 effort 以 per-dispatch 參數指定；model 與 effort 都由派工參數決定，不依賴 frontmatter，結果可作為 Haiku qualification 的證據。表中其他列仍須在 b4 合併後的新 session 執行。
+- **限制**：該 session 載入的 `gov-bounded-worker` 是 O-3 之前的版本（frontmatter effort `medium`），所以 effort 以 per-dispatch 參數指定；model 與 effort 都由派工參數決定，結果可作為 Haiku qualification 的證據。上表 #12 已在新 session 以文件化方式再次確認。
