@@ -120,7 +120,7 @@ Root `CLAUDE.md` 的「不要自行補出老師沒有提出的要求」，在治
 | F-BW（`standard`，O-3） | Sonnet 5.5／`high` | Opus 5.5／`high` | `gov-bounded-worker`＋`model: opus` |
 | F-BW（`mechanical`，O-3） | Haiku 5.5／`high`（qualification 通過後；之前依 `standard` 派工） | Sonnet 5.5／`high` → Opus 5.5／`high` | `gov-bounded-worker`（Sonnet）；`gov-bounded-worker`＋`model: opus` |
 | F-IN（O-3） | Sonnet 5.5／`high` | Opus 5.5／`high` | `gov-investigator`＋`model: opus`、`effort: high` |
-| F-IN\* | Opus 5.5／`medium`（E-IN） | Sonnet 5.5／`high` | `gov-investigator`（frontmatter 即此 mapping） |
+| F-IN\* | Opus 5.5／`high`（E-IN，O-3） | Sonnet 5.5／`high` | `gov-investigator`（frontmatter 即此 mapping） |
 
 替代規則見 Profile §4.1（＝v2.4 §3 共同規則 1–5 加規則 6–7）：只能依當次錯誤或當下可用性證據替代，不得憑記憶或前次 session 跳過；每次替代記錄原 mapping、替代 mapping、證據引用（Profile §8）。Overload／rate-limit 不另宣告 bounded retry：harness 自身重試後仍回傳的 429／529 即構成當次可用性證據。Mapping 變更 authority 為 acceptor。
 
@@ -135,7 +135,7 @@ Root `CLAUDE.md` 的「不要自行補出老師沒有提出的要求」，在治
 | E-FA | `final_adjudicator` | Fable 5.1／`xhigh` | (M2)、(D1)。(M1) 不採用：本檔不宣告以高風險類別觸發 Fable | `gov-final-adjudicator`＋`model: fable`（fresh context） |
 | E-OR | `orchestrator` | Opus 5.5／`high` | (M1)、(D1)；於 activation 或 successor session 生效，記入 run record | Root session 以 `--effort high`（或 `/effort high`）啟動 |
 | E-BW | `bounded_worker` | `mechanical` → `standard`（Sonnet 5.5／`high`，O-3） | (D1)：呼叫者核對後記錄 `mechanical` 輸出不足或錯誤；`standard` 不再升級 | `gov-bounded-worker`（frontmatter 即 `standard`） |
-| E-IN | `investigator` | Opus 5.5／`medium`（Profile 原值，未 override） | (D1) 呼叫者記錄調查跨多個子系統且原因交互作用；(D2) investigator 回報 inconclusive 並附理由 | `gov-investigator`＋`model: opus`、`effort: medium` |
+| E-IN | `investigator` | Opus 5.5／`high`（O-3） | (D1) 呼叫者記錄調查跨多個子系統且原因交互作用；(D2) investigator 回報 inconclusive 並附理由 | `gov-investigator`＋`model: opus` |
 
 E-EX 不適用（O-1）；E-AD 不適用（`advisor` 未採用，第 3.4 節）。Escalation record 依 Profile §8 寫在派工者的 worklog 或 run record；review／adjudication 角色提出 D trigger 時寫在自己的 record，並且不作 verdict 或 ruling（治理 §2.5 規則 3）。
 
@@ -155,7 +155,7 @@ Codex **未宣告**：不作任何角色的 mapping 或 override，也不在任�
 
 - **Task class**：呼叫者派工時指定 `standard` 或 `mechanical` 並記錄；無法明確歸為 `mechanical` 者一律 `standard`。
 - **Haiku 是 qualification-gated**（Profile §2.2）：第 8.2 節的 qualification probe 觀測到實際 model 為 `claude-haiku-5-5`、effort 為 `high`，並記入 `binding-verification.md` 之後，`mechanical` 才以 Haiku 派工；在那之前 `mechanical` 依 `standard` 派工（Sonnet 5.5／`high`，resolution，不記 substitution）。
-- **O-3 effort／model override**（acceptor 2026-10-14 決議）：`investigator` 與 `bounded_worker`（`standard`）由 Profile 的 Sonnet 5.5／`medium` 改為 Sonnet 5.5／`high`；`bounded_worker`（`mechanical`）由 Haiku 5.5／`low` 改為 Haiku 5.5／`high`。Fallback 依同一 effort（第 3.1 節 F-BW、F-IN）。E-IN 的 escalated mapping 不在決議範圍，維持 Profile 的 Opus 5.5／`medium`。
+- **O-3 effort／model override**（acceptor 2026-10-14 決議）：`investigator` 與 `bounded_worker`（`standard`）由 Profile 的 Sonnet 5.5／`medium` 改為 Sonnet 5.5／`high`；`bounded_worker`（`mechanical`）由 Haiku 5.5／`low` 改為 Haiku 5.5／`high`。Fallback 依同一 effort（第 3.1 節 F-BW、F-IN）。E-IN 的 escalated mapping 由 Profile 的 Opus 5.5／`medium` 改為 Opus 5.5／`high`。
 - **呼叫者限制**：Design Authority、Reviewers 與 Final Adjudicator 的 definition 沒有 Agent tool，不呼叫 bounded assignments，審查與裁決的證據一律自己取得。Orchestrator 不得藉 bounded assignment 取得治理 §2.4 禁止它作的判斷（治理 §2.6 第 6 項）。
 - **呼叫者的責任**（治理 §2.6）：自行核對輸出後才使用；需要 authority 的決定由呼叫者以自己的角色作出並寫入自己的紀錄。Executor 使用 bounded assignment 屬 self-verification，不算 independent audit。呼叫者在 worklog 或 run record 記下所用的 bounded assignment、task class、binding 證據（第 3.6 節）與輸出的採用方式；它的動作不另成 work item。
 - **範圍**：bounded assignment 不得擴大委派範圍、派工任何 subagent，或以任何角色的名義作成紀錄；`investigator` 唯讀，不修改任何檔案。
@@ -307,7 +307,7 @@ home_workNN/doc/
 | --- | --- | --- |
 | 1 | b4（本檔、`PKG/`、更新後的 `gov-*` definitions）合併進 `main` | 待 acceptor（RB-1） |
 | 2 | 重開 Claude Code session，確認更新後的 `gov-*` definitions 已載入 | 待辦 |
-| 3 | Binding dry-run：對九個 `gov-*` definition 各派一次不做事的任務；另以 per-dispatch 參數各派一次，核對 alias 的實際 model：`model: fable`（escalation／fallback 路徑）、`gov-investigator`＋`model: opus`、`effort: medium`（E-IN）、`gov-bounded-worker`＋`model: haiku`（Haiku qualification probe，預期 `claude-haiku-5-5`／`high`，第 3.4 節）。以第 3.6 節指令核對，結果記在 [`binding-verification.md`](binding-verification.md) b4 節 | 待辦 |
+| 3 | Binding dry-run：對九個 `gov-*` definition 各派一次不做事的任務；另以 per-dispatch 參數各派一次，核對 alias 的實際 model：`model: fable`（escalation／fallback 路徑）、`gov-investigator`＋`model: opus`（E-IN）、`gov-bounded-worker`＋`model: haiku`（Haiku qualification probe，預期 `claude-haiku-5-5`／`high`，第 3.4 節）。以第 3.6 節指令核對，結果記在 [`binding-verification.md`](binding-verification.md) b4 節 | 待辦 |
 | 4 | 每份作業的高風險類別由 Design Authority 確認（第 5 節） | 每份作業各自處理（`home_work_01/` 已完成） |
 | 5 | 該作業的 Outcome Contract 有 acceptor 接受紀錄（第 2.3 節） | 每份作業各自處理 |
 
@@ -322,3 +322,4 @@ home_workNN/doc/
 | b4 | 2026-10-14 | **Re-pin 至 Reusable Package v2.2**（治理 §5.3）：Minimal v2.0 → v2.2、Model Profile `default` v2.2 → v2.5、orch-default v2 → v2.2、impl-default v2 不變；生效檔案改為 `PKG/` 內的位元複本，移除舊的 v2.0 快照。第 3 節依 v2.5 改寫：DA、Alternate、FA、Orchestrator 的 mapping 改為 Profile 預設（Opus 5.5），保留 b2 的 `executor` override 為 O-1，新增 O-2（Agent tool 無 Opus 4.8 alias 的 fallback override）、capability escalation（E-DA、E-AR、E-FA、E-OR）、不採用 bounded assignments、session 角色（無角色 session、direct-execution Executor 的進入條件）與全程 binding 核對。第 4 節 lane policy 改為 Lightweight 優先，Formal 只在治理 §3.6-B／C 成立時使用。第 5 節採用單 Ticket fast path，model diversity 改為不宣告關係、分兩欄記載。第 2.3 節區分 Lightweight 與 Formal 的 Outcome Contract 形式。Authority sources、standing authorizations、reserved boundaries、work records 位置不變。 | acceptor 2026-10-14 指示：「請將新版 Minimal Governance v2.2 套用至目前的 `aiot-classwork` 專案」，以 Package 為權威來源，採用 Lightweight Governance（保留核心原則與角色分工；簡單任務輕量、複雜任務才啟用完整流程；不引入不必要的文件、審核關卡或流程），不需逐步詢問批准。 | 待 acceptor 合併引入本變更的 PR 後生效（RB-1）；不適用生效前已開始的 work item（治理 §5.3），變更時沒有 open 的 issue 或 PR。第一次正式 audit 或 Orchestrator activation 前須完成第 8.2 節 #2、#3 |
 | b4（合併前修訂） | 2026-10-14 | 第 3.4 節改為採用 Profile §2.2 的 `investigator`（Sonnet 5.5／`medium`）與 `bounded_worker`（`standard` Sonnet 5.5／`medium`；`mechanical` 在 Haiku qualification 通過前解析為 Sonnet 5.5／`low`），新增 definitions `gov-investigator`、`gov-bounded-worker`；呼叫者限 Executor 與 Orchestrator（只限控制面）；`advisor` 不採用。第 3.1 節 O-2 加 F-BW、F-IN、F-IN\*；第 3.2 節加 E-BW、E-IN；第 8.2 節 #3 加對應的 dry-run 與 Haiku qualification probe。其他內容不變。 | acceptor 2026-10-14 回覆「採用 bounded assignments，這個可以接受」（針對 `investigator` 與 `bounded_worker` 的提議）。 | 隨 b4 一同待合併 |
 | b4（合併前修訂 2） | 2026-10-14 | 第 3.4 節新增 O-3：`investigator` 與 `bounded_worker`（`standard`）改為 Sonnet 5.5／`high`；`bounded_worker`（`mechanical`）改為 Haiku 5.5／`high`（仍須通過 qualification probe，之前依 `standard` 派工）。第 3.1 節 F-BW、F-IN 依新 effort 改寫，第 3.2 節 E-BW 目標相應更新，E-IN 維持 Profile 原值；definitions `gov-investigator`、`gov-bounded-worker` 的 effort 改為 `high`；第 8.2 節 #3 的 probe 相應更新。 | acceptor 2026-10-14 決議：「mechanical 可以改為 haiku 5.5 high，沒問題，sonnet 5.5 的 2 個也拉高到 high，這是我現在的決議。」 | 隨 b4 一同待合併 |
+| b4（合併前修訂 3） | 2026-10-14 | 第 3.2 節 E-IN 的 escalated mapping 由 Opus 5.5／`medium` 改為 Opus 5.5／`high`（併入 O-3）；第 3.1 節 F-IN\* 與第 8.2 節 #3 的 probe 相應更新。 | acceptor 2026-10-14 對「E-IN 是否也改成 Opus 5.5／high」回覆「改成 high」。 | 隨 b4 一同待合併 |

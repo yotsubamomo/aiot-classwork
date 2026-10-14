@@ -99,6 +99,6 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 | `orchestrator` | `gov-orchestrator` | — | `claude-opus-5-5` ／ `medium`（只核對 definition；正式 run 以 root session transcript 核對） | | | |
 | E-AR／F-FA 等的 alias 路徑 | `gov-alternate-reviewer` | `model: fable` | `claude-fable-5-1` ／ `xhigh` | | | |
 | `investigator` | `gov-investigator` | — | `claude-sonnet-5-5` ／ `high` | | | |
-| `investigator`（E-IN） | `gov-investigator` | `model: opus`、`effort: medium` | `claude-opus-5-5` ／ `medium` | | | |
+| `investigator`（E-IN） | `gov-investigator` | `model: opus` | `claude-opus-5-5` ／ `high` | | | |
 | `bounded_worker`（`standard`） | `gov-bounded-worker` | — | `claude-sonnet-5-5` ／ `high` | | | |
 | Haiku qualification probe（`mechanical`，O-3） | `gov-bounded-worker` | `model: haiku` | `claude-haiku-5-5` ／ `high` | | | 通過後 `mechanical` 改以 Haiku 派工（Bindings §3.4） |
