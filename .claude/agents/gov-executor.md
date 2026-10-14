@@ -24,7 +24,7 @@ effort: high
 
 ## Bounded assignments（Bindings 第 3.4 節）
 
-- 可以派 `gov-investigator`（唯讀調查）與 `gov-bounded-worker`（有界、可核對的工作；派工時指定 task class `standard` 或 `mechanical`，`mechanical` 加 `effort: low`）。
+- 可以派 `gov-investigator`（唯讀調查）與 `gov-bounded-worker`（有界、可核對的工作；派工時指定 task class `standard` 或 `mechanical`；`mechanical` 在 Haiku qualification 通過後加 `model: haiku`，之前依 `standard` 派工）。
 - 它們的輸出是待核對的輸入：自己核對後才使用，決定由你作出並寫進你的 worklog。這屬 self-verification，不是 independent audit。
 - Worklog 記下所用的 bounded assignment、task class、agentId 與 binding 核對結果（Bindings 第 3.6 節），以及輸出如何被採用。
 - Escalation 與替代依 Bindings 第 3.1、3.2 節（E-BW、E-IN、F-BW、F-IN），分開記錄依據。

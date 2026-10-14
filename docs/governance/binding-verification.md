@@ -98,8 +98,7 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 | `final_adjudicator` | `gov-final-adjudicator` | — | `claude-opus-5-5` ／ `xhigh` | | | |
 | `orchestrator` | `gov-orchestrator` | — | `claude-opus-5-5` ／ `medium`（只核對 definition；正式 run 以 root session transcript 核對） | | | |
 | E-AR／F-FA 等的 alias 路徑 | `gov-alternate-reviewer` | `model: fable` | `claude-fable-5-1` ／ `xhigh` | | | |
-| `investigator` | `gov-investigator` | — | `claude-sonnet-5-5` ／ `medium` | | | |
-| `investigator`（E-IN／F-IN） | `gov-investigator` | `model: opus` | `claude-opus-5-5` ／ `medium` | | | |
-| `bounded_worker`（`standard`） | `gov-bounded-worker` | — | `claude-sonnet-5-5` ／ `medium` | | | |
-| `bounded_worker`（`mechanical`，resolution） | `gov-bounded-worker` | `effort: low` | `claude-sonnet-5-5` ／ `low` | | | |
-| Haiku qualification probe | `gov-bounded-worker` | `model: haiku`、`effort: low` | `claude-haiku-5-5` ／ `low` | | | 通過後依 Bindings §3.4 改以 Haiku 擔任 `mechanical` 並記入 §9 |
+| `investigator` | `gov-investigator` | — | `claude-sonnet-5-5` ／ `high` | | | |
+| `investigator`（E-IN） | `gov-investigator` | `model: opus`、`effort: medium` | `claude-opus-5-5` ／ `medium` | | | |
+| `bounded_worker`（`standard`） | `gov-bounded-worker` | — | `claude-sonnet-5-5` ／ `high` | | | |
+| Haiku qualification probe（`mechanical`，O-3） | `gov-bounded-worker` | `model: haiku` | `claude-haiku-5-5` ／ `high` | | | 通過後 `mechanical` 改以 Haiku 派工（Bindings §3.4） |

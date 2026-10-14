@@ -2,7 +2,7 @@
 name: gov-investigator
 description: Bounded assignment `investigator`（Minimal Operational Governance v2.2 §2.6；不是治理角色，沒有 authority）。只在 governance on 的單元（home_workNN/）由 Executor 或 Orchestrator（控制面）依 docs/governance/project-bindings.md 第 3.4 節派工：唯讀調查、跨檔案追查、root-cause 假設與證據蒐集。輸出是呼叫者待核對的輸入。
 model: claude-sonnet-5-5
-effort: medium
+effort: high
 tools: Read, Grep, Glob, Bash
 ---
 

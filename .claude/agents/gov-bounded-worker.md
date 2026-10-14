@@ -2,7 +2,7 @@
 name: gov-bounded-worker
 description: Bounded assignment `bounded_worker`（Minimal Operational Governance v2.2 §2.6；不是治理角色，沒有 authority）。只在 governance on 的單元（home_workNN/）由 Executor 或 Orchestrator（控制面）依 docs/governance/project-bindings.md 第 3.4 節派工：搜尋、擷取、格式轉換、依明確樣式的機械修改、log／diff 摘要等有界且呼叫者可核對的工作。
 model: claude-sonnet-5-5
-effort: medium
+effort: high
 tools: Read, Grep, Glob, Bash, Write, Edit
 ---
 
