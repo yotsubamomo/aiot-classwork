@@ -1,0 +1,26 @@
+Method,k,Selected Features,CV RMSE,CV R2
+Exhaustive Search,1,R&D Spend,9406.58,0.9384
+Exhaustive Search,2,"R&D Spend, Administration",9367.39,0.9372
+Exhaustive Search,3,"R&D Spend, Administration, Marketing Spend",9266.78,0.9381
+Exhaustive Search,4,"R&D Spend, Administration, Marketing Spend, State_Florida",9384.39,0.9369
+Exhaustive Search,5,"R&D Spend, Administration, Marketing Spend, State_Florida, State_New York",9550.68,0.934
+Forward SFS,1,R&D Spend,9406.58,0.9384
+Forward SFS,2,"R&D Spend, Administration",9367.39,0.9372
+Forward SFS,3,"R&D Spend, Administration, Marketing Spend",9266.78,0.9381
+Forward SFS,4,"R&D Spend, Administration, Marketing Spend, State_Florida",9300.29,0.9377
+Forward SFS,5,"R&D Spend, Administration, Marketing Spend, State_Florida, State_New York",9550.68,0.934
+Lasso (L1) Top-k,1,R&D Spend,9406.58,0.9384
+Lasso (L1) Top-k,2,"R&D Spend, Marketing Spend",9186.68,0.9416
+Lasso (L1) Top-k,3,"R&D Spend, Marketing Spend, Administration",9290.41,0.9383
+Lasso (L1) Top-k,4,"R&D Spend, Marketing Spend, Administration, State_Florida",9299.0,0.9377
+Lasso (L1) Top-k,5,"R&D Spend, Marketing Spend, Administration, State_Florida, State_New York",9550.68,0.934
+RFE,1,R&D Spend,9406.58,0.9384
+RFE,2,"R&D Spend, Marketing Spend",9186.68,0.9416
+RFE,3,"R&D Spend, Administration, Marketing Spend",9104.68,0.9399
+RFE,4,"R&D Spend, Administration, Marketing Spend, State_Florida",9306.79,0.9375
+RFE,5,"R&D Spend, Administration, Marketing Spend, State_Florida, State_New York",9550.68,0.934
+Elastic Net Top-k,1,R&D Spend,9406.58,0.9384
+Elastic Net Top-k,2,"R&D Spend, Marketing Spend",9186.68,0.9416
+Elastic Net Top-k,3,"R&D Spend, Marketing Spend, Administration",9094.3,0.9424
+Elastic Net Top-k,4,"R&D Spend, Marketing Spend, Administration, State_New York",9518.18,0.9357
+Elastic Net Top-k,5,"R&D Spend, Marketing Spend, Administration, State_New York, State_Florida",9550.68,0.934

@@ -1,0 +1,11 @@
+# week06 DIC-02 50 Startups full-model OLS - pinned dependencies (Python 3.11).
+# Versions match the environment dic02_50_startups_full_model.py was verified with.
+# pathlib is in the standard library and needs no install.
+# Keep this file ASCII-only: pip on Windows may read it with the cp950 locale.
+numpy==2.4.6
+pandas==3.0.6
+matplotlib==3.11.2
+scikit-learn==1.9.1
+# scipy: t-test p-values (dic02_feature_selection.py) and OLS inference /
+# prediction intervals exported to the web page (dic02_feature_selection_nested_cv.py)
+scipy==1.17.1
