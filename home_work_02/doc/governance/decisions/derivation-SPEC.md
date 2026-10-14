@@ -166,3 +166,98 @@ AC-29～AC-31 不擴張 boundary，只讓 OC 已接受的 constraints 可以驗�
 | 版本 | 日期 | 依據 | 變更 |
 | --- | --- | --- | --- |
 | 初版（Spec v1.0） | 2026-10-14 | DA 派工（lane、高風險類別、Spec derivation；不含 Tickets） | 初版 derive。 |
+| Tickets（Spec v1.0 不變） | 2026-10-14 | DA 派工 2（Ticket derivation；records 已於 commit `b012e4f9` 原樣 commit） | 新增第 13 節：Tickets #50–#56 的分配、AC 覆蓋、依賴與 boundary determination。第 1–12 節的內容不變（第 1 節「未 derive Tickets」是初版時點的狀態，由本節更新）；Spec v1.0 不需要修訂。 |
+
+## 13. Tickets（2026-10-14 derive）
+
+- **依據**：Outcome Contract ACCEPTED（normative 第 1–8 節 `e2153254`，接受紀錄 `370c0ae`）；Spec v1.0 EFFECTIVE（commit `b012e4f93defe77dab2959737f9334ce928893d8`，本 DA 核對工作樹的 `home_work_02/doc` 與該 commit 相同後重讀）；高風險裁決 H-1～H-4、A-1～A-9。
+- **派工指示**：無角色主 session 轉達的 DA assignment 2（2026-10-14）：derive Spec v1.0 的 Tickets、建立 GitHub Issues、寫索引、在本紀錄記錄 derivation。
+- **索引**：[`../../ticket/tickets.md`](../../ticket/tickets.md)。Ticket 本體在 GitHub Issues #50–#56（label `ready-for-agent`）。
+- **Spec 版本**：v1.0，未修訂（第 13.6 節）。
+
+### 13.1 Ticket 清單與分配
+
+| # | 票 | Class | 擁有的 AC（依票內範圍） | INV | High-risk | acceptor 輸入 | Blocked by | Worklog |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| #50 | 資料固定與分區 | MVM＋ENHANCED | AC-02、AC-06、AC-07（產生）、AC-28（建立）、AC-31（取得） | INV-1、INV-8、INV-9 | H-1、H-3 | 不需要；條件性 §9.1 #5 | — | `doc/governance/worklog/issue-50.md` |
+| #51 | 前處理、五個候選與 nested CV 選模 | MVM＋ENHANCED | AC-07（共用）、AC-08、AC-10、AC-11、AC-12（計算與 artifact） | INV-1、INV-2、INV-3 | H-3 | 不需要 | #50 | `…/issue-51.md` |
+| #52 | Conformal、單次 Test 評估、預測圖、Deployment 函式 | MVM＋ENHANCED | AC-09（守門）、AC-14（計算）、AC-15（圖檔）、AC-16、AC-18（函式） | INV-1、INV-2、INV-5 | H-2、H-3 | 不需要 | #51 | `…/issue-52.md` |
+| #53 | Notebook、結果 artifact、README、乾淨環境重跑 | MVM＋ENHANCED | AC-01、AC-03（notebook）、AC-04、AC-09（manifest 證據）、AC-10～AC-12、AC-14、AC-15（notebook 呈現）、AC-16（重驗）、AC-18（示範）、AC-19、AC-20（notebook／README）、AC-21、AC-27（部分）、AC-30（notebook）、AC-31（離線） | INV-1～INV-5、INV-9 | H-2、H-3 | 不需要 | #52 | `…/issue-53.md` |
+| #54 | 報告（draft） | MVM＋ENHANCED | AC-01、AC-03（報告）、AC-05、AC-10、AC-12、AC-14、AC-15（報告呈現）、AC-13、AC-17、AC-20（報告數值）、AC-24、AC-29、AC-30（報告） | INV-4～INV-7 | H-2、H-3、H-4 | 不需要；AC-24 條件性 §9.1 #2 | #53 | `…/issue-54.md` |
+| #55 | acceptor 證據整合與 final 報告 | MVM | AC-22、AC-23、AC-25（附錄與 provenance）、AC-05、AC-30（重驗）、AC-28（本票） | INV-6、INV-7、INV-8 | H-1、H-2、H-4 | **需要** §9.1 #1、#2；可選 #4 | #54 | `…/issue-55.md` |
+| #56 | 打包與整合驗收 | MVM（打包）＋整合驗收 | AC-26、AC-25（ZIP 副本）、AC-27（最終）、AC-28（最終）、AC-19～AC-21（最終重跑）；AC-01～AC-31 的最終對照 | INV-1～INV-9（最終） | H-1～H-4 | **需要** §9.1 #3 | #55 | `…/issue-56.md` |
+
+「整合驗收」不是 scope class，不承載新需求；#56 的 MVM 部分是打包（M9、M10）。
+
+### 13.2 AC → Ticket 覆蓋
+
+| AC | 票 | AC | 票 |
+| --- | --- | --- | --- |
+| AC-01 | #53、#54 | AC-17 | #54 |
+| AC-02 | #50 | AC-18 | #52、#53 |
+| AC-03 | #53、#54 | AC-19 | #53、#56 |
+| AC-04 | #53 | AC-20 | #53、#54、#56 |
+| AC-05 | #54（#55 重驗） | AC-21 | #53、#56 |
+| AC-06 | #50 | AC-22 | #55 |
+| AC-07 | #50、#51 | AC-23 | #55 |
+| AC-08 | #51 | AC-24 | #54（條件性重新分配，見 13.5 #2） |
+| AC-09 | #52、#53 | AC-25 | #55、#56 |
+| AC-10 | #51、#53、#54 | AC-26 | #56 |
+| AC-11 | #51、#53 | AC-27 | #53、#56 |
+| AC-12 | #51、#53、#54 | AC-28 | #50（建立）、#55、#56（最終）；每張票在其 subject 上重驗 |
+| AC-13 | #54 | AC-29 | #54 |
+| AC-14 | #52、#53、#54 | AC-30 | #53、#54（#55 重驗） |
+| AC-15 | #52、#53、#54 | AC-31 | #50、#53 |
+| AC-16 | #52（#53、#56 重驗） | | |
+
+**缺口：無。** AC-01～AC-31 每條至少一張票擁有。一條 AC 由多張票承接時，各票內寫明自己的範圍（例如「notebook 部分」「報告部分」），合起來等於該 AC 的全部；PASS／FAIL 與證據要求只引用 Spec，不重述。INV-1～INV-9 每條至少一張票，#56 最終核對全部。OC-A1～OC-A8 經由 AC 全部涵蓋（第 4 節的分配不變）。
+
+R 群組覆蓋：DATA（#50、#53、#54）、PART（#50、#51）、PREP（#50、#51、#53）、CAND（#51）、SEL（#51、#52）、CONF（#52）、EVAL（#52、#53）、DEP（#52、#53）、NB（#53）、RPT（#54、#55）、AI（#54、#55）、PKG（#56）、REPO（#50、#53、#55、#56）、REPRO（#50、#53、#56）、TEST（#50～#52、#54、#56）。
+
+### 13.3 依賴
+
+```text
+#50 → #51 → #52 → #53 → #54 → #55 → #56
+                                  ↑      ↑
+                    acceptor §9.1 #1、#2   §9.1 #3（學號）
+```
+
+- 依賴是線性的：每張票使用前一張票的產物（分區與 folds → frozen predictor 與 manifest → 校準與 Test 結果 → notebook 的 artifact → 報告範本 → final 報告 → ZIP）。並行度 1（Bindings §6），唯一的執行順序就是編號順序。
+- #50～#54 不需要任何 acceptor 輸入；完成後達到 OC §3.2 的 S1（OC-A1～OC-A6 PASS，報告待填位置清楚標示）。
+- #55、#56 等待 acceptor 輸入；輸入到達前，Orchestrator 只停止這兩條路徑（治理 §1.5 第 4 項；OC §3.3）。#56 中不依賴學號的部分（打包工具、`ACCEPTANCE.md` 草稿）可在 #55 結案後先做。
+- 本次沒有建立 GitHub 原生的 issue dependencies（派工限定的外部動作只有建立 issues）；依賴以票內的「Blocked by」與本節、索引為準。
+
+### 13.4 Boundary determination
+
+| # | 判定 | 依據 |
+| --- | --- | --- |
+| TB-1 | 七張票的 What to build 與 AC 全部引用 Spec v1.0 既有的 R、AC、INV 與第 4.1 節的固定設計；沒有新增 requirement、AC、scope 或 gate；票內只引用 AC，不重述也不改變 PASS／FAIL 語義或證據要求。 | 治理 §3.1(3)、§3.4；Spec §0 |
+| TB-2 | 票內的分工說明（例如 #52 的守門測試以合成資料進行、不對真實資料另外執行 Test 評估；#52 的 artifact 須保存 R-TEST-4(b) 重算所需的分數與預測；#54 測試所需的 PDF 在執行時產生、不追蹤）都是 Spec 既有條款的直接推論（INV-1、INV-2、R-TEST-4(b)、R-TEST-5），不是新的要求。 | Spec §1.6、§1.15、§3 |
+| TB-3 | #52 為了驗證 R-TEST-4(b) 會完整執行一次流程，因而在 notebook（#53）之前就接觸 Test 結果。這在 boundary 內：Spec 第 4.1 節已固定全部選擇參數，INV-2 與 R-EVAL-3 禁止 Test 結果影響任何決定，Spec §5.3 只要求在第一次完整執行前完成並以 Fit 測試資料與選模模組（#50、#51 達成）。 | Spec §4.1、§5.3；OC §2.4.1 |
+| TB-4 | #54 的 AC-24（M8 比較）需要可查證的來源。若 Executor 沒有網路讀取工具，該 AC 的路徑停止並 route 至 Design Authority；DA 可依 Spec 把它重新分配到 #55，使用 acceptor 的 NotebookLM 來源清單（R-AI-3 允許引用 NotebookLM 材料）。這是 Ticket 層的分配，不改變 AC。 | Spec R-AI-3；治理 §2.4 |
+| TB-5 | #55、#56 的 acceptor 輸入、以及 #50 的條件性資料檔，都是 Spec §9.1 已列的輸入；票內不新增 acceptor gate（治理 §5.2）。#55 的公開決定（§9.1 #4）是可選的，不阻擋結案。 | Spec §9.1；OC §3.3 |
+| TB-6 | #56 的「整合驗收」只做最終重跑、ZIP、`ACCEPTANCE.md` 與全部 AC 的對照，作為 Spec Integration Audit 的 subject；不承載新需求。合併（S3）與繳交（S4）不在任何票內：合併由 Orchestrator 依 OC §4.2、§9 與 Bindings §5 處理，繳交保留給 acceptor（RB-2）。 | 治理 §3.8、§4.7；OC §3.2 |
+| TB-7 | 每張票只修改 `home_work_02/` 內的檔案（不含 `doc/requirement/`）；沒有票需要 RB-5 的授權。`CONTEXT.md` 在單元內，若實作需要新詞可在票內提出（Spec §9.3），不屬 boundary 問題。 | Bindings §2.6 RB-5 |
+| TB-8 | `ready-for-agent` 加在全部七張票上：每張票的契約都已完整（Spec 沒有留給下游的設計），#55、#56 只是等待執行期的 acceptor 輸入，不是契約缺口。 | 治理 §3.4 implementation readiness；`docs/agents/triage-labels.md` |
+
+**未在 boundary 內而未 derive 的事項**：無。**需要 contract change 的事項**：無。**Fail-closed 至 acceptor 的 boundary 問題**：無。
+
+### 13.5 需要其他 authority 或後續處理的事項
+
+| # | 事項 | Authority |
+| --- | --- | --- |
+| 1 | acceptor 輸入 §9.1 #1、#2（#55）、#3（#56）；條件性 #5（#50） | acceptor |
+| 2 | AC-24 在沒有可查證來源時的重新分配（TB-4） | Design Authority（經 Orchestrator route） |
+| 3 | Release gate 的 check 條件（第 8 節 #2，未變） | Orchestrator；必要時 acceptor |
+| 4 | Spec 有七張票，單 Ticket fast path 不適用；Spec Integration Audit 在 #56 結案後另行派工 | Orchestrator |
+
+### 13.6 Spec 是否需要修訂
+
+**不需要。** 拆票時核對了每條 AC 能否由某張票在其 subject 上產生證據：唯一需要說明的是 R-TEST-4(b) 與 AC-09 的證據依賴 notebook 的執行（#53），已由「#52 驗證機制、#53 以 notebook 的 artifact 重驗、#56 最終重驗」的分工處理，Spec 的條文不需要改。
+
+### 13.7 Evidence
+
+- `git log`：`b012e4f` 為 branch `home_work_02-outcome-contract` 的 HEAD；`git diff --quiet b012e4f -- home_work_02/doc` 成立（工作樹與 commit 相同）。
+- 建立前以 GitHub API 確認最新的 issue／PR 編號為 #49；七張票依序建立為 #50～#56，與票內 worklog 路徑的編號相同；建立後以 `gh issue view` 核對每張票的 label、worklog 編號與 Blocked by。
+- 格式參考：`home_work_01` 的 Issue #35 與 `home_work_01/doc/ticket/tickets.md`（只參考格式）。
+- 本次寫入：`home_work_02/doc/ticket/tickets.md`（新增）、本檔（只新增第 12 節一列與第 13 節）。未實作、未 commit、未修改 Spec 或其他檔案、未修改其他 issue。
