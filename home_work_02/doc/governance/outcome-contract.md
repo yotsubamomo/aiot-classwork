@@ -1,8 +1,8 @@
 # Outcome Contract — HW2 Multiple Linear Regression（`home_work_02/`）
 
-- **狀態**：**DRAFT r2（2026-10-14）——未接受，不構成授權。** 只有 acceptor 在第 9 節留下接受紀錄（原文、日期、所接受的 commit SHA）後才生效（Bindings §2.3）。未接受前不得啟動 Formal run，也不得開始實作。
-- **取代**：draft r1（sha256 `c8a0154a50b58cc31350433210787731b77d02dc05b2e80ed999829e4169f0bb`；未 commit）。r1 → r2 的逐條變更見第 10 節。
-- **依據**：Minimal Operational Governance v2.2 §1.2、§3.1 七項 properties；Project Bindings **b4**，已於 2026-10-14 核對 `main` `ee5d5b9` 的版本（[`../../../docs/governance/project-bindings.md`](../../../docs/governance/project-bindings.md)）§2.2、§2.3、§2.4、§2.5、§2.6、§4、§5、§7。
+- **狀態**：**DRAFT r4（2026-10-14）——未接受，不構成授權。** 只有 acceptor 在第 9 節留下接受紀錄（原文、日期、所接受的 commit SHA）後才生效（Bindings §2.3）。未接受前不得啟動 Formal run，也不得開始實作。
+- **取代**：draft r3（未 commit；sha256 `30a86a42c4588837d93ccc0b56d86b579d49cb8c368b3f848776bcc206b0e281`）。r3 建立在 r2（commit `1f1a916e6197213c2f7950728f8be9df7e92d27c`）之上；r2 取代 r1（未 commit）。逐條變更見第 10 節。
+- **依據**：Minimal Operational Governance v2.2 §1.2、§3.1 七項 properties；Project Bindings **b5**（2026-10-14 生效，`main` merge commit `5ebcc58eba1d776cc7380d391ced1dc503a3ee31`，PR #49）（[`../../../docs/governance/project-bindings.md`](../../../docs/governance/project-bindings.md)）§2.2、§2.3、§2.4、§2.5（含 SA-3）、§2.6、§4、§5、§7。
 - **來源紀錄**：Grill Brief v0.1 → v0.2 → v0.3（[`../brief/HW2_Grill_Brief_Draft_v0.3.md`](../brief/HW2_Grill_Brief_Draft_v0.3.md)）：confirmed decisions G1–G8（原文）、clarification decisions C1–C4（2026-10-14）、資料集核對證據（Brief §10）。Brief 是討論紀錄，不具 authority；**本檔與 Brief 不一致時以本檔為準**。特別是 conformal 的 exchangeability 陳述以本檔第 2.4.2 節為準，取代 Brief v0.3 §5.4 的寫法。
 - **撰寫者**：無角色主 session（session `8943ecf6`），依 acceptor 指示起草並依 2026-10-14 independent review 的 F-01～F-04 修訂。起草不構成接受、授權或 Design Authority 裁決（治理 §2.7）。
 - **Acceptor**：GitHub `yotsubamomo`（Bindings §2.1）。
@@ -23,9 +23,8 @@
 
 老師文件 `HW2-requirements-Multiple Linear regression.txt`（sha256 `a969e7e2228e97a35027ad63d3747f2e502bdd685cf7cfca30aaab50048761ab`）是本作業的上位契約，對所有 Agent 唯讀（Bindings §2.2）。
 
-- **目前位置**：`home_work_02/docs/`。
-- **Bindings §2.2 規定的位置**：`home_work_02/doc/requirement/`。
-- **搬移**：屬第 8 節 #1。搬移必須 byte-identical（sha256 不變），由 acceptor 執行或明確授權（RB-5 保護 `doc/requirement/` 內的上位契約）。
+- **位置**：`home_work_02/doc/requirement/`（Bindings §2.2）。已在 acceptor 2026-10-14 授權的文件準備工作中原樣搬入，sha256 不變，見 commit `1f1a916e`（第 8 節 #1）。
+- 之後任何修改都受 RB-5 保護。
 
 ### 2.2 Scope classes（Bindings §2.4）
 
@@ -110,7 +109,7 @@
 - MVM 必須完整滿足上位契約；ENHANCED 項目在報告中不得被寫成老師要求。
 - 資料版本以 CSV sha256 固定；改用不同檔案是 re-pin，須記錄。
 - 不使用任何憑證；資料下載只用匿名公開端點，或本機已固定的副本（RB-3）。
-- 報告與 notebook 的語言：**[R] zh-TW**（與老師文件及課程一致）。acceptor 可在接受時改寫。
+- 報告與 notebook 的語言：**zh-TW**（acceptor 2026-10-14 決定）；技術名詞與程式識別字可保留英文。
 
 #### 2.5.1 AI 研究與對話證據
 
@@ -146,10 +145,10 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
 | --- | --- | --- | --- | --- |
 | **S1 實作就緒** | OC-A1～A6 PASS；報告中除了 acceptor 證據外的內容完成，待填位置清楚標示 | Agents | 各 AC 的證據 | 不需要等任何 acceptor 輸入 |
 | **S2 繳交套件就緒** | OC-A7、OC-A8 也 PASS：acceptor 證據與學號已納入，ZIP 已組好並核對 | Agents（取得 acceptor 輸入後） | ZIP sha256、檔案清單、README | 只受第 3.3 節的 acceptor 輸入影響 |
-| **S3 GitHub 已發布** | 內容已合併進 `main`，README 的連結可以開啟 | **Acceptor**（RB-1；G8） | merge commit SHA；連結可開啟的確認 | 不阻擋 S1、S2 |
+| **S3 GitHub 已發布** | 內容已合併進 `main`，README 的連結可以開啟 | 依第 4.2 節：在 SA-3 條件下由 Orchestrator（Formal）或 direct-execution Executor（Lightweight）合併；否則由 acceptor（RB-1） | Bindings b5 §7 的 Merge record：合併前的 gate 證據在 run record 或 worklog；merge commit SHA 與合併後驗證結果在該 PR 的 comment；連結可開啟的確認 | 不阻擋 S1、S2 |
 | **S4 iLearning 已繳交** | ZIP 已上傳到 iLearning | **Acceptor**（RB-2；G8） | acceptor 提供的繳交確認（日期與所上傳 ZIP 的 sha256 或檔名），記入 worklog | 不阻擋 S1、S2 |
 
-- **本 Outcome Contract 的 work item 完成 = S2。** S3、S4 是 acceptor 的發布與繳交行為，分別記錄，不能由 Agent 宣稱已完成，也不屬於 Agent 工作的完成條件。
+- **本 Outcome Contract 的 work item 完成 = S2。** S3、S4 分別記錄，不屬於 Agent 工作的完成條件。Agent 只能記錄實際發生、且有上述證據的 S3、S4，不得宣稱未發生的 S3、S4。
 - S2 的 ZIP sha256 與檔案清單，在 S4 時用來核對所繳交的檔案就是驗證過的那一份。
 - 等待 acceptor 動作（S3、S4 或第 3.3 節的輸入）只停止受影響的 AC，其他實作與驗證照常進行（治理 §1.5）。
 
@@ -160,7 +159,7 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
 | ChatGPT 對話 PDF | OC-A7、OC-A8 | 第 2.5.1 節 |
 | NotebookLM 原始研究材料（輸出與來源清單） | OC-A7 | 第 2.5.1 節 |
 | 學號 | OC-A8 | 打包前提供（Q5） |
-| S3 發布、S4 繳交 | 第 3.2 節 | RB-1、RB-2 |
+| S4 繳交（S3 依第 4.2 節，不需要 acceptor 輸入，除非 SA-3 條件不成立而回到 RB-1） | 第 3.2 節 | RB-2；RB-1（第 4.2 節） |
 
 在這些輸入提供前，Agent 完成其餘全部工作，並在報告中保留標示清楚的待填位置，不得以範例文字冒充內容。缺少輸入屬治理 §1.5 第 4 項的 boundary：只停止受影響的 AC。
 
@@ -180,7 +179,8 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
   - 陳述 conformal 保證時沒有寫出 exchangeability 假設，或聲稱它已被證明；
   - 把 ENHANCED 寫成老師要求；
   - 學號佔位進入最終 ZIP；
-  - Agent 宣稱 S3、S4 已完成。
+  - Agent 宣稱未實際發生的 S3、S4；
+  - 不符合 Bindings b5 SA-3 條件、也沒有 acceptor RB-1 授權的合併進 `main`。
 - Observed coverage 明顯偏離 95%（超出抽樣誤差）時，報告須說明可能原因，包括 exchangeability 假設可能不成立。這是需要解釋的結果，不是 FAIL，除非原因是計算錯誤或資料洩漏。
 
 ### 3.5 Verification intent
@@ -198,12 +198,53 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
 
 | 項目 | 內容 |
 | --- | --- |
-| 接受前 | **沒有任何授權。** Bindings SA-1、SA-2 只在 Outcome Contract 被接受後適用（Bindings §2.5），所以接受前的 commit、搬移 `doc/requirement/` 與任何 Git 操作，都須由 acceptor 執行或另行明確授權 |
+| 接受前 | **沒有任何授權。** Bindings SA-1、SA-2 只在 Outcome Contract 被接受後適用（Bindings §2.5）。接受前的任何 Git 操作，都須由 acceptor 執行或逐次明確授權（例如 2026-10-14 的文件準備授權，見第 8 節 #1、#2） |
 | 接受後的授權 | 在第 2 節的 boundary 內，授權具相應 authority 的 Agents 規劃、分解（由 Design Authority derive Spec 與 Tickets）、實作、審查、修正至 S2，範圍限 `home_work_02/` |
-| Git（接受後） | **依 G8，Agents 只在 topic branch 上本機 commit，不 push、不開 PR。** 這是對 Bindings SA-1、SA-2 的收窄；acceptor 若要允許 push／PR，須在第 9 節寫明 |
-| 保留給 acceptor | RB-1 合併進 `main`（S3）；RB-2 繳交（S4）；RB-3 憑證與第三方帳號（含 Kaggle、ChatGPT、NotebookLM 帳號）；RB-4 付費；RB-5 單元目錄外的檔案（含 `week05/`、root `CONTEXT-MAP.md`）與 `doc/requirement/`；RB-6 破壞性 git 操作 |
+| Git（接受後） | 見第 4.1、4.2 節 |
+| 保留給 acceptor | RB-1 合併進 `main`，但 SA-3 涵蓋的合併除外（第 4.2 節）；RB-2 繳交（S4）；RB-3 憑證與第三方帳號（含 Kaggle、ChatGPT、NotebookLM 帳號）；RB-4 付費；RB-5 單元目錄外的檔案（含 `week05/`、root `CONTEXT-MAP.md`）與 `doc/requirement/`；RB-6 破壞性 git 操作 |
 | Acceptor 輸入 | 第 3.3 節 |
 | 不保留 | Spec review、獨立的 implementation authorization（Bindings §2.6） |
+
+### 4.1 Git 授權的釐清決定 C5（acceptor，2026-10-14）
+
+G8 的原文保留不變（Brief v0.3 §3）：「Standard verification: module tests, leakage tests, conformal calculation verification, full notebook rerun, and submission document checks; Git push and iLearning submission reserved for human operation」。
+
+C5 釐清 G8 的 Git 部分（acceptor 2026-10-14 決定）：Agents 可以建立 branch、commit、push topic branch、開 PR，並執行已授權的合併；不得自主執行破壞性 Git 操作；iLearning 繳交保留給 acceptor。合併的授權來自本契約對 Bindings b5 SA-3 的明確引用（第 4.2 節）。
+
+- **被取代的部分**：G8 的「Git push … reserved for human operation」。
+- **不變的部分**：G8 的五項驗證，以及「iLearning submission reserved for human operation」。
+
+C5 只能在上位規則允許的範圍內生效（治理 §5.3：治理本文 ＞ Bindings ＞ Accepted Work Contract）。本契約不能放寬 Bindings 的 reserved boundaries，只能 opt-in Bindings 已宣告的 SA-3。各項的實際效力：
+
+| 操作 | 接受後的效力 | 依據 |
+| --- | --- | --- |
+| 建立 topic branch | **授權** | Bindings SA-1 |
+| 在 topic branch 上 commit | **授權** | Bindings SA-1 |
+| Push topic branch 到 `origin` | **授權** | Bindings SA-1（C5 取消 G8 對它的收窄） |
+| 從 topic branch 對 `main` 開 PR | **授權** | Bindings SA-2 |
+| 合併進 `main` | **授權，限 SA-3 條件成立時**（第 4.2 節） | Bindings b5 §2.5 SA-3（本契約 opt-in）、§5 SA-3 merge gates 與合併後驗證、§7 Merge record |
+| 在 `main` 上 commit、force push、改寫已 push 的歷史、刪除 topic branch 或非本次 run 建立的分支、squash 或 rebase 合併 | 不授權 | SA-1 的排除項；SA-3 的排除項；RB-6 |
+| iLearning 繳交 | 不授權，保留給 acceptor | RB-2；G8 |
+
+SA-1、SA-2 只涵蓋 `home_work_02/` 範圍內的 work item，commit message 與 PR 描述依 `docs/conventions/git-commit-rules.md`。
+
+### 4.2 合併進 `main`（S3）的授權：Bindings b5 SA-3 opt-in
+
+**本 Outcome Contract 明確引用 Project Bindings b5 §2.5 SA-3（opt-in）。** 適用於本契約範圍內 `home_work_02/` 的 work items：在 Bindings b5 §2.5 SA-3 的全部條件成立時，由 Formal 的 Orchestrator，或 Lightweight 的 direct-execution Executor，經 SA-2 開的 PR，以 merge commit 把 `home_work_02/` 的 topic branch 合併進 `main`。
+
+- **Gates**：Bindings b5 §5 的 integration／release gates，加上 SA-3 merge gates，包括：
+  - 治理 §3.8 的完成條件與必要 audit；
+  - Lightweight work item 須另有 independent audit closure；
+  - 以本契約**已接受版本**核對 opt-in；
+  - 受審 head SHA 與合併的 head SHA 相同，合併指令綁定該 SHA；
+  - diff 只在 `home_work_02/` 內，且不含 `home_work_02/doc/requirement/`；
+  - PR head 上所有 checks 都已完成且成功；
+  - 只用 merge commit，不刪除 topic branch。
+- **合併後驗證**：依 Bindings b5 §5，核對 GitHub Pages 與 Vercel production 部署的狀態，並執行已部署單元既有的 smoke 檢查。任一失敗時寫 stop report 交 acceptor，不自行回滾、重新部署或改寫歷史（RB-3、RB-6）。
+- **紀錄**：Bindings b5 §7 Merge record。合併前的 gate 證據與本 opt-in 條款、本契約接受的 commit SHA，記在 run record 或 worklog；merge commit SHA 與合併後驗證結果，記在該 PR 的 comment。
+- **退回 RB-1**：SA-3 任一條件不成立時，合併屬 RB-1 保留給 acceptor 的動作；Agent 只停止該路徑並寫 stop report（治理 §1.5 第 3 項），可由 acceptor 逐次明確授權。
+- **不在此授權內**：對單元目錄以外（含 `docs/governance/`、`.claude/`、root、其他單元）的修改，或對 `doc/requirement/` 的修改，都不在 SA-3 範圍內，依 RB-5 另行處理。
+- **合併的時機**：合併進 `main`（S3）不是 work item 完成（S2）的條件；S4 iLearning 繳交仍保留給 acceptor（RB-2）。
 
 ## 5. Relevant context
 
@@ -229,21 +270,22 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
   - 評估完整性：分區隔離、Test 只用一次、conformal 計算與假設陳述；
   - 證據真實性：第 2.5.1 節；
   - H-1 憑證：本作業不使用金鑰，預期不適用。
-- **Release gate**：合併進 `main`（S3）前，須符合 Bindings §5 的 integration／release gates。
+- **Release gate**：合併進 `main`（S3）前，須符合 Bindings b5 §5 的 integration／release gates；依 SA-3 合併時另須 SA-3 merge gates（第 4.2 節）。
 
 ## 7. Stable reference
 
-接受時以 commit SHA 固定本檔第 1–8 節與 Brief v0.3 的內容。本 draft 尚未 commit；接受用 commit 應包含的檔案見第 8 節 #2。
+接受時以 commit SHA 固定本檔第 1–8 節與 Brief v0.3 的內容。文件基準為 commit `1f1a916e`（第 8 節 #2）；branch 已併入含 Bindings b5 的 `main`（merge commit `b7d4510`）。r4 以其所在的 commit 為接受用的 commit（第 8 節 #3）。
 
 ## 8. Activation preconditions（接受前或啟動 Formal run 前）
 
 | # | 項目 | 狀態 |
 | --- | --- | --- |
-| 1 | **文件搬移**（Bindings §2.2；`CLAUDE.md` 單元文件位置），byte-identical：<br>`home_work_02/docs/HW2-requirements-Multiple Linear regression.txt` → `home_work_02/doc/requirement/`（sha256 須仍為 `a969e7e2…61ab`）<br>`home_work_02/docs/HW2_Grill_Brief_Draft_v0.1.md`、`v0.2.md`、`v0.3.md` → `home_work_02/doc/brief/`<br>搬完後刪除空的 `home_work_02/docs/`；本檔檔頭連結 `../../docs/HW2_Grill_Brief_Draft_v0.3.md` 改為 `../brief/HW2_Grill_Brief_Draft_v0.3.md` | 待 acceptor 執行或明確授權 |
-| 2 | **接受用 commit**（topic branch，例如 `home_work_02-outcome-contract`），只包含：<br>`home_work_02/doc/requirement/HW2-requirements-Multiple Linear regression.txt`<br>`home_work_02/doc/brief/HW2_Grill_Brief_Draft_v0.1.md`、`v0.2.md`、`v0.3.md`<br>`home_work_02/doc/governance/outcome-contract.md`（本檔，含 #1 的連結修正）<br>`home_work_02/CONTEXT.md`<br>不包含：`week05/`（另一單元，governance off）、`grep.exe.stackdump`、root `CONTEXT-MAP.md`（RB-5；另案處理） | 待 acceptor 執行或明確授權（SA-1 在接受前不適用） |
-| 3 | 第 9 節接受紀錄：acceptor 原文、日期、#2 的 commit SHA；同時確認第 4 節的 Git 收窄與第 2.5 節的語言 | 待 acceptor |
+| 1 | **文件搬移**（Bindings §2.2；`CLAUDE.md` 單元文件位置），byte-identical：老師文件 → `home_work_02/doc/requirement/`（sha256 `a969e7e2…61ab`）；Brief v0.1–v0.3 → `home_work_02/doc/brief/`；刪除空的 `home_work_02/docs/`；本檔檔頭連結改為 `../brief/HW2_Grill_Brief_Draft_v0.3.md` | **完成**（acceptor 2026-10-14 授權；commit `1f1a916e6197213c2f7950728f8be9df7e92d27c`，sha256 全部核對一致） |
+| 2 | **文件基準 commit**（branch `home_work_02-outcome-contract`）：老師文件、Brief v0.1–v0.3、本檔 r2、`home_work_02/CONTEXT.md` | **完成**（commit `1f1a916e`）。branch 已以非破壞性 merge 併入含 b5 的 `main`（`b7d4510`）。r4 另以 commit 固定（第 9 節記錄其 SHA），未 push |
+| 3 | 第 9 節接受紀錄：acceptor 原文、日期、r4 所在 commit 的 SHA。報告語言已由 acceptor 決定（第 2.5 節），不需另行確認 | 待 acceptor |
 | 4 | Bindings §8.2 #3：Fable alias 實測未完成（HTTP 429）；是否阻擋第一次正式 audit 由 acceptor 決定 | 待 acceptor |
 | 5 | Design Authority 確認 lane 與高風險類別（第 6 節） | 接受後 |
+| 6 | 常設合併授權：Bindings b5 SA-3 已生效（`5ebcc58`），本契約於第 4.2 節 opt-in | **完成** |
 
 ## 9. 接受紀錄
 
@@ -272,3 +314,37 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
 | — | §5 | Spec 事項加入「acceptor 原始材料的存放位置」 |
 
 G1–G8 原文與 C1–C4 未變更（見 Brief v0.3 §3、§4）；本檔沿用其內容，未改寫。
+
+### r2 → r3（2026-10-14；acceptor 對 Git 授權的釐清）
+
+| 位置 | 變更 |
+| --- | --- |
+| 檔頭 | 狀態改為 DRAFT r3；「取代」改為 r2 的 commit `1f1a916e` 與其 sha256 |
+| §2.1 | 上位契約的位置改為已搬移的 `doc/requirement/`（引用 commit `1f1a916e`）；刪除「待搬移」敘述 |
+| §3.2 | S3 的執行者由「Acceptor」改為「RB-1 的權限持有者」：Bindings b4 下為 acceptor，或 acceptor 對該次合併的明確授權。證據加入 PR URL 與 gate 證據。「不能由 Agent 宣稱已完成」改為「只能記錄實際發生且有證據的 S3、S4」 |
+| §3.3 | S3 列改為「S3 的合併授權」 |
+| §3.4 | FAIL 條件「Agent 宣稱 S3、S4 已完成」改為「宣稱未實際發生的 S3、S4」，並新增「沒有第 4.2 節所需授權的合併進 `main`」 |
+| §4 | 刪除 r2 的「依 G8，Agents 只在本機 commit，不 push、不開 PR」。新增 §4.1：Git 授權的釐清決定 C5（G8 原文保留、標明被取代與不變的部分），以及接受後各 Git 操作的效力表。新增 §4.2：合併進 `main` 的兩種授權途徑（逐次明確授權；需要 Bindings 變更的常設授權），以及 gate 證據 |
+| §6 | Release gate 加註合併授權依第 4.2 節 |
+| §7 | 文件基準改為 commit `1f1a916e`；r3 尚未 commit，接受用的 commit 須包含 r3 |
+| §8 | #1、#2 標為完成並引用 commit；#3 的確認事項移除已在 §4 處理的 Git 收窄；新增 #6（常設合併授權為選擇性、不阻擋接受） |
+
+技術語義與驗收條件未變更：§1、§2.2–§2.5、§3.1（OC-A1～A8）、§3.5、§5 與 r2 相同。G1–G8 原文與 C1–C4 未變更。C5 是新的釐清決定，記錄在 §4.1。
+
+### r3 → r4（2026-10-14；Bindings b5 生效後）
+
+| 位置 | 變更 |
+| --- | --- |
+| 檔頭 | 狀態改為 DRAFT r4；「取代」改為 r3 的 sha256（r3 未 commit）；依據改為 Bindings **b5**（`main` `5ebcc58`，PR #49），並列出 §2.5 SA-3 |
+| §2.5 | 語言由「[R] zh-TW，acceptor 可在接受時改寫」改為 acceptor 2026-10-14 的決定：zh-TW，技術名詞與程式識別字可保留英文 |
+| §3.2 | S3 的執行者改為依第 4.2 節：SA-3 條件成立時由 Orchestrator 或 direct-execution Executor 合併，否則由 acceptor（RB-1）；證據改為 Bindings b5 §7 的 Merge record |
+| §3.3 | 只能由 acceptor 提供的輸入改為 S4 繳交；S3 只在 SA-3 條件不成立時回到 RB-1 |
+| §3.4 | FAIL 條件改為「不符合 Bindings b5 SA-3 條件、也沒有 acceptor RB-1 授權的合併」 |
+| §4 | 「保留給 acceptor」的 RB-1 加註「SA-3 涵蓋的合併除外」 |
+| §4.1 | C5 改寫為 acceptor 2026-10-14 決定的完整內容（G8 原文與「被取代／不變的部分」保留）；「合併進 `main`」改為「授權，限 SA-3 條件成立時」；不授權項目加入刪除 topic branch、squash 或 rebase 合併（SA-3 的排除項） |
+| §4.2 | 由 r3 的「兩種授權途徑」改為**明確 opt-in Bindings b5 §2.5 SA-3**：gates、合併後驗證、紀錄、退回 RB-1 的條件、不在授權內的修改、合併的時機 |
+| §6 | Release gate 改為引用 Bindings b5 §5 與 SA-3 merge gates |
+| §7 | 接受用的 commit 改為 r4 所在的 commit；記錄 branch 已併入含 b5 的 `main`（`b7d4510`） |
+| §8 | #2 補記併入 `main` 的 merge commit；#3 移除語言確認；#6 標為完成（b5 已生效、第 4.2 節已 opt-in） |
+
+技術語義與驗收條件未變更：§1、§2.1–§2.4、§2.5.1、§3.1（OC-A1～A8）、§3.5、§5 與 r3 相同。G1–G8 原文、C1–C4 與 Brief v0.3 未變更。C5 依 acceptor 2026-10-14 的決定更新，G8 原文仍保留。
