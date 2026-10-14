@@ -7,7 +7,14 @@
 - **示範教師**：Huan Chen（參考成果：[AIoT-DIC2-MultipleLR](https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/)）
 - **網站顯示名稱**：Momo
 - **完成日期**：2026-10-14
-- **Live Demo Page**：`https://yotsubamomo.github.io/aiot-classwork/week06/`（合併進 `main` 後生效）
+- **儲存庫網址**：[github.com/yotsubamomo/aiot-classwork](https://github.com/yotsubamomo/aiot-classwork)
+- **Live Demo Page**：[yotsubamomo.github.io/aiot-classwork/week06/](https://yotsubamomo.github.io/aiot-classwork/week06/)
+
+## Live Demo
+
+[![DIC-02 Feature Selection Explorer](./screenshot.png)](https://yotsubamomo.github.io/aiot-classwork/week06/)
+
+> 點擊圖片可開啟 Live Demo。截圖是開啟時的預設畫面：Elastic Net Top-k、k = 3，也就是 25 組中 CV RMSE 最低的組合。上方切換方法與 k，KPI 卡片與兩張 CV 折線圖會跟著更新；往下捲動可以看到 OLS 係數表、附 95% 預測區間的即時預測器、各方法最佳模型的 test 評估，以及全部 25 組結果。右上角可以切換亮色／暗色。
 
 ## 專案摘要
 
@@ -69,6 +76,7 @@ week06/
 │   └── core.test.js            # 核對 JS 的預測與預測區間是否與 Python 一致
 ├── doc/spec/SPEC.md            # DIC-2 網站規格（依老師成果整理）
 ├── requirements.txt            # 固定版本的 Python 套件
+├── screenshot.png              # README 用的網頁截圖（線上版本）
 └── README.md
 ```
 
