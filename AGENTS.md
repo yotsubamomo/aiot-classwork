@@ -14,7 +14,7 @@
 
 ## Governance flag
 
-依單元類型決定是否採用 Minimal Operational Governance v2.0；規範快照與 Project Bindings 在 `docs/governance/`。
+依單元類型決定是否採用 Minimal Operational Governance v2.2（Minimal Governance — Reusable Package v2.2）；Package 的位元複本與 Project Bindings 在 `docs/governance/`，生效的 package 檔案以 `docs/governance/project-bindings.md` 第 1 節為準。
 
 | 範圍 | governance |
 | --- | --- |
@@ -24,7 +24,7 @@
 
 - off 的範圍只適用本檔規則。
 - on 的範圍適用治理全部規則與 `docs/governance/project-bindings.md`。Codex 目前沒有在 Project Bindings 中宣告為任何治理角色的 model，因此不在 `home_workNN/` 執行 work item（實作、審查、裁決），只做唯讀協助。要讓 Codex 參與，先依 Bindings 的變更流程加入宣告。
-- flag 沒有中間狀態，不能只關掉部分規則。
+- flag 沒有中間狀態，不能只關掉部分規則；Lightweight 或 Formal 由治理與 Bindings 第 4 節判定（Lightweight 優先）。
 
 ## Unit document layout
 

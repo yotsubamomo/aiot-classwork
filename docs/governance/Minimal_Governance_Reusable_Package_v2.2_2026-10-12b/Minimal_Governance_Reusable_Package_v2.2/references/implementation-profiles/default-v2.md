@@ -1,35 +1,18 @@
-# Implementation Profile — impl-default v2
+# Implementation Profile — default v2
 
-> **本專案快照，不是 authoritative source。**
->
-> - 來源：Notion「Implementation Profile — impl-default v2」（https://app.notion.com/p/3e3463583346816383fec25368186bb6），屬於「Minimal Governance — Reusable Package v2.0」；頁面最後編輯 2026-09-23，擷取於 2026-09-23。
-> - Authoritative source：`master_governance/references/implementation-profiles/default-v2.md`（md5 `825e8ae285823349fc69c9ada43cd58e`），不在本 repo。Notion 版已把相對連結攤平，所以本檔不會與該 md5 byte-identical。
-> - 轉換：Notion 表格、callout 與頁面連結轉成 GitHub Markdown，文字內容未改寫。
-> - 與 authoritative source 不一致時，以 authoritative source 為準，並更新本快照。
-> - 本專案如何採用本文件，見 [`project-bindings.md`](../project-bindings.md)。
-
----
-> **Notion 發布版（2026-09-23 sync）。** Authoritative source 為 repo：`master_governance/references/implementation-profiles/default-v2.md`（md5 `825e8ae285823349fc69c9ada43cd58e`）；不一致時以 repo 檔案為準。Markdown 相對連結已攤平為「repo: path」。本文 §11 引用的 Model Profile 為凍結當時的 `default-v2`；2026-09-23 起新採用預設為 `default／v2.2`，本文未改動。 所屬 package：Minimal Governance — Reusable Package v2.0。
-
-**Profile ID: ****`impl-default`**
-
-**Version: ****`v2`**
-
-**Status: Adopted／Frozen（2026-09-22，operator S-5）**
-
-**Governance: Minimal Operational Governance v2.0（Adopted／Frozen 2026-09-22）**
-
-**Revision type: semantic revision of ****`impl-default / v1.1`****：§6 新增 Spec Integration Audit dispatch HOW、§8 authorization 改核對 Outcome Contract、§12 新增 property E；§3、§5、§7、§9、§10 implementation method 不變**
-
-**Supersedes for new adoption: ****`impl-default / v1.1`****（**`default-v1.1.md`**（repo: ****`master_governance/references/implementation-profiles/default-v1.1.md`****） 與 **`default-v1.md`**（repo: ****`master_governance/references/implementation-profiles/default-v1.md`****） 保留為 frozen 歷史 baseline；已 pin 者不自動改用）**
-
+**Profile ID: `impl-default`**  
+**Version: `v2`**  
+**Status: Adopted／Frozen（2026-09-22，operator S-5）**  
+**Governance: Minimal Operational Governance v2.0（Adopted／Frozen 2026-09-22）**  
+**Revision type: semantic revision of `impl-default / v1.1`：§6 新增 Spec Integration Audit dispatch HOW、§8 authorization 改核對 Outcome Contract、§12 新增 property E；§3、§5、§7、§9、§10 implementation method 不變**  
+**Supersedes for new adoption: `impl-default / v1.1`（[default-v1.1.md](default-v1.1.md) 與 [default-v1.md](default-v1.md) 保留為 frozen 歷史 baseline；已 pin 者不自動改用）**  
 **Type: reusable implementation / HOW profile**
 
 ## 1. Purpose, precedence and adoption
 
 > This Profile defines implementation HOW only. It is subordinate to Minimal Operational Governance v2.0, Project Bindings, and the Accepted Work Contract（Outcome Contract 及其 derived contracts）. Matt, Addy and Superpowers material is used only as implementation-pattern input; adopting a pattern adopts none of the source framework's workflow, stop, review-round, approval or authority rules.
 
-衝突時，依各自 authority，以 Minimal v2.0（repo: `master_governance/Minimal_Operational_Governance_v2.0_Candidate.md`） §5.3、effective Project Bindings 與 Accepted Work Contract 為準。本 Profile 不授予權限，也不使 Binding 得以覆寫 Minimal 的 MUST。
+衝突時，依各自 authority，以 [Minimal v2.0](../../Minimal_Operational_Governance_v2.0_Candidate.md) §5.3、effective Project Bindings 與 Accepted Work Contract 為準。本 Profile 不授予權限，也不使 Binding 得以覆寫 Minimal 的 MUST。
 
 本文件可獨立提供 Executor method；不要求安裝 Matt、Addy 或 Superpowers，不要求呼叫任何來源 skill。來源只供 attribution 與追溯，不是 Runtime dependency。本文件的 13 sections 是可重用參考，不是 13 個 gates 或每項工作需產生的 artifacts。
 
@@ -38,7 +21,7 @@
 以下 MUST／MUST NOT 是既有治理 properties 在執行上的表達；SHOULD 是依適用性使用的 Profile defaults，可由 Project Bindings／Runtime 調整並記錄理由。Override 不得弱化治理 properties；格式、工具、測試順序、session 與 Git 方法均不因採用本 Profile 成為 universal requirement。
 
 | Lane | 執行方式與必要邊界 |
-| --- | --- |
+|---|---|
 | **Lightweight** | 可 direct execution；依 accepted Work Contract、適用授權、task-applicable self-verification、durable worklog、適用 gates 與 authority routing 完成。Audit 僅依 Minimal §4.1／assurance policy 觸發。 |
 | **Formal** | Outcome Contract 一次接受＋授權 → DA derive Spec＋Tickets → Orchestrator；implementation、verification、mandatory independent audit（per Ticket）、Spec Integration Audit（per Spec，Minimal §4.7）與 completion 依 Minimal §3–§4。 |
 
@@ -46,7 +29,7 @@ Lightweight **不因採用 Profile** 而要求 full Orchestrator activation、fr
 
 ## 2. Control-plane boundary
 
-保留我們現有 Orchestrator 角色作唯一 orchestration control plane。可重用的 control-plane reference 為 Reference Orchestrator Contract `orch-default`／`v2`（repo: `master_governance/references/orchestrator-contracts/default-v2.md`）（Adopted／Frozen 2026-09-22）：新 Minimal 專案以它為 Orchestrator reference，透過 Bindings 記錄採用與 overrides。採用專案引用自己的有效 contract／implementation。歷史／來源出處見本檔 Appendix A.1。
+保留我們現有 Orchestrator 角色作唯一 orchestration control plane。可重用的 control-plane reference 為 [Reference Orchestrator Contract `orch-default`／`v2`](../orchestrator-contracts/default-v2.md)（Adopted／Frozen 2026-09-22）：新 Minimal 專案以它為 Orchestrator reference，透過 Bindings 記錄採用與 overrides。採用專案引用自己的有效 contract／implementation。歷史／來源出處見本檔 Appendix A.1。
 
 Orchestrator 管理 work／ticket graph、frontier、dispatch、routing、progression、continuation、recovery coordination、rollover coordination 與 completion reporting。依 Minimal §2.1／§2.4：implementation HOW 交 Executor；finding／evidence sufficiency 交 Reviewer；design semantics 交 Design Authority；review dispute／合法 disposition 交 Final Adjudicator。Routing 依 Minimal §2.4 的 authority table 與五種 deterministic cases；Orchestrator 不自行改分類。
 
@@ -74,7 +57,7 @@ Accepted contract 已定義的 oracle／seam 語義與 evidence sufficiency 不�
 Executor → caller／Orchestrator 使用精簡 return；自由文字或既有工具格式均可。以下 status 是 **Profile HOW 的報告用語，不是 Governance lifecycle state machine**，不要求存入新欄位或固定 JSON。
 
 | Suggested status | 意義與接續 |
-| --- | --- |
+|---|---|
 | `DONE` | Executor 所受派工作及 self-verification 已完成；caller 仍依適用 audit／completion gates 決定後續，不等於 formal closure、phase acceptance 或 release。 |
 | `DONE_WITH_CONCERNS` | Executor 工作已完成，有明列限制／concerns 待有權角色處理；不代表可豁免 gate。已知尚未完成的必要實作或驗證不得藏在此狀態。 |
 | `BLOCKED` | 目前受派工作有具體阻擋；指出 required authority、reason、remaining work 與可行下一步。Caller route／repair／replace，而非自動回 operator。 |
@@ -187,7 +170,7 @@ Recovery 依 Minimal §1.5：先 authoritative re-ground、已授權 replacement
 
 ## 11. Model and role binding reference
 
-Model defaults 引用 Reference Model Profile `default`／`v2`（repo: `master_governance/references/model-profiles/default-v2.md`）（Adopted／Frozen 2026-09-22）；專案可明確選擇其他 Profile 或合法 overrides。本文件不複製 mapping table，也不新增與之競爭的角色設定。
+Model defaults 引用 [Reference Model Profile `default`／`v2`](../model-profiles/default-v2.md)（Adopted／Frozen 2026-09-22）；專案可明確選擇其他 Profile 或合法 overrides。本文件不複製 mapping table，也不新增與之競爭的角色設定。
 
 Minimal §2.1–§2.2 的六角色維持：Design Authority、Executor、Primary Independent Reviewer、Alternate Independent Reviewer、Final Adjudicator、Orchestrator。每個實際使用的 Agent／reusable Subagent 都須有 definition，且每個可 dispatch identifier 有有效 mapping；具體 loading、spawn、檔名與 frontmatter 屬 Runtime HOW。
 
@@ -198,7 +181,7 @@ Observed assignment MUST 符合 effective adopted mapping，包括合法 overrid
 ## 12. Mandatory properties and optional enforcement
 
 | Property | Requirement | Governance basis |
-| --- | --- | --- |
+|---|---|---|
 | **A. Binding integrity — MUST** | 實際 assignment 與 effective adopted mapping 一致，含合法 overrides、resolved version 及適用 effort／mode；可由 evidence 核對。 | Minimal §2.2、§5.1 |
 | **B. Audit independence classification — MUST** | Executor-context review 不記錄或計算為 formal audit；正式 path 滿足全部四項 independence properties。 | Minimal §2.3、§4 |
 | **C. Final-subject coverage — MUST** | 最終 closed subject 有有效 verification 及適用 audit coverage；依 §7 處理審後變更，不要求 literal version equality。 | Minimal §3.8 |
@@ -216,31 +199,31 @@ Check 可核對 identity、記錄引用或已授權的判斷，不把「檔案�
 ## 13. Change record and source attribution
 
 | Version | Date | Basis and authorization | Change |
-| --- | --- | --- | --- |
+|---|---|---|---|
 | `v1` | 2026-09-17 | Fable Architecture Review 的 KEEP／HOW-profile 決定；本對話 Astra focused regression review；使用者明確指示建立並採用 Final Implementation Profile v1，納入列明修正。 | 初版：自足 Executor method、dual-lane applicability、四項 mandatory properties、replaceable HOW defaults，以及尚待執行的 Orchestrator semantic reconciliation。 |
-| `v1` freeze | 2026-09-17 | Fable 5.1 Final Independent Acceptance Review（repo: `Governance Implementation Profile v1 Acceptance Review(Fable-5.1).md`）：**ADOPT**；所有 acceptance criteria PASS，無 BLOCKER／MATERIAL findings。使用者授權本次 final freeze。 | **`impl-default / v1`**** formally frozen / adopted**；僅更新 acceptance metadata，§1–§12 與既有 method semantics 不變。 |
-| `v1.1` | 2026-09-17 | 依據：(1) Fable Architecture Review（repo: `Governance Implementation Architecture Review(Fable-5.1).md`） §2 的 KEEP 與 re-citation 決定；(2) Fable Implementation Profile v1 Acceptance Review（repo: `Governance Implementation Profile v1 Acceptance Review(Fable-5.1).md`）：ADOPT；(3) 已 Adopted／Frozen 的 `orch-default／v1`（repo: `master_governance/references/orchestrator-contracts/default-v1.md`）；(4) Opus 5 Reference Orchestrator Contract Acceptance Review（repo: `Governance Reference Orchestrator Contract v1 Acceptance Review(Opus-5).md`）：M-1～M-3 CLOSED、targeted regression PASS、final **ADOPT**；(5) 使用者對本次 finalization 的明確授權。 | **Metadata／dependency revision only**：§2 的 reusable Orchestrator reference 由歷史外部 v2 contract 改為 `orch-default／v1`；migration note 改為既有 v2 adopters 適用；header、§1 版本識別、§13 記錄與來源表相應更新。§1–§12 implementation semantics 未重新設計；`impl-default／v1` 保留為 frozen 歷史 accepted 版本。 |
-| `v2` | 2026-09-22 | **Candidate**。依據：Governance vNext Architecture Analysis（repo: `Governance vNext Architecture Analysis(Fable-5.1).md`） §B.2（P-2）；operator S-1 決定與兩項 refinement（2026-09-22）；Minimal Operational Governance v2.0 Candidate。 | **Semantic revision**：§1 governance 改指 Minimal v2.0；§2 control-plane reference 改指 `orch-default／v2`；§4 `BLOCKED` 的 routing 說明改為 §2.4 五情況與 boundary 疑義 DA-first；§6 新增 Spec Integration Audit dispatch HOW 與單 Ticket fast path 核對；§8 authorization 改核對 Outcome Contract 接受／授權＋derivation record＋引用鏈；§11 改指 `default-v2` 與其 deterministic replacement；§12 D 改寫、新增 E. Traceability presence；§13 本列。§3、§5、§7、§9、§10 未變。待 independent acceptance review 與使用者採用。S-4（2026-09-22，依 Opus 5 S-3 review）：§2 第二段末句由 v1.1「缺漏／爭議 → FA」改為 Minimal §2.4 五種情況（M-1）；§6 Spec-level AC coverage 改為所分配 boundary 部分＋最後一份未結 Spec 核對全部分配（M-3）。 |
-| `v2` adoption／freeze | 2026-09-22 | S-3 Opus 5 acceptance review（repo: `Governance v2.0 Candidate Independent Acceptance Review(Opus-5).md`）：ADOPT WITH REQUIRED CHANGES；S-4 M-1／M-3 correction；Opus 5 closure（repo: `Governance v2.0 Candidate S-4 Closure Review(Opus-5).md`）：CLOSED、targeted regression PASS；pruning P-07、P-11、P-12（Pruning Pass Report（repo: `Governance v2.0 Candidate Pruning Pass Report(Fable-5.1).md`））；Astra final regression（repo: `Governance v2.0 Final Pruning Regression Check(Astra).md`）：PASS；operator S-5 明確授權（Adoption and Freeze Record（repo: `Governance v2.0 Adoption and Freeze Record.md`））。 | **`impl-default / v2`**** formally Adopted／Frozen**；僅更新 header、§2／§11 package-status 括號、§13 本列與狀態段、來源表狀態括號；§1–§12 operative HOW 與 Appendix A 不變。 |
+| `v1` freeze | 2026-09-17 | [Fable 5.1 Final Independent Acceptance Review](<../../../Governance Implementation Profile v1 Acceptance Review(Fable-5.1).md>)：**ADOPT**；所有 acceptance criteria PASS，無 BLOCKER／MATERIAL findings。使用者授權本次 final freeze。 | **`impl-default / v1` formally frozen / adopted**；僅更新 acceptance metadata，§1–§12 與既有 method semantics 不變。 |
+| `v1.1` | 2026-09-17 | 依據：(1) [Fable Architecture Review](<../../../Governance Implementation Architecture Review(Fable-5.1).md>) §2 的 KEEP 與 re-citation 決定；(2) [Fable Implementation Profile v1 Acceptance Review](<../../../Governance Implementation Profile v1 Acceptance Review(Fable-5.1).md>)：ADOPT；(3) 已 Adopted／Frozen 的 [`orch-default／v1`](../orchestrator-contracts/default-v1.md)；(4) [Opus 5 Reference Orchestrator Contract Acceptance Review](<../../../Governance Reference Orchestrator Contract v1 Acceptance Review(Opus-5).md>)：M-1～M-3 CLOSED、targeted regression PASS、final **ADOPT**；(5) 使用者對本次 finalization 的明確授權。 | **Metadata／dependency revision only**：§2 的 reusable Orchestrator reference 由歷史外部 v2 contract 改為 `orch-default／v1`；migration note 改為既有 v2 adopters 適用；header、§1 版本識別、§13 記錄與來源表相應更新。§1–§12 implementation semantics 未重新設計；`impl-default／v1` 保留為 frozen 歷史 accepted 版本。 |
+| `v2` | 2026-09-22 | **Candidate**。依據：[Governance vNext Architecture Analysis](<../../../Governance vNext Architecture Analysis(Fable-5.1).md>) §B.2（P-2）；operator S-1 決定與兩項 refinement（2026-09-22）；Minimal Operational Governance v2.0 Candidate。 | **Semantic revision**：§1 governance 改指 Minimal v2.0；§2 control-plane reference 改指 `orch-default／v2`；§4 `BLOCKED` 的 routing 說明改為 §2.4 五情況與 boundary 疑義 DA-first；§6 新增 Spec Integration Audit dispatch HOW 與單 Ticket fast path 核對；§8 authorization 改核對 Outcome Contract 接受／授權＋derivation record＋引用鏈；§11 改指 `default-v2` 與其 deterministic replacement；§12 D 改寫、新增 E. Traceability presence；§13 本列。§3、§5、§7、§9、§10 未變。待 independent acceptance review 與使用者採用。S-4（2026-09-22，依 Opus 5 S-3 review）：§2 第二段末句由 v1.1「缺漏／爭議 → FA」改為 Minimal §2.4 五種情況（M-1）；§6 Spec-level AC coverage 改為所分配 boundary 部分＋最後一份未結 Spec 核對全部分配（M-3）。 |
+| `v2` adoption／freeze | 2026-09-22 | S-3 [Opus 5 acceptance review](<../../../Governance v2.0 Candidate Independent Acceptance Review(Opus-5).md>)：ADOPT WITH REQUIRED CHANGES；S-4 M-1／M-3 correction；[Opus 5 closure](<../../../Governance v2.0 Candidate S-4 Closure Review(Opus-5).md>)：CLOSED、targeted regression PASS；pruning P-07、P-11、P-12（[Pruning Pass Report](<../../../Governance v2.0 Candidate Pruning Pass Report(Fable-5.1).md>)）；[Astra final regression](<../../../Governance v2.0 Final Pruning Regression Check(Astra).md>)：PASS；operator S-5 明確授權（[Adoption and Freeze Record](<../../../Governance v2.0 Adoption and Freeze Record.md>)）。 | **`impl-default / v2` formally Adopted／Frozen**；僅更新 header、§2／§11 package-status 括號、§13 本列與狀態段、來源表狀態括號；§1–§12 operative HOW 與 Appendix A 不變。 |
 
 **狀態**：`impl-default／v1` 與 `v1.1` 均為 Adopted 並凍結，保留為歷史 accepted 版本。**`impl-default／v2`**（本檔）於 2026-09-22 Adopted／Frozen（S-5）。各專案仍需透過有效 Bindings 採用；Profile acceptance 不等於任何專案 Runtime／Orchestrator migration 已完成驗證。
 
 ### Evidence and adaptations
 
 | Source | 採用／修正 |
-| --- | --- |
-| Minimal Operational Governance v2.0（repo: `master_governance/Minimal_Operational_Governance_v2.0_Candidate.md`）（Adopted／Frozen 2026-09-22；v1.0（repo: `master_governance/Minimal_Operational_Governance_Final_Candidate.md`） 為 frozen baseline） | Authoritative properties；本 Profile 不修改、不補造治理權限。 |
-| Reference Model Profile default v2（repo: `master_governance/references/model-profiles/default-v2.md`）（Adopted／Frozen 2026-09-22；v1（repo: `master_governance/references/model-profiles/default-v1.md`） frozen） | 引用 mapping、deterministic replacement 與 assurance defaults，不複製或猜補設定。 |
-| Fable Architecture Review（repo: `Governance Implementation Architecture Review(Fable-5.1).md`） §2、§4–§8 | 保留 Orchestrator、13-section HOW reference 與 separately bound audit；依 Astra review 修正 literal equality、blanket worker ban、checker mandate 與舊語義 migration。 |
+|---|---|
+| [Minimal Operational Governance v2.0](../../Minimal_Operational_Governance_v2.0_Candidate.md)（Adopted／Frozen 2026-09-22；[v1.0](../../Minimal_Operational_Governance_Final_Candidate.md) 為 frozen baseline） | Authoritative properties；本 Profile 不修改、不補造治理權限。 |
+| [Reference Model Profile default v2](../model-profiles/default-v2.md)（Adopted／Frozen 2026-09-22；[v1](../model-profiles/default-v1.md) frozen） | 引用 mapping、deterministic replacement 與 assurance defaults，不複製或猜補設定。 |
+| [Fable Architecture Review](<../../../Governance Implementation Architecture Review(Fable-5.1).md>) §2、§4–§8 | 保留 Orchestrator、13-section HOW reference 與 separately bound audit；依 Astra review 修正 literal equality、blanket worker ban、checker mandate 與舊語義 migration。 |
 | Astra focused regression review（本對話，verdict：PASS WITH MINOR ADJUSTMENTS；未找到獨立 Markdown artifact） | 納入五項 corrections：Orchestrator predicates reconciliation、final-subject coverage、property／checker 分離、正確 independent dispatch boundary、conditional／replaceable recurring HOW。使用者在本次 implementation request 中明確接受並具體化這些修正。 |
-| 原始 GPT-6 assessment F06（repo: `Governance Optimization Independent Assessment(GPT-6).md`） | Property／mechanism 分層依據；非本次 Astra regression review 的替代文件。 |
-| Matt `/implement`（repo: `skills_references/matt_skills/skills/skills/engineering/implement/SKILL.md`） | 原文依 Spec／Tickets 實作、適用時 TDD、持續 typecheck／focused tests、最後 full suite、code-review、current-branch commit；改寫為 §3 的 accepted-contract method、task-applicable verification、自選 self-review、依 Binding 保存，不依賴 skill。 |
-| Matt `/code-review`（repo: `skills_references/matt_skills/skills/skills/engineering/code-review/SKILL.md`） | 採 Standards／Contract 雙軸；不導入安裝／tracker／Spec 強制要求或兩 subagents 義務，結果只算 self-verification。 |
-| Addy doubt-driven checks（repo: `skills_references/addy_skills/agent-skills/skills/doubt-driven-development/SKILL.md`）／constraint floor（repo: `skills_references/addy_skills/agent-skills/skills/constraint-driven-development/SKILL.md`） | 採 adversarial self-check 與不弱化 accepted floor；不導入逐次 human offer、`CONSTRAINTS.md`、固定 thresholds 或工具安裝。 |
-| Superpowers task reviewer（repo: `skills_references/superpowers/skills/subagent-driven-development/task-reviewer-prompt.md`）／worktree method（repo: `skills_references/superpowers/skills/using-git-worktrees/SKILL.md`） | 採 bounded subject、report-as-claim 與適用 isolation 方法；不採 source-access／test-rerun 限制、controller authority 或 universal Git topology。Result status 與 scoped R2 patterns 依 Fable §4–§5，沿 Minimal semantics 改寫。 |
-| Reference Orchestrator Contract `orch-default`／`v2`（repo: `master_governance/references/orchestrator-contracts/default-v2.md`）（Adopted／Frozen 2026-09-22；`v1`（repo: `master_governance/references/orchestrator-contracts/default-v1.md`） Adopted／Frozen 2026-09-17） | 本版採用的 reusable control-plane reference。Minimal v2.0-aligned；其 §14 保留六項 v2 母版 reconciliation。 |
-| Opus 5 Reference Orchestrator Contract Acceptance Review（repo: `Governance Reference Orchestrator Contract v1 Acceptance Review(Opus-5).md`） | `orch-default／v1` 的 durable independent acceptance record：初審 ADOPT WITH REQUIRED CHANGES、M-1～M-3 CLOSED、targeted regression PASS、final ADOPT。 |
-| 10-ASPICE_auto v2 Orchestrator contract（repo: `../10-ASPICE_auto/docs/governance/orchestrator_contract.md`） | 歷史／來源證據與既有 v2 adopters 的 migration reference；不是新專案的有效 reusable reference；未在本次修改。 |
+| [原始 GPT-6 assessment F06](<../../../Governance Optimization Independent Assessment(GPT-6).md>) | Property／mechanism 分層依據；非本次 Astra regression review 的替代文件。 |
+| [Matt `/implement`](../../../skills_references/matt_skills/skills/skills/engineering/implement/SKILL.md) | 原文依 Spec／Tickets 實作、適用時 TDD、持續 typecheck／focused tests、最後 full suite、code-review、current-branch commit；改寫為 §3 的 accepted-contract method、task-applicable verification、自選 self-review、依 Binding 保存，不依賴 skill。 |
+| [Matt `/code-review`](../../../skills_references/matt_skills/skills/skills/engineering/code-review/SKILL.md) | 採 Standards／Contract 雙軸；不導入安裝／tracker／Spec 強制要求或兩 subagents 義務，結果只算 self-verification。 |
+| [Addy doubt-driven checks](../../../skills_references/addy_skills/agent-skills/skills/doubt-driven-development/SKILL.md)／[constraint floor](../../../skills_references/addy_skills/agent-skills/skills/constraint-driven-development/SKILL.md) | 採 adversarial self-check 與不弱化 accepted floor；不導入逐次 human offer、`CONSTRAINTS.md`、固定 thresholds 或工具安裝。 |
+| [Superpowers task reviewer](../../../skills_references/superpowers/skills/subagent-driven-development/task-reviewer-prompt.md)／[worktree method](../../../skills_references/superpowers/skills/using-git-worktrees/SKILL.md) | 採 bounded subject、report-as-claim 與適用 isolation 方法；不採 source-access／test-rerun 限制、controller authority 或 universal Git topology。Result status 與 scoped R2 patterns 依 Fable §4–§5，沿 Minimal semantics 改寫。 |
+| [Reference Orchestrator Contract `orch-default`／`v2`](../orchestrator-contracts/default-v2.md)（Adopted／Frozen 2026-09-22；[`v1`](../orchestrator-contracts/default-v1.md) Adopted／Frozen 2026-09-17） | 本版採用的 reusable control-plane reference。Minimal v2.0-aligned；其 §14 保留六項 v2 母版 reconciliation。 |
+| [Opus 5 Reference Orchestrator Contract Acceptance Review](<../../../Governance Reference Orchestrator Contract v1 Acceptance Review(Opus-5).md>) | `orch-default／v1` 的 durable independent acceptance record：初審 ADOPT WITH REQUIRED CHANGES、M-1～M-3 CLOSED、targeted regression PASS、final ADOPT。 |
+| [10-ASPICE_auto v2 Orchestrator contract](../../../../10-ASPICE_auto/docs/governance/orchestrator_contract.md) | 歷史／來源證據與既有 v2 adopters 的 migration reference；不是新專案的有效 reusable reference；未在本次修改。 |
 
 以上是來源與版本記錄，不是額外操作 gates。來源 frameworks 的後續更新不自動改變本 Profile；獨立使用本 Profile 時無須安裝或載入來源材料。
 
@@ -250,14 +233,14 @@ Check 可核對 identity、記錄引用或已授權的判斷，不把「檔案�
 
 ### A.1 Control-plane reference provenance
 
-`orch-default` 的 `v1` 為 Adopted／Frozen 2026-09-17，依 Opus 5 Acceptance Review（repo: `Governance Reference Orchestrator Contract v1 Acceptance Review(Opus-5).md`）；新 Minimal 專案以 `orch-default／v2` 為 Orchestrator reference，不再需要外部 v2 contract 作為 reusable control-plane reference。10-ASPICE_auto 的 v2 `orchestrator_contract.md`（repo: `../10-ASPICE_auto/docs/governance/orchestrator_contract.md`） 只保留為歷史／來源證據，以及既有 v2 adopters 的 migration reference；該路徑是來源位置，不是新專案必備路徑。
+`orch-default` 的 `v1` 為 Adopted／Frozen 2026-09-17，依 [Opus 5 Acceptance Review](<../../../Governance Reference Orchestrator Contract v1 Acceptance Review(Opus-5).md>)；新 Minimal 專案以 `orch-default／v2` 為 Orchestrator reference，不再需要外部 v2 contract 作為 reusable control-plane reference。[10-ASPICE_auto 的 v2 `orchestrator_contract.md`](../../../../10-ASPICE_auto/docs/governance/orchestrator_contract.md) 只保留為歷史／來源證據，以及既有 v2 adopters 的 migration reference；該路徑是來源位置，不是新專案必備路徑。
 
 ### A.2 v2 Orchestrator implementation migration note（既有 v2 adopters 適用）
 
 `orch-default／v1` 已在 reusable reference contract 層套用下列六項 reconciliation semantics（見其 §14；`orch-default／v2` 原樣保留）；它們**不是 reference contract 的未完成工作**。下表保留給仍宣告 v2 的既有專案 Orchestrator／Runtime 實作（例如 10-ASPICE_auto）在採用 Minimal 時使用。本 Profile 更新**不使任何既有 v2 專案自動 migration**；是否採用及何時採用，依 Minimal §5.3 由各專案留下版本、依據與授權。Profile 的 Adopted 狀態不證明任何專案實作已完成 Minimal migration。下列是 migration 範圍，不是新增 workflow：
 
 | Migration 項目 | 歸屬與 Minimal 對齊方式 |
-| --- | --- |
+|---|---|
 | **Additive amendment exception** | **Governance property**：移除新增 requirement／AC 卻免 re-approval 的例外；依 Minimal §3.4／§5.3 區分 clarification 與 semantic change。 |
 | **Legacy SO-2／authority assumptions** | **Project policy／authority bindings**：只保留 acceptor 已有效宣告、涵蓋範圍明確的 standing authorizations；不複製歷史委派作為新專案授權。DA 與 Final Adjudicator 的權限仍須可區別。 |
 | **ESCALATED／STOP／operator-assisted termination** | **Governance property＋Runtime HOW**：標籤或 capability declaration 本身不構成 lawful stop；依 Minimal §1.5／§3.8 判定合法替代、recovery、routing 與真正 natural terminus。 |

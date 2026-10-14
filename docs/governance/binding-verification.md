@@ -77,3 +77,24 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 ```
 
 這不是 binding FAIL，只證明 b2 的 dry-run 須在新 session 執行。新 session 完成 dry-run 後，把 agentId、觀測值與核對指令輸出填入上表（已於 2026-09-25 完成，見上表）。
+
+---
+
+# Binding verification — b4（Package v2.2 re-pin，Project Bindings §3.1、§8.2 #3）
+
+- **狀態**：**待辦**。b4 修改了 `gov-*` definitions 的 frontmatter 與內文，修改當下的 session 看不到新版本（Bindings §6），所以 dry-run 必須在 b4 合併後新開的 session 執行。上方 b1、b2 的結果只證明舊 mapping，不能沿用為 b4 的證據。
+- **方法**：同 b1、b2，對每個 definition 以 Agent tool 派一次不做事的任務（只回一行 ack），再以 Bindings §3.6 的核對指令讀 harness 紀錄。另對一個 definition 加 `model: fable` 派一次，核對 alias 的實際 model（Bindings §3.2 的 escalation／fallback 派工方式）。
+- **全程核對**：每個 agent 的 (model, effort) 集合必須只有一個元素並等於預期值。
+
+## 預期（待填觀測值）
+
+| Identifier | Definition（`agentType`） | 派工參數 | 預期 model／effort | agentId | 觀測 | 結果 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `design_authority` | `gov-design-authority` | — | `claude-opus-5-5` ／ `high` | | | |
+| `executor` | `gov-executor` | — | `claude-opus-5-5` ／ `high` | | | |
+| `executor`（fallback） | `gov-executor-fallback` | — | `claude-opus-4-8` ／ `high` | | | |
+| `primary_reviewer` | `gov-primary-reviewer` | — | `claude-opus-5-5` ／ `xhigh` | | | |
+| `alternate_reviewer` | `gov-alternate-reviewer` | — | `claude-opus-5-5` ／ `xhigh` | | | |
+| `final_adjudicator` | `gov-final-adjudicator` | — | `claude-opus-5-5` ／ `xhigh` | | | |
+| `orchestrator` | `gov-orchestrator` | — | `claude-opus-5-5` ／ `medium`（只核對 definition；正式 run 以 root session transcript 核對） | | | |
+| E-AR／F-FA 等的 alias 路徑 | `gov-alternate-reviewer` | `model: fable` | `claude-fable-5-1` ／ `xhigh` | | | |

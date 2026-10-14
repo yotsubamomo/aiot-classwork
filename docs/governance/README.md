@@ -4,10 +4,16 @@
 
 | 檔案 | 內容 |
 | --- | --- |
-| [`project-bindings.md`](project-bindings.md) | 本 repo 的 Project Bindings：適用範圍、權限來源、角色與模型、lane、assurance、紀錄位置。**從這裡開始讀。** |
-| [`minimal-operational-governance-v2.0.md`](minimal-operational-governance-v2.0.md) | 治理本文（normative authority）的快照。 |
-| [`references/model-profile-default-v2.2.md`](references/model-profile-default-v2.2.md) | 角色與模型對應、replacement policies、binding verification 的預設。 |
-| [`references/implementation-profile-impl-default-v2.md`](references/implementation-profile-impl-default-v2.md) | Executor 與 Reviewer 的實作 HOW。 |
-| [`references/orchestrator-contract-orch-default-v2.md`](references/orchestrator-contract-orch-default-v2.md) | Formal lane 的 Orchestrator 控制面 HOW。 |
+| [`project-bindings.md`](project-bindings.md) | 本 repo 的 Project Bindings：適用範圍、權限來源、角色與模型、lane、assurance、紀錄位置。**從這裡開始讀。** 第 1 節列出哪些 package 檔案是生效的規範。 |
+| [`Minimal_Governance_Reusable_Package_v2.2_2026-10-12b/`](Minimal_Governance_Reusable_Package_v2.2_2026-10-12b/Minimal_Governance_Reusable_Package_v2.2/README.md) | Minimal Governance — Reusable Package v2.2 的位元複本（以 package 內的 `MD5SUMS`、`SHA256SUMS` 核對），不在本 repo 修改。只有 Bindings 第 1 節列出的四份是生效規範：Minimal Operational Governance v2.2、Model Profile `default` v2.5（連同其引用的 v2.4 章節）、`impl-default` v2、`orch-default` v2.2；其他檔案只供參考。 |
+| [`binding-verification.md`](binding-verification.md) | `gov-*` definitions 的 binding dry-run 紀錄。 |
 
-四份規範文件是 Notion「Minimal Governance — Reusable Package v2.0」的快照，不是 authoritative source；來源、md5 與轉換方式寫在各檔檔頭。六個角色的 agent definitions 在 [`.claude/agents/`](../../.claude/agents/)，檔名以 `gov-` 開頭。
+六個角色與 `executor` fallback 的 agent definitions 在 [`.claude/agents/`](../../.claude/agents/)，檔名以 `gov-` 開頭。
+
+## 舊版快照
+
+Bindings b1–b3 採用的 Package v2.0 快照（`minimal-operational-governance-v2.0.md`、`references/model-profile-default-v2.2.md`、`references/implementation-profile-impl-default-v2.md`、`references/orchestrator-contract-orch-default-v2.md`）已在 b4 移除，不再是生效規範。`home_work_01/` 在 b1–b3 下留下的紀錄仍引用這些路徑；需要時從 git 歷史讀取，例如：
+
+```bash
+git show b265766:docs/governance/minimal-operational-governance-v2.0.md
+```
