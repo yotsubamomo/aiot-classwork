@@ -101,4 +101,17 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 | `investigator` | `gov-investigator` | — | `claude-sonnet-5-5` ／ `high` | | | |
 | `investigator`（E-IN） | `gov-investigator` | `model: opus` | `claude-opus-5-5` ／ `high` | | | |
 | `bounded_worker`（`standard`） | `gov-bounded-worker` | — | `claude-sonnet-5-5` ／ `high` | | | |
-| Haiku qualification probe（`mechanical`，O-3） | `gov-bounded-worker` | `model: haiku` | `claude-haiku-5-5` ／ `high` | | | 通過後 `mechanical` 改以 Haiku 派工（Bindings §3.4） |
+| Haiku qualification probe（`mechanical`，O-3） | `gov-bounded-worker` | `model: haiku`、`effort: high` | `claude-haiku-5-5` ／ `high` | `aa0de2f2aaac46a23` | `claude-haiku-5-5` ／ `high`（1 則） | **PASS**（2026-10-14，見下方註記） |
+
+### Haiku qualification probe 註記（2026-10-14）
+
+- **Session**：`8943ecf6-f2b0-4c4d-8e41-c796a644c4b4`（主 session，無角色；依 acceptor 2026-10-14 指示「這邊測試 haiku 的指派」執行）。
+- **派工**：Agent tool，`subagent_type: gov-bounded-worker`，per-dispatch `model: haiku`、`effort: high`，指示不讀、不寫、不執行，只回一行 ack。回覆 `binding dry-run ack: bounded_worker mechanical haiku`，tool uses 0。
+- **核對指令輸出**（Bindings §3.6，原樣）：
+
+```text
+agent-aa0de2f2aaac46a23 gov-bounded-worker {('claude-haiku-5-5', 'high'): 1}
+```
+
+- **判定**：PASS。實際 model 等於宣告 id `claude-haiku-5-5`，effort 等於 O-3 的 `high`，全程只有一個 (model, effort) 組合。
+- **限制**：本 session 載入的 `gov-bounded-worker` 是 O-3 之前的版本（frontmatter effort `medium`），所以 effort 以 per-dispatch 參數指定；model 與 effort 都由派工參數決定，不依賴 frontmatter，結果可作為 Haiku qualification 的證據。表中其他列仍須在 b4 合併後的新 session 執行。
