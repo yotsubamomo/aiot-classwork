@@ -167,6 +167,7 @@ AC-29～AC-31 不擴張 boundary，只讓 OC 已接受的 constraints 可以驗�
 | --- | --- | --- | --- |
 | 初版（Spec v1.0） | 2026-10-14 | DA 派工（lane、高風險類別、Spec derivation；不含 Tickets） | 初版 derive。 |
 | Tickets（Spec v1.0 不變） | 2026-10-14 | DA 派工 2（Ticket derivation；records 已於 commit `b012e4f9` 原樣 commit） | 新增第 13 節：Tickets #50–#56 的分配、AC 覆蓋、依賴與 boundary determination。第 1–12 節的內容不變（第 1 節「未 derive Tickets」是初版時點的狀態，由本節更新）；Spec v1.0 不需要修訂。 |
+| Spec v1.1 | 2026-10-14 | DA 派工 3（pre-implementation review findings F-01～F-06 與附加問題；HEAD `323d3de5`）；[`decision-20261014-spec-v1-1-review-findings.md`](decision-20261014-spec-v1-1-review-findings.md) | 新增第 14 節：v1.1 的 derivation impact。第 1–13 節的內容不變；檔頭「Derived contract：v1.0」與第 13 節的「Spec v1.0」是當時的狀態，有效版本以第 14 節為準。 |
 
 ## 13. Tickets（2026-10-14 derive）
 
@@ -261,3 +262,47 @@ R 群組覆蓋：DATA（#50、#53、#54）、PART（#50、#51）、PREP（#50、
 - 建立前以 GitHub API 確認最新的 issue／PR 編號為 #49；七張票依序建立為 #50～#56，與票內 worklog 路徑的編號相同；建立後以 `gh issue view` 核對每張票的 label、worklog 編號與 Blocked by。
 - 格式參考：`home_work_01` 的 Issue #35 與 `home_work_01/doc/ticket/tickets.md`（只參考格式）。
 - 本次寫入：`home_work_02/doc/ticket/tickets.md`（新增）、本檔（只新增第 12 節一列與第 13 節）。未實作、未 commit、未修改 Spec 或其他檔案、未修改其他 issue。
+
+## 14. Spec v1.1 的 derivation impact（2026-10-14）
+
+- **依據**：Outcome Contract ACCEPTED（normative 第 1–8 節 `e2153254`，接受紀錄 `370c0ae`；`git diff 370c0ae 323d3de5` 對 OC、`doc/requirement/`、`doc/brief/`、`CONTEXT.md` 無變更）；Spec v1.0（commit `b012e4f9`）；decision record [`decision-20261014-spec-v1-1-review-findings.md`](decision-20261014-spec-v1-1-review-findings.md)。
+- **派工指示**：無角色主 session 轉達的 DA assignment 3（2026-10-14）：評估 acceptor 的 pre-implementation review findings F-01～F-06 與附加問題，只作不改變 accepted 語義的修正。
+- **有效 Spec 版本**：**v1.1**（[`../../spec/SPEC.md`](../../spec/SPEC.md)；第 10 節版本紀錄）。v1.0 不再有效。
+
+### 14.1 變更分類
+
+全部屬治理 §5.3 **第 2 類**（derived contract 的設計、修訂與 clarification），不觸發 acceptor 核准。逐項的分類、依據與 boundary 判定見 decision record 第 2–4 節。摘要：
+
+| Finding | 分類 | Spec v1.1 變更處 |
+| --- | --- | --- |
+| F-01 | REJECTED（語義）／CONFIRMED（可讀性） | R-EVAL-2、AC-15；§4.1、§4.2 |
+| F-02 | CONFIRMED（規模）；HIGH 風險不成立 | 新增 §4.5；R-TEST-6；§9.2 |
+| F-03 | CONFIRMED | R-SEL-4、新增 R-EVAL-1a；AC-09、AC-14、AC-20；INV-2；§4.1、§7、§9.2 |
+| F-04 | CONFIRMED | R-PREP-2、R-TEST-2、AC-12；§4.1、§9.2 |
+| F-05 | CONFIRMED | R-SEL-2、D-4、AC-12、R-TEST-6 |
+| F-06 | CONFIRMED | 檔頭、§0 |
+| 附加（AC-23） | REJECTED（要求維持） | R-AI-2、AC-23 只釐清「位置」的形式 |
+
+### 14.2 Boundary determination
+
+**v1.1 的全部內容仍在已接受的 OC（第 1–8 節，`e2153254`）的 boundary 內。** 沒有新增 requirement 的 scope、acceptor gate 或 audit round；沒有改變 OC §2.4 的 accepted 語義或 §3 的 acceptance boundary。新增的 R-EVAL-1a 是 OC §2.4.1「Test 只評估一次」與 OC-A6「完整重跑且數值一致」唯一一致的讀法，並補上 R-EVAL-3 的可觀察證據；R-EVAL-2 的改寫保留 OC-A5 的「實際 vs 預測、上下界、USD」。**需要 contract change 的事項：無。Fail-closed 至 acceptor 的 boundary 問題：無。**
+
+### 14.3 OC-A 分配與 AC → Ticket 覆蓋
+
+- **OC-A1～OC-A8 的分配不變**（第 4 節）：仍只有一份 Spec，分配 OC-A1～OC-A8 全部；AC-01～AC-31 的編號、數量與各 OC-A 對應不變（Spec §7 只在 OC-A3、OC-A4 的「主要 R」欄加入 R-EVAL-1a、R-PREP-2）。
+- **AC → Ticket 覆蓋不變**（§13.2）：沒有新增或刪除 AC，沒有 AC 改變擁有的票。新增的 R-EVAL-1a 屬 AC-09、AC-14、AC-20 的既有範圍，分別由 #52（第一次執行與守門）、#53（重現與 notebook）、#56（最終重跑）承接。**缺口：無。**
+- **Dependencies 不變**（§13.3）。
+- **Implementation-readiness**（第 5 節）：仍成立；v1.1 沒有把設計留給下游，§4.5 的允許最佳化是單一 Ticket（#51）內的 HOW。
+
+### 14.4 受影響工作
+
+| 工作 | 影響 |
+| --- | --- |
+| 進行中的工作 | 無（沒有實作、worklog、audit 或 run record；Issues 沒有 comment）。沒有 evidence 失效。 |
+| Tickets | 七張票的 body 改為引用 Spec v1.1，文末加「修訂紀錄」。內容調整：#51（§4.5、R-PREP-2 的 31 個矩陣、R-SEL-2 的平手集合）、#52（R-EVAL-2 的圖、R-EVAL-1a 的第一次執行）、#53（R-EVAL-1a 的重現、秩檢查摘要的輸出）。#50、#54、#55、#56 只改版本引用與加註。 |
+| Ticket 索引 | [`../../ticket/tickets.md`](../../ticket/tickets.md) 的來源 Spec 改為 v1.1。 |
+| 高風險裁決、lane 裁決、OC、Brief、`CONTEXT.md`、Bindings | 不修改。 |
+
+### 14.5 Capability escalation
+
+沒有提出 E-DA（decision record 第 5 節）。

@@ -1,13 +1,13 @@
 # Spec: HW2 Multiple Linear Regression — King County 房價（`home_work_02/`）
 
 - **專案識別**：`home_work_02`（老師稱 HW2: Multiple Linear regression）
-- **Spec 版本**：**v1.0**（2026-10-14，Design Authority derive）
+- **Spec 版本**：**v1.1**（2026-10-14，Design Authority 修訂；v1.0 為 commit `b012e4f93defe77dab2959737f9334ce928893d8`）。v1.1 是不改變 accepted 語義的 derived contract 修訂（治理 §5.3 第 2 類），依據 pre-implementation review findings F-01～F-06 與附加問題的裁決：[`../governance/decisions/decision-20261014-spec-v1-1-review-findings.md`](../governance/decisions/decision-20261014-spec-v1-1-review-findings.md)。修訂處以「（v1.1）」標示，逐條見第 10 節。
 - **Derived 自**：Outcome Contract [`../governance/outcome-contract.md`](../governance/outcome-contract.md)。Accepted normative 內容＝第 1–8 節於 commit `e2153254ccf7a97475d1c22e10d6a1e0717c5497`；接受紀錄＝第 9 節於 commit `370c0ae1bf40385baa1d954c6585d1c175b4124b`。
 - **上位契約**（唯讀）：[`../requirement/HW2-requirements-Multiple Linear regression.txt`](../requirement/HW2-requirements-Multiple%20Linear%20regression.txt)（sha256 `a969e7e2…61ab`）
 - **討論紀錄**（不具 authority；與 OC 不一致時以 OC 為準）：[`../brief/HW2_Grill_Brief_Draft_v0.3.md`](../brief/HW2_Grill_Brief_Draft_v0.3.md)；詞彙 [`../../CONTEXT.md`](../../CONTEXT.md)
 - **Derivation record**：[`../governance/decisions/derivation-SPEC.md`](../governance/decisions/derivation-SPEC.md)
-- **相關裁決**：[`../governance/decisions/decision-20261014-lane.md`](../governance/decisions/decision-20261014-lane.md)（Formal）、[`../governance/decisions/decision-20261014-high-risk-categories.md`](../governance/decisions/decision-20261014-high-risk-categories.md)（H-1～H-4）
-- **Tickets**：尚未 derive（由後續 DA 派工自本 Spec derive；Ticket 本體在 GitHub Issues，索引在 `doc/ticket/`）
+- **相關裁決**：[`../governance/decisions/decision-20261014-lane.md`](../governance/decisions/decision-20261014-lane.md)（Formal）、[`../governance/decisions/decision-20261014-high-risk-categories.md`](../governance/decisions/decision-20261014-high-risk-categories.md)（H-1～H-4）、[`../governance/decisions/decision-20261014-spec-v1-1-review-findings.md`](../governance/decisions/decision-20261014-spec-v1-1-review-findings.md)（v1.1 修訂）
+- **Tickets**（v1.1）：已 derive 為 GitHub Issues #50–#56（2026-10-14；derivation record §13、§14）；索引 [`../ticket/tickets.md`](../ticket/tickets.md)
 
 ## 0. 狀態與效力
 
@@ -16,7 +16,7 @@
 | 狀態 | **EFFECTIVE（自 2026-10-14）。** Outcome Contract 已於 2026-10-14 由 acceptor 接受。本 Spec 是在其 boundary 內 derive 的 derived contract，成立不需要 acceptor 逐份核准（治理 §1.2）。Boundary determination 見 derivation record 第 3 節。 |
 | 重新 derive 條件 | Outcome Contract 第 1–8 節的 scope、constraints、acceptance boundary 或 authority／authorization 條款有任何變更（contract change，治理 §5.3）時，本 Spec 須由 DA 重新 derive，或以 derivation record 的修訂確認不受影響；在此之前，不得依變更後的語義實作。 |
 | 變更 | 不改變 accepted 語義的修訂由 DA 以 derivation／decision record 決定（治理 §5.3 第 2 類）；Tickets 與 Executors 不得重新定義本 Spec 的 AC、invariant 或固定的設計（第 4.1 節）。 |
-| Activation 前提 | Tickets derive 完成；orch-default v2.2 §3 的其他前提成立。Bindings §8.2 #3 的 Fable probe 依 OC §9 acceptor 決定不阻擋。 |
+| Activation 前提 | Tickets derive 完成（v1.1：已完成，#50–#56）；orch-default v2.2 §3 的其他前提成立。Bindings §8.2 #3 的 Fable probe 依 OC §9 acceptor 決定不阻擋。 |
 
 **標記約定**
 
@@ -94,7 +94,7 @@ Outcome Contract 把這個要求具體化為：King County 房價資料（固定
 | ID | 類型 | Class | 需求 | 對應 |
 | --- | --- | --- | --- | --- |
 | R-PREP-1 | D | ENHANCED | 固定（不 fit）的逐列轉換，對所有候選相同：(a) `date`（字串 `YYYYMMDDT000000`）→ `sale_days`＝距固定日期 2014-05-01 的天數（整數）；(b) `yr_renovated` → `is_renovated`（`yr_renovated > 0` 為 1，否則 0）與 `effective_year`（`yr_renovated > 0` 時為 `yr_renovated`，否則為 `yr_built`），兩欄都屬於 source feature `yr_renovated`；(c) `zipcode` 視為類別（nominal），不當作數值大小；(d) `sqft_basement` 不進入 design matrix（R-PREP-2）；(e) `id` 只作為 group key，`price` 只作為目標；(f) 其餘 source features（`bedrooms`、`bathrooms`、`sqft_living`、`sqft_lot`、`floors`、`waterfront`、`view`、`condition`、`grade`、`sqft_above`、`yr_built`、`lat`、`long`、`sqft_living15`、`sqft_lot15`）照原值使用。 | OC §5（`date`、`zipcode`、離群值與重新編碼）；Brief §5.1 |
-| R-PREP-2 | D | MVM | 完全共線：`sqft_basement` 不進入 design matrix，因為每一列都滿足 `sqft_basement = sqft_living − sqft_above`（R-DATA-3），線性模型的欄空間不變、沒有資訊損失。在 Fit 上 encode 後的 design matrix 加上截距 MUST 為 full column rank，以自動化檢查確認並在 notebook 輸出。 | M2；OC §5（完全共線）；Brief §5.1 |
+| R-PREP-2 | D | MVM | 完全共線：`sqft_basement` 不進入 design matrix，因為每一列都滿足 `sqft_basement = sqft_living − sqft_above`（R-DATA-3），線性模型的欄空間不變、沒有資訊損失。**（v1.1）Full column rank 的檢查範圍是實際用來 fit 的每一個訓練矩陣**：整個 Fit、5 個 outer 訓練集、25 個 inner 訓練集，共 31 個（frozen predictor 重跑時的 inner 訓練集就是 outer 訓練集，R-PART-4）。每個矩陣是以**該訓練集自己 fit 的前處理參數**（R-PREP-3）encode 的 18 個 group 全部 encoded columns 加上截距，MUST 為 full column rank（以數值秩判定，例如 `numpy.linalg.matrix_rank` 的預設容差）。Candidate 的 group 子集不另外檢查：full column rank 矩陣的任何欄子集（含截距欄）仍是 full column rank。罕見與常數欄：one-hot 類別取自訓練列，所以每個 one-hot 欄在訓練列中至少有一個 1；非 one-hot 欄若在某訓練集為常數，標準化後成為零向量，由本檢查偵測。任一矩陣不是 full rank 時 MUST 報錯並停止，route 至 Design Authority；不得臨時刪欄、合併類別或改變 encoding。結果 artifact 記錄每個矩陣的列數、欄數與秩；notebook 輸出摘要（檢查數、全部通過與否）。 | M2；OC §5（完全共線）；Brief §5.1；H-3 |
 | R-PREP-3 | D | ENHANCED | 有參數的前處理放在 pipeline 內，只以該次 fit 呼叫的訓練列 fit：(a) `zipcode` one-hot，類別取自訓練列，依排序 drop 第一個類別；預測時遇到未見過的類別，編為全零（即基準類別）；(b) 其他 encoded columns 以訓練列的平均與標準差標準化；one-hot 欄不縮放。五個候選使用完全相同的前處理。 | E2、E4；OC §2.4.1；OC-A3；H-3 |
 | R-PREP-4 | D | MVM | 離群值：任何分區都不刪除任何列，也不對特徵值作 clipping 或 winsorizing。Data Understanding MUST 以 Fit 的資料列出觀察到的異常（例如 `bedrooms` 的極端值與 0、`bathrooms` 為 0、`yr_renovated` 的 0 表示「未整修」），Data Preparation MUST 說明不刪除的理由（第 4.3 節 D-5）。 | OC §5（離群值）；OC-A3「合起來涵蓋全部列」 |
 | R-PREP-5 | D | ENHANCED | 除了 R-PREP-1～R-PREP-3，不得加入其他特徵轉換（特徵的 log、多項式、交互作用、額外衍生欄位）。需要時 MUST 先有 DA decision record，且理由不得來自 Calibration 或 Test。 | E1；OC §2.3；H-3 |
@@ -120,9 +120,9 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | ID | 類型 | Class | 需求 | 對應 |
 | --- | --- | --- | --- | --- |
 | R-SEL-1 | G | ENHANCED | 對每個 outer fold j 與每個候選：在 outer 訓練列上執行整個 procedure（含 inner CV），預測 outer 驗證列，計算 USD 的 RMSE、MAE、MSE、R²。結果 artifact 記錄每個 fold 的四個指標，以及 C2、C3 選中的 k 與 groups、C4、C5 選中的 `alpha`、C5 的非零係數數。 | E4；C3、C4；OC-A4 |
-| R-SEL-2 | G／D | ENHANCED | 排序依 5 個 outer folds 的 RMSE 平均值；選最小者。兩者差的絕對值 < 0.5 USD（即在報告的整數 USD 精度下無法區分）視為平手，依偏好順序 C1、C2、C3、C4、C5 取較前者。比較表 MUST 列出每個候選四個指標的平均與標準差。 | E4；G2；OC §5（tie-break）；OC-A4 |
+| R-SEL-2 | G／D | ENHANCED | 排序依 5 個 outer folds 的 RMSE 平均值。**（v1.1）選擇規則以最小值為錨點**：令 m＝五個候選平均 RMSE 的最小值；平手集合 T＝{ 平均 RMSE − m < 0.5 USD 的候選 }（以未四捨五入的浮點值比較；0.5 USD 即報告整數 USD 精度下無法區分的幅度）；選 T 中依偏好順序 C1、C2、C3、C4、C5 最前者。只有一個候選時 T 只含最小者。這個規則不使用成對比較，所以三個以上候選彼此鏈狀接近（例如 A 與 B、B 與 C 的差 < 0.5，A 與 C 的差 ≥ 0.5）時結果仍唯一。結果 artifact 記錄 m、T 與選出的候選。比較表 MUST 列出每個候選四個指標的平均與標準差。 | E4；G2；OC §5（tie-break）；OC-A4 |
 | R-SEL-3 | G | ENHANCED | 凍結：選出的 procedure 在整個 Fit 上重跑（inner folds 依 R-PART-4），存成 `results/` 下的單一檔案，計算其 sha256，並在 run manifest 記錄「frozen」事件（procedure、檔案、sha256），之後才可進行任何 Calibration 或 Test 的預測。記錄 frozen predictor 選中的 groups 或 `alpha`。 | E2；OC §2.4.1；OC-A3、OC-A4；H-3 |
-| R-SEL-4 | G | ENHANCED | Run manifest：同一次執行依序附加的事件紀錄，至少有 `partitioned`、`outer_cv_done`、`selected`、`frozen`、`calibrated`、`test_evaluated`，每個事件有序號與必要的識別值（例如 frozen 的 sha256、calibrated 的 n_cal 與 q̂）。 | OC-A3 證據「識別與 Test 評估的順序」 |
+| R-SEL-4 | G | ENHANCED | Run manifest：同一次執行依序附加的事件紀錄，至少有 `partitioned`、`outer_cv_done`、`selected`、`frozen`、`calibrated`、`test_evaluated`，每個事件有序號與必要的識別值（例如 frozen 的 sha256、calibrated 的 n_cal 與 q̂）。**（v1.1）「一次執行」（run）的定義**：從 `partitioned` 開始、建立一份新 manifest 的一次完整流程（一次 notebook 執行，或以 `mlr` 函式完整執行一次流程）；每次執行 MUST 建立新的 manifest，不得附加到先前執行的 manifest。 | OC-A3 證據「識別與 Test 評估的順序」 |
 
 ### 1.6 Conformal — 預測區間
 
@@ -139,7 +139,8 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | ID | 類型 | Class | 需求 | 對應 |
 | --- | --- | --- | --- | --- |
 | R-EVAL-1 | G | MVM | Test 評估是單一函式呼叫，只在 manifest 已有 `frozen` 與 `calibrated` 事件、frozen 檔案的 sha256 與紀錄相同、且本次執行尚無 `test_evaluated` 事件時才執行，否則報錯。一次呼叫內完成：點預測、USD 的 R²、MAE、MSE、RMSE、區間、coverage、平均寬度。 | M2；E2、E6；OC-A3、OC-A4、OC-A5；H-3 |
-| R-EVAL-2 | T／G | MVM | 預測圖（USD）：Test Sales；x 軸為預測價格、y 軸為實際價格；每筆 Sale 以垂直線段標出 `[lower, upper]`；畫 y＝x 參考線；落在區間外的點以不同顏色標示；可以使用 log 刻度（須在圖說註明）；標題、軸標籤與圖說為 zh-TW，軸標籤含「USD」；圖說寫明名目 95%、observed coverage 與 n_test。存為 `results/` 下的 PNG，notebook 與報告都顯示。zh-TW 字元不得出現缺字方塊。 | M3；E6；OC-A5；H-2 |
+| R-EVAL-1a | G／D | ENHANCED | **（v1.1）「Test 只評估一次」的範圍**：OC §2.4.1 的「Test 在 predictor 凍結後只評估一次」指**每次執行**（R-SEL-4 的定義）恰有一次 Test 評估，且 Test 結果不回饋任何決定。以同一套固定設計重複執行（R-REPRO-2 的兩次執行、AC-20 的乾淨環境重跑、R-PKG-4 的解壓驗證、#52 為 R-TEST-4(b) 執行的流程、開發期間的執行）是**重現**，不是新的評估，條件是：(a) 第 4.1 節的固定參數與 H-3 範圍的程式沒有因任何 Calibration 或 Test 結果而改變（INV-2、R-EVAL-3）；(b) 報告與 README 的 Test 數值只來自最終驗證執行的結果 artifact（INV-4），不得比較多次執行的 Test 結果並從中挑選；(c) 自任何一次執行第一次到達 `test_evaluated` 起，對 H-3 範圍程式（`mlr/` 的 data、selection、modeling、conformal、evaluation，與其測試期望值）的每一次修改，所屬 Ticket 的 worklog MUST 寫明理由與依據，依據不得是 Calibration 或 Test 的結果。 | OC §2.4.1、§3.4、OC-A6；H-3 |
+| R-EVAL-2 | T／G | MVM | **（v1.1 改寫）** 預測圖（USD），畫出**全部** Test Sales（n_test 筆，不抽樣）：x 軸為點預測 ŷ、y 軸為實際價格 y，兩軸都是 **log 刻度**，刻度標示為 USD 金額；畫 y＝x 參考線。**預測區間以帶狀區域呈現**：上下界曲線 `lower(x) = x·exp(−q̂)`、`upper(x) = x·exp(q̂)`，在 ŷ 的最小值到最大值之間繪製並填色。因為每筆 Sale 的區間只取決於 ŷ（R-CONF-3），帶狀區域在 x＝ŷᵢ 處的垂直切片就是該筆的區間 `[lowerᵢ, upperᵢ]`，所以帶狀區域等於全部逐筆垂直區間的聯集；在 log 刻度下它是寬度固定（2q̂）、與 y＝x 平行的帶。不另畫逐筆線段（在 n_test 筆下它們合併成同一條帶並遮蔽點）。點的顏色依 R-CONF-4 的同一個判定（`lower ≤ y ≤ upper`，閉區間）區分區間內與區間外，標為區間內的點數 MUST 等於 coverage × n_test。標題、軸標籤與圖說為 zh-TW，軸標籤含「USD」；圖說寫明 log 刻度、名目 95%、observed coverage 與 n_test，並說明帶狀區域的讀法（某筆 Sale 的區間是帶在其預測值處的垂直範圍）。存為 `results/` 下的 PNG，notebook 與報告都顯示。zh-TW 字元不得出現缺字方塊。 | M3；E6；OC-A5；H-2 |
 | R-EVAL-3 | G | ENHANCED | Test 的任何結果 MUST NOT 成為任何設計或實作決定的輸入（procedure、特徵、轉換、網格、seed、前處理、tie-break）。 | OC §2.4.1；OC §3.4；H-3 |
 | R-EVAL-4 | D | ENHANCED | Notebook MAY 加入只使用 Fit outer-fold 預測的診斷圖（例如殘差圖）；不得使用 Calibration 或 Test。這些圖沒有對應的 AC。 | OC §2.2 OPTIONAL（只限 Fit） |
 
@@ -177,7 +178,7 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | ID | 類型 | Class | 需求 | 對應 |
 | --- | --- | --- | --- | --- |
 | R-AI-1 | T／G | MVM | 「GPT 輔助內容」節：標題含字串「GPT 輔助內容」；以一張表如實揭露 AI 工具的使用：ChatGPT 的用途（只依 acceptor 的 ChatGPT PDF 忠實描述），以及 Claude Code 的用途（程式、測試、報告草稿等實際範圍）。不得把 Claude 的產出寫成 ChatGPT 的產出；揭露說明不替代 ChatGPT PDF。指向附錄與 ZIP 中 ChatGPT PDF 的檔名。 | M7；OC §2.5.1；OC-A7；H-2、H-4 |
-| R-AI-2 | T／G | MVM | 「NotebookLM 摘要」節：標題含字串「NotebookLM 摘要」；正文（不含標題與註記）的**漢字數 ≥ 100**；內容只來自 acceptor 提供的 NotebookLM 原始材料，允許忠實編輯（排版、修正錯字、摘錄、翻譯、縮寫），經整理處註明「依 NotebookLM 研究整理」；列出材料中的來源連結。每一句摘要都 MUST 能以對照表（`acceptor_materials/notebooklm/traceability.md`）對回材料中的位置。材料未提供前，只能放標示清楚的待填文字，不得放範例內容。 | M6；OC §2.5.1；OC-A7；H-2、H-4 |
+| R-AI-2 | T／G | MVM | 「NotebookLM 摘要」節：標題含字串「NotebookLM 摘要」；正文（不含標題與註記）的**漢字數 ≥ 100**；內容只來自 acceptor 提供的 NotebookLM 原始材料，允許忠實編輯（排版、修正錯字、摘錄、翻譯、縮寫），經整理處註明「依 NotebookLM 研究整理」；列出材料中的來源連結。每一句摘要都 MUST 能以對照表（`acceptor_materials/notebooklm/traceability.md`）對回材料中的位置。**（v1.1）** 對照表每一列是「摘要的一句 → 支撐它的材料位置」；位置是材料檔名加上可定位的頁碼、段落或標題，或支撐該句的原文摘錄（翻譯的句子對回原文）；格式不限，不需要其他欄位。材料未提供前，只能放標示清楚的待填文字，不得放範例內容。 | M6；OC §2.5.1；OC-A7；H-2、H-4 |
 | R-AI-3 | T／G | MVM | 主流或更優解法比較節：比較本資料集或同類房價問題的主流或更優做法（例如樹模型、梯度提升、空間特徵等），每一項都有可查證的公開來源連結；引用的效能數字只照來源原文，並標示為來源的數字，說明與本作業的評估協定是否可比；說明與本作業做法的差異與取捨。若引用 NotebookLM 材料，依 R-AI-2 的規則。不得有無來源的主張。 | M8；OC §2.5.1；OC-A7；H-4 |
 | R-AI-4 | T／G | MVM | ChatGPT 對話 PDF：由 acceptor 提供；Executor 收到時在 worklog 記錄日期、原檔名、sha256 與 acceptor 的提供訊息引用；原檔不修改。報告附錄是它的頁面原樣附加；ZIP 內另有一份位元相同的副本（R-PKG-1）。遮蔽個資只由 acceptor 進行；有遮蔽時在報告中註明。Agent 不得產生、改寫或補造對話，不得以 Claude 或無關對話替代。 | M5；G6；OC §2.5.1；OC-A7；H-1、H-4 |
 | R-AI-5 | D | MVM | acceptor 原始材料的存放位置：`home_work_02/acceptor_materials/chatgpt/`（ChatGPT PDF）與 `home_work_02/acceptor_materials/notebooklm/`（NotebookLM 輸出、來源清單、R-AI-2 的對照表）。此目錄被單元 `.gitignore` 忽略（R-REPO-2）；acceptor 決定公開前，不得 commit 或 push（R-REPO-3）。 | OC §2.5.1；OC §5（存放位置）；H-1 |
@@ -214,11 +215,11 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | ID | 類型 | Class | 需求 | 對應 |
 | --- | --- | --- | --- | --- |
 | R-TEST-1 | G | ENHANCED | pytest，位於 `tests/`，從單元根目錄執行，離線。 | E8；G8 |
-| R-TEST-2 | G | ENHANCED | 資料測試：checksum 不符時報錯（以竄改的副本測試）；schema 與列數驗證；`sqft` 恆等式；R-PREP-1 的轉換（`sale_days` 的起始日、`is_renovated`／`effective_year` 的兩種情況）；R-PREP-2 的 full column rank。 | OC-A1；G8 |
+| R-TEST-2 | G | ENHANCED | 資料測試：checksum 不符時報錯（以竄改的副本測試）；schema 與列數驗證；`sqft` 恆等式；R-PREP-1 的轉換（`sale_days` 的起始日、`is_renovated`／`effective_year` 的兩種情況）；R-PREP-2 的 full column rank。**（v1.1）** Rank 測試包含：秩檢查函式對合成的秩不足矩陣（例如加入 `sqft_basement`，或某非 one-hot 欄在訓練列為常數）會報錯；對真實資料的 31 個訓練矩陣全部通過（只用 Fit）。 | OC-A1；G8 |
 | R-TEST-3 | G | ENHANCED | Leakage 測試：AC-06～AC-09。 | OC-A3；G8；H-3 |
 | R-TEST-4 | G | ENHANCED | Conformal 測試：(a) 已知答案的合成資料（含 k 的邊界與 k > n_cal 的情況）；(b) 以**不 import `mlr.conformal`** 的獨立程式碼，從保存的 Calibration 分數與 Test 預測重算 q̂、coverage、平均寬度，與結果 artifact 比對；(c) 區間下界 > 0。 | OC-A5；G8；H-3 |
 | R-TEST-5 | D | MVM | 追蹤檔案檢查（高風險裁決 A-4）：在 git work tree 中時，`git ls-files` 的單元檔案不含 `acceptor_materials/`、`dist/`、`.pdf`、`.zip`、`kaggle.json`，且不含 Kaggle token 格式；不在 git work tree 中（例如 ZIP 解壓後）時 skip。 | OC §2.5.1；H-1 |
-| R-TEST-6 | D | ENHANCED | 選模測試：候選恰為五個；R-CAND-6、R-SEL-2 的 tie-break；同一 outer fold 內各候選的 inner folds 相同；forward 與 backward 的路徑長度與 group 單位。 | OC-A4；H-3 |
+| R-TEST-6 | D | ENHANCED | 選模測試：候選恰為五個；R-CAND-6、R-SEL-2 的 tie-break（**v1.1**：含三個候選鏈狀接近、只有最小者在 0.5 USD 內、多個候選在 0.5 USD 內三種情況）；同一 outer fold 內各候選的 inner folds 相同；forward 與 backward 的路徑長度（完整的 k＝1…18）與 group 單位；**（v1.1）** 若採用第 4.5 節的等價最佳化，以小型資料證明其結果與逐子集重新 fit pipeline 的參考做法相同（選中的 groups、k、`alpha` 相同，inner-CV RMSE 在浮點誤差內）。 | OC-A4；H-3 |
 | R-TEST-7 | D | MVM | 打包與報告建置測試：R-PKG-2 的拒絕條件；ZIP 必要內容；final 模式在缺材料或有未解析欄位時失敗；R-AI-2 的漢字計數函式。 | OC-A7、OC-A8 |
 
 ## 2. Acceptance Criteria（AC）
@@ -235,21 +236,21 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | AC-06 | ENHANCED | OC-A3；R-PART-1、R-PART-2 | 自動化測試證明：三個分區沒有共同的 `id`；聯集恰為全部 21,613 列；House 數為 12,862／4,287／4,287；以同一 SEED 重跑得到相同分區。 | 有 `id` 跨分區；列數不合；未設 seed。 | pytest 輸出。 |
 | AC-07 | ENHANCED | OC-A3、OC-A4；R-PART-3、R-PART-4 | 自動化測試證明：每個 outer fold 與每個 inner fold 的訓練列與驗證列沒有共同的 `id`；outer folds 只產生一次，五個候選使用同一組；同一 outer fold 內各候選的 inner folds 相同；outer folds 只含 Fit 的列。 | 以列為單位分 fold；不同候選的 folds 不同。 | pytest 輸出；結果 artifact 的 fold 編號。 |
 | AC-08 | ENHANCED | OC-A3；R-PART-5、R-PREP-3、R-CAND-\* | 自動化測試證明：(a) 一次 fit 之後，標準化參數與 one-hot 類別等於只由該次訓練列計算的值；(b) 只改動驗證列、Calibration 或 Test 的特徵與目標，不會改變對同一組訓練列執行 procedure 的結果（選中的 groups、`alpha`、係數）；(c) 選模函式的輸入只含 Fit 的 `id`。 | 前處理在切 fold 前以全部資料 fit；選擇看到驗證列。 | pytest 輸出。 |
-| AC-09 | ENHANCED | OC-A3；R-SEL-3、R-SEL-4、R-EVAL-1 | Run manifest 的事件依序為 partitioned → outer_cv_done → selected → frozen（含 sha256）→ calibrated → test_evaluated；測試證明 Test 評估函式在缺少 frozen 或 calibrated、sha256 不符、或已評估過時都會報錯。 | Test 評估早於 frozen；沒有 hash 紀錄；可以重複評估。 | 結果 artifact 中的 manifest；pytest 輸出。 |
+| AC-09 | ENHANCED | OC-A3；R-SEL-3、R-SEL-4、R-EVAL-1、R-EVAL-1a | Run manifest 的事件依序為 partitioned → outer_cv_done → selected → frozen（含 sha256）→ calibrated → test_evaluated；測試證明 Test 評估函式在缺少 frozen 或 calibrated、sha256 不符、或**同一次執行中**已評估過時都會報錯。（v1.1）每次執行有自己的新 manifest；不同執行的重現不構成重複評估（R-EVAL-1a）。 | Test 評估早於 frozen；沒有 hash 紀錄；同一次執行中可以重複評估；新的執行附加到舊的 manifest。 | 結果 artifact 中的 manifest；pytest 輸出。 |
 | AC-10 | MVM＋ENHANCED | OC-A4；R-CAND-1～R-CAND-5、R-SEL-1、R-SEL-2 | 比較表列出 C1～C5，五者都有 5 個 outer folds 的 USD RMSE、R²、MAE、MSE，以及平均與標準差；五者使用的 outer fold 編號相同；兩處都有此表。 | 缺任一候選；某候選用了不同 folds；只有平均沒有逐 fold 紀錄。 | 結果 artifact；notebook 表格；報告表格。 |
 | AC-11 | MVM＋ENHANCED | OC-A4；R-CAND-2～R-CAND-8 | 結果 artifact 與 notebook 記錄每個 outer fold 中 C2、C3 選中的 k 與 groups 及 inner-CV 路徑、C4、C5 選中的 `alpha`（含網格邊界標示）、C5 的非零係數數；選擇只依 inner-CV USD RMSE；程式中沒有 p-value 或顯著性檢定用於選擇。 | 以 p-value 選特徵；`alpha` 固定而未調；k 以 Test 決定。 | 結果 artifact；notebook 輸出；Reviewer 檢查 `mlr/selection.py`、`mlr/modeling.py`。 |
-| AC-12 | ENHANCED | OC-A4；R-SEL-2、R-SEL-3、R-PREP-2 | 選擇規則與 tie-break 寫在 notebook 與報告；結果 artifact 記錄選出的候選與比較依據；frozen predictor 是選出的 procedure 在整個 Fit 上重跑的結果，記錄選中的 groups 或 `alpha`；Fit 的 design matrix full rank 檢查通過並輸出。 | 選擇與排序不符；frozen predictor 以 outer fold 的模型代替；rank 不足。 | 結果 artifact；notebook 輸出；pytest（R-TEST-2、R-TEST-6）。 |
+| AC-12 | ENHANCED | OC-A4；R-SEL-2、R-SEL-3、R-PREP-2 | 選擇規則與 tie-break（v1.1：以最小值為錨點的平手集合）寫在 notebook 與報告；結果 artifact 記錄選出的候選與比較依據（m、平手集合 T）；frozen predictor 是選出的 procedure 在整個 Fit 上重跑的結果，記錄選中的 groups 或 `alpha`；（v1.1）R-PREP-2 的 31 個訓練矩陣 full rank 檢查全部通過，記錄於 artifact 並在 notebook 輸出摘要。 | 選擇與排序不符；選出的候選不在 T 中或不是 T 中偏好順序最前者；frozen predictor 以 outer fold 的模型代替；任一訓練矩陣 rank 不足；只檢查整個 Fit。 | 結果 artifact；notebook 輸出；pytest（R-TEST-2、R-TEST-6）。 |
 | AC-13 | ENHANCED | OC-A4；R-RPT-2、R-PREP-6 | 報告含 R-RPT-2 的四項陳述，以及 R-PREP-6 的「ŷ 是條件中位數的估計、未作偏誤修正」說明。 | 寫「勝出者的 CV 分數是其真實表現的估計」而未說明偏誤；未說明重訓。 | 報告的 Modeling／Evaluation 節。 |
-| AC-14 | MVM | OC-A4；R-EVAL-1 | 兩處都有 frozen predictor 在 Test 上的 R²、MAE、MSE、RMSE（USD），來自 manifest 中唯一的 `test_evaluated` 事件。 | 指標用 log 尺度；有兩次 Test 評估；Test 指標出現在選模前。 | 結果 artifact；notebook；報告。 |
-| AC-15 | MVM＋ENHANCED | OC-A5；R-EVAL-2 | 預測圖符合 R-EVAL-2 的全部項目，兩處都顯示；zh-TW 無缺字。 | 沒有區間；軸不是 USD；畫的是 Calibration 或 Fit；缺字方塊。 | 圖檔；notebook；報告。 |
+| AC-14 | MVM | OC-A4；R-EVAL-1、R-EVAL-1a | 兩處都有 frozen predictor 在 Test 上的 R²、MAE、MSE、RMSE（USD），來自最終驗證執行的 manifest 中唯一的 `test_evaluated` 事件。 | 指標用 log 尺度；同一次執行的 manifest 有兩次 Test 評估；報告的數值來自不同的執行或從多次執行中挑選；Test 指標出現在選模前。 | 結果 artifact；notebook；報告。 |
+| AC-15 | MVM＋ENHANCED | OC-A5；R-EVAL-2 | 預測圖符合 R-EVAL-2（v1.1）的全部項目，兩處都顯示；zh-TW 無缺字；標為區間內的點數等於結果 artifact 的 coverage × n_test。 | 沒有區間；軸不是 USD；畫的是 Calibration 或 Fit；只畫部分 Test Sales；區間畫在點的周圍而不是 x＝ŷ 處的垂直範圍（帶狀區域）；點的顏色與 R-CONF-4 的判定不一致；缺字方塊。 | 圖檔；notebook；報告；artifact 的 coverage 與 n_test。 |
 | AC-16 | ENHANCED | OC-A5；R-CONF-1～R-CONF-5 | 結果 artifact 的 n_cal、k、q̂、coverage、平均寬度、n_test，與 R-TEST-4(b) 的獨立重算一致（q̂ 完全相等；coverage 與寬度在浮點誤差內）；合成資料測試通過；所有區間下界 > 0。 | 分位數以內插計算；以 n_cal 而非 n_cal+1 計算 k；分數用了 Test。 | pytest 輸出；結果 artifact。 |
 | AC-17 | ENHANCED | OC-A5；R-RPT-3 | 報告分開陳述三層，逐項含 R-RPT-3 列出的內容；措辭不超過 OC §2.4.2；observed coverage 超出抽樣誤差幅度時附原因說明。 | 漏寫 exchangeability 假設；把 group-aware 分區或隨機分派寫成已證明 exchangeability；把 observed coverage 寫成保證的證明；寫成條件保證。 | 報告的區間說明節；Reviewer 逐句對照 OC §2.4.2。 |
 | AC-18 | MVM | OC-A2（Deployment）、OC-A5；R-DEP-1～R-DEP-2 | 預測函式對給定的列回傳點預測與上下界，等於以 frozen predictor 與記錄的 q̂ 直接計算的值；sha256 不符時報錯；notebook 的 Deployment 章節以非 Calibration、非 Test 的輸入示範，並寫明使用限制。 | 示範使用 Test 列；區間與 R-CONF-3 不一致；沒有使用限制。 | pytest；notebook。 |
 | AC-19 | ENHANCED | OC-A6；R-PART-1、R-REPRO-1、R-REPO-4 | `SEED = 2026` 定義一次；`requirements.txt` 全部 `==` 固定且含 Python 版本說明；README 有完整的重跑步驟。 | 依賴未固定；README 缺步驟。 | 檔案檢查。 |
-| AC-20 | ENHANCED | OC-A6；R-NB-3、R-NB-4、R-REPRO-2、R-REPRO-3、R-RPT-6 | 在新建的 Python 3.11 虛擬環境中，依 README 安裝並非互動執行 notebook，成功；重跑的結果 artifact 與報告、README 中的每一個數值在 R-RPT-6 精度下相同；連續兩次執行的數值相同；執行期間不需網路。 | 重跑失敗；任一數值不同；報告數值手寫。 | worklog 的重跑紀錄（指令、環境、輸出、比對結果）；Reviewer 自行比對（高風險裁決 A-2）。 |
+| AC-20 | ENHANCED | OC-A6；R-NB-3、R-NB-4、R-REPRO-2、R-REPRO-3、R-RPT-6、R-EVAL-1a | 在新建的 Python 3.11 虛擬環境中，依 README 安裝並非互動執行 notebook，成功；重跑的結果 artifact 與報告、README 中的每一個數值在 R-RPT-6 精度下相同；連續兩次執行的數值相同（v1.1：這些執行是 R-EVAL-1a 的重現，各有自己的 manifest）；執行期間不需網路。 | 重跑失敗；任一數值不同；報告數值手寫。 | worklog 的重跑紀錄（指令、環境、輸出、比對結果）；Reviewer 自行比對（高風險裁決 A-2）。 |
 | AC-21 | ENHANCED | OC-A6；R-TEST-1～R-TEST-7 | 在 AC-20 的乾淨環境中，全部 pytest 通過，沒有被 skip 的必要測試（R-TEST-5 在 git work tree 外的 skip 除外）。 | 任一測試失敗；以弱化或刪除測試取得通過。 | pytest 輸出。 |
 | AC-22 | MVM | OC-A7；R-AI-1 | 報告有「GPT 輔助內容」節，揭露 ChatGPT 與 Claude Code 的實際用途；ChatGPT 的描述可對回 ChatGPT PDF。 | 缺標示；沒有揭露 Claude Code；把 Claude 的產出寫成 ChatGPT 的。 | 報告；ChatGPT PDF 對照。 |
-| AC-23 | MVM | OC-A7；R-AI-2 | 報告有「NotebookLM 摘要」節，正文漢字數 ≥ 100（以 R-TEST-7 的計數函式與人工核對）；整理處有「依 NotebookLM 研究整理」；對照表把每一句對回 acceptor 的原始材料；沒有材料以外的論點或來源。 | 少於 100 字；摘要含材料沒有的內容；沒有原始材料卻有摘要。 | 報告；`acceptor_materials/notebooklm/` 的材料與對照表；Reviewer 直接比對（高風險裁決 A-3）。 |
+| AC-23 | MVM | OC-A7；R-AI-2 | 報告有「NotebookLM 摘要」節，正文漢字數 ≥ 100（以 R-TEST-7 的計數函式與人工核對）；整理處有「依 NotebookLM 研究整理」；對照表把每一句對回 acceptor 的原始材料（v1.1：位置的形式依 R-AI-2）；沒有材料以外的論點或來源。 | 少於 100 字；摘要含材料沒有的內容；沒有原始材料卻有摘要。 | 報告；`acceptor_materials/notebooklm/` 的材料與對照表；Reviewer 直接比對（高風險裁決 A-3）。 |
 | AC-24 | MVM | OC-A7；R-AI-3 | 報告有主流或更優解法比較節；每一項都有可開啟的來源連結；引用的數字與來源原文一致並標明出處與可比性。 | 無來源的主張；數字與來源不符。 | 報告；Reviewer 抽查來源。 |
 | AC-25 | MVM | OC-A7；R-AI-4、R-AI-5 | 報告附錄含 ChatGPT PDF 的全部頁面（原樣）；ZIP 中的 `<學號>_hw2_chatgpt.pdf` 與 worklog 記錄的 acceptor 原檔 sha256 相同；worklog 有收到的紀錄。 | Agent 產生的對話；以 Claude 紀錄替代；頁面被修改；sha256 不符。 | worklog；sha256 比對；報告 PDF 頁數比對。 |
 | AC-26 | MVM | OC-A8；R-PKG-1～R-PKG-4 | ZIP 名稱為 `<學號>_hw2.zip`（實際學號）；根目錄含 R-PKG-1 的全部必要項目、沒有排除項目；檔名沒有佔位；ZIP 的 sha256 與檔案清單已記錄；解壓驗證成功。 | 學號為佔位；缺報告或 ChatGPT PDF；含 `acceptor_materials/` 其他內容；解壓後無法執行。 | ZIP 檔案清單與 sha256（worklog）；解壓驗證紀錄；pytest（R-TEST-7）。 |
@@ -264,7 +265,7 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | ID | Invariant | 依據 |
 | --- | --- | --- |
 | INV-1 | **隔離**：三個分區依 House 互斥且涵蓋全部列；每次 fit 的有參數步驟只看到該次的訓練列；Calibration 只用於 q̂；Test 只用於 R-EVAL-1。 | OC §2.4.1；OC-A3；H-3 |
-| INV-2 | **Test 單次使用且不影響決定**：每次執行恰有一次 Test 評估，在 frozen 與 calibrated 之後；Test 的結果不是任何設計或實作決定的輸入。第 4.1 節固定的參數（seed、網格、groups、轉換、準則、tie-break）只能經 DA decision record 改變，理由不得來自 Calibration 或 Test。 | OC §2.4.1、§3.4；H-3 |
+| INV-2 | **Test 單次使用且不影響決定**：每次執行（R-SEL-4 的定義）恰有一次 Test 評估，在 frozen 與 calibrated 之後；重複執行同一套固定設計是重現，不是新的評估（v1.1，R-EVAL-1a）；Test 的結果不是任何設計或實作決定的輸入，報告的 Test 數值只來自最終驗證執行。第 4.1 節固定的參數（seed、網格、groups、轉換、準則、tie-break）只能經 DA decision record 改變，理由不得來自 Calibration 或 Test。 | OC §2.4.1、§3.4；H-3 |
 | INV-3 | **公平比較**：五個候選共用同一組 outer folds、同一個 outer fold 內共用 inner folds、相同的前處理與 log 目標轉換、相同的點預測定義（無偏誤修正）、相同的指標定義。 | OC §2.4.1；E4、E5；H-3 |
 | INV-4 | **數值單一來源**：報告與 README 的每個計算數值，都來自 notebook 最終執行寫出的結果 artifact；追蹤的 notebook、`results/`、報告、ZIP 都對應同一次執行。 | OC-A6；H-3 |
 | INV-5 | **Conformal 語義固定**：分數、k、q̂、區間、coverage 的定義依 R-CONF-1～R-CONF-4；報告陳述不超過 OC §2.4.2。 | OC §2.4.2；H-3 |
@@ -282,7 +283,10 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 - **特徵**：18 個 groups 與 canonical order（第 1.4 節）；R-PREP-1 的轉換（起始日 2014-05-01、`is_renovated`、`effective_year`）；`sqft_basement` 不使用；`zipcode` one-hot（drop first、未知類別為基準）；非 one-hot 欄標準化；不加其他轉換。
 - **目標與點預測**：`ln(price)` 訓練；ŷ＝`exp(f)`；不作偏誤修正。
 - **候選**：C1～C5 的定義；Ridge 網格 `logspace(-3, 3, 25)`；Lasso 網格 `logspace(-6, -1, 26)`；inner 準則為 USD RMSE；R-CAND-6 與 R-SEL-2 的 tie-break。
-- **凍結與順序**：R-SEL-3、R-SEL-4 的 manifest 事件；R-EVAL-1 的守門條件。
+- **凍結與順序**：R-SEL-3、R-SEL-4 的 manifest 事件與「一次執行」的定義；R-EVAL-1 的守門條件；R-EVAL-1a 的重現條件（v1.1）。
+- **共線與秩檢查**（v1.1）：R-PREP-2 的 31 個訓練矩陣與失敗時的處理。
+- **預測圖**（v1.1）：R-EVAL-2 的全部 Test Sales、log-log 刻度、帶狀區間與點的著色判定。
+- **計算**（v1.1）：第 4.5 節「不允許的簡化」。
 - **Conformal**：R-CONF-1～R-CONF-4 的公式。
 - **報告**：Markdown 範本 → HTML → headless Chromium 系瀏覽器 → PDF → 附加 ChatGPT 頁面；draft／final 模式；數值只來自 artifact；R-RPT-6 精度。
 - **打包**：R-PKG-1 的檔名與內容；學號檢查；ZIP 不追蹤。
@@ -293,7 +297,8 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 - `mlr` 各模組內的函式名稱與簽名（R-DEP-1 的語義除外）；fold 產生的具體寫法（例如 `GroupKFold(shuffle=True)` 或以 permutation 分配），只要符合 R-PART-3、R-PART-4 且具決定性。
 - scikit-learn 的組裝方式（`Pipeline`、`ColumnTransformer`、`TransformedTargetRegressor`、自訂 selector 等）；Lasso 的 `max_iter` 與 `tol`。
 - 結果 artifact 與 manifest 的 JSON 結構與鍵名；frozen predictor 的序列化格式（例如 `joblib`）。
-- 圖的樣式、配色、log 刻度與否、matplotlib 的 CJK 字型設定；報告的 CSS 與版面。
+- 圖的樣式、配色、點的大小與透明度、USD 刻度的格式、matplotlib 的 CJK 字型設定；報告的 CSS 與版面（v1.1：log 刻度與帶狀區間已在 R-EVAL-2 固定，不再屬 HOW）。
+- （v1.1）第 4.5 節「允許的等價最佳化」是否採用及其寫法。
 - 報告範本欄位的語法與替換方式；使用 Edge 或 Chrome；PDF 合併使用的套件。
 - 測試檔案的組織與 fixtures（合成資料、竄改的 CSV 副本）。
 - 具體的相依版本（在 Python 3.11 上可安裝並固定即可）。
@@ -306,7 +311,7 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | D-1 | 完全共線 | `sqft_basement` 不進入 design matrix；加 full-rank 檢查（R-PREP-2）。 | 每一列都滿足 `sqft_basement = sqft_living − sqft_above`（Brief §10），刪去其中一欄不改變線性模型的欄空間，沒有資訊損失；無懲罰的 OLS 需要 full rank 才能識別係數。刪去哪一欄對預測等價，固定為 `sqft_basement` 只是為了決定性。Dataset 層級的 source feature 數仍為 19，建模使用 18，兩者都在 10–20。 |
 | D-2 | `date` 與 `zipcode` | `date` → 以固定起始日 2014-05-01 計算的 `sale_days`；`zipcode` → pipeline 內的 one-hot，在 forward／backward 中作為一個 group（R-PREP-1、R-PREP-3、第 1.4 節）。 | `sale_days` 以常數起始日計算，不從資料 fit，所以沒有洩漏；它捕捉 13 個月內的市場趨勢。13 個月的資料無法把季節性與趨勢分開，所以不加月份。`zipcode` 是名目變數（OC 要求不得當數值大小）；以 group 為選擇單位，使 forward／backward 一次加入或移除整個地區效果，「特徵選擇」的單位與 source feature 計數的單位一致。Drop first 讓 OLS 可識別。 |
 | D-3 | 轉回 USD 的偏誤修正 | 不修正；ŷ＝`exp(f)`，報告說明它是條件中位數的估計（R-PREP-6）。 | (a) OC §2.4.2 的 conformal 公式以 `ln ŷ` 為中心的對稱分數定義；加上偏誤修正因子會使區間中心偏離 log 誤差的中位數，對稱分數因而變大，區間變寬。(b) 對所有候選相同，比較仍然公平（INV-3）。(c) 修正的大小約為 `exp(σ²/2)`（σ 為 log 殘差的標準差），影響小，而且不改變任何 OC 驗收條件。報告須如實說明 USD 指標是對中位數預測計算的。 |
-| D-4 | 選模的 tie-break | Outer：平均 RMSE 差 < 0.5 USD 視為平手，偏好 C1 > C2 > C3 > C4 > C5。Inner：k 取最小、`alpha` 取最大、同分的 group 取 canonical order 較前者（R-CAND-6、R-SEL-2）。 | 偏好較簡單、調參步驟較少的 procedure；0.5 USD 對應報告的整數精度。Inner 的規則偏好較簡單或正則化較強的模型，並使結果具決定性。 |
+| D-4 | 選模的 tie-break | Outer：平手集合＝平均 RMSE 與最小值的差 < 0.5 USD 的候選（v1.1：以最小值為錨點），取其中偏好順序 C1 > C2 > C3 > C4 > C5 最前者。Inner：k 取最小、`alpha` 取最大、同分的 group 取 canonical order 較前者（R-CAND-6、R-SEL-2）。 | 偏好較簡單、調參步驟較少的 procedure；0.5 USD 對應報告的整數精度。v1.0 的成對寫法在三個以上候選鏈狀接近時沒有唯一結果；以最小值為錨點使結果唯一，兩個候選時與 v1.0 相同。Inner 的規則偏好較簡單或正則化較強的模型，並使結果具決定性。 |
 | D-5 | 離群值 | 任何分區都不刪列、不 clip；在 Data Understanding 以 Fit 的資料列出異常，在 Data Preparation 說明理由（R-PREP-4）。 | (a) OC-A3 要求三個分區合起來涵蓋全部列；(b) 從 Calibration 或 Test 刪列會改變 coverage 與 Test 指標所指的母體；(c) log 目標降低極端價格的影響，Ridge 與 Lasso 候選提供收縮；(d) 固定規則不需要以資料決定，因此也沒有洩漏的可能。`yr_renovated = 0` 的意義以 R-PREP-1(b) 重新編碼處理。 |
 | D-6 | 報告 PDF 的產生方式 | Markdown 範本 → HTML → headless Edge／Chrome → PDF，附加 ChatGPT 頁面；draft／final 模式（R-RPT-4）。 | acceptor 的機器上沒有 pandoc 與 LaTeX，但有 Edge 與 Chrome（2026-10-14 DA 核對），瀏覽器能正確排版並嵌入 zh-TW 字型；範本使數值只有一個來源（INV-4）；附加 ChatGPT 頁面滿足老師「報告需包含 GPT 對話過程」，ZIP 中另有獨立的 PDF 滿足 G6；final 模式防止待填文字進入繳交套件。 |
 | D-7 | 資料取得方式 | CSV 隨 repo 與 ZIP 附上，載入時核對 sha256；只由 Executor 匿名取得一次（R-DATA-1～R-DATA-3）。 | CC0-1.0 允許散布（E9）；2.5 MB 適合 git；執行期不連網、不需憑證（OC §2.5），重跑與 ZIP 解壓驗證都可離線完成。 |
@@ -324,6 +329,21 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | Modeling | 五個 candidate procedures；nested CV 的設計（outer 與 inner、group-aware、共用 folds）；每個 fold 的選擇結果；比較表；選擇規則與結果；在 Fit 上重跑與凍結（含 sha256）。 |
 | Evaluation | Test 指標；conformal 校準（n_cal、k、q̂）；coverage、平均寬度、n_test；預測圖；偏誤陳述（R-RPT-2）；三層 conformal 陳述（R-RPT-3，報告中完整，notebook 中至少摘要並指向報告）。 |
 | Deployment | Frozen predictor 檔案與預測函式；示範（R-DEP-2）；使用限制；如何重跑。 |
+
+### 4.5 計算規模與允許的最佳化（v1.1）
+
+**規模**：每個 outer fold 中，C2 與 C3 各評估 171 個 group 子集（18＋17＋…＋1；backward 含起點的全模型），每個子集 5 次 inner fit，各 855 次；C4 125 次（25×5）；C5 130 次（26×5）；加上各候選在 outer 訓練列上的最終 fit 與 C1，約 1,970 次。5 個 outer folds 約 9,850 次，加上 frozen predictor 重跑（最多約 856 次），總數約 1.0～1.07 萬次。
+
+**量測**（DA 2026-10-14，只用 Fit，見 decision record 第 3.2 節）：每次 fit 約 13 ms（scikit-learn pipeline，8,300 列 × 88 欄）；forward＋backward 的 8,550 次約 112～125 秒，Ridge 約 3 秒，Lasso 約 60 秒（全部收斂）。整個 nested CV 約 3～4 分鐘，不需要任何最佳化即可完成。本節不設執行時間上限；R-NB-4 不受影響。
+
+**允許的等價最佳化**（屬 HOW，可以不採用；採用時 MUST 與逐子集重新 fit pipeline 的結果相同，以 R-TEST-6 證明）：
+
+- 每個訓練集（outer 或 inner）只 fit 一次 R-PREP-3 的前處理，對該訓練集的全部 group 子集、`alpha` 與候選重複使用 encoded 矩陣；因為 one-hot 類別與標準化參數只取決於該訓練集的列、且逐欄計算，對子集取欄等於對子集重新 encode。
+- 任何得到最小平方解的 OLS 解法（例如 `lstsq`、QR）；可識別性由 R-PREP-2 保證。
+- Lasso 在同一訓練集內沿 `alpha` 網格 warm start；每個 `alpha` 仍須收斂（R-CAND-5）。
+- 跨 folds 或候選平行計算，條件是結果與執行順序無關、以固定順序彙整，且符合 R-REPRO-2。
+
+**不允許的簡化**（會弱化 R-PART-3、R-PART-4、R-CAND-2～R-CAND-6 或 R-NB-4）：減少 outer 或 inner folds；縮小網格；對列抽樣；提前停止 forward／backward 路徑或略過 group（必須得到完整的 k＝1…18）；以 p-value、AIC／BIC、非 group-aware 的 CV 或近似公式取代 inner-CV USD RMSE；在 outer 訓練列 fit 前處理後用於 inner folds；在驗證的執行中載入先前執行的選模結果而不重新計算。
 
 ## 5. Testing Decisions
 
@@ -369,8 +389,8 @@ Source-feature group：選擇的單位。建模使用的 18 個 group 依 CSV �
 | --- | --- | --- |
 | OC-A1 資料集 | AC-01、AC-02、AC-03 | R-DATA-1～R-DATA-4、R-PREP-2 |
 | OC-A2 CRISP-DM | AC-04、AC-05、AC-18（Deployment 內容） | R-NB-1、R-RPT-1、R-DEP-1、R-DEP-2；第 4.4 節 |
-| OC-A3 隔離 | AC-06、AC-07、AC-08、AC-09 | R-PART-\*、R-PREP-3、R-SEL-3、R-SEL-4、R-EVAL-1 |
-| OC-A4 比較與選模 | AC-07、AC-10、AC-11、AC-12、AC-13、AC-14 | R-CAND-\*、R-SEL-\*、R-PREP-6、R-RPT-2、R-EVAL-1 |
+| OC-A3 隔離 | AC-06、AC-07、AC-08、AC-09 | R-PART-\*、R-PREP-3、R-SEL-3、R-SEL-4、R-EVAL-1、R-EVAL-1a（v1.1） |
+| OC-A4 比較與選模 | AC-07、AC-10、AC-11、AC-12、AC-13、AC-14 | R-CAND-\*、R-SEL-\*、R-PREP-2、R-PREP-6、R-RPT-2、R-EVAL-1、R-EVAL-1a（v1.1） |
 | OC-A5 預測區間 | AC-15、AC-16、AC-17、AC-18 | R-CONF-\*、R-EVAL-2、R-RPT-3、R-DEP-1 |
 | OC-A6 可重現 | AC-19、AC-20、AC-21 | R-REPRO-\*、R-NB-3、R-NB-4、R-RPT-6、R-TEST-\* |
 | OC-A7 AI 協助與研究 | AC-22、AC-23、AC-24、AC-25 | R-AI-\* |
@@ -407,7 +427,9 @@ S1（OC-A1～OC-A6 PASS）不需要以上任何輸入；報告以 draft 模式�
 | Edge／Chrome 的 headless 參數因版本而異 | R-RPT-4 只固定「Chromium 系瀏覽器列印」；具體指令屬 HOW，寫入 README。 |
 | 報告建置需要非 pip 的瀏覽器 | README 寫明需求；notebook 重跑（OC-A6）不依賴瀏覽器。 |
 | Observed coverage 明顯偏離 95% | 不是 FAIL（OC §3.4）；依 R-RPT-3 說明原因。 |
-| 開發期間多次執行 notebook，使 Executor 多次看到 Test 結果 | 第 4.1 節已固定全部選擇參數；INV-2 禁止 Test 結果影響任何決定；變更須經 DA decision record（第 5.3 節的建議順序降低風險）。 |
+| 開發期間多次執行 notebook，使 Executor 多次看到 Test 結果 | 第 4.1 節已固定全部選擇參數；INV-2 禁止 Test 結果影響任何決定；變更須經 DA decision record（第 5.3 節的建議順序降低風險）。（v1.1）重複執行是重現，條件與 worklog 義務見 R-EVAL-1a。 |
+| （v1.1）Nested CV 約 1 萬次 fit | 量測約 3～4 分鐘（第 4.5 節）；允許等價最佳化，不允許弱化 CV 或選擇的簡化。 |
+| （v1.1）某個 fold 的訓練矩陣 rank 不足 | 量測時 31 個矩陣全部 full rank（88 欄；最小的 zipcode 類別在訓練列中有 11 筆；最大條件數約 365）。發生時依 R-PREP-2 報錯並 route 至 DA。 |
 | 學號出現在 worklog 的 ZIP 檔案清單 | OC-A8 要求記錄檔案清單；OC 沒有把學號列為機密（高風險裁決 2.1 節「不涵蓋」）。 |
 
 ### 9.3 詞彙
@@ -419,3 +441,4 @@ S1（OC-A1～OC-A6 PASS）不需要以上任何輸入；報告以 draft 模式�
 | 版本 | 日期 | 依據 | 變更 |
 | --- | --- | --- | --- |
 | v1.0 | 2026-10-14 | DA 派工（lane、高風險類別、Spec derivation）；Outcome Contract 第 1–8 節 `e2153254`、接受紀錄 `370c0ae` | 初版 derive。 |
+| v1.1 | 2026-10-14 | DA 派工（pre-implementation review findings F-01～F-06 與附加問題）；[`decision-20261014-spec-v1-1-review-findings.md`](../governance/decisions/decision-20261014-spec-v1-1-review-findings.md)；治理 §5.3 第 2 類（不改變 accepted 語義） | **F-01**：R-EVAL-2 改寫（全部 Test Sales、log-log、帶狀區間＝逐筆垂直區間的聯集、點的著色與 R-CONF-4 同一判定）；AC-15 相應更新；第 4.1、4.2 節的 HOW 邊界。**F-02**：新增第 4.5 節（計算規模、量測、允許的等價最佳化、不允許的簡化）；R-TEST-6 加入等價性測試；第 9.2 節新增風險列。**F-03**：R-SEL-4 定義「一次執行」；新增 R-EVAL-1a；AC-09、AC-14、AC-20、INV-2、第 4.1 節、第 7 節、第 9.2 節相應更新。**F-04**：R-PREP-2 的秩檢查範圍改為 31 個訓練矩陣、失敗處理；R-TEST-2、AC-12、第 4.1 節、第 9.2 節相應更新。**F-05**：R-SEL-2 改為以最小值為錨點的平手集合；D-4、AC-12、R-TEST-6 相應更新。**F-06**：檔頭的 Tickets 與 Spec 版本、第 0 節 activation 前提。**附加問題**：R-AI-2、AC-23 釐清對照表的「位置」形式（逐句對照不變）。AC 的編號與數量（AC-01～AC-31）、OC-A 分配與其他條文不變。 |

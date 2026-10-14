@@ -2,8 +2,8 @@
 
 票本身開在 GitHub Issues；本檔只放索引：編號、標題、依賴、狀態與連結，不複製票的內容（Bindings b5 §7；`CLAUDE.md`）。
 
-- **來源 Spec**：[`../spec/SPEC.md`](../spec/SPEC.md) v1.0（EFFECTIVE；commit `b012e4f9`）
-- **Derivation record**：[`../governance/decisions/derivation-SPEC.md`](../governance/decisions/derivation-SPEC.md) §13（Tickets 的分配、依賴與 boundary determination）
+- **來源 Spec**：[`../spec/SPEC.md`](../spec/SPEC.md) **v1.1**（EFFECTIVE 2026-10-14；修訂自 v1.0 commit `b012e4f9`，見 [`../governance/decisions/decision-20261014-spec-v1-1-review-findings.md`](../governance/decisions/decision-20261014-spec-v1-1-review-findings.md)）。票的編號、標題、依賴與 AC 分配不變；七張票的 body 已改為引用 v1.1。
+- **Derivation record**：[`../governance/decisions/derivation-SPEC.md`](../governance/decisions/derivation-SPEC.md) §13（Tickets 的分配、依賴與 boundary determination）、§14（v1.1 的影響）
 - **拆票**：2026-10-14，Design Authority，Issues #50–#56
 
 | # | 標題 | Blocked by | 狀態 | 連結 |
