@@ -1,29 +1,15 @@
-# Minimal Operational Governance v2.0
+# Minimal Operational Governance — v2.1
 
-> **本專案快照，不是 authoritative source。**
->
-> - 來源：Notion「Minimal Operational Governance — v2.0」（https://app.notion.com/p/3e34635833468181a7c2fa10c703355f），屬於「Minimal Governance — Reusable Package v2.0」；頁面最後編輯 2026-09-23，擷取於 2026-09-23。
-> - Authoritative source：`master_governance/Minimal_Operational_Governance_v2.0_Candidate.md`（md5 `5d258fd3e4b5cd0894f7f7cd1175eca6`），不在本 repo。Notion 版已把相對連結攤平，所以本檔不會與該 md5 byte-identical。
-> - 轉換：Notion 表格、callout 與頁面連結轉成 GitHub Markdown，文字內容未改寫；Notion 版第 3 節至 Appendix B 的換行被存成字母「n」、表格標籤被跳脫；本檔以程式還原換行與表格，並逐段人工核對。
-> - 與 authoritative source 不一致時，以 authoritative source 為準，並更新本快照。
-> - 本專案如何採用本文件，見 [`project-bindings.md`](project-bindings.md)。
-
----
-> **Notion 發布版（2026-09-23 sync）。** Authoritative source 為 repo：`master_governance/Minimal_Operational_Governance_v2.0_Candidate.md`（md5 `5d258fd3e4b5cd0894f7f7cd1175eca6`）；不一致時以 repo 檔案為準。Markdown 相對連結已攤平為「repo: path」。本文引用的 Reference Model Profile 為凍結當時的 `default／v2`；2026-09-23 起新採用預設為 `default／v2.2`（見 package 導航頁），本文未改動。 所屬 package：Minimal Governance — Reusable Package v2.0。
-
-**狀態：Adopted／Frozen（2026-09-22，operator S-5）**
-
-**版本：v2.0**（全名一律寫「Minimal Operational Governance v2.0」，與歷史「Model-Agnostic Development Governance 新專案開工標準 v2」無關）
-
-**Drafted：2026-09-22 · Adopted／Frozen：2026-09-22**
-
+**狀態：Adopted／Frozen（2026-10-01，operator 明確授權）**  
+**版本：v2.1**（全名一律寫「Minimal Operational Governance v2.1」，與歷史「Model-Agnostic Development Governance 新專案開工標準 v2」無關）  
+**Drafted：2026-10-01 · Adopted／Frozen：2026-10-01**  
 **適用範圍：Lightweight 與 Formal／SDD execution**
 
-**基線／設計依據：** v1.0 frozen baseline 與 v2.0 design provenance 見 Appendix B.0。
+**基線／設計依據：** v2.0 frozen baseline 與 v2.0 → v2.1 的變更見 Appendix C；v1.0 baseline 與 v2.0 design provenance 見 Appendix B.0。
 
-**本檔採用後為 authoritative source。** 目前無對應 visualization；日後新版 HTML 一律在檔名加日期，與本檔不一致時以本檔為準。
+**本檔採用後為 authoritative source。** 對應的 visualization 是加日期的 non-normative HTML（最新：[minimal_governance_map_v2.1_zh-TW_2026-10-02.html](minimal_governance_map_v2.1_zh-TW_2026-10-02.html)；較早日期的檔案保留為快照）；日後新版 HTML 一律在檔名加日期，與本檔不一致時以本檔為準。
 
-**Reusable package references（non-normative；皆於 2026-09-22 與本檔同步 Adopted／Frozen）：** Reference Model Profile default v2（repo: `master_governance/references/model-profiles/default-v2.md`） · Implementation Profile impl-default v2（repo: `master_governance/references/implementation-profiles/default-v2.md`） · Reference Orchestrator Contract orch-default v2（repo: `master_governance/references/orchestrator-contracts/default-v2.md`）。三者分別提供可替換的 role／model mapping defaults 與 deterministic replacement policies、可重用的 implementation HOW、可重用的 control-plane HOW；由 Project Bindings 依第 5.1 節選用／採用，皆從屬於本治理，不修改任何 authority 或 normative semantics。v1／v1.1 profiles 保留為 frozen baseline。
+**Reusable package references（non-normative）：** [Reference Model Profile default v2.4](references/model-profiles/default-v2.4.md)（Adopted／Frozen 2026-10-02；[default v2.3](references/model-profiles/default-v2.3.md) 保留為 frozen baseline）· [Implementation Profile impl-default v2](references/implementation-profiles/default-v2.md)（Adopted／Frozen 2026-09-22）· [Reference Orchestrator Contract orch-default v2.1](references/orchestrator-contracts/default-v2.1.md)（Adopted／Frozen 2026-10-01，與本檔同步採用）。三者分別提供可替換的 role／model mapping defaults 與 deterministic replacement policies、可重用的 implementation HOW、可重用的 control-plane HOW；由 Project Bindings 依第 5.1 節選用／採用，皆從屬於本治理，不修改任何 authority 或 normative semantics。較早版本的 profiles 與 contracts 保留為 frozen baseline。本段為 metadata：reference 版本更替時只更新本段（2026-10-02：default v2.3 → v2.4，operator 明確授權），不構成本治理的版本變更，第 1 節起的 normative 本文 byte-identical；Project Bindings 仍直接 pin 各 reference 的版本（第 5.1 節）。
 
 > **Human approves the outcome contract once; authorized Agents autonomously design, decompose, implement, review, correct and complete within that boundary.**
 
@@ -33,7 +19,7 @@
 
 > **Use the lightest workflow that preserves sufficient contract clarity, authority, traceability, verification and assurance.**
 
-本稿經明確採用後，與 Project Bindings 構成獨立有效的治理契約。Minimal v1.0 及更早版本、v2 母版僅供歷史參考，不補充本稿未定義的義務；已採用 v1.0 的專案在依第 5.3 節明確改採本版前，仍以 v1.0 為其 frozen baseline。
+本稿經明確採用後，與 Project Bindings 構成獨立有效的治理契約。Minimal v2.0、v1.0 及更早版本、v2 母版僅供歷史參考，不補充本稿未定義的義務；已採用 v2.0 或 v1.0 的專案在依第 5.3 節明確改採本版前，仍以其採用的版本為 frozen baseline。
 
 **規範用語：**
 
@@ -148,7 +134,7 @@ Run-to-completion 不授權弱化 gate、捏造 evidence、隱性縮減 scope，
 Definitions 可重用，不要求每個 work item 重建。下表的 identifier 由 Model Mapping Profile 對應至實際 assignment；definition 的檔名、目錄、frontmatter、載入與 spawn 方法屬 Runtime／Harness HOW。
 
 | Agent | Responsibility／authority | Prohibited authority | Profile identifier | Independence requirement |
-| --- | --- | --- | --- | --- |
+|---|---|---|---|---|
 | **Design Authority** | 釐清 Work Contract 語義、判斷設計語義、lane eligibility／promotion、在 Outcome Contract 內 derive Formal Spec／Tickets 並作 boundary determination（第 1.2 節）、規劃、phase acceptance。 | 不得豁免必要 audit；不得代行 acceptor 的接受與授權，或明確保留的 operator 核准；不得在無法確立 boundary 時自行放行。 | `design_authority` | 依原始 contract、證據與有效授權判斷，不將 Executor／Reviewer 結論當作既定設計。 |
 | **Executor** | 執行 accepted work、自主選擇 HOW、self-verification、targeted correction、維護 worklog。 | 不得自行改 requirement／AC／invariant、豁免 gate，或裁決自己的 review dispute。 | `executor` | 正式 review context MUST 與執行 context 獨立。**同一執行 context 不得轉名成 Reviewer。** |
 | **Primary Independent Reviewer** | 執行 R1／R2，自主判定 findings、blocking、evidence 與 closure。 | 不得修改 implementation、tests、contract 或 gates；不得作 design decision；不得 promote。 | `primary_reviewer` | R1 使用獨立於 Executor 的 context；R2 MAY 延續自己的 R1 context，但 MUST 重讀修正後證據。 |
@@ -173,11 +159,24 @@ Design Authority 與 Final Adjudicator MAY 使用同一 model，但所行使的 
 
 Profile MAY 共用預設或引用既有設定，但每個可 dispatch identifier 的有效 mapping MUST 明確可解析。Project Bindings MUST 指定採用的 Profile 及 mapping 變更 authority；不強制另建 Profile 檔案或 schema。
 
-Governance MAY 附版本化 Reference Model Profiles；新專案 MAY 直接採用某個 Profile＋version，例如 default v2（repo: `master_governance/references/model-profiles/default-v2.md`）。Project Bindings MUST 記錄採用的 Profile、版本與 overrides（無則明記無）；Profile 更新不自動影響既有專案。Profile 不改變任何 role authority 或 independence requirement，採用後的有效 mapping 仍須符合本節與第 5.1 節；Reference 中的 `TBD` 不構成有效設定。
+Governance MAY 附版本化 Reference Model Profiles；新專案 MAY 直接採用某個 Profile＋version，例如 [default v2](references/model-profiles/default-v2.md)。Project Bindings MUST 記錄採用的 Profile、版本與 overrides（無則明記無）；Profile 更新不自動影響既有專案。Profile 不改變任何 role authority 或 independence requirement，採用後的有效 mapping 仍須符合本節與第 5.1 節；Reference 中的 `TBD` 不構成有效設定。
 
-每個實際 assignment（包括 Orchestrator 自身與 reusable Subagent）MUST 透過可驗證機制綁定至宣告的 definition、model 及適用 effort／mode。Prompt 中自稱角色、model 或「已綁定」，不構成 binding 證據；僅有設定存在也不等於實際 assignment 已符合。Runtime／Harness 或等效可觀察執行證據 MUST 足以核對實際 assignment，並可由工作或 audit records 引用。
+實際 assignment 分兩種，核對的內容不同。
 
-無法核對或不符的 binding MUST 修復或依授權替代；不得將該 assignment 冒充符合要求的 execution、review 或 adjudication。
+**被派工的 assignment。** 除下述兩種 root role session 外，每個實際 assignment——治理 Agent 與 reusable Subagent，不論由 operator、Orchestrator、direct-execution session 或 Harness 機制派工——MUST 透過可驗證機制綁定至宣告的 definition、model 及適用 effort／mode。
+
+**Root role session。** 直接擔任治理角色、而不是被派工產生的 session。本治理只承認兩種：Orchestrator，以及 Lightweight direct execution 中擔任 Executor 的 session；其他直接擔任治理角色的 session 依前段為被派工的 assignment。Root role session MUST 具備：
+
+1. **Activation basis。** Orchestrator：由 acceptor／operator 指定（designation），或由同一 run 中已啟動的 Orchestrator 依 rollover 交接的 successor 繼承該 designation 與 run identity；Orchestrator 不得自行假定。Direct-execution Executor：已成立的 Outcome Contract 接受與執行授權（第 1.2、3.5 節），並依其 assurance path 以 Lightweight lane 執行（第 3.1 節第 6 項、第 3.3 節）。Activation basis MUST 有可持久引用的紀錄。
+2. **Model／effort runtime verification。** 該 session 實際的 model／version 與適用 effort／mode 等於其角色 identifier（`orchestrator`／`executor`）的有效 mapping，並可由 Runtime／Harness 證據核對。Orchestrator 在本項核對成立前不得派工。
+3. **Role-definition grounding。** 以該角色的 definition（第 2.1 節）與適用契約為行事依據；re-ground 或 successor 接手時重新取得。
+4. **Work identity and records。** Orchestrator：run identity（未啟動 run 時，為其 routing／派工所服務的 work item identity）與授權紀錄（第 3.4、5.1 節）。Direct-execution Executor：work item identity、第 3.7 節的 worklog 及其他適用的治理紀錄。
+
+Root role session 如何建立——由 definition instantiate、一般 session 經 activation，或其他機制——屬 Runtime／Harness HOW；由 definition instantiate 不是必要條件。Project Bindings MAY 指定所採機制及其證據。第 3 項不證明第 2 項：讀取或載入 definition 不構成 model／effort 的核對。Root role session 派出的每個治理 Agent 與 reusable Subagent 都是被派工的 assignment。
+
+Prompt 中自稱角色、model 或「已綁定」，不構成 binding 證據；僅有設定存在也不等於實際 assignment 已符合。Designation 與 Outcome Contract 的接受／授權是 acceptor／operator 的 authority 行為，不是自稱。Designation 不構成 Outcome Contract 的接受或授權；兩者決定哪個 session 擔任該角色，不證明其 model／effort，也不授予第 2.1 節以外的權限。Runtime／Harness 或等效可觀察執行證據 MUST 足以核對實際 assignment，並可由工作或 audit records 引用。
+
+無法核對或不符的 binding MUST 修復或依授權替代；不得將該 assignment 冒充符合要求的 execution、review、adjudication 或 orchestration。
 
 因不可用或執行失敗採取 replacement／substitution 時，MUST 引用當次嘗試的錯誤或當下可用性檢查證據，不得只憑記憶、先前 session／run 的不可用狀態跳過指定 Agent／model。主動更新 Profile 的依據與授權依第 5.3 節記錄。
 
@@ -207,7 +206,7 @@ Harness 無法提供滿足四項 properties 的機制時，Lightweight 的正式
 ### 2.4 Routing responsibility
 
 | 問題 | 決定者 |
-| --- | --- |
+|---|---|
 | 契約內 HOW、一般實作選擇 | Executor |
 | Findings、blocking、review evidence sufficiency | Reviewer |
 | Contract 語義是否足夠、material ambiguity、設計與 promotion 判斷、derived contract 的 derivation 與 boundary determination | Design Authority |
@@ -222,7 +221,7 @@ Design Authority 的 contract-sufficiency authority 依第 1.2、2.1 節；不�
 Executor 或 Reviewer 提出問題時 SHOULD 指明所需 authority 與理由。Orchestrator MUST 依下表決定派工並記錄所適用的情況；在任何情況下 MUST NOT 判斷設計語義、finding severity 或 evidence sufficiency，MUST NOT 重新分類 finding，也 MUST NOT 默默覆寫任一來源：
 
 | 情況 | Orchestrator 動作 |
-| --- | --- |
+|---|---|
 | 已指明 authority，且與本節規則一致 | 直接派工 |
 | 未指明，但依事件的來源與種類本節規則能唯一決定 | 直接派工，記錄所用規則 |
 | 已指明，但與本節規則衝突 | 屬 routing 爭議：交 Final Adjudicator 釐清 routing |
@@ -391,7 +390,7 @@ Worklog 義務跟著 work item，不跟著執行者類型：由 Orchestrator 派
 每個已執行 work item MUST 有足以支援 traceability、handoff 與 recovery 的 durable worklog，至少可追溯：
 
 | Property | 必要內容 |
-| --- | --- |
+|---|---|
 | **Work performed** | 實際做了什麼，以及目前結果。 |
 | **Contract reference** | Accepted Work Contract、適用版本及重要變更。 |
 | **Executing role and binding reference** | 執行角色與實際 binding 證據引用；不要求複製 Harness 日誌。 |
@@ -590,15 +589,15 @@ Lightweight 無 Spec，不適用本節；assurance policy MAY 對特定類別要
 
 ### 5.1 Required bindings
 
-以下 bindings 與所需 Agent／Subagent definitions MUST 在 Orchestrator activation 前，以及 Lightweight work item 第一次正式 audit 前就緒且可驗證；不得啟動後才以 prompt 自述角色代替尚未成立的 bindings。每個 Agent／Subagent 首次執行前，其 definition 與明確 mapping MUST 已存在，實際 assignment 依第 2.2 節核對。
+以下 bindings 與所需 Agent／Subagent definitions MUST 在 Orchestrator activation 前，以及 Lightweight work item 第一次正式 audit 前就緒且可驗證；不得啟動後才以 prompt 自述角色代替尚未成立的 bindings；root role session 的 activation basis 依第 2.2 節，不屬此處所稱的 prompt 自述。每個 Agent／Subagent 首次執行前，其 definition 與明確 mapping MUST 已存在，實際 assignment 依第 2.2 節核對。
 
 Bindings 可由專案或可重用工作環境 profile 提供；Lightweight 工作可引用既有 profile，不需重新初始化專案。此要求不規定 Harness 的 session 啟動順序、definition loading 或 spawn 方法。
 
 | Binding | 必要內容 |
-| --- | --- |
+|---|---|
 | **Governance adoption** | 採用版本、權威位置與變更 authority。 |
 | **Authority sources** | Outcome Contract acceptor、執行授權來源、上位 contracts、operator／人類代理、standing authorizations，以及依第 5.2 節保留的 reserved boundaries（含是否保留 Spec review、獨立 implementation authorization、merge／push／release）。 |
-| **Agent／Subagent definitions and Model Mapping Profile** | 六治理角色與所有實際使用的 reusable Subagent definitions；採用的 Profile、每個可 dispatch identifier 的有效 mapping 與驗證機制；符合第 2.3 節四項 properties 的 independent dispatch 機制及其滿足方式。 |
+| **Agent／Subagent definitions and Model Mapping Profile** | 六治理角色與所有實際使用的 reusable Subagent definitions；採用的 Profile、每個可 dispatch identifier 的有效 mapping 與驗證機制（含 root role session 依第 2.2 節核對 model／effort 的方式與證據位置）；符合第 2.3 節四項 properties 的 independent dispatch 機制及其滿足方式。 |
 | **Lane policy** | 預設分類、適用 Formal 要求及模糊情況的決定者；不得取代第 3.3、3.6 節。 |
 | **Assurance policy** | Lightweight audit 預設與觸發條件、高風險類別（第 4.5 節 disposition 邊界所引用）、適用 integration／release gates、第 4.7 節單 Ticket fast path 是否採用及其核對方式、model diversity 預設（第 2.2 節）。 |
 | **Skills and runtime** | 選用工作 Skills、direct-execution／orchestration 與 recovery 能力。 |
@@ -674,22 +673,23 @@ Governance、bindings（含 definitions／Model Mapping Profiles）與 accepted 
 
 ## Appendix A · History and rationale（non-normative）
 
-本附錄不新增規則；操作要求以第 1–5 節為準。v1.0 的 Final Validation Summary、Adoption record 與 Interpretation record IR-1 原文保存於 Minimal Operational Governance v1.0（repo: `master_governance/Minimal_Operational_Governance_Final_Candidate.md`） 文末，不在此複製。
+本附錄不新增規則；操作要求以第 1–5 節為準。v1.0 的 Final Validation Summary、Adoption record 與 Interpretation record IR-1 原文保存於 [Minimal Operational Governance v1.0](Minimal_Operational_Governance_Final_Candidate.md) 文末，不在此複製。
 
 ### A.1 Version lineage
 
 | 版本 | 日期 | 狀態 | 依據 |
-| --- | --- | --- | --- |
-| v0.1 Candidate A／B | 2026-09-16 | historical | A／B Adjudication（repo: `Governance Candidate A-B Adjudication Review(Fable-5.1).md`）：ADOPT B WITH CHANGES |
-| v0.2 → v0.3 | 2026-09-16 | historical | v0.2 Closure Review（repo: `Governance v0.2 Closure Review(Fable-5.1).md`） Q1–Q4；v0.3 vs v2 Final Analysis（repo: `Governance v0.3 vs v2 Final Analysis(Fable-5.1).md`） L-1～L-9 |
-| v1.0 | 2026-09-17 | Adopted／Frozen | Final Architecture Review（repo: `Governance Final Architecture Review(Fable-5.1).md`）：ADOPT |
+|---|---|---|---|
+| v0.1 Candidate A／B | 2026-09-16 | historical | [A／B Adjudication](<../Governance Candidate A-B Adjudication Review(Fable-5.1).md>)：ADOPT B WITH CHANGES |
+| v0.2 → v0.3 | 2026-09-16 | historical | [v0.2 Closure Review](<../Governance v0.2 Closure Review(Fable-5.1).md>) Q1–Q4；[v0.3 vs v2 Final Analysis](<../Governance v0.3 vs v2 Final Analysis(Fable-5.1).md>) L-1～L-9 |
+| v1.0 | 2026-09-17 | Adopted／Frozen | [Final Architecture Review](<../Governance Final Architecture Review(Fable-5.1).md>)：ADOPT |
 | IR-1 | 2026-09-18 | folded into v2.0 §3.3、§3.6-B | 行政作業慣例 ≠ 設計基線；六條件已寫入正文 |
-| v2.0 | 2026-09-22 | Adopted／Frozen | vNext Architecture Analysis（repo: `Governance vNext Architecture Analysis(Fable-5.1).md`）：DESIGN VIABLE WITH CONDITIONS；operator S-1 決定；S-3 → S-4 → closure → pruning → Astra regression → S-5 adoption（同日；詳 B.4） |
+| v2.0 | 2026-09-22 | Adopted／Frozen | [vNext Architecture Analysis](<../Governance vNext Architecture Analysis(Fable-5.1).md>)：DESIGN VIABLE WITH CONDITIONS；operator S-1 決定；S-3 → S-4 → closure → pruning → Astra regression → S-5 adoption（同日；詳 B.4） |
+| v2.1 | 2026-10-01 | Adopted／Frozen | [Orchestrator Runtime Architecture Review](<../Governance Orchestrator Runtime Architecture Review(Fable-5.1).md>)：GOVERNANCE SEMANTIC DRIFT；operator 2026-10-01 決定；independent review → correction → closure → final-md5 acknowledgement → adoption（同日；詳 Appendix C） |
 
 ### A.2 Resolved questions（v0.2 Closure rulings 與 v2.0 對照）
 
 | # | 問題 | v1.0 裁決位置 | v2.0 狀態 |
-| --- | --- | --- | --- |
+|---|---|---|---|
 | 1 | Non-delegable approval 的範圍 | §3.4、§5.1、§5.3 | **重新錨定**：acceptor 保留 Outcome Contract 的接受／授權與 boundary re-authorization（§1.2、§1.5）；Spec review 與獨立 implementation authorization 改為 Bindings opt-in（§5.2）；仍無 additive 類（§5.3）；standing authorization 仍為 acceptor 行為（§5.1） |
 | 2 | Final Adjudicator disposition 邊界 | §4.5 | 不變 |
 | 3 | Bounded cycle 是否無限循環 | §4.5 | 不變；§4.7 Spec Integration Audit 自有 cycle，適用同規則 |
@@ -698,7 +698,7 @@ Governance、bindings（含 definitions／Model Mapping Profiles）與 accepted 
 ### A.3 v2 母版 → Minimal：Continuity Reference（v1.0 表，原樣保留）
 
 | 保留的 property | 下放的 mechanism |
-| --- | --- |
+|---|---|
 | Autonomous run-to-completion、合法停止邊界、recovery 停止條件 | 詳細 execution loop、checkpoint／rollover 演算法、retry policy、capability class 記錄格式 |
 | 穩定六角色／reusable Subagent definitions、可替換 Model Mapping Profiles、可驗證 assignment 與 independent dispatch 四項 properties | Definition 檔案與載入、model-id parser、環境變數、invocation |
 | Independent audit、R1／R2／Alternate／Final Adjudication、disposition 邊界、cycle 進展條件 | Audit filename、header schema、verdict／classification grammar |
@@ -717,16 +717,18 @@ Grill 是釐清 Work Contract 的 methodology（HOW）：用於在接受前收�
 
 ## Appendix B · v1.0 → v2.0 change log 與 Adoption record（non-normative）
 
+本附錄自 v2.0 原樣保留；其中的「本檔」「本版」指 v2.0。
+
 ### B.0 Baseline and design provenance
 
 自文首移入，內容不變：
 
-**基線：** Minimal Operational Governance v1.0（repo: `master_governance/Minimal_Operational_Governance_Final_Candidate.md`）（Adopted／Frozen 2026-09-17；§1–§5 body md5 `4c23bbefd4f091e9669d95f48cec0d2f`，本版起草時 byte-unchanged）。**設計依據：** Governance vNext Architecture Analysis（repo: `Governance vNext Architecture Analysis(Fable-5.1).md`）（Fable-5.1，2026-09-22，verdict DESIGN VIABLE WITH CONDITIONS）＋ operator S-1 決定（2026-09-22：版本名、reserved-boundary opt-in、Model Profile v2 預設值）＋ 兩項 refinement（boundary 疑義 DA-first、routing 衝突視為爭議）。本版改變 §1.2、§2.4、§3.4、§5.3 的 normative semantics 並新增 §4.7；完整 MUST／SHOULD／MAY diff 見 Appendix B 所引報告。
+**基線：** [Minimal Operational Governance v1.0](Minimal_Operational_Governance_Final_Candidate.md)（Adopted／Frozen 2026-09-17；§1–§5 body md5 `4c23bbefd4f091e9669d95f48cec0d2f`，本版起草時 byte-unchanged）。**設計依據：** [Governance vNext Architecture Analysis](<../Governance vNext Architecture Analysis(Fable-5.1).md>)（Fable-5.1，2026-09-22，verdict DESIGN VIABLE WITH CONDITIONS）＋ operator S-1 決定（2026-09-22：版本名、reserved-boundary opt-in、Model Profile v2 預設值）＋ 兩項 refinement（boundary 疑義 DA-first、routing 衝突視為爭議）。本版改變 §1.2、§2.4、§3.4、§5.3 的 normative semantics 並新增 §4.7；完整 MUST／SHOULD／MAY diff 見 Appendix B 所引報告。
 
 ### B.1 Semantic changes
 
 | ID | 條文 | 變更 |
-| --- | --- | --- |
+|---|---|---|
 | N-1 | §1.2、§2.1（DA 列）、§2.4（兩列）、§3.1(3)(4)、§3.4、§3.6 promotion 段、§5.1、§5.2 | Outcome Contract 為人類接受的契約；Spec／Tickets 為 DA derived contracts，附 derivation record 與 boundary determination；derived contract 不需逐份核准；「accepted 語義」專指 Outcome Contract 語義；「accepted contract」涵蓋 derived contracts |
 | N-1／R-A | §1.2、§3.3 | Boundary 疑義：Executor／Reviewer 先 route DA；DA 無法確立在 boundary 內時受影響路徑 fail-closed 至 acceptor；DA 不取得接受／授權。S-4（M-2，2026-09-22）：§1.2 加 Reviewer boundary 符合性 finding 的 closure rule——DA 先評估；DA 確立且 Reviewer 撤回／關閉 → 繼續；DA determination 後仍有爭議 → 視為 DA 無法確立、fail-closed 至 acceptor；FA 只裁 routing／process，不代 acceptor 裁決 boundary；§4.7 第三段末句同步 |
 | N-2／R-B | §2.4 | 五種情況表：explicit＋consistent → 派工；no label＋unique rule → 派工並記錄；explicit＋conflicting → FA；authority 真正模糊 → FA；契約語義／sufficiency 無法機械判類 → DA-first。缺 label 不是爭議；Orchestrator 不默默覆寫任一來源；提出者義務 MUST → SHOULD |
@@ -737,7 +739,7 @@ Grill 是釐清 Work Contract 的 methodology（HOW）：用於在接受前收�
 ### B.2 Editorial（semantics-preserving）
 
 | ID | 動作 |
-| --- | --- |
+|---|---|
 | E-1 | 兩類劃分只在 §5.3 定義；§3.3、§3.4、§3.6 引用 |
 | E-3 | §4.3 五 bullets 縮為一句引用 §2.3、§2.1、§4.6 |
 | E-4 | §3.3、§3.6、§4.7 的 route 語句加「依第 2.4 節」 |
@@ -750,19 +752,62 @@ E-2（self-verification 定義集中）僅作最小處理：§2.3 仍為唯一�
 
 ### B.3 完整 MUST／SHOULD／MAY diff
 
-逐句 diff 與註解見 Governance v2.0 Candidate S-2 Drafting Report（repo: `Governance v2.0 Candidate S-2 Drafting Report(Fable-5.1).md`）。
+逐句 diff 與註解見 [Governance v2.0 Candidate S-2 Drafting Report](<../Governance v2.0 Candidate S-2 Drafting Report(Fable-5.1).md>)。
 
 ### B.4 Adoption／Freeze record
 
 | 項目 | 內容 |
-| --- | --- |
+|---|---|
 | 狀態 | **Adopted／Frozen**（2026-09-22，operator S-5 明確授權） |
-| S-2 draft | 2026-09-22，Fable 5.1，依 operator S-1 決定與兩項 refinement；S-2 Drafting Report（repo: `Governance v2.0 Candidate S-2 Drafting Report(Fable-5.1).md`） |
+| S-2 draft | 2026-09-22，Fable 5.1，依 operator S-1 決定與兩項 refinement；[S-2 Drafting Report](<../Governance v2.0 Candidate S-2 Drafting Report(Fable-5.1).md>) |
 | 基線 | v1.0 §1–§5 body md5 `4c23bbefd4f091e9669d95f48cec0d2f`；v1.0 檔 byte-unchanged（S-5 重算 `387547cdc5e0b7d2ff2f32d851b0bb4c`） |
-| S-3 acceptance review | Independent Acceptance Review (Opus-5)（repo: `Governance v2.0 Candidate Independent Acceptance Review(Opus-5).md`）：**ADOPT WITH REQUIRED CHANGES**（0 BLOCKER、4 MATERIAL M-1～M-4、8 NON-MATERIAL） |
-| S-4 targeted correction | S-4 Targeted Correction Report (Fable-5.1)（repo: `Governance v2.0 Candidate S-4 Targeted Correction Report(Fable-5.1).md`）：M-1～M-4 限 review §6 edit sites，18 hunks；NON-MATERIAL 未動 |
-| S-4 closure | S-4 Closure Review (Opus-5)（repo: `Governance v2.0 Candidate S-4 Closure Review(Opus-5).md`）：M-1、M-2、M-3、M-4 **CLOSED**；targeted regression **PASS**；無 S-4.1 |
-| Pruning pass | Pruning Pass Report (Fable-5.1)（repo: `Governance v2.0 Candidate Pruning Pass Report(Fable-5.1).md`）：Astra spec P-01～P-15，套用 11 項（P-01–05、07、11–15）、deferred 4 項（P-06、08、09、10），23 hunks，語義不變；§1.1／§1.3 改為索引、A.4／B.0 新增 |
-| Astra final regression | Final Pruning Regression Check (Astra)（repo: `Governance v2.0 Final Pruning Regression Check(Astra).md`）：AUTHORIZED PRUNING、SEMANTIC PRESERVATION、DEFERRED REGIONS、CLOSED FINDINGS REGRESSION、REFERENCE／MOVE SAFETY 全 **PASS**；flagged pointers SAFE AS-IS |
-| S-5 adoption | 2026-09-22 operator 明確授權 Adopted／Frozen。Adoption edits 限 metadata／record（header 狀態、A.1 v2.0 列、本節、Appendix B 標題）；§1–§5 body 與 Astra 核可的 pruned baseline byte-identical。記錄：Adoption and Freeze Record（repo: `Governance v2.0 Adoption and Freeze Record.md`） |
+| S-3 acceptance review | [Independent Acceptance Review (Opus-5)](<../Governance v2.0 Candidate Independent Acceptance Review(Opus-5).md>)：**ADOPT WITH REQUIRED CHANGES**（0 BLOCKER、4 MATERIAL M-1～M-4、8 NON-MATERIAL） |
+| S-4 targeted correction | [S-4 Targeted Correction Report (Fable-5.1)](<../Governance v2.0 Candidate S-4 Targeted Correction Report(Fable-5.1).md>)：M-1～M-4 限 review §6 edit sites，18 hunks；NON-MATERIAL 未動 |
+| S-4 closure | [S-4 Closure Review (Opus-5)](<../Governance v2.0 Candidate S-4 Closure Review(Opus-5).md>)：M-1、M-2、M-3、M-4 **CLOSED**；targeted regression **PASS**；無 S-4.1 |
+| Pruning pass | [Pruning Pass Report (Fable-5.1)](<../Governance v2.0 Candidate Pruning Pass Report(Fable-5.1).md>)：Astra spec P-01～P-15，套用 11 項（P-01–05、07、11–15）、deferred 4 項（P-06、08、09、10），23 hunks，語義不變；§1.1／§1.3 改為索引、A.4／B.0 新增 |
+| Astra final regression | [Final Pruning Regression Check (Astra)](<../Governance v2.0 Final Pruning Regression Check(Astra).md>)：AUTHORIZED PRUNING、SEMANTIC PRESERVATION、DEFERRED REGIONS、CLOSED FINDINGS REGRESSION、REFERENCE／MOVE SAFETY 全 **PASS**；flagged pointers SAFE AS-IS |
+| S-5 adoption | 2026-09-22 operator 明確授權 Adopted／Frozen。Adoption edits 限 metadata／record（header 狀態、A.1 v2.0 列、本節、Appendix B 標題）；§1–§5 body 與 Astra 核可的 pruned baseline byte-identical。記錄：[Adoption and Freeze Record](<../Governance v2.0 Adoption and Freeze Record.md>) |
 | 採用效果 | 依 §5.3：不自動適用任何專案；已採 v1.0 的專案需明確 re-pin 並處理進行中 assignments、audit 與 evidence coverage。本檔 frozen；之後任何變更依 §5.3 留下版本、依據與授權，以新版本承載 |
+
+## Appendix C · v2.0 → v2.1 change log 與 Adoption record（non-normative）
+
+### C.0 Baseline and design provenance
+
+**基線：** [Minimal Operational Governance v2.0](Minimal_Operational_Governance_v2.0_Candidate.md)（Adopted／Frozen 2026-09-22；整檔 md5 `5d258fd3e4b5cd0894f7f7cd1175eca6`，§1–§5 body md5 `b44f23bb155a601ae7518465a9f7f3f4`；本版起草時 byte-unchanged）。本版由 v2.0 逐位元複製後只作 C.1 所列修改。
+
+**設計依據：** [Orchestrator Runtime Architecture — Architecture Review／Ruling](<../Governance Orchestrator Runtime Architecture Review(Fable-5.1).md>)（Fable 5.1，2026-10-01；verdict：GOVERNANCE SEMANTIC DRIFT — Orchestrator assignment model changed）。該 review 認定 v1.0 §2.2 的「每個實際 assignment（包括 Orchestrator 自身…）MUST…綁定至宣告的 definition」把被指定的 root control-plane session 與被派工的 assignment 併成同一 abstraction，而歷史母版與參考實作從未要求 root Orchestrator 由 agent definition instantiate。
+
+**Operator 決定（2026-10-01）：** 採用該 review 的 verdict 與 §9.1 architecture；治理區分 root role session activation 與 dispatched Agent／Subagent assignment；root role session 不因治理要求而必須由 agent definition instantiate；Lightweight direct-execution root session 擔任 Executor 時適用同一區分；root session 派出的治理 Agent／reusable Subagent 維持 definition＋explicit mapping＋effort／mode＋deterministic harness binding＋runtime evidence。原文見 [v2.1 Candidate Drafting Report](<../Governance v2.1 Candidate Drafting Report(Fable-5.1).md>)。
+
+### C.1 Semantic changes
+
+| ID | 條文 | v2.0 | v2.1 |
+|---|---|---|---|
+| R-1 | §2.2 第 5 段（binding 句） | 單一 predicate：每個實際 assignment（包括 Orchestrator 自身與 reusable Subagent）MUST 綁定至宣告的 definition、model 及適用 effort／mode | 分兩種。**被派工的 assignment**：predicate 原樣保留，範圍為兩種 root role session 以外的所有 assignment。**Root role session**（只限 Orchestrator 與 Lightweight direct-execution Executor；其他直接擔任治理角色的 session 仍屬被派工的 assignment）：activation basis、model／effort runtime verification、role-definition grounding、work identity and records 四項；Orchestrator 在 model／effort 核對成立前不得派工；建立方式屬 Runtime／Harness HOW，由 definition instantiate 不是必要條件；grounding 不證明 model／effort |
+| R-2 | §2.2 同段（prompt 自稱句） | Prompt 中自稱角色、model 或「已綁定」不構成 binding 證據 | 原句保留；新增：designation／接受與授權是 acceptor／operator 的 authority 行為，不是自稱；designation 不構成 Outcome Contract 的接受或授權 |
+| R-3 | §5.1 首段 | 不得啟動後才以 prompt 自述角色代替尚未成立的 bindings | 原句保留；加限定：root role session 的 activation basis 依 §2.2，不屬此處的 prompt 自述 |
+| R-4 | §5.1 表 Agent／Subagent definitions and Model Mapping Profile 列 | 每個可 dispatch identifier 的有效 mapping 與驗證機制 | 同上，另明列 root role session 核對 model／effort 的方式與證據位置 |
+| R-5 | §2.2 修復／替代句 | 不得將該 assignment 冒充符合要求的 execution、review 或 adjudication | 列舉加入 orchestration，使 Orchestrator 的 model／effort 不符有明文後果 |
+
+保留的強化（不是本版變更）：`orchestrator` 是 Profile identifier，Orchestrator 的 model／version／effort 須有有效 mapping 並可由 Runtime／Harness 證據核對（v0.1 起）。
+
+### C.2 未變更
+
+§1（含 §1.4、§1.5）、§2.1 角色表與 definition 要求、§2.2 其餘各段（mapping 內容、Profile 採用、replacement、model diversity；修復／替代句只有 R-5 一詞之差）、§2.3 四項 independence properties 與 self-verification 清單、§2.4、§3、§4、§5.1 其餘、§5.2–§5.4，以及 Appendix A.2–A.4 與 Appendix B 正文（標題下的說明行見 C.3），皆與 v2.0 byte-identical。未新增角色、lane、audit round、approval layer、operator gate 或任何特定 harness／CLI 的要求。
+
+### C.3 Metadata edits
+
+文首 header（標題、狀態、版本、日期、基線指標、package references、歷史版本句）、Appendix A.1 新增 v2.1 列、Appendix B 標題下一行說明、本附錄。2026-10-02 另有一次 metadata-only 更新（header 的 package references 與 visualization 句；見 C.4「Metadata update」列）。
+
+### C.4 Adoption／Freeze record
+
+| 項目 | 內容 |
+|---|---|
+| 狀態 | **Adopted／Frozen**（2026-10-01，operator 明確授權） |
+| Candidate draft | 2026-10-01，Fable 5.1，依 C.0 的設計依據與 operator 決定；[v2.1 Candidate Drafting Report](<../Governance v2.1 Candidate Drafting Report(Fable-5.1).md>)（含決定原文、hunk 清單與 architecture regression） |
+| Independent review | [v2.1 Candidate Independent Review (Opus)](<../Governance v2.1 Candidate Independent Review(Opus).md>)：初審 **ADOPT WITH REQUIRED CHANGES**（0 BLOCKER、3 MATERIAL M-1～M-3、9 NON-MATERIAL）→ 定點修正 → closure check **ADOPT**（M-1、M-2、M-3 CLOSED）→ CC-1 依 reviewer 指定修正 → **final-md5 acknowledgement：ACKNOWLEDGED**（Candidate 整檔 md5 `3abaa4058bdd9233274f1ad850e9ed34`） |
+| Operator acceptance | 2026-10-01：ACCEPT。確認三點：(1) Orchestrator root role session 不限 Formal run；(2) root role session 是封閉的兩種（Orchestrator、Lightweight direct-execution Executor），其他治理角色的 session 仍是 definition-bound assignment；(3) 在不符 assignment 的禁止句加入 orchestration，作為 M-1 的必要 closure |
+| Adoption edits | 限 metadata／record：文首狀態、日期、package references 中 orch-default v2.1 的狀態、Appendix A.1 v2.1 列、本附錄標題與本節。§1–§5 body 與 reviewer 確認的 Candidate byte-identical（body md5 `9113074ad8f7a586ae9a77c4a80ac5d1`）。記錄：[v2.1 Adoption and Freeze Record](<../Governance v2.1 Adoption and Freeze Record.md>) |
+| Companion | [Reference Orchestrator Contract orch-default v2.1](references/orchestrator-contracts/default-v2.1.md)（同日 Adopted／Frozen）。Model Profile default v2.3 與 impl-default v2 不變 |
+| 採用效果 | 依 §5.3：不自動適用任何專案；已採 v2.0 的專案需明確 re-pin 並處理進行中 assignments、audit 與 evidence coverage。本檔 frozen；之後任何變更依 §5.3 留下版本、依據與授權，以新版本承載 |
+| Metadata update（2026-10-02） | operator 明確授權「Minimal v2.1 檔頭可以調整」後，只更新文首 header 兩段：package references 中 Model Profile 由 [default v2.3](references/model-profiles/default-v2.3.md) 改為 [default v2.4](references/model-profiles/default-v2.4.md)（v2.4 Adopted／Frozen 2026-10-02，`primary_reviewer`-only revision，見其 §8；v2.3 保留為 frozen baseline），visualization 句改指加日期的 HTML（最新 2026-10-02 版）；另在 C.3 與本列留下紀錄。不是本治理的版本變更：§1–§5 body 與 2026-10-01 凍結時 byte-identical（body md5 `9113074ad8f7a586ae9a77c4a80ac5d1` 不變）；整檔 md5 自 `8d2012ca3b021e598be71e382ab7b00b` 變為本次更新後的值（記於 Notion package 頁與 HTML 追溯段）。Project Bindings 仍直接 pin Model Profile 版本，本段不影響任何已採用專案 |
