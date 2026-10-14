@@ -17,6 +17,7 @@ aiot-classwork/
 ├── CLAUDE.md        # 給 Claude Code 的長期專案指示
 ├── AGENTS.md        # 給 Codex 的長期專案指示
 ├── week02/          # DIC-1
+├── week06/          # DIC-2
 └── home_work_01/    # 作業 1
 ```
 
@@ -25,6 +26,7 @@ aiot-classwork/
 | 目錄 | 課堂實作 | 授課單元 | 內容 | Live Demo |
 | --- | --- | --- | --- | --- |
 | [`week02/`](./week02/) | DIC-1 | Lecture 2 — 瀏覽器、現代 Web 核心與非同步資料流（L2Web） | 個人入口網站與動態時鐘：Vanilla HTML／CSS／JS 單檔靜態網站，固定顯示 `Asia/Taipei` 時間，三套視覺主題、12／24 小時制切換與專注模式。 | [開啟](https://yotsubamomo.github.io/aiot-classwork/week02/) |
+| [`week06/`](./week06/) | DIC-2 | Lecture 6 — Multiple Linear Regression（50 Startups on Kaggle） | 多元線性回歸的特徵選擇比較：以 Kaggle 50 Startups 資料，比較 Exhaustive Search、Forward SFS、Lasso／Elastic Net Top-k 與 RFE 在 k = 1～5 個特徵時的表現。只在 train 上用巢狀交叉驗證評估、依 CV RMSE 選 k，test 只在最後評估一次；互動式網頁（Chart.js）呈現全部結果，並提供附 95% 預測區間的即時預測。 | [開啟](https://yotsubamomo.github.io/aiot-classwork/week06/) |
 
 ## 作業（Homework）
 

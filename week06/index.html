@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIC-02 Feature Selection Explorer</title>
+  <meta name="description" content="50 Startups multiple linear regression: five feature-selection schemes compared with training-only nested cross-validation.">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="assets/model_data.js"></script>
+  <script src="assets/core.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div>
+        <p class="eyebrow">AIoT-DA · DIC-02 · CRISP-DM</p>
+        <h1>50 Startups — Feature Selection Explorer</h1>
+        <p class="lede">Multiple linear regression with five feature-selection schemes, each scored for k = 1–5 features by
+          <strong>training-only nested cross-validation</strong>. The held-out test set is used once, only for each scheme's best model.</p>
+      </div>
+      <button id="themeToggle" class="ghost-btn" type="button" aria-label="Toggle light / dark theme">Theme</button>
+    </div>
+    <div class="wrap badges" id="badges"></div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel controls" aria-label="Model selection">
+      <div class="control-group">
+        <span class="control-label" id="schemeLabel">1. Feature-selection scheme</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="schemeLabel" id="schemeButtons"></div>
+      </div>
+      <div class="control-group">
+        <span class="control-label" id="kLabel">2. Number of features (k)</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="kLabel" id="kButtons"></div>
+      </div>
+      <p class="hint" id="selectionHint"></p>
+    </section>
+
+    <section class="kpis" id="kpis" aria-live="polite"></section>
+
+    <section class="panel" aria-labelledby="chartsTitle">
+      <div class="panel-head">
+        <h2 id="chartsTitle">CV RMSE and CV R² vs. number of features</h2>
+        <p class="sub">Mean of the 5 outer folds (training set only). Hover a point for the subset and fold details. Points are offset slightly left/right so overlapping schemes stay visible.</p>
+      </div>
+      <div class="charts">
+        <figure class="chart-box"><canvas id="rmseChart" aria-label="CV RMSE by number of features" role="img"></canvas></figure>
+        <figure class="chart-box"><canvas id="r2Chart" aria-label="CV R-squared by number of features" role="img"></canvas></figure>
+      </div>
+    </section>
+
+    <section class="panel" id="singleView" aria-labelledby="eqTitle">
+      <div class="panel-head">
+        <h2 id="eqTitle">Fitted OLS model (refit on the full training set)</h2>
+        <p class="sub" id="eqSub"></p>
+      </div>
+      <pre class="equation" id="equation"></pre>
+      <div class="table-scroll">
+        <table class="data" id="coefTable">
+          <caption class="sr-only">Coefficients and statistical tests</caption>
+          <thead><tr><th scope="col">Predictor</th><th scope="col">Estimate (β)</th><th scope="col">Std. Error</th><th scope="col">t</th><th scope="col">p-value</th><th scope="col">95% CI of β</th><th scope="col">VIF</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="sub" id="fitStats"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="predTitle">
+      <div class="panel-head">
+        <h2 id="predTitle">Live profit predictor</h2>
+        <p class="sub">Uses the model selected above. The band is a 95% OLS prediction interval for a single new startup (assumes linear, independent, equal-variance normal errors).</p>
+      </div>
+      <div class="predictor">
+        <form id="predForm" class="pred-inputs" onsubmit="return false">
+          <label>R&amp;D Spend ($)<input type="number" id="inRD" min="0" step="1000"></label>
+          <label>Administration ($)<input type="number" id="inAdmin" min="0" step="1000"></label>
+          <label>Marketing Spend ($)<input type="number" id="inMkt" min="0" step="1000"></label>
+          <label>State
+            <select id="inState">
+              <option>California</option><option>Florida</option><option>New York</option>
+            </select>
+          </label>
+        </form>
+        <div class="pred-out" aria-live="polite">
+          <p class="pred-label">Predicted profit</p>
+          <p class="pred-value" id="predValue">—</p>
+          <p class="pred-interval" id="predInterval"></p>
+          <ul class="contrib" id="predContrib"></ul>
+          <p class="sub" id="predNote"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="bestTitle">
+      <div class="panel-head">
+        <h2 id="bestTitle">Best model of each scheme — held-out test evaluation</h2>
+        <p class="sub">Best k = lowest CV RMSE on the training set. Test metrics are reported after that choice and were not used to select anything. The test set has only 10 rows, so differences between rows are noisy.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="data" id="bestTable">
+          <thead><tr><th scope="col">Scheme</th><th scope="col">Best k</th><th scope="col">Selected features</th><th scope="col">CV RMSE</th><th scope="col">CV R²</th><th scope="col">Test MAE</th><th scope="col">Test MSE</th><th scope="col">Test RMSE</th><th scope="col">Test R²</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="testTitle">
+      <div class="panel-head">
+        <h2 id="testTitle">Test-set predictions with 95% prediction intervals</h2>
+        <p class="sub" id="testSub"></p>
+      </div>
+      <div class="table-scroll">
+        <table class="data" id="testTable">
+          <thead><tr><th scope="col">Row</th><th scope="col">Actual</th><th scope="col">Predicted</th><th scope="col">Residual</th><th scope="col">95% PI</th><th scope="col">Inside PI</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="allTitle">
+      <details>
+        <summary><h2 id="allTitle">All 25 results (table view)</h2></summary>
+        <div class="table-scroll">
+          <table class="data" id="allTable">
+            <thead><tr><th scope="col">Scheme</th><th scope="col">k</th><th scope="col">Selected features (full training set)</th><th scope="col">CV RMSE</th><th scope="col">CV R²</th><th scope="col">Fold agreement</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel prose" aria-labelledby="methodTitle">
+      <h2 id="methodTitle">Method and limitations</h2>
+      <ul>
+        <li><strong>Nested CV, no leakage.</strong> Outer 5-fold CV on the 40 training rows evaluates each (scheme, k). Inside every outer-training fold the scheme selects features (and Lasso / Elastic Net tune their penalties) with an inner 5-fold CV; the chosen subset is refit with plain OLS and scored on the untouched outer fold. Scaling is fitted inside the same folds.</li>
+        <li><strong>The CV score rates the procedure, not one subset.</strong> Different outer folds may pick different subsets, so two schemes whose final subset is the same can still have different CV RMSE. "Fold agreement" shows how many outer folds picked the final subset.</li>
+        <li><strong>RFE vs RFECV.</strong> RFE removes the weakest feature (smallest standardized OLS coefficient) until exactly k remain, so it fits the k = 1–5 grid. RFECV instead chooses k itself by CV; it is shown only as a reference: <span id="rfecvNote"></span>.</li>
+        <li><strong>Lasso / Elastic Net top-k.</strong> These rank features by |coefficient| of the tuned penalized model and keep the top k, then refit OLS. The penalized coefficients are only a ranking; when the penalty sets several coefficients to zero, the order among those zeros is a tie, broken by column order.</li>
+        <li><strong>Small data.</strong> 50 startups, 40 for training and 10 for testing. CV differences of a few hundred dollars are within fold-to-fold noise, and test metrics from 10 rows are unstable — which is exactly why the test set is not used for choosing k.</li>
+      </ul>
+      <h3>CRISP-DM</h3>
+      <ol class="crisp">
+        <li><strong>Business understanding</strong> — predict a startup's profit from its spending and location.</li>
+        <li><strong>Data understanding</strong> — 50 rows, R&amp;D / Administration / Marketing spend, State, Profit; no missing values.</li>
+        <li><strong>Data preparation</strong> — State one-hot encoded with California as reference (State_Florida, State_New York selectable independently); 80/20 split, random_state = 42.</li>
+        <li><strong>Modeling</strong> — five selection schemes × k = 1–5, each subset refit with OLS.</li>
+        <li><strong>Evaluation</strong> — nested CV RMSE / R² on the training set; best k by CV RMSE; held-out test once per scheme.</li>
+        <li><strong>Deployment</strong> — this static page: every number comes from <code>assets/model_data.js</code>, generated by <code>analysis/nested_cv_comparison.py</code>.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p>DIC-02 · AIoT &amp; Data Analytics · by Momo. Data: 50 Startups (Kaggle). Layout inspired by the course reference
+      <a href="https://huanchen1107.github.io/AIoT-DIC2-MultipleLR/">AIoT-DIC2-MultipleLR</a>. Charts: Chart.js 4.4.1.</p>
+    <p class="sub" id="metaLine"></p>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
