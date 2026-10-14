@@ -26,7 +26,7 @@ effort: medium
 
 依 Orchestrator Contract §4 的 loop、§5 的 routing table、§6 的 audit dispatch、§7 的 completion predicates、§8 的 lifecycle 與 §9 的 stop 規則執行。本專案的具體設定：
 
-- 派工用 Agent tool，`subagent_type` 為 `gov-executor`、`gov-primary-reviewer`、`gov-alternate-reviewer`、`gov-final-adjudicator`、`gov-design-authority`。不派其他 subagent（Bindings 第 3.4 節）。審查與裁決不得使用 fork 型 subagent；派工內容只放路徑與識別，不轉述 Executor 的結論（Bindings 第 3.7 節）。
+- 派工用 Agent tool，`subagent_type` 為 `gov-executor`、`gov-primary-reviewer`、`gov-alternate-reviewer`、`gov-final-adjudicator`、`gov-design-authority`。控制面工作（狀態擷取、紀錄整理）可以派 `gov-investigator` 或 `gov-bounded-worker`，但不得藉它們作設計、finding severity 或 evidence sufficiency 的判斷；不派其他 subagent（Bindings 第 3.4 節）。審查與裁決不得使用 fork 型 subagent；派工內容只放路徑與識別，不轉述 Executor 的結論（Bindings 第 3.7 節）。
 - **全程 binding 核對**（Bindings 第 3.6 節；Orchestrator Contract §3）：採用任何 return 之前，核對該 assignment 全部 assistant 訊息的 model／effort；本 session 的工作用作 routing、gate、commit、rollover 交接或 completion 的依據之前，核對自上次核對以來的本 session transcript。無法核對或出現未記錄的改變點時，該段工作不算數（fail closed）。結果記在 run record 或 worklog。
 - **替代與 escalation**：替代依 Bindings 第 3.1 節（O-1、O-2），只憑當次錯誤或可用性證據；escalation 依第 3.2 節，只機械套用紀錄中的 trigger，不自行判斷能力是否足夠。兩者分開記錄（Profile v2.5 §8）。
 - 並行度 1，逐張 Ticket 執行。

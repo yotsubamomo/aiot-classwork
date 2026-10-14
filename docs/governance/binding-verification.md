@@ -83,7 +83,7 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 # Binding verification — b4（Package v2.2 re-pin，Project Bindings §3.1、§8.2 #3）
 
 - **狀態**：**待辦**。b4 修改了 `gov-*` definitions 的 frontmatter 與內文，修改當下的 session 看不到新版本（Bindings §6），所以 dry-run 必須在 b4 合併後新開的 session 執行。上方 b1、b2 的結果只證明舊 mapping，不能沿用為 b4 的證據。
-- **方法**：同 b1、b2，對每個 definition 以 Agent tool 派一次不做事的任務（只回一行 ack），再以 Bindings §3.6 的核對指令讀 harness 紀錄。另對一個 definition 加 `model: fable` 派一次，核對 alias 的實際 model（Bindings §3.2 的 escalation／fallback 派工方式）。
+- **方法**：同 b1、b2，對九個 definition 各以 Agent tool 派一次不做事的任務（只回一行 ack），再以 Bindings §3.6 的核對指令讀 harness 紀錄。另依下表的派工參數各派一次，核對 per-dispatch alias／effort 的實際 model（Bindings §3.1、§3.2、§3.4）。
 - **全程核對**：每個 agent 的 (model, effort) 集合必須只有一個元素並等於預期值。
 
 ## 預期（待填觀測值）
@@ -98,3 +98,8 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 | `final_adjudicator` | `gov-final-adjudicator` | — | `claude-opus-5-5` ／ `xhigh` | | | |
 | `orchestrator` | `gov-orchestrator` | — | `claude-opus-5-5` ／ `medium`（只核對 definition；正式 run 以 root session transcript 核對） | | | |
 | E-AR／F-FA 等的 alias 路徑 | `gov-alternate-reviewer` | `model: fable` | `claude-fable-5-1` ／ `xhigh` | | | |
+| `investigator` | `gov-investigator` | — | `claude-sonnet-5-5` ／ `medium` | | | |
+| `investigator`（E-IN／F-IN） | `gov-investigator` | `model: opus` | `claude-opus-5-5` ／ `medium` | | | |
+| `bounded_worker`（`standard`） | `gov-bounded-worker` | — | `claude-sonnet-5-5` ／ `medium` | | | |
+| `bounded_worker`（`mechanical`，resolution） | `gov-bounded-worker` | `effort: low` | `claude-sonnet-5-5` ／ `low` | | | |
+| Haiku qualification probe | `gov-bounded-worker` | `model: haiku`、`effort: low` | `claude-haiku-5-5` ／ `low` | | | 通過後依 Bindings §3.4 改以 Haiku 擔任 `mechanical` 並記入 §9 |

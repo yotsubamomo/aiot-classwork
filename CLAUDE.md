@@ -31,7 +31,7 @@ Root 的 `AGENTS.md` 是給 Codex 用的指示檔，內容是從本檔整理出�
 - **on**：開始該單元的任何工作之前，先讀 `docs/governance/project-bindings.md`，再依其指示讀治理本文與 references。治理的 MUST／SHOULD／MAY 全部生效；本檔其他規則視為 Project Bindings 的一部分，與治理 MUST 衝突時以治理為準。
 - flag 沒有中間狀態，不能只關掉部分規則；Lightweight 或 Formal 由治理判定，不由 flag 決定。Bindings 採 Lightweight 優先：契約清楚、一個 execution unit 能完成的工作走 Lightweight；需要多個 execution units／dependencies，或需要設計新的語義基線時，才走 Formal（Spec＋Tickets＋Orchestrator）。
 - 變更 flag 是 Bindings 變更：只在 work item 之間切換，並記入 `docs/governance/project-bindings.md` 的變更紀錄。
-- 治理角色的 agent definitions 在 `.claude/agents/gov-*.md`，只在 governance on 的範圍依 Bindings 派工。
+- 治理角色與 bounded assignments 的 agent definitions 在 `.claude/agents/gov-*.md`，只在 governance on 的範圍依 Bindings 派工。
 
 ## 單元文件的存放位置
 
