@@ -1,6 +1,6 @@
 # Outcome Contract — HW2 Multiple Linear Regression（`home_work_02/`）
 
-- **狀態**：**DRAFT r4（2026-10-14）——未接受，不構成授權。** 只有 acceptor 在第 9 節留下接受紀錄（原文、日期、所接受的 commit SHA）後才生效（Bindings §2.3）。未接受前不得啟動 Formal run，也不得開始實作。
+- **狀態**：**ACCEPTED（2026-10-14）。** 接受的 normative 內容為第 1–8 節於 commit `e2153254ccf7a97475d1c22e10d6a1e0717c5497`（DRAFT r4）的版本，未作任何內容變更；接受紀錄見第 9 節（acceptor 原文逐字）。Agent 代寫的接受紀錄不等於取得授權（治理 §1.2、§5.3）；效力來自第 9.1 節的 acceptor 原文。
 - **取代**：draft r3（未 commit；sha256 `30a86a42c4588837d93ccc0b56d86b579d49cb8c368b3f848776bcc206b0e281`）。r3 建立在 r2（commit `1f1a916e6197213c2f7950728f8be9df7e92d27c`）之上；r2 取代 r1（未 commit）。逐條變更見第 10 節。
 - **依據**：Minimal Operational Governance v2.2 §1.2、§3.1 七項 properties；Project Bindings **b5**（2026-10-14 生效，`main` merge commit `5ebcc58eba1d776cc7380d391ced1dc503a3ee31`，PR #49）（[`../../../docs/governance/project-bindings.md`](../../../docs/governance/project-bindings.md)）§2.2、§2.3、§2.4、§2.5（含 SA-3）、§2.6、§4、§5、§7。
 - **來源紀錄**：Grill Brief v0.1 → v0.2 → v0.3（[`../brief/HW2_Grill_Brief_Draft_v0.3.md`](../brief/HW2_Grill_Brief_Draft_v0.3.md)）：confirmed decisions G1–G8（原文）、clarification decisions C1–C4（2026-10-14）、資料集核對證據（Brief §10）。Brief 是討論紀錄，不具 authority；**本檔與 Brief 不一致時以本檔為準**。特別是 conformal 的 exchangeability 陳述以本檔第 2.4.2 節為準，取代 Brief v0.3 §5.4 的寫法。
@@ -291,12 +291,70 @@ SA-1、SA-2 只涵蓋 `home_work_02/` 範圍內的 work item，commit message �
 
 | 項目 | 內容 |
 | --- | --- |
-| 狀態 | **未接受** |
-| Acceptor | — |
-| Acceptor 原始指示（引用原文） | — |
-| 日期 | — |
-| 接受的 commit SHA | — |
-| 接受時的修訂（若有） | — |
+| 狀態 | **已接受**（2026-10-14） |
+| Acceptor | GitHub `yotsubamomo`（Bindings §2.1），於 Claude Code 對話中以第 9.1 節原文接受 |
+| Acceptor 原始指示（引用原文） | 見第 9.1 節（逐字） |
+| 日期 | 2026-10-14 |
+| 接受的 commit SHA | `e2153254ccf7a97475d1c22e10d6a1e0717c5497`（branch `home_work_02-outcome-contract`：本檔第 1–8 節與 `doc/brief/HW2_Grill_Brief_Draft_v0.3.md` 於該 commit 的版本，未作任何內容變更）。適用 Project Bindings **b5**（`main` merge commit `5ebcc58eba1d776cc7380d391ced1dc503a3ee31`）。本接受紀錄寫入後的 commit：緊接其後、只改本節與檔頭狀態列的 follow-up commit |
+| 接受時的修訂（若有） | 無：第 1–8 節未變更 |
+| RB-1（本次特定授權） | acceptor 一次性、HW2 專屬的 RB-1 授權：HW2 **第一個**合併進 `main` 的 PR（其 diff 含 `home_work_02/doc/requirement/`，不在 SA-3 範圍內），可由獲授權的 Agent 在全部適用的 independent review、integration checks、release gates 與證據要求通過後自主合併；不得繞過失敗的 gate、合併無關變更或執行破壞性 Git 操作。這不是 SA-3 或 Project Bindings 的變更，也不構成 standing merge authority；之後的 PR 依第 4.2 節（SA-3） |
+| Fable fallback | acceptor 決定：Fable alias 實測未完成（Bindings §8.2 #3）**不阻擋** HW2 的 pre-Spec readiness；Fable 不可用時，Design Authority 與適用的 reviews 以 **Opus 5.5／`xhigh`** 作為 fallback，依有效治理的 model substitution 規則處理（Profile v2.5 §4.1；Bindings §3.1 O-2），並記錄替代、原因與驗證證據，維持 reviewer independence。不豁免任何 audit 或 gate |
+| Git 授權（確認 C5） | 依第 4.1、4.2 節：branch、本機 commit、push topic branch、開 PR 依 SA-1、SA-2；SA-3 適用且 gates 全部通過時自主合併；第一個 HW2 PR 依上列 RB-1 一次性授權；破壞性 Git 操作與未授權的第三方平台操作排除；iLearning 繳交保留給 acceptor |
+| 語言（確認第 2.5 節） | notebook 與報告使用 zh-TW；程式識別字與技術名詞可保留英文 |
+
+### 9.1 Acceptor 接受原文（2026-10-14，逐字）
+
+> I ACCEPT the HW2 Outcome Contract draft r4 at commit e2153254ccf7a97475d1c22e10d6a1e0717c5497 under Project Bindings b5 (main merge commit 5ebcc58eba1d776cc7380d391ced1dc503a3ee31).
+>
+> The following decisions and authorizations are explicitly confirmed:
+>
+> 1. **HW2 first merge — RB-1 one-time authorization**
+>
+>    I explicitly authorize the first HW2 PR merge into `main`, even though its diff includes `home_work_02/doc/requirement/`, which falls outside SA-3.
+>
+>    This is a one-time, HW2-specific RB-1 authorization, not a change to SA-3 or Project Bindings.
+>
+>    The merge may be executed autonomously by the authorized Agent only after all applicable independent reviews, integration checks, release gates, and evidence requirements pass.
+>
+>    Do not bypass failing gates, merge unrelated changes, or perform destructive Git operations.
+>
+> 2. **Fable fallback**
+>
+>    Fable is currently unavailable. Do not block HW2 pre-Spec readiness solely because the Fable alias probe remains incomplete.
+>
+>    Use **Opus 5.5 with Extra High thinking effort** as the fallback for Design Authority work and applicable reviews, subject to the effective governance's model substitution rules.
+>
+>    Record the substitution, its reason, and any required verification evidence. Maintain reviewer independence.
+>
+>    This decision does not waive required audits or other governance gates.
+>
+> 3. **Git authorization**
+>
+>    Confirm the accepted C5 Git authorization:
+>    - Branch creation, local commit, topic-branch push and PR creation are allowed under applicable standing authorizations.
+>    - Autonomous merge is allowed when SA-3 applies and all gates pass.
+>    - The first HW2 PR has the separate one-time RB-1 authorization stated above.
+>    - Destructive Git operations and unauthorized third-party platform operations remain excluded.
+>    - iLearning submission remains reserved for me.
+>
+> 4. **Language**
+>
+>    The HW2 notebook and report shall use Traditional Chinese (zh-TW), while code identifiers and technical terms may remain English.
+>
+> ## Required next actions
+>
+> 1. Record this acceptance statement verbatim in Outcome Contract §9, including the acceptance date and the exact accepted commit SHA.
+> 2. Create the required follow-up acceptance-record commit without changing the accepted technical boundaries.
+> 3. Verify that the recorded acceptance refers to the exact frozen r4 content.
+> 4. Prepare the Design Authority handoff and all required pre-Spec readiness evidence.
+> 5. Use the authorized Fable fallback where applicable.
+> 6. Report the readiness status and any remaining blockers.
+>
+> **Stop at the `/to-spec` entry point.**
+>
+> Do not automatically invoke
+
+寫入者：無角色主 session（session `8943ecf6`），依 acceptor 的明確指示（上文 Required next actions 第 1 項）逐字轉錄；接受與授權的效力來自上述 acceptor 原文，不來自本轉錄。原文於「Do not automatically invoke」處結束，依收到的內容照錄。第 1–8 節未變更。
 
 ## 10. 修訂紀錄
 
