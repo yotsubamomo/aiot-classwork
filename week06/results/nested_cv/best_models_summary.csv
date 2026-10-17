@@ -1,0 +1,6 @@
+Method,Best k,Selected Features,CV RMSE,CV R2,Test MAE,Test MSE,Test RMSE,Test R2
+Exhaustive Search,3,"R&D Spend, Administration, Marketing Spend",9266.78,0.9381,6979.15,80926321.22,8995.91,0.9001
+Forward SFS,3,"R&D Spend, Administration, Marketing Spend",9266.78,0.9381,6979.15,80926321.22,8995.91,0.9001
+Lasso (L1) Top-k,2,"R&D Spend, Marketing Spend",9186.68,0.9416,6469.18,67343832.59,8206.33,0.9168
+RFE,3,"R&D Spend, Administration, Marketing Spend",9104.68,0.9399,6979.15,80926321.22,8995.91,0.9001
+Elastic Net Top-k,3,"R&D Spend, Marketing Spend, Administration",9094.3,0.9424,6979.15,80926321.22,8995.91,0.9001

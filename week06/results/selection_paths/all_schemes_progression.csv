@@ -1,0 +1,26 @@
+Scheme,k,Chosen,Features,CV_RMSE,CV_R2,Test_MAE,Test_MSE,Test_RMSE,Test_R2
+Exhaustive best subset (CV),1,,R&D Spend,9406.58,0.9384,6077.36,59510962.81,7714.33,0.9265
+Exhaustive best subset (CV),2,,"R&D Spend, Administration",9163.35,0.939,7181.33,83764133.69,9152.27,0.8966
+Exhaustive best subset (CV),3,yes,"R&D Spend, Administration, Marketing Spend",9104.68,0.9399,6979.15,80926321.22,8995.91,0.9001
+Exhaustive best subset (CV),4,,"R&D Spend, Administration, Marketing Spend, State_Florida",9299.0,0.9377,6961.49,82010370.81,9055.96,0.8987
+Exhaustive best subset (CV),5,,"R&D Spend, Administration, Marketing Spend, State_Florida, State_New York",9550.68,0.934,6961.48,82010363.04,9055.96,0.8987
+Forward stepwise (CV),1,,R&D Spend,9406.58,0.9384,6077.36,59510962.81,7714.33,0.9265
+Forward stepwise (CV),2,,"R&D Spend, Administration",9163.35,0.939,7181.33,83764133.69,9152.27,0.8966
+Forward stepwise (CV),3,yes,"R&D Spend, Administration, Marketing Spend",9104.68,0.9399,6979.15,80926321.22,8995.91,0.9001
+Forward stepwise (CV),4,,"R&D Spend, Administration, Marketing Spend, State_Florida",9299.0,0.9377,6961.49,82010370.81,9055.96,0.8987
+Forward stepwise (CV),5,,"R&D Spend, Administration, Marketing Spend, State_Florida, State_New York",9550.68,0.934,6961.48,82010363.04,9055.96,0.8987
+Backward elimination (p-value),1,yes,R&D Spend,9406.58,0.9384,6077.36,59510962.81,7714.33,0.9265
+Backward elimination (p-value),2,,"R&D Spend, Marketing Spend",9186.68,0.9416,6469.18,67343832.59,8206.33,0.9168
+Backward elimination (p-value),3,,"R&D Spend, Administration, Marketing Spend",9104.68,0.9399,6979.15,80926321.22,8995.91,0.9001
+Backward elimination (p-value),4,,"R&D Spend, Administration, Marketing Spend, State_Florida",9299.0,0.9377,6961.49,82010370.81,9055.96,0.8987
+Backward elimination (p-value),5,,"R&D Spend, Administration, Marketing Spend, State_Florida, State_New York",9550.68,0.934,6961.48,82010363.04,9055.96,0.8987
+Lasso (L1 path),1,,R&D Spend,9406.58,0.9384,6077.36,59510962.81,7714.33,0.9265
+Lasso (L1 path),2,,"R&D Spend, Marketing Spend",9186.68,0.9416,6469.18,67343832.59,8206.33,0.9168
+Lasso (L1 path),3,yes,"R&D Spend, Marketing Spend, Administration",9104.68,0.9399,6979.15,80926321.22,8995.91,0.9001
+Lasso (L1 path),4,,"R&D Spend, Marketing Spend, Administration, State_Florida",9299.0,0.9377,6961.49,82010370.81,9055.96,0.8987
+Lasso (L1 path),5,,"R&D Spend, Marketing Spend, Administration, State_Florida, State_New York",9550.68,0.934,6961.48,82010363.04,9055.96,0.8987
+Best subset (BIC),1,,R&D Spend,9406.58,0.9384,6077.36,59510962.81,7714.33,0.9265
+Best subset (BIC),2,yes,"R&D Spend, Marketing Spend",9186.68,0.9416,6469.18,67343832.59,8206.33,0.9168
+Best subset (BIC),3,,"R&D Spend, Administration, Marketing Spend",9104.68,0.9399,6979.15,80926321.22,8995.91,0.9001
+Best subset (BIC),4,,"R&D Spend, Administration, Marketing Spend, State_Florida",9299.0,0.9377,6961.49,82010370.81,9055.96,0.8987
+Best subset (BIC),5,,"R&D Spend, Administration, Marketing Spend, State_Florida, State_New York",9550.68,0.934,6961.48,82010363.04,9055.96,0.8987
