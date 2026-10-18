@@ -192,3 +192,4 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **R1**：派 `gov-primary-reviewer`（fresh context），subject＝`0b57c02`，record `audit/issue-65-c1-r1.md`。
 - **R1**（agentId `a3ff011d2766ef922`）：`gov-primary-reviewer`；Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: **BLOCKING**（F-1 Medium／H-4：第 6、7 章把補充建議標成老師要求）；F-2、F-3 Low（可併入 F-1 修正）；F-4 Low（cell 28 缺字，owner #67，修正前須 DA 裁決）。
 - **Routing**：F-1 → 同一 Executor targeted correction（同一 worklog identity），之後 R2。F-4 的 DA 裁決在 #67 派工前派出（Orchestrator 記為 #67 前置事項；現在不派，以免與進行中的 Executor commit 交錯）。
+- **DA F-4**（agentId `aa476439fae02923e`；Opus 5.5／`high` 單一元素）：record `decisions/decision-20261019-cell28-glyphs.md`：缺字須修，由 #67 以獨立 commit 只改 cell 28 的一行（G-3），在條件 7 核對與完整重跑之前；條件 7(b)／N-3 依 G-5 調整；不改 accepted 語義，不需 acceptor。列入 #67 bounded pack。
