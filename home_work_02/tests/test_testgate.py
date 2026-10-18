@@ -24,6 +24,13 @@ class StubMetricOnly:
         return np.full(len(rows), self.value)
 
 
+ALPHAS = {"ridge": 1.0, "lasso": 0.01}      # stand-in fixed alphas (Ridge/Lasso arrive in #63)
+
+
+def stubs():
+    return {name: StubMetricOnly(alpha) for name, alpha in ALPHAS.items()}
+
+
 @pytest.fixture
 def small_run(tmp_path):
     """A fixture data set, its All-in and stand-in candidates, complete winners; gate not open."""
@@ -52,7 +59,7 @@ def test_official_test_rows_cannot_be_loaded_while_the_gate_is_closed(prepared_r
     with pytest.raises(testgate.TestGateClosed):
         gate.load_test_rows()
     with pytest.raises(testgate.TestGateClosed, match="TR-01"):
-        gate.open(small_run["winners"], {})              # even with complete winners
+        gate.open(small_run["winners"], ALPHAS)          # even with complete winners and alphas
     with pytest.raises(testgate.TestGateClosed):
         gate.evaluate({})
     assert gate.state == testgate.CLOSED
@@ -70,37 +77,38 @@ def test_gate_refuses_incomplete_winners_and_unfixed_alphas(small_run):
     partial = copy.deepcopy(small_run["winners"])
     partial.update(complete=False, overall=None, pending_methods=["rfe"])
     with pytest.raises(testgate.TestGateError, match="not fixed"):
-        gate.open(partial, {})
+        gate.open(partial, ALPHAS)
     with pytest.raises(testgate.TestGateError, match="alpha of ridge is not fixed"):
-        gate.open(small_run["winners"], {"ridge": None})
+        gate.open(small_run["winners"], {"ridge": None, "lasso": 0.01})
     with pytest.raises(testgate.TestGateError, match="metric-only"):
-        gate.open(small_run["winners"], {"elasticnet": 1.0})
+        gate.open(small_run["winners"], {**ALPHAS, "elasticnet": 1.0})
     assert gate.state == testgate.CLOSED
 
 
 def test_rows_load_only_inside_the_one_time_evaluation(small_run):
     gate = testgate.TestGate(small_run["prepared"])
     with pytest.raises(testgate.TestGateClosed):
-        gate.evaluate(small_run["ols"])                  # not open yet
-    gate.open(small_run["winners"], {})
+        gate.evaluate(small_run["ols"], stubs())         # not open yet
+    gate.open(small_run["winners"], ALPHAS)
     with pytest.raises(testgate.TestGateClosed):
         gate.load_test_rows()                            # open, but outside evaluate
-    result = gate.evaluate(small_run["ols"])
+    result = gate.evaluate(small_run["ols"], stubs())
     assert gate.state == testgate.EVALUATED
-    assert sorted(result.test) == sorted(small_run["winners"]["authorized_test_models"])
+    assert sorted(result.test) == sorted(small_run["winners"]["authorized_test_models"]
+                                         + ["lasso", "ridge"])
     assert result.test_inputs["n_rows"] == small_run["prepared"].n_test
     with pytest.raises(testgate.TestGateError, match="already ran"):
-        gate.evaluate(small_run["ols"])                  # second call in the same run
+        gate.evaluate(small_run["ols"], stubs())         # second call in the same run
     with pytest.raises(testgate.TestGateClosed):
         gate.load_test_rows()
     with pytest.raises(testgate.TestGateError, match="opens once"):
-        gate.open(small_run["winners"], {})
+        gate.open(small_run["winners"], ALPHAS)
 
 
 def test_test_rows_are_the_split_test_rows_of_the_data_file(small_run):
     gate = testgate.TestGate(small_run["prepared"])
-    gate.open(small_run["winners"], {})
-    result = gate.evaluate(small_run["ols"])
+    gate.open(small_run["winners"], ALPHAS)
+    result = gate.evaluate(small_run["ols"], stubs())
     rows = result.test_inputs["rows"]
     prepared = small_run["prepared"]
     assert [r[0] for r in rows] == sorted(prepared.test_rows.tolist())
@@ -114,14 +122,14 @@ def test_test_rows_are_the_split_test_rows_of_the_data_file(small_run):
 def test_only_the_frozen_authorized_set_is_scored(small_run):
     gate = testgate.TestGate(small_run["prepared"])
     winners = small_run["winners"]
-    gate.open(winners, {})
+    gate.open(winners, ALPHAS)
     winners_after = copy.deepcopy(winners)
     winners["authorized_test_models"].append("forward_sfs_k01")   # mutate after freezing
     try:
         extra = dict(small_run["ols"])
         extra["forward_sfs_k01"] = extra["allin"]
         with pytest.raises(testgate.TestGateError, match="differ from the authorized set"):
-            gate.evaluate(extra)
+            gate.evaluate(extra, stubs())
     finally:
         winners["authorized_test_models"] = winners_after["authorized_test_models"]
     assert gate.state == testgate.OPEN                  # a refused call did not consume the run
@@ -129,11 +137,11 @@ def test_only_the_frozen_authorized_set_is_scored(small_run):
 
 def test_missing_authorized_model_is_refused(small_run):
     gate = testgate.TestGate(small_run["prepared"])
-    gate.open(small_run["winners"], {})
+    gate.open(small_run["winners"], ALPHAS)
     fewer = dict(small_run["ols"])
     fewer.pop("allin")
     with pytest.raises(testgate.TestGateError, match="authorized set"):
-        gate.evaluate(fewer)
+        gate.evaluate(fewer, stubs())
 
 
 def test_metric_only_models_go_through_the_same_gate_once(small_run):
@@ -141,7 +149,9 @@ def test_metric_only_models_go_through_the_same_gate_once(small_run):
     gate = testgate.TestGate(small_run["prepared"])
     gate.open(small_run["winners"], {"ridge": 1.0, "lasso": 0.01})
     with pytest.raises(testgate.TestGateError, match="frozen alphas"):
-        gate.evaluate(small_run["ols"], {"ridge": StubMetricOnly(1.0)})
+        gate.evaluate(small_run["ols"], {"ridge": StubMetricOnly(1.0)})     # lasso missing
+    with pytest.raises(testgate.TestGateError, match="frozen alphas"):
+        gate.evaluate(small_run["ols"])                                    # both missing
     with pytest.raises(testgate.TestGateError, match="differs from the frozen alpha"):
         gate.evaluate(small_run["ols"], {"ridge": StubMetricOnly(2.0),
                                          "lasso": StubMetricOnly(0.01)})
@@ -166,9 +176,36 @@ def test_the_gate_reads_the_file_it_split(small_run, tmp_path):
     try:
         path.write_bytes(original.replace(b"\n", b"\r\n", 1))
         gate = testgate.TestGate(prepared)
-        gate.open(small_run["winners"], {})
+        gate.open(small_run["winners"], ALPHAS)
         with pytest.raises(data.DataIntegrityError):
-            gate.evaluate(small_run["ols"])
+            gate.evaluate(small_run["ols"], stubs())
         assert gate.state == testgate.EVALUATED          # a failed evaluation still ends the run
     finally:
         path.write_bytes(original)
+
+
+@pytest.mark.parametrize("alphas", [
+    {},                                      # both omitted
+    {"ridge": 1.0},                          # Lasso omitted
+    {"lasso": 0.01},                         # Ridge omitted
+    {"ridge": 1.0, "lasso": None},           # Lasso not fixed
+    {"ridge": float("nan"), "lasso": 0.01},  # Ridge not fixed
+    {"ridge": 0.0, "lasso": 0.01},           # not a valid alpha
+], ids=["none", "ridge-only", "lasso-only", "lasso-none", "ridge-nan", "ridge-zero"])
+def test_gate_refuses_to_open_unless_both_metric_only_alphas_are_fixed(small_run, alphas):
+    """#61 R1 F-1 (CC-1, G-3): omitting Ridge or Lasso is refused, so no OLS test result can be
+    seen before both alphas are fixed by training CV."""
+    gate = testgate.TestGate(small_run["prepared"])
+    with pytest.raises(testgate.TestGateError, match="is not fixed"):
+        gate.open(small_run["winners"], alphas)
+    assert gate.state == testgate.CLOSED
+    with pytest.raises(testgate.TestGateClosed):
+        gate.evaluate(small_run["ols"], stubs())        # nothing was scored
+    gate.open(small_run["winners"], ALPHAS)             # the run is not consumed by the refusals
+    assert gate.state == testgate.OPEN
+
+
+def test_fixture_run_scores_both_metric_only_stand_ins_once(fixture_run):
+    test = fixture_run["evaluation"].test
+    assert sorted(k for k, v in test.items() if v["kind"] == "metric_only") == ["lasso", "ridge"]
+    assert {test[k]["alpha"] for k in ("ridge", "lasso")} == set(fixture.FIXTURE_ALPHAS.values())

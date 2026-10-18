@@ -70,7 +70,8 @@ def test_allin_entry_has_cv_in_usd_and_fit_on_the_log_scale(fixture_model_data):
     assert fit["zipcode_baseline"] == fit["zipcode_categories"][0]
 
 
-def test_ols_subset_keys_equal_the_authorized_set_and_metric_only_is_absent(fixture_model_data):
+def test_ols_subset_keys_equal_the_authorized_set_and_metric_only_is_ridge_and_lasso(
+        fixture_model_data):
     md, _ = fixture_model_data
     w = md["winners"]
     assert w["complete"] and w["overall"]["model_key"] in w["authorized_test_models"]
@@ -78,7 +79,10 @@ def test_ols_subset_keys_equal_the_authorized_set_and_metric_only_is_absent(fixt
     assert ols_keys == set(w["authorized_test_models"])
     assert "allin" in ols_keys
     assert {m["model_key"] for m in w["method_winners"].values()} <= ols_keys
-    assert all(md["test"][k]["kind"] == "ols_subset" for k in md["test"])   # no Ridge/Lasso yet
+    metric = {k: v for k, v in md["test"].items() if v["kind"] == "metric_only"}
+    assert sorted(metric) == ["lasso", "ridge"]            # fixture stand-ins (CC-1 shape)
+    assert all(set(v) == contract.METRIC_ONLY_TEST_KEYS for v in metric.values())
+    assert set(md["test"]) == ols_keys | set(metric)
 
 
 def test_independent_recomputation_of_every_test_row(fixture_model_data):
@@ -86,6 +90,8 @@ def test_independent_recomputation_of_every_test_row(fixture_model_data):
     actual = np.array([r[-1] for r in md["test_inputs"]["rows"]], dtype=float)
     assert md["test_inputs"]["fields"][-1] == "actual_price"
     for key, entry in md["test"].items():
+        if entry["kind"] != "ols_subset":
+            continue
         fit = _fit_of(md, key)
         D = _design(md, fit)
         yhat = D @ np.array(fit["coef"])
@@ -135,6 +141,8 @@ def test_test_inputs_counts_houses_and_repeat_sales(fixture_model_data):
      "lower"),
     (lambda md: md["winners"]["authorized_test_models"].append("ridge"), "metric-only"),
     (lambda md: md.pop("test"), "only together with test"),
+    (lambda md: md["test"].pop("lasso"), "metric_only entries"),
+    (lambda md: [md["test"].pop(k) for k in ("ridge", "lasso")], "metric_only entries"),
 ])
 def test_contract_violations_are_rejected(fixture_model_data, tamper, needle):
     md = copy.deepcopy(fixture_model_data[0])

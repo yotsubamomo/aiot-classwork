@@ -113,12 +113,12 @@
    "matplotlib": "3.11.2"
   },
   "timing_s": {
-   "data_load_validate": 0.0966,
-   "split_and_folds": 0.0451,
-   "allin_cv": 1.7986,
-   "allin_canonical_fit": 0.3333
+   "data_load_validate": 0.0344,
+   "split_and_folds": 0.0166,
+   "allin_cv": 0.4718,
+   "allin_canonical_fit": 0.0737
   },
-  "generated_at": "2026-10-18T10:04:55+00:00"
+  "generated_at": "2026-10-18T10:41:04+00:00"
  },
  "preprocess": {
   "source_features": [

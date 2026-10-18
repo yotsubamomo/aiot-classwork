@@ -6,9 +6,10 @@ evaluation can run **only** through it:
 1. A gate belongs to one run (one :class:`~hw2.data.PreparedData`). It starts ``closed``.
 2. :meth:`TestGate.open` freezes the selection: the complete ``winners`` (every path method's CV
    winner, the All-in baseline and the overall CV winner fixed) and the training-CV alpha of
-   every metric-only model (Ridge, Lasso; CC-1). An incomplete selection is refused.
+   **both** metric-only models (Ridge and Lasso; CC-1). An incomplete selection — including a
+   missing Ridge or Lasso alpha — is refused.
 3. :meth:`TestGate.evaluate` loads the test rows once, scores exactly the authorized OLS subset
-   models (``kind = "ols_subset"``) and the frozen metric-only models (``kind = "metric_only"``),
+   models (``kind = "ols_subset"``) and both frozen metric-only models (``kind = "metric_only"``),
    each once, and returns ``test_inputs`` and ``test`` together. A second call raises, so does a
    call for a model outside the frozen selection.
 4. For the official data file (identified by its sha256), the gate cannot be opened while
@@ -90,13 +91,19 @@ class TestGate:
                                 "overall CV winner must be determined before the test gate opens")
         if winners.get("pending_methods"):
             raise TestGateError(f"winners pending for {winners['pending_methods']}")
+        alphas = dict(alphas or {})
         unknown = set(alphas) - set(METRIC_ONLY_MODELS)
         if unknown:
             raise TestGateError(f"only {METRIC_ONLY_MODELS} are metric-only models, not "
                                 f"{sorted(unknown)}")
-        for name, alpha in alphas.items():
+        # CC-1 / G-3 (#61 R1 F-1): every metric-only alpha must be fixed by training CV before
+        # the gate opens; omitting Ridge or Lasso (or both) is refused, not treated as "none".
+        for name in METRIC_ONLY_MODELS:
+            alpha = alphas.get(name)
             if alpha is None or not np.isfinite(float(alpha)) or float(alpha) <= 0:
-                raise TestGateError(f"alpha of {name} is not fixed")
+                raise TestGateError(f"alpha of {name} is not fixed: the alphas of all metric-only "
+                                    f"models {METRIC_ONLY_MODELS} must be fixed before the test "
+                                    "gate opens")
         self._winners = _freeze(winners)
         self._alphas = {k: float(v) for k, v in alphas.items()}
         self._opened_at = _now()

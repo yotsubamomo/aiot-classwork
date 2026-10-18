@@ -4,7 +4,7 @@
 no test field under ``methods`` or ``baselines``; ``baselines.allin`` is the single OLS on all 18
 groups; every valid entry has ``cv`` (USD) and ``fit`` (log scale, full rank, (XᵀX)⁻¹ of the right
 size); ``winners`` names valid entries only and never a metric-only model; ``test`` has
-``ols_subset`` keys equal to the authorized set and ``metric_only`` only for Ridge and Lasso, with
+``ols_subset`` keys equal to the authorized set and ``metric_only`` entries for exactly Ridge and Lasso, with
 per-row fields, ``covered``, coverage and mean width consistent with ``test_inputs``.
 
 ``test_inputs`` (Spec rev 5 SR-02, SR-08): one row per test sale with the row identifiers
@@ -308,8 +308,10 @@ def validate_test(md: dict) -> None:
     if ols_keys != authorized:
         raise ContractError(f"ols_subset keys {sorted(ols_keys)} != authorized "
                             f"{sorted(authorized)}")
-    if not metric_keys <= set(METRIC_ONLY_KEYS):
-        raise ContractError(f"metric_only is only for {METRIC_ONLY_KEYS}")
+    if metric_keys != set(METRIC_ONLY_KEYS):
+        # CC-1: Ridge and Lasso are each scored once in the same evaluation (#61 R1 F-1, C3).
+        raise ContractError(f"metric_only entries {sorted(metric_keys)} must be exactly "
+                            f"{list(METRIC_ONLY_KEYS)}")
     n = ti["n_rows"]
     actual = np.array([r[-1] for r in ti["rows"]], dtype=float)
     for key in metric_keys:

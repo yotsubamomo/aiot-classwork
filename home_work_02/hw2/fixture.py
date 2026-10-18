@@ -10,7 +10,10 @@ run through **the same code path as the official data** — :func:`hw2.data.load
 
 The four path methods do not exist before #62, so the fixture stands in a few fixed subsets per
 path method (:data:`FIXTURE_SUBSETS`; not selected by any method) so that the winners are complete
-and the gate can open. Fixture ``model_data`` is never written inside the unit directory
+and the gate can open. Ridge and Lasso do not exist before #63 either, and the gate opens only
+with both metric-only alphas fixed (CC-1, G-3), so the fixture also stands in two metric-only
+models (:class:`StandInMetricOnly`: fixed alphas, a constant prediction; not Ridge or Lasso fits).
+Fixture ``model_data`` is never written inside the unit directory
 (:func:`write_fixture`), so it cannot reach the tracked official paths or be used as a result.
 
 ``python -m hw2.fixture OUT_DIR [--houses N]`` writes a fixture copy of the dashboard to OUT_DIR
@@ -39,8 +42,27 @@ FIXTURE_SUBSETS = {
 _ZIPCODES = tuple(f"98{v:03d}" for v in range(1, 71))          # 70 synthetic labels
 
 
+FIXTURE_ALPHAS = {"ridge": 1.0, "lasso": 0.001}
+
+
 class FixtureError(RuntimeError):
     pass
+
+
+class StandInMetricOnly:
+    """Stands in for a metric-only model in fixtures: a fixed alpha and a constant prediction
+    (exp of the mean ln(price) of the training rows). Not a Ridge or Lasso fit (those are #63)."""
+
+    def __init__(self, alpha: float, training: pd.DataFrame):
+        self.alpha = float(alpha)
+        self.value = float(np.exp(np.log(training["price"].to_numpy(dtype=float)).mean()))
+
+    def predict_usd(self, rows: pd.DataFrame) -> np.ndarray:
+        return np.full(len(rows), self.value)
+
+
+def stand_in_metric_only(training: pd.DataFrame, alphas: dict = FIXTURE_ALPHAS) -> dict:
+    return {name: StandInMetricOnly(alpha, training) for name, alpha in alphas.items()}
 
 
 def synthetic_sales(n_houses: int = 3000, n_repeats: int = 30, seed: int = FIXTURE_SEED,
@@ -114,7 +136,9 @@ def run_fixture(workdir: Path, n_houses: int = 3000, n_repeats: int = 30,
     """Generate a synthetic CSV in `workdir` and run it through the official code path.
 
     Returns ``{"csv", "prepared", "allin", "candidates", "winners", "gate", "evaluation",
-    "model_data"}``. `metric_only`/`alphas` may stand in metric-only models for gate tests.
+    "model_data"}``. `metric_only` maps ``ridge``/``lasso`` to stand-in metric-only models and
+    `alphas` gives their fixed alphas (default: :func:`stand_in_metric_only` with
+    :data:`FIXTURE_ALPHAS`).
     """
     workdir = _outside_unit(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
@@ -129,13 +153,19 @@ def run_fixture(workdir: Path, n_houses: int = 3000, n_repeats: int = 30,
                       for s in subsets] for m, subsets in FIXTURE_SUBSETS.items()}
     winners = models.determine_winners(allin, candidates)
     gate = testgate.TestGate(prepared)
-    gate.open(winners, alphas or {})
+    if metric_only is None:
+        alphas = dict(FIXTURE_ALPHAS if alphas is None else alphas)
+        metric_only = stand_in_metric_only(prepared.training, alphas)
+    elif alphas is None:
+        alphas = {name: model.alpha for name, model in metric_only.items()}
+    gate.open(winners, alphas)
     pool = [allin] + [c for cs in candidates.values() for c in cs]
-    evaluation = gate.evaluate(testgate.ols_models_for(winners, pool), metric_only or {})
+    evaluation = gate.evaluate(testgate.ols_models_for(winners, pool), metric_only)
     md = export.build_model_data(prepared, fixture=True, allin=allin, winners=winners,
                                  methods=candidates, evaluation=evaluation)
     md["meta"]["fixture_note"] = ("SYNTHETIC FIXTURE: generated data, not the King County file; "
-                                  "the path-method subsets are fixed stand-ins, not selections. "
+                                  "the path-method subsets and the metric-only models are fixed "
+                                  "stand-ins, not selections or Ridge/Lasso fits. "
                                   "Never a result.")
     return {"csv": csv, "prepared": prepared, "allin": allin, "candidates": candidates,
             "winners": winners, "gate": gate, "evaluation": evaluation, "model_data": md}
