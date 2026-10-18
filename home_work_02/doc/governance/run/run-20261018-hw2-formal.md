@@ -51,7 +51,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
 | #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
 | #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
-| #63 T4 | #62 | READY → 派工 | `worklog/issue-63.md` | — |
+| #63 T4 | #62 | targeted correction（DA C-1） | `worklog/issue-63.md` | — |
 | #64 T5 | #62 | 待執行 | — | — |
 | #65 T6 | #63、#64 | 待執行 | — | — |
 | #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
@@ -124,3 +124,11 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-62-c1-r1.md`。
 - **R1**（agentId `afae922d84d46d6dc`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: CLOSURE；F-1（Low，D-2 共享標示）、F-2（Medium，375 px 溢出，影響 OV-2）、F-3（Low，缺測試）皆 non-blocking，owner #63（F-2 另 #67 量測 OV-2 時須 Test 區塊有資料）。#60 F-2、#61 F-2／F-3 resolved。
 - **Completion predicates**：P1 #61 已結案；P2 引用鏈存在；P3 evidence 在 worklog；P4 R1 CLOSURE；P5 無 blocking；P6 C-1 有 DA record；P7 closed subject＝`a2811e9`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`f6298e9`）。→ **#62 結案**。
+
+## 12. #63
+
+- **Executor**（agentId `a9f28ccd59c59b6b3`）：`DONE_WITH_CONCERNS`＋C-1 `BLOCKED`（Design Authority）；`gov-executor`；`('claude-opus-5-5','high')` 298 則，單一元素。
+- **Commits**：`69eb814`（gate 關閉的實作）→ `1aefe05`（pre-gate 狀態紀錄）→ `d413e58`（開啟 gate）→ `052984ba21568499aad4b02e6ba8c564901e8c76`（**唯一一次正式 Test 評估**的產出；run id `fe76019b…`，result digest `b53ff286…`）→ `9073927`（worklog）。Machine gates：變更全在 `home_work_02/`、無 `doc/requirement/`。
+- **Required gate 失敗**：Node 逐筆重算（`tests/test_node_core.py`）在 2／25,938 個數值超過絕對 1e-6。Orchestrator 不判斷 gate 是否適用（orch-default §7 P3）。
+- **Routing**：C-1 指明 Design Authority → 直接派 DA（agentId `a402db018ade125ae`；Opus 5.5／`high` 單一元素）。Record `decisions/decision-20261018-issue63-js-tolerance.md`：容差為**相對 1e-6**（§5.3 第 2 類 clarification，不改 accepted 語義，不需 acceptor，**不重新評估**）；§7 指定只改測試的 targeted correction。
+- **Targeted correction**：依 DA record §7，以 SendMessage 續派同一 Executor（同一 worklog identity）。
