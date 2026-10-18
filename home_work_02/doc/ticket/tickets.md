@@ -1,0 +1,40 @@
+# HW2 票務索引（`home_work_02/`）
+
+票本身開在 GitHub Issues；本檔只放索引：編號、標題、依賴、狀態與連結，不複製票的內容（Bindings b5 §7；`CLAUDE.md`）。
+
+- **來源 Spec**：[`../spec/SPEC.md`](../spec/SPEC.md) **rev 5**（GitHub issue #59，Parent）。
+- **契約鏈**：Brief @ `dff7c55c`＋CC-1 → Spec rev 5 → DA [`../governance/decisions/derivation-SPEC.md`](../governance/decisions/derivation-SPEC.md)（§9 Tickets 的分配與覆蓋）。票由 MATT `/to-tickets` 產生草稿（2026-10-18，acceptor 確認 8 張 tracer-bullet 切片與 Test 時序修訂後發布）；票的 authority 來自 DA derivation，不來自 skill。
+- **前一代票**：#50–#56（r4／Spec v1.1）已於 2026-10-18 關閉為 not planned，見 [`decision-20261018-r4-derived-contracts-disposition.md`](../governance/decisions/decision-20261018-r4-derived-contracts-disposition.md)。
+
+| # | 票 | Blocked by | 高風險 | 狀態 | 連結 |
+| --- | --- | --- | --- | --- | --- |
+| #60 | T1 資料基線、分組切分與 model_data 契約骨架 | — | H-1、H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/60> |
+| #61 | T2 All-in baseline 端到端：fit、PI、test 守門、dashboard 垂直切片（fixture 驗證 test 流程，不評估正式 test） | #60 | H-2、H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/61> |
+| #62 | T3 四種特徵選擇方法 k=1…18、canonical subsets 與 CV winners（不評估正式 test） | #61 | H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/62> |
+| #63 | T4 Ridge／Lasso 對照、p-value backward、Adjusted R² 與**一次性正式 Test 評估** | #62 | H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/63> |
+| #64 | T5 五大假設診斷、模型解釋與 Deployment | #62 | H-3、H-4 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/64> |
+| #65 | T6 報告 draft、單元 README 與 ACCEPTANCE.md | #63、#64 | H-2、H-4 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/65> |
+| #66 | T7 Acceptor 證據整合與 final 報告 | #65；acceptor 輸入（ChatGPT PDF、NotebookLM 材料） | H-1、H-4 | 待執行（等待 acceptor 輸入） | <https://github.com/yotsubamomo/aiot-classwork/issues/66> |
+| #67 | T8 打包、離線驗收（OV-1～OV-6）、乾淨環境重跑與整合 | #66；acceptor 輸入（學號）；root 檔案一列另需 RB-5 授權 | H-1～H-4 | 待執行（等待 acceptor 輸入） | <https://github.com/yotsubamomo/aiot-classwork/issues/67> |
+
+狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。
+
+```text
+#60 → #61 → #62 → #63 ─┐
+                 └→ #64 ─┴→ #65 → #66 → #67
+                          ↑        ↑
+             acceptor：ChatGPT PDF、NotebookLM    acceptor：學號；root 檔案 RB-5
+```
+
+Bindings 並行度 1：實際執行順序為 #60、#61、#62、#63、#64、#65、#66、#67（#63 與 #64 彼此獨立，依票號先後執行）。
+
+## 共同義務（每張票 body 的「共同條款」）
+
+Parent #59；AC 只引用 Spec rev 5 與 DA 義務；不重開已接受的決定；Wireframe v0.2 只作 UI 參考；正式 Test 評估只在 #63 一次執行；N-10 不設 CI、不以 PR checks 為條件；高風險 A-1～A-8；push 須 acceptor 明確授權、合併屬 RB-1；worklog `issue-<n>.md`。
+
+## 覆蓋摘要（DA §9 為準）
+
+- DA G-1～G-4：#63（G-1、G-2、G-3、G-4）；#61 建立 G-3 守門；#62 斷言 G-2。
+- OV-1～OV-6：#67 驗收；#60 靜態掃描前置；#61 內建 OV-6 量測。
+- F-4 補充義務（Kaggle 名次說明、notebook 六章、README、學號設定路徑）：#60、#65。
+- Acceptor 輸入：#66（ChatGPT PDF、NotebookLM）、#67（學號、root 檔案 RB-5）。

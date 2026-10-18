@@ -25,3 +25,13 @@
 - **Binding 核對（全程，採用前）**：agentId `ac5187e3186c3b3bf` 累計 101 則 assistant 訊息，(model, effort)＝{(`claude-opus-5-5`, `high`)}，等於有效 mapping。
 - **一致性檢查**：Brief／CONTEXT 沒有殘留「test 只對 CV winner」的排他敘述；Spec `metric_only` 的 schema、不變量、pytest／Node 檢查存在；issue #59 本文與 SPEC.md 逐字元相同。
 - **未做**：`/to-tickets`、實作、push、merge。
+
+## Ticket derivation（2026-10-18）
+
+- **依據**：acceptor 原文（AD-2 與 `/to-tickets` 決定）：「接受 8 張 Tracer-Bullet Tickets 的粒度與架構」；Required Revision：正式 Test Evaluation 只在 Ticket 4 執行一次，Ticket 2、3 以 fixture 驗證；「授權發布這 8 張 Tickets，Parent 為 Issue #59」；「本次只授權 Ticket 產生、驗證、發布與必要紀錄。不授權 Implementation、Merge 或 Deployment；不授權一般 Git push，除非另有明確授權。」
+- **MATT `/to-tickets`**：由 acceptor 親自輸入 skill（skill 為 user-invoke-only）；本 session 依 skill 流程草擬、經 acceptor 確認後發布。Skill 本身沒有 validator 腳本；發布前的檢查由本 session 執行：覆蓋 token（G-1～G-4、OV-1～OV-6、N-10、F-4、H-1～H-4、A-1～A-8、BR-03、CC-1、SR-02、SR-09、Q34、Wireframe v0.2）全部出現；依賴邊 60→61→62→{63,64}→65→66→67 無環；每票 AC ≥ 4；「PR checks」只以禁止句出現。
+- **發布**：#60～#67，label `ready-for-agent`，body 含 Parent #59 與共同條款；索引 `doc/ticket/tickets.md`。
+- **DA §9**：同一 agent 填寫 `derivation-SPEC.md` §9（分配、依賴、Test 時序 boundary 判定與五項條件、I-1～I-3 解讀、覆蓋檢查、TK-1～TK-5）。Binding 核對（全程）：118 則 assistant 訊息皆 (`claude-opus-5-5`, `high`)。
+- **TK-2～TK-5 同步到票**：本 session 以追加 AC 的方式同步到 #61、#62、#63、#64、#65、#67（結果 CSV／PNG 的產出與引用、兩句報告陳述、`methods`／`baselines` 無 test 欄位的斷言、「Fit」＝training set 與標示依據的措辭）。
+- **TK-1 待 acceptor**：GitHub Pages URL 的檢查無票可做（Pages 只發布 `main`，合併屬 RB-1）；#67 記為 NOT TESTED（pending merge）。
+- **未做**：push、實作、Orchestrator、Fable probe（Orchestrator 啟動前完成）。
