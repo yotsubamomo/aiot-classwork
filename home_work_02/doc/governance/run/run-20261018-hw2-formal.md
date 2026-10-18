@@ -207,3 +207,4 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | 所需 authority | Acceptor（治理 §1.5 第 1 項；Bindings §2.6 RB-3／RB-5 不涉及；輸入屬 Brief §9 acceptor 專屬） |
 | Blocker 與恢復條件 | **Blocker**：上列 (1)(2) 不存在。**恢復條件**：acceptor 把 ChatGPT PDF 與 NotebookLM 材料放進 `home_work_02/acceptor_materials/`（未追蹤），並在對話中告知 → Orchestrator 核對檔案存在後派 #66。#67：#66 結案、`.local/packaging.json` 已由 acceptor 放入，且 root 兩列取得 RB-5 授權後派工；F-4（cell 28）依 DA record 在 #67 內處理 |
 | 其他路徑 | 沒有其他可執行的票。Spec Integration Audit 與 DA phase acceptance 依 orch-default §6 在全部票結案後才派，不提前 |
+- **Acceptor 2026-10-19 回覆（逐字）**：「材料稍後提供，先維持停止狀態。」→ #66、#67 維持 BLOCKED；run 在此 checkpoint 暫停於 §16 的 boundary，恢復條件不變。
