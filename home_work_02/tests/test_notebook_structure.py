@@ -84,3 +84,31 @@ def test_modeling_and_evaluation_state_the_selection_protocol_and_its_bias():
     for phrase in ("選擇偏誤", "樂觀偏誤", "不是它表現的不偏估計", "Test 評估才是 CV winner 表現的獨立估計",
                    "同一模型只評估一次"):
         assert phrase in evaluation, phrase
+
+
+def test_comparison_models_adjusted_r2_and_the_one_time_evaluation_are_stated():
+    """#63 AC: Ridge/Lasso (training-CV alpha, metric-only), the p-value comparison, Adjusted R²
+    only for OLS subsets, and the one-time Test evaluation with training-CV and Test kept apart."""
+    modeling = "\n".join(_chapters()["Modeling"])
+    for phrase in ("Ridge 與 Lasso", "alpha 只以 training CV 選", "metric-only", "不參與 CV winner",
+                   "p-value backward", "group 層級的 partial F 檢定", "門檻 0.05", "不在 Test 上評估",
+                   "fold-internal selection"):
+        assert phrase in modeling, phrase
+    evaluation = "\n".join(_chapters()["Evaluation"])
+    for phrase in ("Adjusted R²", "只對 OLS 子集模型", "不適用", "唯一一次的 Test 評估",
+                   "第二次呼叫會報錯", "Test 結果不回饋任何選擇", "訓練 CV（USD）", "Test 評估（USD）",
+                   "Test 只評估一次"):
+        assert phrase in evaluation, phrase
+
+
+def test_the_executed_notebook_ran_the_test_evaluation_once():
+    """G-3: one evaluate call scores; the only other call is the refused second call."""
+    code = [c for c in _cells() if c["cell_type"] == "code"]
+    calls = [c for c in code if "gate.evaluate(" in "".join(c["source"])]
+    assert len(calls) == 2
+    def text(cell):
+        return "".join("".join(o["text"]) if isinstance(o.get("text"), list) else o.get("text", "")
+                       for o in cell.get("outputs", []))
+    assert "manifest:" in text(calls[0]) and "'evaluations_in_this_run': 1" in text(calls[0])
+    assert "second evaluation refused: the test evaluation already ran in this run" in text(calls[1])
+    assert sum("gate.open(" in "".join(c["source"]) for c in code) == 1

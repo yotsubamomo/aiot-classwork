@@ -12,21 +12,30 @@ evaluation can run **only** through it:
    models (``kind = "ols_subset"``) and both frozen metric-only models (``kind = "metric_only"``),
    each once, and returns ``test_inputs`` and ``test`` together. A second call raises, so does a
    call for a model outside the frozen selection.
-4. For the official data file (identified by its sha256), the gate cannot be opened while
-   :data:`OFFICIAL_TEST_GATE_ENABLED` is false. It stays false until #63 (TR-01: the gate opens
-   only there, after every training-CV selection and alpha is fixed). Independently of that flag,
-   the official test rows can be loaded at most once per Python process.
+4. For the official data (:func:`is_official`), the gate cannot be opened while
+   :data:`OFFICIAL_TEST_GATE_ENABLED` is false. It was false until #63 (TR-01: the gate opens
+   only there, after every training-CV selection and alpha is fixed); #63 set it to true after
+   the selection was fixed and recorded. Independently of that flag, the official test rows can
+   be loaded at most once per Python process.
+5. Every evaluation returns a **manifest**: a run identifier, the open and evaluation timestamps,
+   a sha256 digest of the frozen selection (winners and metric-only alphas), the authorized keys,
+   the data sha256 and a digest of the test row positions (G-3 record; DA §9.3 condition 2).
 
 Synthetic fixtures go through the same gate and the same code path; only their data file differs.
 """
+import hashlib
+import json
 import time
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from . import contract, data, metrics, ols
+from .paths import DATA_CSV
 
 # DA TR-01: opened only in #63, after every training-CV selection and alpha is fixed.
 OFFICIAL_TEST_GATE_ENABLED = False
@@ -45,7 +54,27 @@ class TestGateClosed(TestGateError):
 
 
 def is_official(prepared: data.PreparedData) -> bool:
-    return prepared.sha256 == data.EXPECTED_SHA256
+    """Whether the run uses the official data (fail-closed; #61 R1 F-4).
+
+    The sha256 alone would treat a byte-modified copy of the official file as non-official, so the
+    data also counts as official when it was read from the official path, or when its structure
+    matches the official file (21,613 rows and 21,436 unique ids). Synthetic fixtures differ in
+    all three."""
+    if prepared.sha256 == data.EXPECTED_SHA256:
+        return True
+    if prepared.source_path is not None and \
+            Path(prepared.source_path).resolve() == DATA_CSV.resolve():
+        return True
+    facts = prepared.facts or {}
+    return (facts.get("n_rows"), facts.get("n_unique_ids")) == (data.EXPECTED_ROWS,
+                                                               data.EXPECTED_UNIQUE_IDS)
+
+
+def selection_digest(winners: dict, alphas: dict) -> str:
+    """sha256 of the frozen selection (complete winners and the metric-only alphas)."""
+    text = json.dumps({"winners": winners, "alphas": {k: float(v) for k, v in alphas.items()}},
+                      sort_keys=True, ensure_ascii=True, separators=(",", ":"))
+    return hashlib.sha256(text.encode("ascii")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -55,6 +84,7 @@ class TestEvaluation:
     opened_at: str
     evaluated_at: str
     timing_s: dict
+    manifest: dict
 
 
 class TestGate:
@@ -65,6 +95,8 @@ class TestGate:
         self._alphas = None
         self._opened_at = None
         self._evaluating = False
+        self._digest = None
+        self._run_id = None
 
     @property
     def state(self) -> str:
@@ -106,6 +138,8 @@ class TestGate:
                                     "gate opens")
         self._winners = _freeze(winners)
         self._alphas = {k: float(v) for k, v in alphas.items()}
+        self._digest = selection_digest(self._winners, self._alphas)
+        self._run_id = uuid.uuid4().hex
         self._opened_at = _now()
         self._state = OPEN
 
@@ -170,7 +204,8 @@ class TestGate:
             self._state = EVALUATED                 # no second evaluation, even on error
         t1 = time.perf_counter()
         actual = rows["price"].to_numpy(dtype=float)
-        test_inputs = contract.build_test_inputs(rows)
+        training_zipcodes = sorted(self._prepared.training["zipcode"].astype(str).unique())
+        test_inputs = contract.build_test_inputs(rows, training_zipcodes)
         test = {}
         for key in authorized:
             model = ols_models[key]
@@ -195,10 +230,29 @@ class TestGate:
                           "alpha": self._alphas[name], "n_test": int(actual.size),
                           **metrics.usd_metrics(actual, point)}
         t2 = time.perf_counter()
+        evaluated_at = _now()
+        positions = ",".join(str(int(r)) for r in rows["row"])
+        manifest = {
+            "run_id": self._run_id,
+            "official_data": self.official,
+            "data_sha256": self._prepared.sha256,
+            "opened_at": self._opened_at,
+            "evaluated_at": evaluated_at,
+            "selection_digest": self._digest,
+            "selection_digest_rule": "sha256 of the sorted-key JSON of the frozen winners and "
+                                     "metric-only alphas (hw2.testgate.selection_digest)",
+            "authorized_test_models": list(authorized),
+            "metric_only_alphas": dict(self._alphas),
+            "n_test": int(actual.size),
+            "test_rows_digest": hashlib.sha256(positions.encode("ascii")).hexdigest(),
+            "scored": {"ols_subset": list(authorized), "metric_only": sorted(metric_only)},
+            "evaluations_in_this_run": 1,
+        }
         return TestEvaluation(test_inputs=test_inputs, test=test, opened_at=self._opened_at,
-                              evaluated_at=_now(),
+                              evaluated_at=evaluated_at,
                               timing_s={"load_test_rows": round(t1 - t0, 4),
-                                        "score": round(t2 - t1, 4)})
+                                        "score": round(t2 - t1, 4)},
+                              manifest=manifest)
 
 
 def _freeze(winners: dict) -> dict:

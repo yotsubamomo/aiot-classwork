@@ -3,10 +3,12 @@
 //   node --test tests/js/core.test.js                       (preprocessing cases + official model_data)
 //   HW2_FIXTURE_MODEL_DATA=<fixture model_data.json> node --test tests/js/core.test.js
 //
-// With HW2_FIXTURE_MODEL_DATA (a synthetic fixture written by hw2.fixture; DA TR-01), every
-// ols_subset model's prediction, lower, upper and covered are recomputed for every test_inputs
-// row from the raw values through the dashboard's own code and compared with the contract
-// (tolerance 1e-6). tests/test_node_core.py runs it that way from pytest.
+// For the official model_data (one-time Test evaluation of #63) and, with HW2_FIXTURE_MODEL_DATA, for
+// a synthetic fixture written by hw2.fixture (DA TR-01), every ols_subset model's prediction, lower,
+// upper and covered are recomputed for every test_inputs row from the raw values through the
+// dashboard's own code and compared with the contract (tolerance 1e-6, SR-02); metric_only models
+// (Ridge, Lasso) have no fit, no PI and no prediction. tests/test_node_core.py runs the fixture part
+// from pytest.
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -125,10 +127,8 @@ test('official: every path method has k = 1…18; winners follow the CV RMSE rul
 
 test('fixture: the same checks on the synthetic run', needFixture, () => { checkPaths(FIXTURE); });
 
-test('official model_data has no test results and no test rows (TR-01)', () => {
-  assert.equal(OFFICIAL.test, undefined);
-  assert.equal(OFFICIAL.test_inputs.written, false);
-  assert.equal(OFFICIAL.test_inputs.rows.length, 0);
+test('official test: ols_subset keys = the authorized set; metric_only = Ridge and Lasso only', () => {
+  checkTestKeys(OFFICIAL);
 });
 
 test('predictor inputs: only the source features the model uses, training medians as defaults', () => {
@@ -152,9 +152,28 @@ test('metric-only models offer no prediction', () => {
   assert.throws(() => Core.predict(null, {}, RULES));
 });
 
-// ---- fixture: every test row of every ols_subset model ---------------------------------------
-test('JS prediction, PI and covered reproduce the contract on every test row', needFixture, () => {
-  const md = FIXTURE;
+// ---- every test row of every ols_subset model (SR-02) -----------------------------------------
+function checkTestKeys(md) {
+  assert.equal(md.test_inputs.written, true);
+  const kinds = {};
+  Object.entries(md.test).forEach(([k, t]) => { kinds[k] = t.kind; });
+  const ols = Object.keys(kinds).filter((k) => kinds[k] === 'ols_subset').sort();
+  const metric = Object.keys(kinds).filter((k) => kinds[k] === 'metric_only').sort();
+  assert.deepEqual(ols, md.winners.authorized_test_models.slice().sort());
+  assert.deepEqual(metric, ['lasso', 'ridge']);
+  assert.equal(ols.length + metric.length, Object.keys(md.test).length);
+  for (const k of metric) {
+    const t = md.test[k];
+    for (const f of ['predicted', 'lower', 'upper', 'covered', 'coverage']) assert.ok(!(f in t), `${k} has ${f}`);
+    const b = md.baselines[k];
+    assert.equal(t.alpha, b.alpha);
+    assert.ok(!('fit' in b) && !('coef' in b), `${k}: no fit, so the dashboard cannot score it`);
+    assert.equal(Core.canPredict({ ...b, kind: 'metric_only' }), false);
+    assert.throws(() => Core.predict(b.fit, {}, md.preprocess));
+  }
+}
+
+function recomputeAll(md) {
   const byKey = entries(md);
   const iActual = md.test_inputs.fields.indexOf('actual_price');
   let checked = 0;
@@ -172,7 +191,16 @@ test('JS prediction, PI and covered reproduce the contract on every test row', n
       checked++;
     }
   }
-  assert.ok(checked > 0);
+  assert.equal(checked, md.test_inputs.rows.length * md.winners.authorized_test_models.length);
+}
+
+test('official: JS prediction, PI and covered reproduce the contract on every test row', () => {
+  recomputeAll(OFFICIAL);
+});
+
+test('fixture: JS prediction, PI and covered reproduce the contract on every test row', needFixture, () => {
+  checkTestKeys(FIXTURE);
+  recomputeAll(FIXTURE);
 });
 
 test('fixture: Test block model per method follows the winners; invalid entries never win', needFixture, () => {

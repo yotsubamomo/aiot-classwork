@@ -2,9 +2,15 @@
 
 Sections: ``meta``, ``preprocess``, ``inputs``, ``test_inputs``; ``baselines`` (``allin``) and
 ``winners`` from #61; ``methods`` (the four path methods, k = 1…18) and complete ``winners`` from
-#62; the ``test_inputs`` rows and ``test`` only from the
-one-time evaluation behind the test gate (:mod:`hw2.testgate`), written together by the same export
-in the same run (DA TR-01).
+#62; ``baselines.ridge``, ``baselines.lasso`` (metric-only: training-CV alpha and ``cv``) and
+``baselines.pvalue_backward`` (the lecture comparison) from #63; the ``test_inputs`` rows and
+``test`` only from the one-time evaluation behind the test gate (:mod:`hw2.testgate`), written
+together by the same export in the same run (DA TR-01).
+
+:func:`write_result_tables` writes the result tables (CSV; DA TK-2) derived from the same
+``model_data`` object: training CV per method and k, the comparison of the CV winners, All-in,
+Ridge, Lasso and the p-value comparison with separate training-CV and Test columns (G-4), and
+the Ridge/Lasso CV curves over alpha.
 
 Guards of :func:`write_model_data` on the official (tracked) paths:
 
@@ -14,17 +20,22 @@ Guards of :func:`write_model_data` on the official (tracked) paths:
   (:data:`hw2.testgate.OFFICIAL_TEST_GATE_ENABLED`);
 - every write validates the contract invariants (:func:`hw2.contract.validate_model_data`).
 """
+import csv
+import hashlib
 import json
 import platform
+import subprocess
 from datetime import datetime, timezone
 from importlib import metadata
 from pathlib import Path
 
 import pandas as pd
 
-from . import contract, data, preprocess, selection, testgate
-from .paths import (MODEL_DATA_JS, MODEL_DATA_JS_GLOBAL, MODEL_DATA_JSON, SPLIT_ASSIGNMENT_CSV,
-                    UNIT_DIR)
+from . import comparison, contract, data, models, preprocess, selection, testgate
+from .paths import (MODEL_DATA_JS, MODEL_DATA_JS_GLOBAL, MODEL_DATA_JSON, RESULTS_DIR,
+                    SPLIT_ASSIGNMENT_CSV, UNIT_DIR)
+
+TABLES_DIR = RESULTS_DIR / "tables"
 
 CONTRACT_VERSION = "hw2-model-data/1"
 PACKAGES = ("numpy", "pandas", "scipy", "scikit-learn", "matplotlib")
@@ -101,14 +112,18 @@ def build_model_data(prepared: data.PreparedData, timings_s: dict | None = None,
                      fixture: bool = False, allin=None, winners: dict | None = None,
                      methods: dict | None = None,
                      evaluation: "testgate.TestEvaluation | None" = None,
-                     path_timing: dict | None = None) -> dict:
+                     path_timing: dict | None = None, metric_only: dict | None = None,
+                     pvalue: dict | None = None, comparison_timing: dict | None = None,
+                     code_revision: dict | None = None) -> dict:
     """``model_data`` from the data stage plus whatever later stages produced.
 
     `allin` is the All-in :class:`~hw2.models.Candidate`; `methods` maps a path method to its
     candidates; `evaluation` is the result of :meth:`hw2.testgate.TestGate.evaluate` (it carries
     the ``test_inputs`` rows and ``test`` of the same run). `path_timing` is the per-method run time
     of :func:`hw2.selection.run_path_methods` (Q34), written to ``meta.path_timing_s`` together with
-    the method notes in ``meta.selection``.
+    the method notes in ``meta.selection``. `metric_only` maps ``ridge``/``lasso`` to their
+    :class:`hw2.comparison.AlphaSelection`; `pvalue` is the entry of
+    :func:`hw2.comparison.evaluate_pvalue_backward`; `comparison_timing` their run times.
     """
     full_fit = preprocess.fit_preprocessor(prepared.training)
     rules = preprocess.preprocess_rules()
@@ -126,6 +141,12 @@ def build_model_data(prepared: data.PreparedData, timings_s: dict | None = None,
     if allin is not None:
         out["baselines"] = {"allin": allin.to_entry()}
         sections.append("baselines.allin")
+    for name, sel in (metric_only or {}).items():
+        out.setdefault("baselines", {})[name] = sel.to_entry()
+        sections.append(f"baselines.{name}")
+    if pvalue is not None:
+        out.setdefault("baselines", {})[comparison.PVALUE_KEY] = pvalue
+        sections.append(f"baselines.{comparison.PVALUE_KEY}")
     if winners is not None:
         out["winners"] = winners
         sections.append("winners" if winners.get("complete") else "winners (partial)")
@@ -142,11 +163,44 @@ def build_model_data(prepared: data.PreparedData, timings_s: dict | None = None,
                                     "tie_rtol": selection.TIE_RTOL}
     if path_timing:
         out["meta"]["path_timing_s"] = path_timing
+    if metric_only or pvalue is not None:
+        out["meta"]["comparison"] = {
+            "metric_only": {"models": list(comparison.METRIC_ONLY),
+                            "standardization": rules["standardization"],
+                            "alpha_rule": comparison.ALPHA_RULE,
+                            "objectives": comparison.OBJECTIVES,
+                            "role": ("descriptive comparison (CC-1): not a CV winner candidate; "
+                                     "one final test evaluation of MAE, MSE, RMSE, R2 in USD; no "
+                                     "prediction interval, coverage or live prediction")},
+            "pvalue_backward": {"threshold": comparison.PVALUE_THRESHOLD,
+                                "role": "lecture comparison; not a CV winner candidate; not "
+                                        "scored on the held-out set"},
+            "adjusted_r2": ("only for OLS subset models (All-in included), on the log scale of "
+                            "the whole-training fit with the actual rank; not applicable to "
+                            "Ridge/Lasso or to CV aggregates"),
+        }
+    if comparison_timing:
+        out["meta"]["comparison_timing_s"] = comparison_timing
     if evaluation is not None:
         out["meta"]["test_evaluation"] = {"opened_at": evaluation.opened_at,
                                           "evaluated_at": evaluation.evaluated_at,
-                                          "timing_s": evaluation.timing_s}
+                                          "timing_s": evaluation.timing_s,
+                                          "manifest": evaluation.manifest,
+                                          "code_revision": code_revision}
     return out
+
+
+def code_revision() -> dict:
+    """The git commit checked out when the notebook ran, and whether ``hw2/`` differed from it
+    (best effort: outside a git checkout, e.g. in the submission ZIP, both are null)."""
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=UNIT_DIR, capture_output=True,
+                              text=True, check=True).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", "hw2"], cwd=UNIT_DIR,
+                               capture_output=True, text=True, check=True).stdout.strip()
+        return {"commit": head, "package_modified": bool(dirty)}
+    except (OSError, subprocess.CalledProcessError):
+        return {"commit": None, "package_modified": None}
 
 
 def to_json(model_data: dict) -> str:
@@ -192,6 +246,159 @@ def write_model_data(model_data: dict, json_path: Path = MODEL_DATA_JSON,
     json_path.write_text(to_json(model_data) + "\n", encoding="utf-8", newline="\n")
     js_path.write_text(to_js(model_data), encoding="utf-8", newline="\n")
     return json_path, js_path
+
+
+def result_digest(model_data: dict) -> str:
+    """sha256 of the sorted-key JSON of ``test_inputs`` and ``test`` (the comparison baseline of a
+    later re-run, DA §9.3 condition 2; bit-exact)."""
+    text = json.dumps({"test_inputs": model_data["test_inputs"], "test": model_data.get("test")},
+                      sort_keys=True, ensure_ascii=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(text.encode("ascii")).hexdigest()
+
+
+# --- result tables (DA TK-2; G-4) -------------------------------------------------------------
+
+CV_COLUMNS = ("cv_mae_usd", "cv_mse_usd2", "cv_rmse_usd", "cv_rmse_std_usd", "cv_r2_usd_scale")
+TEST_COLUMNS = ("test_mae_usd", "test_mse_usd2", "test_rmse_usd", "test_r2_usd_scale",
+                "test_n", "test_coverage", "test_n_covered", "test_mean_pi_width_usd",
+                "test_coverage_binomial_half_width")
+NOT_APPLICABLE = "not applicable"
+
+
+def _cv_cells(cv: dict) -> dict:
+    mean, std = cv.get("mean"), cv.get("std")
+    if not mean:
+        return {c: "" for c in CV_COLUMNS}
+    return {"cv_mae_usd": mean["mae"], "cv_mse_usd2": mean["mse"], "cv_rmse_usd": mean["rmse"],
+            "cv_rmse_std_usd": std["rmse"], "cv_r2_usd_scale": mean["r2"]}
+
+
+def _test_cells(entry: dict | None, reason: str) -> dict:
+    if entry is None:
+        return {c: reason for c in TEST_COLUMNS}
+    out = {"test_mae_usd": entry["mae"], "test_mse_usd2": entry["mse"],
+           "test_rmse_usd": entry["rmse"], "test_r2_usd_scale": entry["r2"],
+           "test_n": entry["n_test"]}
+    if entry["kind"] == "ols_subset":
+        out.update(test_coverage=entry["coverage"], test_n_covered=entry["n_covered"],
+                   test_mean_pi_width_usd=entry["mean_width"],
+                   test_coverage_binomial_half_width=
+                   entry["coverage_uncertainty"]["half_width_95"])
+    else:
+        out.update({c: f"{NOT_APPLICABLE} (metric-only)" for c in TEST_COLUMNS[5:]})
+    return out
+
+
+def comparison_rows(model_data: dict) -> list:
+    """One row per CV winner (All-in and each path method; a shared model's test numbers are read
+    through its ``test_model_key`` and the sharing is named), then Ridge, Lasso and the p-value
+    comparison. Training-CV and Test columns are separate (G-4; DA D-2)."""
+    entries = contract.model_entries(model_data)
+    w = model_data["winners"]
+    test = model_data.get("test") or {}
+    base = model_data["baselines"]
+    winners = [("allin", w["allin"]["model_key"], w["allin"].get("test_model_key", "allin"))]
+    winners += [(m, mw["model_key"], mw["test_model_key"]) for m, mw in w["method_winners"].items()]
+    overall = w.get("overall") or {}
+
+    def label(key):
+        e = entries[key]
+        return f"{models.METHOD_LABELS[e['method']]} k={e['k']}"
+
+    rows = []
+    for method, key, tkey in winners:
+        e = entries[key]
+        shared = [label(k2) for _, k2, t2 in winners if t2 == tkey and k2 != key]
+        notes = []
+        if key == overall.get("model_key"):
+            notes.append("overall CV winner")
+        if shared:
+            notes.append("same model as " + ", ".join(shared) + "; scored once on the test set")
+        rows.append({"row": label(key), "method": method, "k": e["k"], "model_key": key,
+                     "role": "All-in baseline" if method == "allin" else "method CV winner",
+                     "test_model_key": tkey, "notes": "; ".join(notes),
+                     "canonical_groups": " ".join(e["canonical_groups"]),
+                     **_cv_cells(e["cv"]),
+                     "adj_r2_log_full_training_fit": e["fit"]["adj_r2_log"],
+                     **_test_cells(test.get(tkey), "not evaluated yet")})
+    for name in comparison.METRIC_ONLY:
+        if name not in base:
+            continue
+        e = base[name]
+        rows.append({"row": f"{comparison.LABELS[name]} (alpha {e['alpha']:g})", "method": name,
+                     "k": len(e["groups"]), "model_key": name, "role": "metric-only comparison",
+                     "test_model_key": name if name in test else "",
+                     "notes": "alpha chosen by training CV; not a CV winner candidate",
+                     "canonical_groups": " ".join(e["groups"]), **_cv_cells(e["cv"]),
+                     "adj_r2_log_full_training_fit": NOT_APPLICABLE,
+                     **_test_cells(test.get(name), "not evaluated yet")})
+    pv = base.get(comparison.PVALUE_KEY)
+    if pv is not None:
+        f = pv["fit_summary"] or {}
+        rows.append({"row": comparison.LABELS[comparison.PVALUE_KEY] + f" (k={pv['k']})",
+                     "method": comparison.PVALUE_KEY, "k": pv["k"],
+                     "model_key": comparison.PVALUE_KEY, "role": "lecture comparison",
+                     "test_model_key": "",
+                     "notes": f"group partial F tests, threshold {pv['threshold']}; never a CV "
+                              "winner and never scored on the test set",
+                     "canonical_groups": " ".join(pv["canonical_groups"]), **_cv_cells(pv["cv"]),
+                     "adj_r2_log_full_training_fit": f.get("adj_r2_log", ""),
+                     **{c: "not evaluated (lecture comparison)" for c in TEST_COLUMNS}})
+    return rows
+
+
+def cv_rows(model_data: dict) -> list:
+    """Training CV of every (method, k) and of All-in (USD), with the log-scale Adjusted R² of the
+    whole-training fit; no test column."""
+    rows = []
+    items = [model_data["baselines"]["allin"]] + [e for m in model_data.get("methods", {}).values()
+                                                 for e in m]
+    for e in items:
+        fit = e.get("fit") or {}
+        rows.append({"method": e["method"], "k": e["k"], "model_key": e["model_key"],
+                     "status": e["status"]["state"], "reason": e["status"].get("reason") or "",
+                     "is_method_winner": e["is_method_winner"], "folds_agree": e["folds_agree"],
+                     "canonical_groups": " ".join(e["canonical_groups"]), **_cv_cells(e["cv"]),
+                     "r2_log_full_training_fit": fit.get("r2_log", ""),
+                     "adj_r2_log_full_training_fit": fit.get("adj_r2_log", "")})
+    return rows
+
+
+def alpha_rows(model_data: dict) -> list:
+    rows = []
+    for name in comparison.METRIC_ONLY:
+        e = (model_data.get("baselines") or {}).get(name)
+        if e is None:
+            continue
+        for r in e["cv_by_alpha"]:
+            rows.append({"model": name, "alpha": r["alpha"], "cv_mae_usd": r["mae"],
+                         "cv_mse_usd2": r["mse"], "cv_rmse_usd": r["rmse"],
+                         "cv_r2_usd_scale": r["r2"], "selected": r["alpha"] == e["alpha"]})
+    return rows
+
+
+def _write_csv(path: Path, rows: list) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({k: (repr(v) if isinstance(v, float) else v) for k, v in row.items()})
+    return path
+
+
+def write_result_tables(model_data: dict, out_dir: Path = TABLES_DIR) -> list:
+    """The result tables (CSV) from ``model_data``: ``cv_by_method_k.csv``,
+    ``comparison.csv`` (training-CV columns ``cv_*`` and Test columns ``test_*``) and
+    ``alpha_cv.csv``. Refuses fixture data inside the unit directory."""
+    out_dir = Path(out_dir)
+    if model_data["meta"].get("fixture", True):
+        resolved = out_dir.resolve()
+        if resolved == UNIT_DIR.resolve() or UNIT_DIR.resolve() in resolved.parents:
+            raise ExportError("fixture result tables must not be written inside the unit")
+    return [_write_csv(out_dir / "cv_by_method_k.csv", cv_rows(model_data)),
+            _write_csv(out_dir / "comparison.csv", comparison_rows(model_data)),
+            _write_csv(out_dir / "alpha_cv.csv", alpha_rows(model_data))]
 
 
 def write_split_assignment(prepared: data.PreparedData,

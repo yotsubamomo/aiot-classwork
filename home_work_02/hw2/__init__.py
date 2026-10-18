@@ -12,7 +12,9 @@ The notebook ``hw2.ipynb`` is the main program; it calls the public functions of
   All-in baseline and the CV winners.
 - ``selection``: the four feature-group selection paths (Forward SFS, Backward SFS, RFE, Lasso
   path ranking), fold-internal on each fold's training rows and canonical on the training set.
-- ``testgate``: the one-time test-evaluation gate (G-3; closed for the official data until #63).
+- ``comparison``: the metric-only Ridge and Lasso (training-CV alpha) and the lecture's p-value
+  backward elimination (comparison rows only).
+- ``testgate``: the one-time test-evaluation gate (G-3; opened for the official data in #63).
 - ``contract``: the ``model_data`` section schemas and their invariants.
 - ``export``: building and writing ``model_data`` (``.json`` and ``.js``).
 - ``fixture``: synthetic fixtures run through the same code path (never written inside the unit).

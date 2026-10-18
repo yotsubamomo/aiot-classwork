@@ -117,6 +117,20 @@ def _inflate_a_winner(md):
     e["cv"]["mean"]["rmse"] *= 10
 
 
+def _score_a_shared_model_twice(md):
+    """#62 R1 F-3 (probe P6; reading K, rejected by DA D-1): a winner whose model is shared is
+    authorized and scored under its own key as well, so one canonical subset is scored twice."""
+    w = md["winners"]
+    for mw in w["method_winners"].values():
+        if mw["test_model_key"] != mw["model_key"]:
+            key = mw["model_key"]
+            mw["test_model_key"] = key
+            w["authorized_test_models"].append(key)
+            md["test"][key] = {**copy.deepcopy(md["test"]["allin"]), "model_key": key}
+            return
+    raise AssertionError("the fixture has no shared winner")
+
+
 def _non_winner_valid_key(md, method):
     w = md["winners"]["method_winners"][method]["model_key"]
     return next(e["model_key"] for e in md["methods"][method]
@@ -151,6 +165,7 @@ def _non_winner_valid_key(md, method):
     (lambda md: md["test"]["allin"].__setitem__("model_key", "forward_sfs_k01"), "model_key"),
     (_authorize_a_non_winner, "differs from All-in, the method winners"),
     (_inflate_a_winner, "lowest CV RMSE"),
+    (_score_a_shared_model_twice, r"scores one model \(canonical subset\) twice"),
 ])
 def test_methods_and_winners_violations_are_rejected(fixture_model_data, tamper, needle):
     md = copy.deepcopy(fixture_model_data[0])

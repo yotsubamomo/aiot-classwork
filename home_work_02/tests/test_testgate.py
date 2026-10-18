@@ -4,6 +4,7 @@
 Official data: only the closed state is exercised; nothing here opens the official gate or loads an
 official test row. Every opening and evaluation uses synthetic fixtures."""
 import copy
+import dataclasses
 
 import numpy as np
 import pytest
@@ -205,7 +206,120 @@ def test_gate_refuses_to_open_unless_both_metric_only_alphas_are_fixed(small_run
     assert gate.state == testgate.OPEN
 
 
-def test_fixture_run_scores_both_metric_only_stand_ins_once(fixture_run):
+def test_fixture_run_scores_ridge_and_lasso_once_with_their_training_cv_alphas(fixture_run):
+    """CC-1 (1)(3): the metric-only models are scored once, with the alpha chosen by training CV."""
     test = fixture_run["evaluation"].test
     assert sorted(k for k, v in test.items() if v["kind"] == "metric_only") == ["lasso", "ridge"]
-    assert {test[k]["alpha"] for k in ("ridge", "lasso")} == set(fixture.FIXTURE_ALPHAS.values())
+    for name in ("ridge", "lasso"):
+        assert test[name]["alpha"] == fixture_run["selections"][name].alpha
+        assert fixture_run["metric_only"][name].alpha == fixture_run["selections"][name].alpha
+    manifest = fixture_run["evaluation"].manifest
+    assert manifest["metric_only_alphas"] == {n: s.alpha for n, s in fixture_run["selections"].items()}
+    assert manifest["evaluations_in_this_run"] == 1
+
+
+class CountingModel:
+    """Wraps a model and counts predict_usd calls (G-3: each model is scored once)."""
+
+    def __init__(self, model):
+        self.model = model
+        self.alpha = getattr(model, "alpha", None)
+        self.calls = 0
+
+    def predict_usd(self, rows):
+        self.calls += 1
+        return self.model.predict_usd(rows)
+
+
+def test_every_authorized_model_is_scored_exactly_once_after_the_selection_is_frozen(small_run):
+    """G-3 (DA §11; D-1 D-4 (5)): opening freezes winners and alphas; the one evaluation scores each
+    authorized OLS model and each metric-only model exactly once; the manifest records the frozen
+    selection, and later changes to the caller's objects do not reach the gate."""
+    gate = testgate.TestGate(small_run["prepared"])
+    winners = copy.deepcopy(small_run["winners"])
+    alphas = dict(ALPHAS)
+    gate.open(winners, alphas)
+    digest = testgate.selection_digest(small_run["winners"], ALPHAS)
+    winners["authorized_test_models"].clear()           # after freezing: no effect
+    alphas["ridge"] = 99.0
+    ols = {k: CountingModel(m) for k, m in small_run["ols"].items()}
+    metric = {n: CountingModel(m) for n, m in stubs().items()}
+    result = gate.evaluate(ols, metric)
+    assert all(m.calls == 1 for m in ols.values()) and all(m.calls == 1 for m in metric.values())
+    manifest = result.manifest
+    assert manifest["selection_digest"] == digest
+    assert manifest["authorized_test_models"] == small_run["winners"]["authorized_test_models"]
+    assert manifest["metric_only_alphas"] == ALPHAS
+    assert manifest["opened_at"] <= manifest["evaluated_at"]
+    assert manifest["n_test"] == small_run["prepared"].n_test
+    assert manifest["official_data"] is False and len(manifest["run_id"]) == 32
+    with pytest.raises(testgate.TestGateError, match="already ran"):
+        gate.evaluate(ols, metric)
+    assert all(m.calls == 1 for m in ols.values()) and all(m.calls == 1 for m in metric.values())
+
+
+def test_selection_digest_changes_with_any_frozen_choice(small_run):
+    w = small_run["winners"]
+    base = testgate.selection_digest(w, ALPHAS)
+    assert base == testgate.selection_digest(copy.deepcopy(w), dict(ALPHAS))
+    assert base != testgate.selection_digest(w, {**ALPHAS, "lasso": 0.02})
+    other = copy.deepcopy(w)
+    other["overall"]["model_key"] = "x"
+    assert base != testgate.selection_digest(other, ALPHAS)
+
+
+# --- #61 R1 F-4: the official gate itself, on synthetic data identified as official ---------------
+
+@pytest.fixture
+def official_like(small_run, monkeypatch):
+    """small_run's synthetic data treated as the official file (EXPECTED_SHA256 monkeypatched), with
+    the per-process flag reset: nothing here touches the real CSV."""
+    monkeypatch.setattr(data, "EXPECTED_SHA256", small_run["prepared"].sha256)
+    monkeypatch.setattr(testgate, "_official_test_rows_loaded", False)
+    return small_run
+
+
+def test_official_data_cannot_be_opened_while_the_flag_is_off(official_like):
+    gate = testgate.TestGate(official_like["prepared"])
+    assert gate.official
+    with pytest.raises(testgate.TestGateClosed, match="TR-01"):
+        gate.open(official_like["winners"], ALPHAS)
+    assert gate.state == testgate.CLOSED
+
+
+def test_official_test_rows_load_at_most_once_per_process(official_like, monkeypatch):
+    """With the flag on, the first gate evaluates; a second gate in the same process cannot load
+    the official test rows again (it is refused and its run is consumed)."""
+    monkeypatch.setattr(testgate, "OFFICIAL_TEST_GATE_ENABLED", True)
+    first = testgate.TestGate(official_like["prepared"])
+    first.open(official_like["winners"], ALPHAS)
+    result = first.evaluate(official_like["ols"], stubs())
+    assert result.manifest["official_data"] is True
+    second = testgate.TestGate(official_like["prepared"])
+    second.open(official_like["winners"], ALPHAS)
+    with pytest.raises(testgate.TestGateError, match="already loaded"):
+        second.evaluate(official_like["ols"], stubs())
+    assert second.state == testgate.EVALUATED
+    assert testgate._official_test_rows_loaded is True
+
+
+def test_official_identity_does_not_rest_on_the_sha256_alone(tmp_path):
+    """A modified copy of the official file stays official: by its path, or by its structure
+    (21,613 rows, 21,436 unique ids). Synthetic data of another size is not."""
+    frame = fixture.synthetic_sales(n_houses=data.EXPECTED_UNIQUE_IDS,
+                                    n_repeats=data.EXPECTED_ROWS - data.EXPECTED_UNIQUE_IDS, seed=3)
+    path = tmp_path / "copy.csv"
+    frame.to_csv(path, index=False)
+    prepared = data.load_and_split(path, expected_sha256=data.file_sha256(path),
+                                   expected_rows=len(frame),
+                                   expected_unique_ids=frame["id"].nunique())
+    assert prepared.sha256 != data.EXPECTED_SHA256
+    assert testgate.is_official(prepared)                            # by structure
+    gate = testgate.TestGate(prepared)
+    with pytest.raises(testgate.TestGateClosed):
+        gate.open({"complete": True, "overall": {}}, ALPHAS)
+    by_path = dataclasses.replace(prepared, facts={**prepared.facts, "n_rows": 1},
+                                  source_path=data.DATA_CSV)
+    assert testgate.is_official(by_path)                             # by path
+    other = dataclasses.replace(prepared, facts={**prepared.facts, "n_rows": 1})
+    assert not testgate.is_official(other)

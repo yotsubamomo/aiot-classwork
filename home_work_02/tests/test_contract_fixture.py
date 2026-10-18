@@ -45,8 +45,10 @@ def test_empty_schema_is_valid_and_has_no_rows():
 def test_fixture_rows_pass_the_schema(synthetic_csv, synthetic_frame):
     prepared = _fixture_prepared(synthetic_csv)
     rows = _fixture_test_rows(synthetic_frame, prepared)
-    obj = contract.build_test_inputs(rows)
+    obj = contract.build_test_inputs(rows, prepared.training["zipcode"].unique())
     contract.validate_test_inputs(obj, n_test=prepared.n_test)
+    unseen = set(rows["zipcode"]) - set(prepared.training["zipcode"])
+    assert obj["n_unseen_zipcode"] == int(rows["zipcode"].isin(unseen).sum())
     assert obj["n_rows"] == prepared.n_test
     assert obj["n_houses"] == rows["id"].nunique()
     assert obj["n_repeat_sales"] == len(rows) - rows["id"].nunique()
@@ -59,14 +61,16 @@ def test_fixture_rows_pass_the_schema(synthetic_csv, synthetic_frame):
 def test_fixture_with_repeat_sales_counts_houses(synthetic_frame):
     rows = synthetic_frame.copy()
     rows.insert(0, "row", range(len(rows)))
-    obj = contract.build_test_inputs(rows)
+    obj = contract.build_test_inputs(rows, ["98001", "98004"])
     assert obj["n_repeat_sales"] == 8 and obj["n_houses"] == 60
+    # SR-07: rows whose zipcode is not among the training categories are counted
+    assert obj["n_unseen_zipcode"] == int((~rows["zipcode"].isin(["98001", "98004"])).sum()) > 0
 
 
 def _valid(synthetic_frame):
     rows = synthetic_frame.head(10).copy()
     rows.insert(0, "row", range(10))
-    return contract.build_test_inputs(rows)
+    return contract.build_test_inputs(rows, sorted(synthetic_frame["zipcode"].unique()))
 
 
 @pytest.mark.parametrize("tamper", [
@@ -80,6 +84,9 @@ def _valid(synthetic_frame):
     lambda o: o.__setitem__("n_rows", 3),
     lambda o: o.__setitem__("fields", o["fields"][::-1]),
     lambda o: o.__setitem__("schema_version", 2),
+    lambda o: o.__setitem__("n_unseen_zipcode", None),
+    lambda o: o.__setitem__("n_unseen_zipcode", -1),
+    lambda o: o.__setitem__("n_unseen_zipcode", 11),
 ])
 def test_schema_violations_are_rejected(synthetic_frame, tamper):
     obj = _valid(synthetic_frame)
@@ -116,7 +123,8 @@ def test_test_inputs_rows_without_test_results_are_refused(tmp_path, synthetic_c
     """TR-01: the test_inputs rows and test are written together by the same export."""
     prepared = _fixture_prepared(synthetic_csv)
     md = export.build_model_data(prepared, fixture=True)
-    md["test_inputs"] = contract.build_test_inputs(_fixture_test_rows(synthetic_frame, prepared))
+    md["test_inputs"] = contract.build_test_inputs(_fixture_test_rows(synthetic_frame, prepared),
+                                                   prepared.training["zipcode"].unique())
     with pytest.raises(contract.ContractError, match="only together with test"):
         export.write_model_data(md, tmp_path / "md.json", tmp_path / "md.js")
 

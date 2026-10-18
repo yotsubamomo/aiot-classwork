@@ -1,14 +1,24 @@
-"""The tracked official model_data after the data stage (run the notebook first).
+"""The tracked official model_data (run the notebook first).
 
-Checks the sections written so far against the data stage, which itself returns only training rows
-and test identifiers. Nothing here loads an official test row (DA TR-01)."""
+Training-side sections are checked against fresh computations on the training rows (the data stage
+returns only training rows and test identifiers). The ``test_inputs`` rows and ``test`` come from
+the one-time official evaluation of #63 (DA TR-01): they are checked here as exported data —
+identifiers against the split, contract invariants, and the independent numpy recomputation of
+every row of every ``ols_subset`` model (SR-02) — and nothing here loads an official test row from
+the data file or scores any model on it."""
+import csv
+import hashlib
 import json
 
+import numpy as np
 import pandas as pd
 import pytest
 
-from hw2 import contract, data, export, preprocess
+from hw2 import comparison, contract, data, export, preprocess, testgate
 from hw2.paths import MODEL_DATA_JS, MODEL_DATA_JSON, SPLIT_ASSIGNMENT_CSV
+from test_test_section import _design
+
+TOL = 1e-6
 
 
 @pytest.fixture(scope="module")
@@ -43,16 +53,165 @@ def test_meta_reproduction_fields(official):
     assert meta["dataset"]["url"] and meta["dataset"]["license"]
 
 
-def test_no_test_rows_and_no_test_results_are_tracked(official):
+def test_sections_and_no_test_field_outside_test(official):
+    """TK-4: `methods` and every `baselines` entry hold no test field; the contract holds."""
     md = official[0]
-    assert "test" not in md
-    assert md["test_inputs"]["rows"] == [] and md["test_inputs"]["written"] is False
-    contract.validate_test_inputs(md["test_inputs"], n_test=md["meta"]["split"]["n_test"])
     assert set(md) == {"meta", "preprocess", "inputs", "test_inputs", "methods", "baselines",
-                       "winners"}
+                       "winners", "test"}
+    assert set(md["baselines"]) == {"allin", "ridge", "lasso", "pvalue_backward"}
     assert contract.test_field_paths(md["baselines"]) == []
     assert contract.test_field_paths(md["methods"]) == []
     contract.validate_model_data(md)
+
+
+def test_test_keys_are_the_authorized_set_plus_ridge_and_lasso(official):
+    """Spec invariants: ols_subset keys = the authorized list; metric_only = Ridge and Lasso only;
+    PI fields present exactly for ols_subset; Ridge/Lasso scored with their training-CV alpha."""
+    md = official[0]
+    test = md["test"]
+    ols_keys = {k for k, v in test.items() if v["kind"] == "ols_subset"}
+    metric = {k for k, v in test.items() if v["kind"] == "metric_only"}
+    assert ols_keys == set(md["winners"]["authorized_test_models"])
+    assert metric == {"ridge", "lasso"} and set(test) == ols_keys | metric
+    for k in ols_keys:
+        assert {"predicted", "lower", "upper", "covered", "coverage"} <= set(test[k])
+    for k in metric:
+        assert set(test[k]) == contract.METRIC_ONLY_TEST_KEYS
+        assert test[k]["alpha"] == md["baselines"][k]["alpha"]
+        assert test[k]["scale"] == "USD" and test[k]["n_test"] == md["meta"]["split"]["n_test"]
+
+
+def test_test_inputs_are_the_split_test_rows(official, prepared_real):
+    """SR-02, SR-08, SR-07: one row per test sale in CSV row order, identifiers equal to the split;
+    house and repeat-sale counts; rows encoded with an unseen zipcode counted."""
+    ti = official[0]["test_inputs"]
+    assert ti["written"] is True and ti["n_rows"] == prepared_real.n_test
+    assert ti["fields"] == list(contract.TEST_INPUT_FIELDS)
+    rows = [dict(zip(ti["fields"], r)) for r in ti["rows"]]
+    assert [r["row"] for r in rows] == sorted(prepared_real.test_rows.tolist())
+    order = np.argsort(prepared_real.test_rows)
+    assert [r["id"] for r in rows] == prepared_real.test_ids[order].tolist()
+    ids = [r["id"] for r in rows]
+    assert ti["n_houses"] == len(set(ids)) and ti["n_repeat_sales"] == len(ids) - len(set(ids))
+    known = set(prepared_real.training["zipcode"].astype(str))
+    assert ti["n_unseen_zipcode"] == sum(1 for r in rows if r["zipcode"] not in known)
+    assert all(r["actual_price"] > 0 for r in rows)
+    assert not set(ids) & set(prepared_real.training["id"])          # grouped split
+
+
+def test_independent_recomputation_of_every_official_test_row(official):
+    """SR-02 (Spec 主 seam): numpy from the raw test_inputs values, the preprocess rules and each
+    model's fit reproduces every point prediction and PI (1e-6 USD) and every covered flag; the
+    coverage statistics follow. This path calls no hw2 prediction function."""
+    md = official[0]
+    entries = contract.model_entries(md)
+    actual = np.array([r[-1] for r in md["test_inputs"]["rows"]], dtype=float)
+    n_models = 0
+    for key, t in md["test"].items():
+        if t["kind"] != "ols_subset":
+            continue
+        fit = entries[key]["fit"]
+        D = _design(md, fit)
+        yhat = D @ np.array(fit["coef"])
+        lev = np.einsum("ij,jk,ik->i", D, np.array(fit["xtx_inv"]), D)
+        half = fit["t_crit"] * np.sqrt(fit["s2"] * (1.0 + lev))
+        point, lower, upper = np.exp(yhat), np.exp(yhat - half), np.exp(yhat + half)
+        np.testing.assert_allclose(t["predicted"], point, rtol=0, atol=TOL)
+        np.testing.assert_allclose(t["lower"], lower, rtol=0, atol=TOL)
+        np.testing.assert_allclose(t["upper"], upper, rtol=0, atol=TOL)
+        covered = (lower <= actual) & (actual <= upper)
+        assert t["covered"] == covered.tolist()
+        assert t["n_covered"] == int(covered.sum()) and t["n_test"] == actual.size
+        assert t["coverage"] == pytest.approx(covered.mean(), abs=1e-12)
+        assert t["mean_width"] == pytest.approx(np.mean(upper - lower), rel=1e-12)
+        p = covered.mean()
+        assert t["coverage_uncertainty"]["half_width_95"] == pytest.approx(
+            1.96 * np.sqrt(p * (1 - p) / actual.size))
+        err = point - actual
+        assert t["rmse"] == pytest.approx(np.sqrt(np.mean(err ** 2)), rel=1e-9)
+        assert t["mae"] == pytest.approx(np.mean(np.abs(err)), rel=1e-9)
+        assert t["r2"] == pytest.approx(
+            1 - np.sum(err ** 2) / np.sum((actual - actual.mean()) ** 2), rel=1e-9)
+        n_models += 1
+    assert n_models == len(md["winners"]["authorized_test_models"])
+
+
+def test_the_one_time_evaluation_is_recorded(official, prepared_real):
+    """G-3: the manifest names the frozen selection (its digest recomputed from the exported
+    winners and alphas), the official data, the test rows and one evaluation."""
+    md = official[0]
+    te = md["meta"]["test_evaluation"]
+    m = te["manifest"]
+    alphas = {k: md["baselines"][k]["alpha"] for k in ("ridge", "lasso")}
+    assert m["official_data"] is True and m["data_sha256"] == data.EXPECTED_SHA256
+    assert m["selection_digest"] == testgate.selection_digest(md["winners"], alphas)
+    assert m["authorized_test_models"] == md["winners"]["authorized_test_models"]
+    assert m["metric_only_alphas"] == alphas
+    assert m["n_test"] == prepared_real.n_test and m["evaluations_in_this_run"] == 1
+    positions = ",".join(str(int(r)) for r in sorted(prepared_real.test_rows))
+    assert m["test_rows_digest"] == hashlib.sha256(positions.encode("ascii")).hexdigest()
+    assert te["opened_at"] == m["opened_at"] <= m["evaluated_at"] == te["evaluated_at"]
+    assert te["code_revision"]["commit"] and te["code_revision"]["package_modified"] is False
+    timing = md["meta"]["timing_s"]
+    assert {"ridge_total", "lasso_total", "pvalue_backward_total", "test_load_test_rows",
+            "test_score"} <= set(timing)
+
+
+def test_ridge_lasso_and_pvalue_are_reproduced_from_the_training_rows(official, prepared_real):
+    """G-1 on the official data: the alphas, their CV curves and the p-value comparison come from
+    the training rows only (a fresh computation on the training rows reproduces them)."""
+    base = official[0]["baselines"]
+    for name in comparison.METRIC_ONLY:
+        fresh = json.loads(json.dumps(
+            comparison.select_alpha(prepared_real.training, name).to_entry()))
+        assert base[name]["alpha"] == fresh["alpha"]
+        assert base[name]["alpha_grid"] == fresh["alpha_grid"]
+        for a, b in zip(base[name]["cv_by_alpha"], fresh["cv_by_alpha"]):
+            assert a["rmse"] == pytest.approx(b["rmse"], rel=1e-9)
+        assert base[name]["cv"]["mean"] == pytest.approx(fresh["cv"]["mean"], rel=1e-9)
+        assert base[name]["adj_r2_log"] is None                       # not applicable
+    pv = json.loads(json.dumps(comparison.evaluate_pvalue_backward(prepared_real.training)))
+    tracked = base["pvalue_backward"]
+    assert tracked["canonical_groups"] == pv["canonical_groups"]
+    assert tracked["fold_groups"] == pv["fold_groups"]
+    assert tracked["cv"]["mean"] == pytest.approx(pv["cv"]["mean"], rel=1e-9)
+    assert "pvalue_backward" not in official[0]["winners"]["authorized_test_models"]
+
+
+def _read_csv(path):
+    with path.open(encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def _same(cell, value):
+    if isinstance(value, bool):
+        return cell == str(value)
+    if isinstance(value, (int, float)):
+        return float(cell) == pytest.approx(float(value), rel=1e-12, abs=0)
+    return cell == ("" if value is None else str(value))
+
+
+def test_result_tables_equal_model_data(official):
+    """DA TK-2: the CSV result tables are the model_data numbers, training CV (``cv_*``) and Test
+    (``test_*``) in separate columns (G-4)."""
+    md = official[0]
+    for name, rows in (("cv_by_method_k.csv", export.cv_rows(md)),
+                       ("comparison.csv", export.comparison_rows(md)),
+                       ("alpha_cv.csv", export.alpha_rows(md))):
+        table = _read_csv(export.TABLES_DIR / name)
+        assert len(table) == len(rows), name
+        for got, want in zip(table, rows):
+            assert list(got) == list(want), name
+            for k, v in want.items():
+                assert _same(got[k], v), (name, k, got[k], v)
+    comp = _read_csv(export.TABLES_DIR / "comparison.csv")
+    metric_cols = [c for c in comp[0] if any(m in c for m in ("mae", "mse", "rmse", "r2_usd"))]
+    assert metric_cols and all(c.startswith(("cv_", "test_")) for c in metric_cols)
+    by_method = {r["method"]: r for r in comp}
+    for name in ("ridge", "lasso"):
+        assert by_method[name]["adj_r2_log_full_training_fit"] == "not applicable"
+        assert by_method[name]["test_coverage"].startswith("not applicable")
+    assert by_method["pvalue_backward"]["test_rmse_usd"].startswith("not evaluated")
 
 
 def test_meta_matches_the_data_stage(official, prepared_real):

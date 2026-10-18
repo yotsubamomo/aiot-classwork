@@ -116,22 +116,55 @@ def test_ui_predicts_only_from_user_inputs_and_never_from_test_inputs():
     assert app.count("var ti = MD.test_inputs;") == 1
 
 
-def test_k_chart_and_comparison_table_read_cv_only():
-    """BR-01 point 1: the metric-vs-k chart and the comparison table use `cv` (and `fit` for the
-    log-scale Adjusted R²), never `test`; they are labeled 訓練 CV（USD）."""
+def _function(app, name, next_name):
+    return app[app.index(f"function {name}("):app.index(f"function {next_name}(")]
+
+
+def test_k_chart_reads_training_cv_only_with_allin_ridge_lasso_reference_lines():
+    """BR-01 point 1: the metric-vs-k chart uses `cv` only (paths, the All-in line and the Ridge /
+    Lasso reference lines at their training-CV alpha), never `test`."""
     app = _code(ASSETS_DIR / "app.js")
-    start = app.index("function renderKChart(")
-    end = app.index("function renderPredictor(")
-    block = app[start:end]
-    assert "MD.test" not in block and "test_inputs" not in block and ".test[" not in block
-    assert "e.cv.mean" in block and "fit.adj_r2_log" in block
+    block = app[app.index("function renderKChart("):app.index("function renderCompare(")]
+    assert "MD.test" not in block and "test_inputs" not in block and "testResult(" not in block
+    assert "cvValue(" in block and "b.cv.mean" in block and "['ridge', 'lasso']" in block
+    assert "e.cv.mean" in _function(app, "cvValue", "rgba")
     html = DASHBOARD_HTML.read_text(encoding="utf-8")
     for anchor in ('id="kchart-card"', 'id="compare-card"', 'id="compare-all"', 'id="metric-select"'):
         assert anchor in html, anchor
     chart_card = html[html.index('id="kchart-card"'):html.index('id="compare-card"')]
-    compare_card = html[html.index('id="compare-card"'):html.index('id="fit-card"')]
-    assert "訓練 CV（USD）" in chart_card and "訓練 CV（USD）" in compare_card
+    assert "訓練 CV（USD）" in chart_card
     assert "Test" not in chart_card.replace("不含任何 Test 資料", "")
+
+
+def test_comparison_table_separates_training_cv_and_test_columns():
+    """G-4 / CC-1 (6): the comparison table has a 訓練 CV（USD） and a Test 評估（USD） column group;
+    its Test cells are read only through testResult() from the exported `test`; Ridge / Lasso show
+    不適用 for Adjusted R² and coverage; the p-value comparison is not scored."""
+    app = _code(ASSETS_DIR / "app.js")
+    block = _function(app, "renderCompare", "testResult")
+    assert "'訓練 CV（USD）'" in block and "'Test 評估（USD）'" in block
+    assert "th-group--cv" in block and "th-group--test" in block
+    assert "MD.test" not in block and "test_inputs" not in block
+    assert block.count("testResult(") == 2           # winners (ols_subset) and Ridge / Lasso
+    assert "testResult(w.tKey, 'ols_subset')" in block and "testResult(name, 'metric_only')" in block
+    assert "'不適用'" in block and "不適用（metric-only）" in block
+    assert "不在 Test 上評估（講義對照）" in block
+    accessor = _function(app, "testResult", "renderPredictor")
+    assert "t.kind === kind" in accessor
+    html = DASHBOARD_HTML.read_text(encoding="utf-8")
+    compare_card = html[html.index('id="compare-card"'):html.index('id="fit-card"')]
+    assert "訓練 CV（USD）" in compare_card and "Test 評估（USD）" in compare_card
+
+
+def test_test_numbers_are_read_only_from_the_exported_test_section():
+    """MD.test is read in exactly two places: the comparison-table accessor and the Test block,
+    which shows only the method winner's ols_subset entry (Ridge / Lasso never; BR-01 point 4)."""
+    app = _code(ASSETS_DIR / "app.js")
+    reads = re.findall(r"MD\.test\[[^\]]+\]", app)
+    assert sorted(reads) == ["MD.test[key]", "MD.test[tKey]"]
+    block = _function(app, "renderTest", "Scatter")
+    assert "MD.test[tKey]" in block and "Core.testEntryKey(MD, state.method)" in block
+    assert "ridge" not in block and "lasso" not in block and "metric_only" not in block
 
 
 def test_test_block_never_keeps_numbers_of_another_model():

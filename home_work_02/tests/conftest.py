@@ -1,5 +1,9 @@
 """Shared fixtures. Synthetic rows only: no test uses the features or price of an official test row
-(DA TR-01). Tests on the real CSV read it for structural checks, ids (split) or training rows."""
+(DA TR-01). Tests on the real CSV read it for structural checks, ids (split) or training rows.
+
+The official test evaluation runs once, in the notebook (#63). :func:`official_gate_stays_closed`
+keeps the official gate closed in every test, so no test can open it or load an official test row
+(tests that exercise the open official gate do so on synthetic data identified as official)."""
 from datetime import date, timedelta
 
 import numpy as np
@@ -9,6 +13,14 @@ import pytest
 from hw2 import data
 
 ZIPCODES = ("98001", "98004", "98052", "98103", "98178")
+
+
+@pytest.fixture(autouse=True)
+def official_gate_stays_closed(monkeypatch):
+    """Every test runs with the official test gate closed and restores the per-process flag."""
+    from hw2 import testgate
+    monkeypatch.setattr(testgate, "OFFICIAL_TEST_GATE_ENABLED", False)
+    monkeypatch.setattr(testgate, "_official_test_rows_loaded", testgate._official_test_rows_loaded)
 
 
 def make_synthetic_frame(n_houses: int = 60, n_repeats: int = 8, seed: int = 7) -> pd.DataFrame:

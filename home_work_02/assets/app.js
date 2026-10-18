@@ -1,12 +1,15 @@
 /* HW2 dashboard: reads window.MODEL_DATA (assets/model_data.js) and renders
- *   A overview (meta), B/C model selection, training-CV KPI, the metric-vs-k chart and the
- *   comparison table (cv only; "訓練 CV（USD）"),
- *   D live predictor (fit; OLS subset models only), E Test block (test only; "Test 評估（USD）").
+ *   A overview (meta), B/C model selection, training-CV KPI, the metric-vs-k chart (cv only; All-in,
+ *   Ridge and Lasso as reference lines) and the comparison table (separate "訓練 CV（USD）" and
+ *   "Test 評估（USD）" column groups; G-4),
+ *   D live predictor (fit; OLS subset models only), E Test block (test[kind=ols_subset] only;
+ *   "Test 評估（USD）").
  *
  * Layering (BR-01): every KPI comes from the selected model's `cv`, the predictor from its `fit`,
- * and every Test number from model_data.test. Nothing here scores a model on test data: the Test
- * block only displays the exported `test` entries (DA B-3, G-3); test_inputs is read only for the
- * identifiers and actual prices that the scatter plot draws (see testRows()).
+ * and every Test number from model_data.test. Ridge/Lasso Test metrics (metric_only) appear only in
+ * the comparison table (BR-01 point 4). Nothing here scores a model on test data: the Test block
+ * and the comparison table only display the exported `test` entries (DA B-3, G-3); test_inputs is
+ * read only for the identifiers and actual prices that the scatter plot draws (see testRows()).
  *
  * OV-6 / SR-09 measurement: window.HW2_PERF.firstDraw is the time from navigation start
  * (performance.timeOrigin) to the end of the first complete draw of the scatter plot;
@@ -193,15 +196,34 @@
       box.appendChild(el('details', { class: 'small' }, [el('summary', { text: '各 fold 的子集（只在該 fold 的訓練列上選出）' }),
         el('ol', { class: 'folds' }, items)]));
     }
-    var shared = sharedWith(entry);
-    if (shared) box.appendChild(el('span', { class: 'small', text: '與 ' + modelName(shared) + ' 的 canonical subset 相同，是同一個模型；Test 評估只做一次。' }));
+    var shared = sharedWinners(entry);
+    if (shared.length) box.appendChild(el('span', { class: 'small', text: sharedText(shared) }));
   }
 
-  /* A CV winner whose model (canonical subset) is scored under another key (winners.*.test_model_key). */
-  function sharedWith(entry) {
-    if (!entry || !entry.is_method_winner || entry.method === 'allin') return null;
-    var tKey = Core.testEntryKey(MD, entry.method);
-    return tKey && tKey !== entry.model_key ? entryByKey(tKey) : null;
+  /* The CV winners (All-in included) as {method, entry, tKey}: tKey is where the winner's model was
+   * scored (winners.*.test_model_key; a model shared by several winners is scored once). */
+  function winnerList() {
+    var out = [];
+    METHOD_ORDER.forEach(function (m) {
+      if (!CAT[m] || !CAT[m].length) return;
+      var key = Core.testModelKey(MD, m);
+      var entry = key ? entryByKey(key) : null;
+      if (entry) out.push({ method: m, entry: entry, tKey: Core.testEntryKey(MD, m) });
+    });
+    return out;
+  }
+  /* Every other CV winner that is the same model (same canonical subset, same test entry) as this
+   * winner, whichever of them holds the representative key (DA D-2; #62 R1 F-1). */
+  function sharedWinners(entry) {
+    if (!entry || !entry.is_method_winner) return [];
+    var list = winnerList();
+    var mine = list.filter(function (w) { return w.entry.model_key === entry.model_key; })[0];
+    if (!mine || !mine.tKey) return [];
+    return list.filter(function (w) { return w.tKey === mine.tKey && w.entry.model_key !== entry.model_key; })
+      .map(function (w) { return w.entry; });
+  }
+  function sharedText(shared) {
+    return '與 ' + shared.map(modelName).join('、') + ' 為同一模型（canonical subset 相同），Test 只評估一次。';
   }
 
   /* ---- C. KPI (cv) and fit --------------------------------------------------------------- */
@@ -226,7 +248,7 @@
     box.appendChild(kpi('CV MAE', usd(m.mae), '± ' + usd(s.mae), '訓練 CV（USD）'));
     box.appendChild(kpi('CV MSE（USD²）', sci(m.mse), '± ' + sci(s.mse), '訓練 CV（USD）'));
     box.appendChild(kpi('CV R²（USD 尺度）', fixed(m.r2, 4), '± ' + fixed(s.r2, 4), '訓練 CV（USD）'));
-    status.textContent = '這些是訓練集內分組交叉驗證的指標（以 exp(log 預測) 回轉到 USD 計算），不是 Test 結果。';
+    status.textContent = '這些是訓練集內分組交叉驗證的指標（以 exp(log 預測) 回轉到 USD 計算），不是 Test 結果。Adjusted R² 對 CV 聚合值不適用：它只對全訓練集擬合的 OLS 子集模型在 log 尺度計算（見「全訓練集擬合」）。';
   }
 
   function renderFit(entry) {
@@ -286,6 +308,13 @@
       datasets.push({ type: 'line', label: 'All-in baseline（k = 18 固定，參考線）', data: [{ x: 0.5, y: allinV }, { x: 18.5, y: allinV }],
         borderColor: ALLIN_COLOR, borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, order: 2 });
     }
+    var refs = metricOnlyRefs(metric);
+    refs.forEach(function (r) {
+      values.push(r.value);
+      datasets.push({ type: 'line', label: r.label + '（全部 18 group，alpha ' + r.alpha + '；訓練 CV 參考線）',
+        data: [{ x: 0.5, y: r.value }, { x: 18.5, y: r.value }], borderColor: r.color, borderDash: r.dash,
+        borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, order: 2 });
+    });
     var lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
     var span = (hi - lo) || Math.abs(hi) || 1;
     lo -= span * 0.1; hi += span * 0.06;
@@ -334,11 +363,27 @@
       return METHOD_LABELS[m] + ' 的 CV winner 為 k = ' + (w ? w.k + '（' + fmt(cvValue(w, metric)) + '）' : '—');
     });
     if (allinV != null) parts.push('All-in baseline ' + fmt(allinV));
+    refs.forEach(function (r) { parts.push(r.label + '（alpha ' + r.alpha + '）' + fmt(r.value)); });
     if (window.Chart) setText('kchart-summary', METRICS[metric].label + '：' + parts.join('；') + '。');
-    renderLegend(methods);
+    renderLegend(methods, refs);
   }
 
-  function renderLegend(methods) {
+  /* Ridge / Lasso reference lines: their training-CV metric at the CV-chosen alpha (baselines.*.cv). */
+  var METRIC_ONLY_STYLE = { ridge: { color: '#047857', dash: [2, 3] }, lasso: { color: '#9D174D', dash: [10, 3, 2, 3] } };
+  function metricOnlyRefs(metric) {
+    var out = [];
+    ['ridge', 'lasso'].forEach(function (name) {
+      var b = MD.baselines && MD.baselines[name];
+      var v = b && b.cv && b.cv.mean ? b.cv.mean[metric] : null;
+      if (v == null || !isFinite(v)) return;
+      out.push({ name: name, label: name === 'ridge' ? 'Ridge' : 'Lasso', alpha: alphaText(b.alpha), value: v,
+        color: METRIC_ONLY_STYLE[name].color, dash: METRIC_ONLY_STYLE[name].dash });
+    });
+    return out;
+  }
+  function alphaText(a) { return a == null ? '—' : (a >= 0.01 && a < 1000 ? String(Number(a.toPrecision(3))) : a.toExponential(1)); }
+
+  function renderLegend(methods, refs) {
     var lg = byId('kchart-legend');
     lg.textContent = '';
     methods.forEach(function (m) {
@@ -347,6 +392,10 @@
     });
     lg.appendChild(el('span', { class: 'legend__item', style: 'color:' + ALLIN_COLOR },
       [el('span', { class: 'legend__line legend__line--dash' }), el('span', { style: 'color:#334155', text: 'All-in baseline（參考線）' })]));
+    (refs || []).forEach(function (r) {
+      lg.appendChild(el('span', { class: 'legend__item', style: 'color:' + r.color },
+        [el('span', { class: 'legend__line legend__line--' + r.name }), el('span', { style: 'color:#334155', text: r.label + '（參考線，metric-only）' })]));
+    });
     lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--ring' }), 'CV winner（圓環）']));
     lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--cross' }), 'invalid 候選（叉號，沒有 CV 指標）']));
     lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--sel' }), '目前選取']));
@@ -359,34 +408,78 @@
     if (!state.compareAll) return;
     var table = byId('compare-table');
     table.textContent = '';
-    var heads = ['方法', 'CV winner k', 'CV RMSE（± 標準差）', 'CV MAE', 'CV MSE（USD²）', 'CV R²（USD 尺度）',
-      'Adjusted R²（log 尺度，全訓練集擬合）', 'fold 子集＝canonical', '備註'];
-    table.appendChild(el('thead', {}, [el('tr', {}, heads.map(function (h, i) {
-      return el('th', { class: i >= 1 && i <= 7 ? 'num' : null, scope: 'col', text: h });
-    }))]));
+    /* G-4 / CC-1 (6): training-CV columns and Test columns are separate column groups. */
+    table.appendChild(el('caption', { class: 'small muted', text: '「訓練 CV（USD）」與「Test 評估（USD）」分欄呈現，不混用。' }));
+    table.appendChild(el('thead', {}, [
+      el('tr', {}, [
+        el('th', { scope: 'col', rowspan: '2', text: '模型' }),
+        el('th', { scope: 'col', rowspan: '2', class: 'num', text: 'k' }),
+        el('th', { scope: 'colgroup', colspan: '4', class: 'th-group th-group--cv', text: '訓練 CV（USD）' }),
+        el('th', { scope: 'col', rowspan: '2', class: 'num th-adj', text: 'Adjusted R²（log 尺度，全訓練集擬合）' }),
+        el('th', { scope: 'colgroup', colspan: '5', class: 'th-group th-group--test', text: 'Test 評估（USD）' })]),
+      el('tr', {}, ['RMSE（± 標準差）', 'MAE', 'MSE（USD²）', 'R²（USD 尺度）',
+        'RMSE', 'MAE', 'MSE（USD²）', 'R²（USD 尺度）', 'PI 涵蓋率'].map(function (h, i) {
+        return el('th', { scope: 'col', class: 'num' + (i < 4 ? ' th-cv' : ' th-test'), text: h });
+      }))]));
     var overall = MD.winners && MD.winners.overall;
     var body = el('tbody');
-    METHOD_ORDER.filter(function (m) { return CAT[m] && CAT[m].length; }).forEach(function (m) {
-      var e = m === 'allin' ? CAT.allin[0] : CAT[m].filter(function (x) { return x.is_method_winner; })[0];
-      if (!e) return;
-      var mean = e.cv.mean || {}, sd = e.cv.std || {};
+    function cvCells(cv) {
+      var mean = (cv && cv.mean) || {}, sd = (cv && cv.std) || {};
+      return [[usd(mean.rmse), '± ' + usd(sd.rmse)], usd(mean.mae), sci(mean.mse), fixed(mean.r2, 4)];
+    }
+    function testCells(t, reason) {
+      if (!t) return [reason, '', '', '', ''];
+      return [usd(t.rmse), usd(t.mae), sci(t.mse), fixed(t.r2, 4),
+        t.kind === 'ols_subset' ? pct(t.coverage, 2) : '不適用（metric-only）'];
+    }
+    function row(cls, label, k, cv, adj, test, notes) {
+      /* the notes sit under the model name, so that the numeric columns keep their width */
+      var head = el('th', { scope: 'row', class: 'th-model' }, [el('span', { text: label })].concat(
+        notes.length ? [el('div', { class: 'cmp-notes' }, notes)] : []));
+      var cells = [head, el('td', { class: 'num', text: k })];
+      cvCells(cv).forEach(function (v) {
+        cells.push(Array.isArray(v) ? el('td', { class: 'num td-cv' }, [v[0], el('div', { class: 'cmp-sd', text: v[1] })])
+          : el('td', { class: 'num td-cv', text: v }));
+      });
+      cells.push(el('td', { class: 'num', text: adj }));
+      test.forEach(function (v, i) {
+        var span = i === 0 && test[1] === '' ? '5' : null;
+        if (test[1] === '' && i > 0) return;
+        cells.push(el('td', { class: 'num td-test' + (span ? ' td-note' : ''), colspan: span, text: v }));
+      });
+      body.appendChild(el('tr', { class: cls }, cells));
+    }
+    winnerList().forEach(function (w) {
+      var e = w.entry;
       var notes = [];
       var isOverall = !!(overall && overall.model_key === e.model_key);
       if (isOverall) notes.push(el('span', { class: 'tag tag--overall', text: '整體 CV winner' }));
-      var shared = sharedWith(e);
-      if (shared) notes.push(el('span', { class: 'small', text: ' 與 ' + modelName(shared) + ' 為同一模型' }));
-      body.appendChild(el('tr', { class: isOverall ? 'is-overall' : null }, [
-        el('th', { scope: 'row', text: METHOD_LABELS[m] }),
-        el('td', { class: 'num', text: m === 'allin' ? '18（固定）' : String(e.k) }),
-        el('td', { class: 'num', text: usd(mean.rmse) + ' ± ' + usd(sd.rmse) }),
-        el('td', { class: 'num', text: usd(mean.mae) }),
-        el('td', { class: 'num', text: sci(mean.mse) }),
-        el('td', { class: 'num', text: fixed(mean.r2, 4) }),
-        el('td', { class: 'num', text: e.fit ? fixed(e.fit.adj_r2_log, 4) : '—' }),
-        el('td', { class: 'num', text: e.folds_agree + '／' + e.fold_groups.length }),
-        el('td', {}, notes)]));
+      var shared = sharedWinners(e);
+      if (shared.length) notes.push(el('span', { class: 'small', text: ' ' + sharedText(shared) }));
+      row(isOverall ? 'is-overall' : null, METHOD_LABELS[w.method] + (w.method === 'allin' ? '' : '（CV winner）'),
+        w.method === 'allin' ? '18（固定）' : String(e.k), e.cv, e.fit ? fixed(e.fit.adj_r2_log, 4) : '—',
+        testCells(testResult(w.tKey, 'ols_subset'), 'Test 評估尚未執行'), notes);
     });
+    ['ridge', 'lasso'].forEach(function (name) {
+      var b = MD.baselines && MD.baselines[name];
+      if (!b) return;
+      row('is-metric-only', (name === 'ridge' ? 'Ridge' : 'Lasso') + '（對照，alpha ' + alphaText(b.alpha) + '）',
+        '18（全部）', b.cv, '不適用', testCells(testResult(name, 'metric_only'), 'Test 評估尚未執行'),
+        [el('span', { class: 'small', text: 'metric-only：alpha 只以訓練 CV 選；不參與 CV winner；沒有預測區間、涵蓋率與即時預測。' })]);
+    });
+    var pv = MD.baselines && MD.baselines.pvalue_backward;
+    if (pv) {
+      row('is-lecture', 'p-value backward（講義對照）', String(pv.k), pv.cv,
+        pv.fit_summary ? fixed(pv.fit_summary.adj_r2_log, 4) : '—', testCells(null, '不在 Test 上評估（講義對照）'),
+        [el('span', { class: 'small', text: 'group F 檢定、門檻 ' + pv.threshold + '；單一子集、沒有 k 路徑，不參與 CV winner。' })]);
+    }
     table.appendChild(body);
+  }
+
+  /* The exported Test result of an authorized OLS subset model or of Ridge / Lasso (read only). */
+  function testResult(key, kind) {
+    var t = MD.test && key ? MD.test[key] : null;
+    return t && t.kind === kind ? t : null;
   }
 
   /* ---- D. predictor (fit) ----------------------------------------------------------------- */
@@ -523,8 +616,8 @@
     var tKey = Core.testEntryKey(MD, state.method);         /* where that model was scored (shared once) */
     var tEntry = hasTest && tKey ? MD.test[tKey] : null;
     var shown = key ? entryByKey(key) : null;
-    var shared = shown && tKey && tKey !== key ? entryByKey(tKey) : null;
-    setText('test-model', shown ? modelName(shown) + (shared ? '（與 ' + modelName(shared) + ' 為同一模型，Test 只評估一次）' : '') : '—');
+    var shared = sharedWinners(shown);
+    setText('test-model', shown ? modelName(shown) + (shared.length ? '（' + sharedText(shared).replace(/。$/, '') + '）' : '') : '—');
     var tag = byId('test-winner-tag');
     tag.hidden = !shown;
     if (shown) {

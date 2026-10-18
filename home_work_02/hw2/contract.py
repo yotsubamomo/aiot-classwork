@@ -48,16 +48,19 @@ def empty_test_inputs() -> dict:
         "n_rows": 0,
         "n_houses": None,
         "n_repeat_sales": None,
+        "n_unseen_zipcode": None,
         "note": ("Rows are written only by the one-time test-evaluation export behind the test "
                  "gate, in the same run as the test results (DA TR-01)."),
     }
 
 
-def build_test_inputs(rows: pd.DataFrame) -> dict:
+def build_test_inputs(rows: pd.DataFrame, training_zipcodes) -> dict:
     """``test_inputs`` with rows, from a frame holding 'row', the raw CSV columns and 'price'.
 
     Callers pass only rows they are entitled to: the official test rows behind the test gate
-    (#63) or synthetic fixture rows in tests.
+    (#63) or synthetic fixture rows in tests. With `training_zipcodes` (the zipcode categories of
+    the training set, which every whole-training fit uses; required), ``n_unseen_zipcode`` counts the rows
+    whose zipcode is not among them and is therefore encoded as the baseline category (SR-07).
     """
     missing = [c for c in ("row", "id", "price", *FEATURE_GROUPS) if c not in rows.columns]
     if missing:
@@ -81,6 +84,11 @@ def build_test_inputs(rows: pd.DataFrame) -> dict:
     obj = empty_test_inputs()
     obj.update(written=True, rows=out_rows, n_rows=len(out_rows), n_houses=n_houses,
                n_repeat_sales=len(out_rows) - n_houses)
+    known = {str(z) for z in training_zipcodes}
+    obj["n_unseen_zipcode"] = int(sum(1 for z in ordered["zipcode"].astype(str) if z not in known))
+    obj["unseen_zipcode_rule"] = ("test rows whose zipcode is not among the zipcode categories of "
+                                  "the training set; every whole-training fit encodes them as the "
+                                  "baseline category")
     obj.pop("note")
     return obj
 
@@ -111,9 +119,13 @@ def validate_test_inputs(obj: dict, n_test: int | None = None) -> None:
     if obj.get("n_rows") != len(rows):
         raise ContractError(f"test_inputs.n_rows {obj.get('n_rows')} != {len(rows)} rows")
     if not obj.get("written"):
-        if rows or obj.get("n_houses") is not None or obj.get("n_repeat_sales") is not None:
+        if rows or obj.get("n_houses") is not None or obj.get("n_repeat_sales") is not None                 or obj.get("n_unseen_zipcode") is not None:
             raise ContractError("unwritten test_inputs must have no rows and null counts")
         return
+    unseen = obj.get("n_unseen_zipcode")
+    if not isinstance(unseen, int) or isinstance(unseen, bool) or not 0 <= unseen <= len(rows):
+        raise ContractError("test_inputs.n_unseen_zipcode must count the rows encoded as the "
+                            "baseline zipcode (SR-07)")
     if n_test is not None and len(rows) != n_test:
         raise ContractError(f"test_inputs has {len(rows)} rows, n_test is {n_test}")
     width = len(TEST_INPUT_FIELDS)
@@ -390,6 +402,133 @@ def validate_winners(winners: dict, entries: dict, methods: dict | None = None) 
         raise ContractError("the authorized set scores one model (canonical subset) twice")
 
 
+# --- comparison models in ``baselines`` (Spec rev 5 「對照模型」; CC-1; SR-11) -------------------
+
+BASELINE_KEYS = ("allin", "ridge", "lasso", "pvalue_backward")
+PVALUE_KEY = "pvalue_backward"
+METRIC_ONLY_ENTRY_KEYS = {"model_key", "method", "kind", "label", "groups", "standardized",
+                          "target", "objective", "alpha", "alpha_grid", "alpha_rule",
+                          "alpha_at_grid_edge", "cv_by_alpha", "cv", "adj_r2_log", "adj_r2_note",
+                          "offers", "is_cv_winner_candidate"}
+# Fields that would let anything outside the one-time evaluation score a metric-only model, or
+# that belong to the OLS prediction interval (CC-1 (5); DA §11: Ridge/Lasso have no ``fit``).
+METRIC_ONLY_FORBIDDEN = {"fit", "coef", "coef_names", "intercept", "xtx_inv", "s2", "t_crit",
+                         "df_resid", "center", "encoded_columns"}
+PVALUE_ENTRY_KEYS = {"model_key", "method", "label", "role", "criterion", "threshold", "k",
+                     "canonical_groups", "fold_groups", "folds_agree", "status", "cv",
+                     "fit_summary", "elimination", "final_p_values", "is_cv_winner_candidate",
+                     "timing_s"}
+
+
+def _check_cv_layout(cv: dict, where: str, n_folds: int | None) -> None:
+    if cv.get("scale") != "USD":
+        raise ContractError(f"{where}.cv must be on the USD scale")
+    if len(cv.get("folds", [])) != cv.get("n_folds"):
+        raise ContractError(f"{where}.cv: fold records differ from n_folds")
+    if n_folds is not None and cv["n_folds"] != n_folds:
+        raise ContractError(f"{where}.cv.n_folds {cv['n_folds']} != meta.cv.n_folds {n_folds}")
+    if cv.get("mean") is not None:
+        for m in CV_METRIC_KEYS:
+            values = [f[m] for f in cv["folds"]]
+            if not np.isclose(np.mean(values), cv["mean"][m], rtol=1e-12, atol=1e-9):
+                raise ContractError(f"{where}.cv.mean.{m} is not the mean of the folds")
+
+
+def validate_metric_only_entry(entry: dict, name: str, n_folds: int | None) -> None:
+    """Ridge/Lasso: ``cv`` (USD) and the training-CV alpha only; no fit, no PI fields (CC-1)."""
+    where = f"baselines.{name}"
+    forbidden = METRIC_ONLY_FORBIDDEN & set(entry)
+    if forbidden:
+        raise ContractError(f"{where} must not hold {sorted(forbidden)} (metric-only)")
+    if set(entry) != METRIC_ONLY_ENTRY_KEYS:
+        raise ContractError(f"{where} keys differ: {sorted(set(entry) ^ METRIC_ONLY_ENTRY_KEYS)}")
+    if entry["model_key"] != name or entry["method"] != name or entry["kind"] != "metric_only":
+        raise ContractError(f"{where}: model_key, method and kind must be {name}/metric_only")
+    if entry["groups"] != list(FEATURE_GROUPS) or entry["standardized"] is not True:
+        raise ContractError(f"{where}: all 18 feature groups, standardized")
+    grid = entry["alpha_grid"]
+    alpha = entry["alpha"]
+    if not isinstance(alpha, (int, float)) or not np.isfinite(alpha) or alpha <= 0 \
+            or alpha not in grid:
+        raise ContractError(f"{where}.alpha must be a positive value of its grid")
+    curve = entry["cv_by_alpha"]
+    if [r["alpha"] for r in curve] != grid:
+        raise ContractError(f"{where}.cv_by_alpha must follow alpha_grid")
+    best = min(curve, key=lambda r: (r["rmse"], -r["alpha"]))
+    if best["alpha"] != alpha:
+        raise ContractError(f"{where}.alpha is not the lowest training-CV RMSE of the grid "
+                            "(ties: larger alpha)")
+    edge = "lower" if alpha == min(grid) else "upper" if alpha == max(grid) else None
+    if entry["alpha_at_grid_edge"] != edge:
+        raise ContractError(f"{where}.alpha_at_grid_edge must be {edge!r}")
+    cv = entry["cv"]
+    _check_cv_layout(cv, where, n_folds)
+    if cv["mean"] is None:
+        raise ContractError(f"{where}.cv needs its mean")
+    at = curve[grid.index(alpha)]
+    for m in CV_METRIC_KEYS:
+        if not np.isclose(at[m], cv["mean"][m], rtol=1e-12, atol=1e-9):
+            raise ContractError(f"{where}.cv.mean.{m} differs from cv_by_alpha at the alpha")
+    if entry["adj_r2_log"] is not None:
+        raise ContractError(f"{where}: Adjusted R² is not applicable to Ridge/Lasso")
+    if any(entry["offers"].get(k) for k in ("prediction_interval", "coverage_statistics",
+                                            "live_prediction")):
+        raise ContractError(f"{where}: metric-only models offer no PI, coverage or prediction")
+    if entry["is_cv_winner_candidate"] is not False:
+        raise ContractError(f"{where} is never a CV winner candidate (CC-1 (2))")
+
+
+def validate_pvalue_entry(entry: dict, n_folds: int | None) -> None:
+    """The lecture's p-value backward comparison: one subset, fold-internal CV, never a winner."""
+    where = f"baselines.{PVALUE_KEY}"
+    if set(entry) != PVALUE_ENTRY_KEYS:
+        raise ContractError(f"{where} keys differ: {sorted(set(entry) ^ PVALUE_ENTRY_KEYS)}")
+    if entry["model_key"] != PVALUE_KEY or entry["method"] != PVALUE_KEY:
+        raise ContractError(f"{where}: model_key and method must be {PVALUE_KEY}")
+    for groups in [entry["canonical_groups"], *entry["fold_groups"]]:
+        if list(groups) != [g for g in FEATURE_GROUPS if g in set(groups)] \
+                or len(set(groups)) != len(groups):
+            raise ContractError(f"{where}: subsets must be feature groups in canonical order")
+    if entry["k"] != len(entry["canonical_groups"]):
+        raise ContractError(f"{where}.k must be the size of the canonical subset")
+    cv = entry["cv"]
+    _check_cv_layout(cv, where, n_folds)
+    if len(entry["fold_groups"]) != cv["n_folds"]:
+        raise ContractError(f"{where}: one subset per fold")
+    for record, groups in zip(cv["folds"], entry["fold_groups"]):
+        if list(record.get("groups", [])) != list(groups):
+            raise ContractError(f"{where}: fold {record.get('fold')} groups differ")
+    agree = sum(1 for g in entry["fold_groups"] if list(g) == list(entry["canonical_groups"]))
+    if entry["folds_agree"] != agree:
+        raise ContractError(f"{where}.folds_agree {entry['folds_agree']} != {agree}")
+    if entry["status"]["state"] == "valid":
+        if cv["mean"] is None or entry["fit_summary"] is None:
+            raise ContractError(f"{where}: a valid entry needs cv.mean and fit_summary")
+        f = entry["fit_summary"]
+        adj = 1 - (1 - f["r2_log"]) * (f["n_train"] - 1) / (f["n_train"] - f["rank"])
+        if f["scale"] != "log" or f["rank"] != f["n_columns"] or \
+                not np.isclose(adj, f["adj_r2_log"], rtol=1e-12):
+            raise ContractError(f"{where}.fit_summary: log scale, full rank, Adjusted R² with "
+                                "the actual rank")
+    if not 0 < entry["threshold"] < 1 or entry["is_cv_winner_candidate"] is not False:
+        raise ContractError(f"{where}: a threshold in (0, 1); never a CV winner candidate")
+    if any(p["p_value"] > entry["threshold"] for p in entry["final_p_values"].values()):
+        raise ContractError(f"{where}: a group left in the subset has p > threshold")
+    if set(entry["final_p_values"]) != set(entry["canonical_groups"]):
+        raise ContractError(f"{where}.final_p_values must cover the canonical subset")
+
+
+def validate_baselines(baselines: dict, n_folds: int | None) -> None:
+    extra = set(baselines) - set(BASELINE_KEYS)
+    if extra:
+        raise ContractError(f"unknown baselines {sorted(extra)}")
+    for name in METRIC_ONLY_KEYS:
+        if name in baselines:
+            validate_metric_only_entry(baselines[name], name, n_folds)
+    if PVALUE_KEY in baselines:
+        validate_pvalue_entry(baselines[PVALUE_KEY], n_folds)
+
+
 def validate_test(md: dict) -> None:
     test, ti = md["test"], md["test_inputs"]
     if not ti.get("written"):
@@ -409,9 +548,17 @@ def validate_test(md: dict) -> None:
                             f"{list(METRIC_ONLY_KEYS)}")
     n = ti["n_rows"]
     actual = np.array([r[-1] for r in ti["rows"]], dtype=float)
+    baselines = md.get("baselines") or {}
     for key in metric_keys:
         if set(test[key]) != METRIC_ONLY_TEST_KEYS:
             raise ContractError(f"test.{key} (metric_only) has keys {sorted(test[key])}")
+        if key in baselines and test[key]["alpha"] != baselines[key]["alpha"]:
+            # CC-1 (1)(4): the scored model uses the alpha fixed by training CV
+            raise ContractError(f"test.{key}.alpha differs from the training-CV alpha")
+        if test[key]["n_test"] != ti["n_rows"]:
+            raise ContractError(f"test.{key}: n_test differs from the test_inputs rows")
+    if PVALUE_KEY in test:
+        raise ContractError("the p-value backward comparison is never scored on the test set")
     for key, entry in test.items():
         if entry.get("model_key") != key:
             raise ContractError(f"test.{key}.model_key is {entry.get('model_key')!r}")
@@ -435,6 +582,12 @@ def validate_test(md: dict) -> None:
             raise ContractError(f"test.{key}: coverage != n_covered / n_test")
         if not np.isclose(entry["mean_width"], np.mean(hi - lo), rtol=1e-12):
             raise ContractError(f"test.{key}: mean_width differs from the intervals")
+        fit = (model_entries(md).get(key) or {}).get("fit") or {}
+        uses_zip = "zipcode" in (fit.get("groups") or [])
+        expected = ti.get("n_unseen_zipcode") if uses_zip else 0
+        if entry["n_unseen_zipcode"] != expected:
+            raise ContractError(f"test.{key}.n_unseen_zipcode {entry['n_unseen_zipcode']} != "
+                                f"{expected} (SR-07)")
 
 
 def validate_model_data(md: dict) -> None:
@@ -451,6 +604,8 @@ def validate_model_data(md: dict) -> None:
             if paths:
                 raise ContractError(f"{section} holds test fields {paths[:5]}")
     n_folds = (md["meta"].get("cv") or {}).get("n_folds")
+    if "baselines" in md:
+        validate_baselines(md["baselines"], n_folds)
     allin = (md.get("baselines") or {}).get("allin")
     if allin is not None:
         validate_entry(allin, "baselines.allin", n_folds)

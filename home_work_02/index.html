@@ -126,16 +126,16 @@
             </select>
           </div>
           <div class="kchart"><canvas id="kchart-canvas" role="img" aria-describedby="kchart-summary"
-            aria-label="折線圖：四種特徵選擇方法在 k = 1 到 18 的訓練 CV 指標；All-in baseline 為水平參考線；各方法 CV winner 以圓環標示，invalid 候選以叉號標示，目前選取的模型以大圓圈標示。"></canvas></div>
+            aria-label="折線圖：四種特徵選擇方法在 k = 1 到 18 的訓練 CV 指標；All-in baseline、Ridge、Lasso 為水平參考線；各方法 CV winner 以圓環標示，invalid 候選以叉號標示，目前選取的模型以大圓圈標示。"></canvas></div>
           <p class="small muted" id="kchart-summary"></p>
           <div class="legend small" id="kchart-legend"></div>
-          <p class="small muted">來源：<code>methods[].cv</code> 與 <code>baselines.allin.cv</code>（5 個分組 fold 的平均）。每個 fold 的子集只在該 fold 的訓練列上選出；CV 指標估計的是「方法在 k 下的程序」，不是 canonical subset 本身。不含任何 Test 資料。</p>
+          <p class="small muted">來源：<code>methods[].cv</code>、<code>baselines.allin.cv</code> 與 Ridge／Lasso 的 <code>baselines.*.cv</code>（5 個分組 fold 的平均；Ridge／Lasso 為全部 18 group、以訓練 CV 選定的 alpha）。每個 fold 的子集只在該 fold 的訓練列上選出；CV 指標估計的是「方法在 k 下的程序」，不是 canonical subset 本身。不含任何 Test 資料。</p>
         </div>
 
         <div class="card card--flat" id="compare-card" hidden>
-          <h3>各方法 CV winner 比較 <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+          <h3>各方法 CV winner 與對照模型比較 <span class="tag tag--cv">訓練 CV（USD）</span> <span class="tag tag--test">Test 評估（USD）</span></h3>
           <div class="tablewrap"><table class="table" id="compare-table"></table></div>
-          <p class="small muted">整體 CV winner 是 CV RMSE 最小者（平手依方法順序 All-in、Forward SFS、Backward SFS、RFE、Lasso 路徑排序）。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤；Test 評估才是獨立估計，Test 排名不同時也不換模型。</p>
+          <p class="small muted">整體 CV winner 是 CV RMSE 最小者（平手依方法順序 All-in、Forward SFS、Backward SFS、RFE、Lasso 路徑排序）。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤；Test 評估才是獨立估計，Test 排名不同時也不換模型。來源：訓練 CV 欄來自 <code>methods[].cv</code>、<code>baselines.*.cv</code>；Test 欄只讀取匯出的 <code>test</code>（每個被授權的模型只評估一次；canonical subset 相同的 CV winner 共用同一筆結果）。Ridge／Lasso 是 metric-only 對照（依老師補充建議）：alpha 只以訓練 CV 選、不參與 CV winner、Test 只報 MAE、MSE、RMSE、R²，沒有預測區間與涵蓋率；它們的 Test 指標只出現在本表。p-value backward 是講義方法對照，不在 Test 上評估。Adjusted R² 只對 OLS 子集模型在 log 尺度計算，Ridge／Lasso 與 CV 聚合值不適用。本頁的任何操作都不會觸發新的 Test 評估。</p>
         </div>
         <div class="card card--flat" id="fit-card">
           <h3>全訓練集擬合 <span class="tag tag--fit">全訓練集擬合，R²／Adjusted R² 為 log 尺度</span></h3>

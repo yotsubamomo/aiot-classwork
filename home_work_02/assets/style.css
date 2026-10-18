@@ -167,6 +167,8 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
 .legend__item.is-dim { opacity: 0.45; }
 .legend__line { display: inline-block; width: 22px; height: 0; border-top: 3px solid currentColor; }
 .legend__line--dash { border-top-style: dashed; border-top-width: 2px; }
+.legend__line--ridge { border-top-style: dotted; border-top-width: 3px; }
+.legend__line--lasso { border-top-style: dashed; border-top-width: 3px; }
 .legend__mark { display: inline-block; width: 12px; height: 12px; }
 .legend__mark--ring { border: 2px solid var(--c-text); border-radius: 50%; }
 .legend__mark--sel { width: 16px; height: 16px; border: 2px solid var(--c-text); border-radius: 50%; box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px rgba(15,23,42,0.25); }
@@ -176,6 +178,7 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
 #compare-card[hidden] { display: none; }
 .tablewrap { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.table caption { caption-side: top; text-align: left; padding: 0 0 6px; }
 .table th, .table td { padding: 6px 10px; border-bottom: 1px solid var(--c-border); text-align: left; vertical-align: top; }
 .table th { color: var(--c-muted); font-weight: 600; }
 .table thead th { vertical-align: bottom; }
@@ -183,6 +186,22 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
 .table td.num, .table th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .table td.num { white-space: nowrap; }
 .table tr.is-overall td { background: var(--c-success-soft); }
+/* G-4: training-CV and Test column groups of the comparison table are told apart by their header
+   text and a top rule, not by color alone (#63). */
+.table th.th-group { text-align: center; color: var(--c-text); border-bottom: 2px solid; }
+.table th.th-group--cv { border-bottom-color: var(--c-primary); background: var(--c-primary-soft); }
+.table th.th-group--test { border-bottom-color: #475569; background: #E2E8F0; }
+.table td.td-test { background: rgba(226,232,240,0.45); }
+.table td.td-note { text-align: center; color: var(--c-muted); white-space: normal; }
+.table th.th-model { min-width: 9.5em; }
+#compare-table { font-size: 0.8125rem; }
+#compare-table th, #compare-table td { padding: 6px 7px; }
+#compare-table th.th-adj { min-width: 7em; max-width: 8em; }
+.cmp-sd { font-size: 0.75rem; color: var(--c-muted); }
+.table th.th-model > span:first-child { color: var(--c-text); }
+.cmp-notes { margin-top: 4px; font-weight: 400; color: var(--c-muted); display: grid; gap: 2px; justify-items: start; }
+#compare-table td:last-child { min-width: 0; }
+.table tr.is-metric-only th > span:first-child, .table tr.is-lecture th > span:first-child { font-style: italic; }
 .folds { margin: 0; padding-left: 1.1em; }
 .folds li { overflow-wrap: anywhere; }
 
@@ -205,9 +224,9 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
 .result__meta { font-size: 0.8125rem; color: var(--c-muted); display: grid; gap: 2px; }
 
 /* --- E Test block ------------------------------------------------------------------------ */
-.testzone { background: var(--c-test-zone); border: 1px solid #CBD5E1; border-left: 6px solid var(--c-test-edge); border-radius: var(--radius); padding: var(--space-4); display: grid; gap: var(--space-3); }
+.testzone { background: var(--c-test-zone); border: 1px solid #CBD5E1; border-left: 6px solid var(--c-test-edge); border-radius: var(--radius); padding: var(--space-4); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
 .testzone__head { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
-#test-body { display: grid; gap: var(--space-4); }
+#test-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
 #test-body[hidden] { display: none; }
 .testzone p { margin: 0; }
 .notice { padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid #FCD34D; border-left: 4px solid var(--c-accent); background: #FFFBEB; color: #78350F; }

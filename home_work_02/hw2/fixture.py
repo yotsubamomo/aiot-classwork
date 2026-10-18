@@ -6,16 +6,17 @@ from a fixed seed (no value comes from the real file, least of all from its test
 run through **the same code path as the official data** — :func:`hw2.data.load_and_split`,
 :func:`hw2.models.fit_allin`, :func:`hw2.selection.run_path_methods` (which uses
 :func:`hw2.models.evaluate_candidate`), :func:`hw2.models.determine_winners`,
-:class:`hw2.testgate.TestGate` and
+:func:`hw2.comparison.run_metric_only` (Ridge and Lasso: training-CV alpha and refit),
+:func:`hw2.comparison.evaluate_pvalue_backward`, :class:`hw2.testgate.TestGate` and
 :func:`hw2.export.build_model_data` — with ``meta.fixture = true``.
 
 Since #62 the four path methods run the real selection code (:func:`hw2.selection.run_path_methods`)
 on the synthetic training rows; one candidate is artificially invalidated
 (:func:`inject_invalid_candidate`) so that the invalid display and the winner rule are exercised.
 :data:`FIXTURE_SUBSETS` (a few fixed subsets, not selections) remains only for small gate tests
-that need complete winners quickly. Ridge and Lasso do not exist before #63, and the gate opens only
-with both metric-only alphas fixed (CC-1, G-3), so the fixture also stands in two metric-only
-models (:class:`StandInMetricOnly`: fixed alphas, a constant prediction; not Ridge or Lasso fits).
+that need complete winners quickly. Since #63 the metric-only models are the real Ridge and Lasso
+(alpha by training CV on the synthetic training rows) and the p-value comparison runs too; the
+gate opens only with both metric-only alphas fixed (CC-1, G-3).
 Fixture ``model_data`` is never written inside the unit directory
 (:func:`write_fixture`), so it cannot reach the tracked official paths or be used as a result.
 
@@ -31,7 +32,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import data, export, models, selection, testgate
+from . import comparison, data, export, models, selection, testgate
 from .paths import ASSETS_DIR, DASHBOARD_HTML, MODEL_DATA_JS_GLOBAL, UNIT_DIR
 
 FIXTURE_SEED = 20261018
@@ -45,27 +46,8 @@ FIXTURE_SUBSETS = {
 _ZIPCODES = tuple(f"98{v:03d}" for v in range(1, 71))          # 70 synthetic labels
 
 
-FIXTURE_ALPHAS = {"ridge": 1.0, "lasso": 0.001}
-
-
 class FixtureError(RuntimeError):
     pass
-
-
-class StandInMetricOnly:
-    """Stands in for a metric-only model in fixtures: a fixed alpha and a constant prediction
-    (exp of the mean ln(price) of the training rows). Not a Ridge or Lasso fit (those are #63)."""
-
-    def __init__(self, alpha: float, training: pd.DataFrame):
-        self.alpha = float(alpha)
-        self.value = float(np.exp(np.log(training["price"].to_numpy(dtype=float)).mean()))
-
-    def predict_usd(self, rows: pd.DataFrame) -> np.ndarray:
-        return np.full(len(rows), self.value)
-
-
-def stand_in_metric_only(training: pd.DataFrame, alphas: dict = FIXTURE_ALPHAS) -> dict:
-    return {name: StandInMetricOnly(alpha, training) for name, alpha in alphas.items()}
 
 
 def synthetic_sales(n_houses: int = 3000, n_repeats: int = 30, seed: int = FIXTURE_SEED,
@@ -134,16 +116,14 @@ def _outside_unit(path: Path) -> Path:
 
 
 def run_fixture(workdir: Path, n_houses: int = 3000, n_repeats: int = 30,
-                seed: int = FIXTURE_SEED, n_folds: int = 5, metric_only: dict | None = None,
-                alphas: dict | None = None, inject_invalid: bool = True) -> dict:
+                seed: int = FIXTURE_SEED, n_folds: int = 5, inject_invalid: bool = True) -> dict:
     """Generate a synthetic CSV in `workdir` and run it through the official code path.
 
-    Returns ``{"csv", "prepared", "allin", "candidates", "winners", "gate", "evaluation",
-    "model_data", "injected_invalid"}``. The four path methods run the real selection code
-    (:func:`hw2.selection.run_path_methods`). With `inject_invalid` one candidate is
-    artificially invalidated (:func:`inject_invalid_candidate`). `metric_only` maps
-    ``ridge``/``lasso`` to stand-in metric-only models and `alphas` gives their fixed alphas
-    (default: :func:`stand_in_metric_only` with :data:`FIXTURE_ALPHAS`).
+    Returns ``{"csv", "prepared", "allin", "candidates", "winners", "selections",
+    "metric_only", "pvalue", "gate", "evaluation", "model_data", "injected_invalid"}``. The four
+    path methods run the real selection code (:func:`hw2.selection.run_path_methods`); Ridge and
+    Lasso choose their alpha by training CV (:func:`hw2.comparison.run_metric_only`). With
+    `inject_invalid` one candidate is artificially invalidated (:func:`inject_invalid_candidate`).
     """
     workdir = _outside_unit(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
@@ -157,28 +137,28 @@ def run_fixture(workdir: Path, n_houses: int = 3000, n_repeats: int = 30,
     candidates, _, path_timing = selection.run_path_methods(prepared.training)
     injected = inject_invalid_candidate(prepared.training, candidates) if inject_invalid else None
     winners = models.determine_winners(allin, candidates)
+    selections, metric_only, cmp_timing = comparison.run_metric_only(prepared.training)
+    pvalue = comparison.evaluate_pvalue_backward(prepared.training)
+    cmp_timing[comparison.PVALUE_KEY] = pvalue["timing_s"]
     gate = testgate.TestGate(prepared)
-    if metric_only is None:
-        alphas = dict(FIXTURE_ALPHAS if alphas is None else alphas)
-        metric_only = stand_in_metric_only(prepared.training, alphas)
-    elif alphas is None:
-        alphas = {name: model.alpha for name, model in metric_only.items()}
-    gate.open(winners, alphas)
+    gate.open(winners, {name: sel.alpha for name, sel in selections.items()})
     pool = [allin] + [c for cs in candidates.values() for c in cs]
     evaluation = gate.evaluate(testgate.ols_models_for(winners, pool), metric_only)
     timings = dict(prepared.timings_s)
     timings.update({f"path_{m}": t["total"] for m, t in path_timing.items()})
+    timings.update({f"{m}_total": t["total"] for m, t in cmp_timing.items()})
     md = export.build_model_data(prepared, timings_s=timings, fixture=True, allin=allin,
                                  winners=winners, methods=candidates, evaluation=evaluation,
-                                 path_timing=path_timing)
+                                 path_timing=path_timing, metric_only=selections, pvalue=pvalue,
+                                 comparison_timing=cmp_timing)
     subsets_note = "the path-method subsets come from the real selection code (hw2.selection)"
     injected_note = (f"; {injected} is artificially invalidated (a column made constant on fold "
                      "0's training rows) to exercise the invalid display" if injected else "")
     md["meta"]["fixture_note"] = ("SYNTHETIC FIXTURE: generated data, not the King County file; "
-                                  f"{subsets_note}{injected_note}; the metric-only models are "
-                                  "stand-ins, not Ridge/Lasso fits. Never a result.")
+                                  f"{subsets_note}{injected_note}. Never a result.")
     return {"csv": csv, "prepared": prepared, "allin": allin, "candidates": candidates,
-            "winners": winners, "gate": gate, "evaluation": evaluation, "model_data": md,
+            "winners": winners, "selections": selections, "metric_only": metric_only,
+            "pvalue": pvalue, "gate": gate, "evaluation": evaluation, "model_data": md,
             "injected_invalid": injected}
 
 
