@@ -7,7 +7,7 @@
 
 ## 1. 目標
 
-以 Kaggle **House Sales in King County, USA** 資料集完成一份遵循 CRISP-DM 六階段、可重現的多元線性回歸分析，預測房屋成交價：比較五種特徵選擇方法在 k = 1…18 的表現，以訓練資料的交叉驗證選模，在保留的測試集上做一次評估，為每筆測試交易提供有統計定義的 95% 預測區間，並以靜態互動 dashboard 發布結果。交付老師要求的主程式、PDF 報告、AI 協助證據與學號 ZIP，加上 GitHub Pages 上的 dashboard。[T][D Q1–Q10]
+以 Kaggle **House Sales in King County, USA** 資料集完成一份遵循 CRISP-DM 六階段、可重現的多元線性回歸分析，預測房屋成交價：比較四種具有 k=1…18 路徑的特徵選擇方法＋單一 All-in baseline 的表現，以訓練資料的交叉驗證選模，在保留的測試集上做一次評估，為每筆測試交易提供有統計定義的 95% 預測區間，並以靜態互動 dashboard 發布結果。交付老師要求的主程式、PDF 報告、AI 協助證據與學號 ZIP，加上 GitHub Pages 上的 dashboard。[T][D Q1–Q10]
 
 ## 2. 來源與地位
 
@@ -66,7 +66,7 @@
 
 ## 5. 特徵選擇、模型與比較
 
-- **正式比較的方法** [D Q11]：A All-in（baseline）、B Forward SFS、C Backward SFS、D RFE、E Lasso 路徑排序取 top-k。**講義方法對照**：F p-value backward elimination，做一次、不進 k 路徑。
+- **正式比較的方法** [D Q11]：A All-in（baseline）、B Forward SFS、C Backward SFS、D RFE、E Lasso 路徑排序取 top-k。**講義方法對照**：F p-value backward elimination，產生單一子集、不進 k 路徑（選擇邊界與正式方法相同，由 Spec 定）。
 - **All-in baseline 的定義**（BR-02）：A 是**單一模型**——以全部 18 個 feature group 擬合的 OLS，沒有 k 路徑；它等於 B、C、D 路徑在 k = 18 的端點。比較方式：A 的 CV 指標在「指標 vs k 圖」中以水平參考線呈現，在比較表中佔一列；A 本身就是它的 CV winner，所以與其他方法的 CV winner 一起競爭整體 CV winner，並在 test 上評估一次。Dashboard 的方法選單中，A 的 k 固定為 18，不提供 k 切換。
 - **選擇單位**：feature group；同一 source feature 的 encoded columns 同進同出 [D Q12]。
 - **k 的範圍**：每個方法 k = 1…18 的完整路徑 [D Q34]。**執行時間必須量測並記錄；若成本過高，先回報可行的改善方案，不自行縮小範圍。**
@@ -167,7 +167,14 @@ seed 值；CV 折數（假設 5）；Ridge／Lasso 的 alpha 網格與標準化�
 | BR-03 [Medium] 公開 repo 不出現學號 vs Brief 含學號 | 三份追蹤文件中的實際學號全部改為 `<學號>`；§11 寫明規則與驗收方式（`git grep`）；實際值只在本機未追蹤設定與 ZIP | 已處理，不改變 Q27 |
 | BR-04 [Medium] 完全離線缺驗收 | §7 新增離線驗收條件（解壓、斷網、無伺服器、`file://`、必要功能、零對外請求、`file://` 可用的資料載入）；§10 加入檢查 | 已處理，不改變 Q30 |
 
-## 14. 下一步（待 acceptor 確認本 Brief 後）
+## 14. 接受後的編輯性修訂
+
+| 日期 | 位置 | 修訂 | 依據 |
+| --- | --- | --- | --- |
+| 2026-10-18 | §1 | 「五種特徵選擇方法」→「四種具有 k=1…18 路徑的特徵選擇方法＋單一 All-in baseline」 | Spec Review SR-06；acceptor「ACCEPTED，不改變既有需求」 |
+| 2026-10-18 | §5 | 講義方法對照「做一次」→「產生單一子集、不進 k 路徑（選擇邊界與正式方法相同，由 Spec 定）」 | Spec Review SR-11：fold-internal selection 下「做一次」指單一子集而非單次計算；acceptor 允許必要的 Brief 編輯性文字更新 |
+
+## 15. 下一步
 
 1. acceptor 確認本 Brief（或指出修改）。
 2. 依 MATT 流程以本 Brief 產生 Spec（`/to-spec`），再拆 Tickets（`/to-tickets`）。這兩步與實作都尚未授權。

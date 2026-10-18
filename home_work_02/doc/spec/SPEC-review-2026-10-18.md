@@ -19,6 +19,16 @@
 | SR-08 涵蓋率不確定性 | **CONFIRMED** | Medium | Spec rev 1 把 1.96√(p(1−p)/n) 寫成「抽樣不確定性」，沒有說明它假設獨立；test 內同一房屋的重複交易相依 | 標明為二項近似、假設獨立、實際略大；契約與報告給出 test 的房屋數與重複交易筆數；與「不宣稱保證 95%」一起說明 | Spec：預測區間、契約 `test_inputs`、pytest。Brief：不變（Q18「抽樣不確定性」未指定方法） | 無 | 只是說明，不改公式；若 acceptor 要 cluster-robust 的估計，屬新增需求 |
 | SR-09 UI 效能驗收 | **PARTIALLY CONFIRMED** | Medium | Q43 的「可讀且可操作、不嚴重遮蔽或卡頓」是驗收意圖，但 Spec rev 1 沒有可觀察的檢查；Q43 第 5 點禁止限制實作技術 | 加入五條可觀察檢查 (a)～(e)：3 秒首次繪製、1 秒互動更新且無「沒有回應」提示、預設視圖可分辨、十倍價格區間內可分辨個別線段、游標可讀取單筆；不指定技術 | Spec：dashboard、檢查表。Brief：不變 | **Acceptor 確認門檻數值**（起草者提議） | 參考環境是 acceptor 的電腦，其他機器表現可能不同 |
 
+## 第二輪：acceptor 決定與 SR-10～SR-12（2026-10-18）
+
+**Acceptor 決定**：SR-06 ACCEPTED（Brief §1 編輯性修正已套用）；SR-09 ACCEPTED WITH CLARIFICATION（1 秒適用於方法／k 切換、縮放、平移；定義量測起訖；記錄瀏覽器、硬體、資料筆數、量測方式；不得以抽樣或聚合達標；線段可辨識性以縮放或游標驗收，不要求高密度區域全部不重疊）——已寫入 Spec rev 3 的 dashboard 一節 (a)～(g)。
+
+| ID | 判定 | 嚴重度 | 證據 | 修正 | Brief／Spec 影響 | 需要的授權 | 殘餘風險 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SR-10 canonical subset 秩不足 | **CONFIRMED** | High | rev 2「實驗層級失敗」含「任何方法的 canonical subset 在整個 training set 上秩不足」，與同節「無效候選不阻止其他候選」的語義衝突：一個非 winner 的 (方法, k) 就能中止全部實驗 | canonical fit 秩不足 → 該 (方法, k) `invalid`（`canonical_rank_deficient`），沒有 `fit`、無預測、不參與 winner；**有效候選**＝CV 全 fold 有效且 canonical fit 有效；winner 只在有效候選中選。停止條件縮為：All-in 秩不足、任一方法沒有有效候選、整體 winner 無法決定；停止時列出全部 invalid 與原因，不刪 group。測試加對應案例 | Spec：指標與推論、測試。Brief：不變（Q16、Q34） | 無 | 無 |
+| SR-11 p-value backward 的 CV 洩漏 | **CONFIRMED** | Medium | rev 2 在整個 training set 上做一次消去，再用同一組 fold 算 CV：每個驗證 fold 都參與了子集的選擇，CV 指標樂觀 | 改為 fold-internal（每 fold 訓練列消去、驗證列評估），另在整個 training set 上得 canonical subset 供顯示；仍是單一子集、無 k 路徑、只作對照、不進 winner、不評估 test | Spec：方法、測試。**Brief §5 編輯**：「做一次」→「產生單一子集、不進 k 路徑（選擇邊界與正式方法相同，由 Spec 定）」——「做一次」原意是單一子集，不是單次計算；Q11 的決定（F 為講義方法對照、不進正式比較）不變 | Acceptor 已允許必要的 Brief 編輯性文字；已記入 Brief §14 | 計算 ×6（在 Q34 義務內） |
+| SR-12 涵蓋率不確定性的方向宣稱 | **CONFIRMED** | Medium | rev 2 寫「實際不確定性略大於此近似」；群組相依只說明獨立假設不成立，方向與幅度未經估計 | 改為：涵蓋事件不保證獨立，近似的準確度未經估計；報告不陳述方向或幅度，只說明假設並列出房屋數與重複交易筆數；群組感知估計不在範圍內 | Spec：預測區間。Brief：不變（Q18） | 無 | 無 |
+
 ## 修正後的新矛盾檢查
 
 - SR-01 與 SR-02：canonical subset 是 test 評估與 JS 重算的對象，`test_inputs`＋`fit` 足以重算；fold 子集只進比較資料，不進預測器。一致。
@@ -28,6 +38,19 @@
 - SR-05 與 Q29：Adjusted R² 仍只在 log 尺度、只對 OLS；USD 只有 R²。一致。
 - SR-07 與 Q16：encoding 設計不變，只補使用者可見行為。一致。
 - SR-08 與 Q18：公式不變，只補假設說明與輔助數字。一致。
+
+- SR-10 與 SR-04：三類語義保留；只把 canonical 秩不足從「實驗層級」移到「無效候選」，停止條件改以 All-in、方法有效性與整體 winner 可決定為準。一致。
+- SR-11 與 Q11／BR-02：p-value backward 仍不進正式比較；fold-internal 使它的 CV 指標與正式方法可比，但它沒有 k 路徑也不評估 test。一致。
+- SR-12 與 SR-08：公式不變，只刪去方向宣稱。一致。
+- SR-09 (g) 與 Q43 第 1 條：相同要求，重申於效能驗收內。一致。
+
+## Final Spec Review Verdict（2026-10-18）
+
+- Blocking：SR-01、SR-02 — **CLOSED**（rev 2）。
+- High：SR-03、SR-04、SR-05 — **CLOSED**（rev 2）；SR-10 — **CLOSED**（rev 3）。
+- Medium：SR-06、SR-07、SR-08、SR-09 — **CLOSED**（rev 2；SR-06、SR-09 於 rev 3 依 acceptor 決定定案）；SR-11、SR-12 — **CLOSED**（rev 3）。
+- 沒有新的 Blocking／High finding。殘餘風險只有計算時間（Q34 已有義務）與參考環境的機器差異（SR-09 已要求記錄）。
+- **Verdict：Spec rev 3 可進入下一階段（`/ui-ux-pro-max` wireframe），待 acceptor 指示。** 本紀錄是起草者的 self-reconciliation，不是 independent audit。
 
 ## 未改變的事項
 

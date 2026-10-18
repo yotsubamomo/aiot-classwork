@@ -2,7 +2,7 @@
 
 - **來源**：已接受的 [Brief](../brief/BRIEF.md)（commit `dff7c55c`；接受紀錄 [`../governance/outcome-contract.md`](../governance/outcome-contract.md)）。本 Spec 由 MATT `/to-spec` 產生，不重新開啟 Grill 的決定；Brief 與本 Spec 不一致時以 Brief 為準並回報。
 - **詞彙**：依 [`../../CONTEXT.md`](../../CONTEXT.md)。
-- **版本**：rev 2（2026-10-18）— 依 Spec Review SR-01～SR-09 修訂（處理紀錄見 [`SPEC-review-2026-10-18.md`](SPEC-review-2026-10-18.md)）；rev 1 為 `/to-spec` 的初版（commit `3aacb54`）。
+- **版本**：rev 3（2026-10-18）— 依 acceptor 對 SR-06／SR-09 的決定與 Spec Review SR-10～SR-12 修訂；rev 2 依 SR-01～SR-09 修訂（處理紀錄見 [`SPEC-review-2026-10-18.md`](SPEC-review-2026-10-18.md)）；rev 1 為 `/to-spec` 的初版（commit `3aacb54`）。
 - **GitHub Issue**：[yotsubamomo/aiot-classwork#59](https://github.com/yotsubamomo/aiot-classwork/issues/59)（label `ready-for-agent`；2026-10-18 發布）。Issue 本文與本檔於發布時相同；之後若修訂，以本檔為準並同步更新 Issue。
 - **測試 seams**（acceptor 2026-10-18 確認）：主 seam 是 `model_data` 匯出契約（pytest＋Node test）；次 seam 是 Python 套件的公開函式（pytest）；UI 以人工檢查表驗收。
 
@@ -129,7 +129,7 @@
 
 - 正式比較的對象是**四種有 k 路徑的特徵選擇方法**——Forward SFS、Backward SFS、RFE、Lasso 路徑排序取 top-k——加上**單一的 All-in baseline**（全部 18 group 的 OLS，沒有 k 路徑；SR-06）。每個路徑方法在每個 fold 的訓練列上產生 k = 1…18 的巢狀或排序子集（見上節的邊界），每個 k 以 OLS 在 fold 訓練列上擬合、在驗證列上算 USD 指標，CV 指標為 5 折平均（另存各折值與標準差）。
 - 選擇單位為 feature group：SFS 與 RFE 每一步加入或移除整個 group；Lasso 路徑以 group 的進入順序（group 內任一欄係數首次非零的 alpha）排序，平手依 canonical order。RFE 的 group 重要度彙總規則由實作決定並寫入方法說明。
-- 講義方法對照：p-value backward elimination 在整個 training set 上以 group 層級的 F 檢定（或等效）做一次，門檻 0.05，得到一個子集，以同一組 fold 算 CV 指標、列為對照列；不進 k 路徑、不參與 CV winner。
+- 講義方法對照：p-value backward elimination 以 group 層級的 F 檢定（或等效）、門檻 0.05 執行，**與正式方法同樣採 fold-internal selection**（SR-11）：在每個 fold 的訓練列上消去得到該 fold 的子集、在驗證列上算指標，CV 指標為 5 折平均；另在整個 training set 上執行一次得到 canonical subset 供顯示。它產生**單一子集、沒有 k 路徑**，只列為對照列，不參與 CV winner，也不在 test 上評估。
 - 對照模型：Ridge 與 Lasso 用全部 18 group、標準化後以同一組 fold 的 CV 選 alpha（網格由實作決定並記錄）；只報 CV 與 test 指標，不提供 PI 與即時預測。
 - CV winner：各路徑方法取 CV RMSE 最小的 k（平手取較小的 k）；整體 CV winner 為各方法 CV winner 與 All-in 中 CV RMSE 最小者（平手依方法的固定順序）。被授權在 test 評估的模型集合＝各方法 CV winner ∪ {All-in} ∪ {整體 CV winner}，同一模型只評估一次；Ridge／Lasso 的 test 指標亦各報一次作為對照。
 - 最終模型＝整體 CV winner 在整個 training set 上重新擬合；用於 Deployment 的預測函式、pickle 示範、診斷與報告主要結果。
@@ -142,12 +142,13 @@
 - 每個被擬合的 OLS 模型記錄實際 design matrix 的欄數與秩。**秩不足的語義**（SR-04）分三類，都不得以臨時刪欄、合併類別或改變 encoding 處理，也不縮小已接受的方法與 k 範圍：
   - **合法的 encoding 結果**（不是缺陷）：one-hot 類別只取自當次訓練列，所以某個 zipcode 若不在該 fold 的訓練列中，該 fold 的設計矩陣就沒有那一欄；驗證列或 test 中出現時編為基準類別。契約記錄每個 fit 實際使用的類別清單，以及被編為基準的未見類別筆數。
   - **無效候選**（候選層級）：某個 (方法, k, fold) 的設計矩陣（含截距）在該 fold 訓練列上秩不足（例如某欄在該訓練列上為常數或與其他欄完全共線）。該 fold 的指標記為無效並附原因；該 (方法, k) 的 CV 指標若有任一 fold 無效，整個 (方法, k) 標為 `invalid`、不參與 CV winner，並在比較表與 dashboard 以明確標示呈現。路徑方法在該步的選擇照常進行，不跳過 group。
-  - **實驗層級失敗**（停止並回報）：All-in 在任一 fold 或整個 training set 上秩不足；任何方法的 canonical subset 在整個 training set 上秩不足；或無效候選的數量使某方法沒有任何有效的 k。這三種情況表示資料或固定前處理有結構性問題（例如 `sqft_basement` 誤入模型），notebook 以錯誤停止，route 給 acceptor，不自行修補。
+  - **無效候選也包括 canonical fit**（SR-10）：某 (方法, k) 的 canonical subset 在整個 training set 上秩不足時，該 (方法, k) 同樣標為 `invalid`（原因 `canonical_rank_deficient`），沒有 `fit`、不提供即時預測、不參與 winner；其他有效候選照常完成比較與評估。**有效候選**＝CV 全部 fold 有效且 canonical fit 有效；各方法的 CV winner 只在有效候選中選。
+  - **實驗層級失敗**（停止並回報）：All-in 在任一 fold 或整個 training set 上秩不足；任一方法沒有任何有效候選（因此沒有 CV winner）；或整體 CV winner 無法決定。這些情況表示資料或固定前處理有結構性問題（例如 `sqft_basement` 誤入模型），notebook 以錯誤停止並列出全部 invalid 候選與原因，route 給 acceptor，不自行修補、不刪除任何 feature group。
 
 ### 預測區間
 
 - 對 OLS 子集模型，在 log 尺度計算參數式 95% 預測區間：ŷ_log ± t(0.975, df_resid)·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))，再 exp 回 USD；匯出 s²、df_resid、t 臨界值、(XᵀX)⁻¹ 與係數，使 JS 能重算。
-- Test 評估時對每筆 test 交易記錄點預測、下界、上界、是否涵蓋（閉區間）；coverage = 涵蓋筆數 / n_test；平均寬度以 USD 計；抽樣不確定性以 √(p(1−p)/n_test) 的 1.96 倍表示，**並標明它是假設各筆涵蓋事件獨立的二項近似**（SR-08）：test 內同一房屋的重複交易彼此相依，實際不確定性略大於此近似。契約與報告同時給出 test 的房屋數與重複交易筆數；報告把這個近似與 Brief 的「不宣稱保證 95%」一起說明。
+- Test 評估時對每筆 test 交易記錄點預測、下界、上界、是否涵蓋（閉區間）；coverage = 涵蓋筆數 / n_test；平均寬度以 USD 計；抽樣不確定性以 √(p(1−p)/n_test) 的 1.96 倍表示，**並標明它是假設各筆涵蓋事件獨立的二項近似**（SR-08、SR-12）：test 內含同一房屋的重複交易，涵蓋事件不保證獨立，所以這個近似的準確度未經估計；報告**不陳述**偏差的方向或幅度，只說明假設、列出 test 的房屋數與重複交易筆數，並把它與 Brief 的「不宣稱保證 95%」一起說明。群組感知的不確定性估計不在本 Spec 範圍內。
 - 報告寫明假設（殘差常態、同質變異、獨立）、特徵選擇後推論與模型誤設的影響，不宣稱保證 95%。
 
 ### 診斷與解釋
@@ -182,7 +183,14 @@
 - 區塊：方法與 k 控制；KPI 卡（標示「訓練 CV」）；指標 vs k 圖（各方法路徑；All-in、Ridge、Lasso 為參考線；「比較全部」疊圖）；即時預測器；test 區塊（test KPI、實際 vs 預測圖、涵蓋統計，標示所展示的方法與 k）；方法與限制。選配：係數表、test 殘差表、全部結果表。
 - 分層規則與**來源標示**（SR-05）：任意 (方法, k) 的 KPI 來自 `methods[].cv`，標示「訓練 CV（USD）」；係數表（選配）與預測器來自 `methods[].fit`，係數表標示「全訓練集擬合，R²／Adjusted R² 為 log 尺度」；test 區塊從 `test` 取該方法 CV winner（或 All-in／整體 winner）的資料，標示「Test 評估（USD）」與所展示的方法與 k；選取非 winner 時顯示清楚可見的提示說明 test 區塊展示的是哪個模型；`status = invalid` 的 (方法, k) 在圖與表上以明確標示呈現且不可成為 winner。All-in 選取時 k 控制固定且不可改。
 - 即時預測器：依當前模型的 canonical groups 動態產生輸入（日期輸入、數值輸入、zipcode 下拉、整修年或「未整修」），預設為 `inputs` 的中位數，超出範圍顯示警告仍計算；JS 依 `preprocess` 重做日期天數、整修旗標與有效年份、one-hot 後計算點預測與 PI。**未見的 zipcode**（SR-07）：下拉選單只列出當前模型 `fit` 的類別清單加上基準類別（標明為基準）；若輸入值不在清單中（例如由網址參數或手動輸入帶入），以基準類別計算並顯示警告「此 zipcode 不在模型的訓練類別中，已以基準類別計算」；契約中記錄 test 內被編為基準的未見 zipcode 筆數，報告說明。
-- 實際 vs 預測圖：全部 test 樣本；x 預測、y 實際、log 刻度、y=x 線、每筆垂直 PI 線段、依 covered 著色；支援縮放與檢視；渲染方式由實作決定（可用 canvas 自繪或 Chart.js 外掛），但不得抽樣或聚合，且 log 輸入必須大於零（資料中 price 與預測皆為正）。**可觀察的可讀性與反應性**（SR-09；門檻待 acceptor 確認，見 Further Notes）：在參考環境（acceptor 的電腦、目前版本的 Chrome 或 Edge）以 `file://` 開啟時，(a) 圖在頁面載入後 3 秒內完成首次繪製；(b) 每次縮放或平移在 1 秒內更新完成，整個檢查過程沒有瀏覽器的「網頁沒有回應」提示；(c) 預設視圖中，y=x 線、區間內與區間外的點以顏色可分辨，圖例與軸標籤可讀；(d) 放大到任一價格十倍區間（例如 20 萬～200 萬 USD）後，個別的 PI 線段與其端點可分辨；(e) 游標停在某一點時可得知該筆的預測、實際與區間。
+- 實際 vs 預測圖：全部 test 樣本；x 預測、y 實際、log 刻度、y=x 線、每筆垂直 PI 線段、依 covered 著色；支援縮放與檢視；渲染方式由實作決定（可用 canvas 自繪或 Chart.js 外掛），但不得抽樣或聚合，且 log 輸入必須大於零（資料中 price 與預測皆為正）。**可觀察的可讀性與反應性**（SR-09；acceptor 2026-10-18 接受並釐清）：在參考環境（acceptor 的電腦、目前版本的 Chrome 或 Edge）以 `file://` 開啟時，
+  (a) **首次繪製 ≤ 3 秒**：起點為瀏覽器的 navigation start，終點為實際 vs 預測圖第一次完整繪製完成（頁面在圖繪製完成的回呼記錄時間戳）；
+  (b) **互動更新 ≤ 1 秒**：適用於方法／k 切換、縮放與平移；起點為使用者輸入事件（選單 change、滾輪或拖曳結束），終點為受影響的圖與區塊重繪完成；整個檢查過程沒有瀏覽器的「網頁沒有回應」提示；
+  (c) 預設視圖中，y=x 線、區間內與區間外的點以顏色可分辨，圖例與軸標籤可讀；
+  (d) 個別 PI 線段的可辨識性以**縮放或游標檢視**驗收：放大到任一價格十倍區間（例如 20 萬～200 萬 USD）後，或以游標停留時，可以分辨個別線段與其端點；**不要求**高密度區域的全部線段在同一畫面下互不重疊；
+  (e) 游標停在某一點時可得知該筆的預測、實際與區間；
+  (f) 量測紀錄：ACCEPTANCE.md 記錄瀏覽器名稱與版本、作業系統、CPU 與記憶體、n_test、量測方式（頁面內建的時間戳或 DevTools Performance）與各次量測值；
+  (g) 達標不得以抽樣、聚合或省略任何 test 樣本與 PI 達成。
 - 語言 zh-TW；字型以系統字型為主，必要時打包可離線使用的字型。
 
 ### 報告與打包
@@ -214,7 +222,8 @@
 - 前處理：fit 後的類別與統計量只由訓練列決定（改動驗證列不改變它們）；未見類別編為基準；`sale_days` 與整修衍生欄的數值案例。
 - 特徵選擇：在小型合成資料上，Forward／Backward／RFE 每步變動恰一個 group；Lasso 排序平手依 canonical order；p-value backward 只移除 p > 門檻的 group。
 - 模型與推論：秩不足的三類語義各有案例——fold 訓練列缺少某類別時該 fold 的設計矩陣沒有該欄且 fit 成功（合法 encoding）；人為使某欄在 fold 訓練列上為常數時該 (方法, k, fold) 標為無效且 CV winner 排除它；All-in 或 canonical subset 在整個 training set 上人為共線時以錯誤停止。Adjusted R² 用實際秩；PI 公式以手算的小例子核對；coverage 計算以已知的上下界核對。
-- 選擇邊界：在小型合成資料上，改動某 fold 驗證列的值不改變該 fold 的子集序列（fold-internal selection 只看訓練列）；canonical subset 只由整個 training set 決定。
+- 選擇邊界：在小型合成資料上，改動某 fold 驗證列的值不改變該 fold 的子集序列（fold-internal selection 只看訓練列，p-value backward 亦同）；canonical subset 只由整個 training set 決定。
+- 無效候選：canonical subset 人為共線時該 (方法, k) 為 `invalid`、沒有 `fit`、不被選為 winner，而其他候選的 CV 與 test 評估照常完成；某方法全部候選無效時以錯誤停止。
 - 選模：CV winner 的平手規則；授權評估集合的推導；test 評估函式在同一執行內第二次呼叫時報錯。
 - 前例：`home_work_01` 的 pytest 配置與 CI workflow（本單元另設自己的 CI 路徑過濾）。
 
@@ -238,8 +247,8 @@
 
 ## Further Notes
 
-- **Spec Review rev 2 的兩個待 acceptor 確認事項**：(1) SR-09 的可讀性與反應性門檻（3 秒首次繪製、1 秒互動更新、十倍價格區間可分辨個別線段）是起草者提議的驗收數值，Q43 只說「可讀且可操作、不嚴重遮蔽或卡頓」；請確認或修改。(2) SR-06 的用語修正也適用於已接受的 Brief §1「五種特徵選擇方法」一句，屬編輯性修正，未動 Brief，請決定是否同步。
-- **SR-01 的成本影響**：fold-internal selection 使每個路徑方法的路徑計算從 1 次變成 6 次（5 個 fold＋整個 training set）；這在 Brief Q34 的「量測並回報」義務內，不改變方法與 k 的範圍。
+- **Spec Review 的 acceptor 決定（2026-10-18）**：SR-06 ACCEPTED（Brief §1 已同步編輯為「四種具有 k=1…18 路徑的特徵選擇方法＋單一 All-in baseline」）；SR-09 ACCEPTED WITH CLARIFICATION（量測起訖、適用操作、紀錄要求與「不得以抽樣達標」已寫入 dashboard 一節）。SR-10～SR-12 的處理見 review record。
+- **SR-01／SR-11 的成本影響**：fold-internal selection 使每個路徑方法與 p-value backward 的計算從 1 次變成 6 次（5 個 fold＋整個 training set）；這在 Brief Q34 的「量測並回報」義務內，不改變方法與 k 的範圍。
 
 - 下一步工作流程（已確認、尚未授權執行）：`/ui-ux-pro-max` 依本 Spec 產生獨立的靜態 HTML wireframe → wireframe review → `/to-tickets` → implementation。Wireframe 不得改變本 Spec 的功能與統計要求。
 - Brief 固定的驗收意圖中，與 UI 最相關的是 BR-01 的分層規則與 Q43 的逐筆 PI 圖；wireframe 需要明確呈現「訓練 CV」與「Test」兩層的視覺區分與提示文字。
