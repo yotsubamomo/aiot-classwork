@@ -7,7 +7,7 @@ from hw2.paths import UNIT_DIR
 NOTEBOOK = UNIT_DIR / "hw2.ipynb"
 PHASES = ["Business Understanding", "Data Understanding", "Data Preparation",
           "Modeling", "Evaluation", "Deployment"]
-FILLED = PHASES[:3]          # chapters with content at this stage
+FILLED = PHASES[:5]          # chapters with content at this stage (Deployment follows in #64)
 
 
 def _cells():
@@ -63,3 +63,11 @@ def test_notebook_has_no_student_id_and_is_executed_without_errors():
         if cell["cell_type"] == "code":
             assert cell.get("execution_count") is not None
             assert all(o.get("output_type") != "error" for o in cell.get("outputs", []))
+
+
+def test_evaluation_states_the_interval_assumptions_and_limits():
+    """#61 AC (SR-12, DA TK-3, I-3): the notebook carries the report-draft wording."""
+    text = "\n".join(_chapters()["Evaluation"])
+    for phrase in ("不宣稱保證 95% 的經驗涵蓋率", "條件中位數", "不是條件平均", "二項近似",
+                   "不陳述偏差的方向或幅度", "殘差常態、同質變異、彼此獨立", "樂觀偏誤"):
+        assert phrase in text, phrase

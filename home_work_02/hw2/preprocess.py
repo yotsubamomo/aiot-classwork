@@ -55,8 +55,21 @@ def parse_sale_date(text: str) -> date:
 
 
 def sale_days(dates) -> np.ndarray:
-    """Days from BASE_DATE to each sale date (CSV text), as int64."""
-    return np.array([(parse_sale_date(d) - BASE_DATE).days for d in dates], dtype=np.int64)
+    """Days from BASE_DATE to each sale date (CSV text), as int64. Raises PreprocessError for a
+    value that is not a calendar date in the CSV format."""
+    text = pd.Series(np.asarray(dates, dtype=object)).astype(str)
+    parts = text.str.extract(_DATE_TEXT)
+    if parts.isna().any().any():
+        bad = text[parts.isna().any(axis=1)].iloc[0]
+        raise PreprocessError(f"date {bad!r} is not in the CSV format YYYYMMDDT000000")
+    iso = (parts[0] + "-" + parts[1] + "-" + parts[2]).to_numpy(dtype=str)
+    try:
+        days = np.array(iso, dtype="datetime64[D]")
+    except ValueError:
+        for value in text:              # name the first offending value
+            parse_sale_date(value)
+        raise
+    return (days - np.datetime64(BASE_DATE.isoformat(), "D")).astype(np.int64)
 
 
 def days_to_iso(days: float) -> str:
@@ -123,12 +136,12 @@ class Preprocessor:
                 parts.append(np.column_stack([flag, effective]).astype(float))
             elif group == "zipcode":
                 codes = frame["zipcode"].astype(str).to_numpy()
-                known = np.isin(codes, np.asarray(self.zipcode_categories, dtype=object))
-                unseen = ~known
+                unseen = pd.Index(self.zipcode_categories).get_indexer(codes) < 0
                 dummies = [zc for zc in self.zipcode_categories if zc != self.zipcode_baseline]
+                column = pd.Index(dummies).get_indexer(codes)       # -1: baseline or unseen
                 block = np.zeros((n, len(dummies)))
-                for j, category in enumerate(dummies):
-                    block[:, j] = codes == category
+                hit = column >= 0
+                block[np.flatnonzero(hit), column[hit]] = 1.0
                 parts.append(block)
             else:
                 parts.append(frame[group].to_numpy(dtype=float)[:, None])

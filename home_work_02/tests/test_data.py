@@ -16,7 +16,7 @@ def test_real_csv_matches_the_pinned_sha256(real_csv_present):
 
 
 def test_real_csv_structure(real_csv_present):
-    facts = data.validate_structure(data.read_csv(real_csv_present))
+    facts = data.structural_facts(real_csv_present)
     assert facts == {"n_rows": 21613, "n_columns": 21, "n_unique_ids": 21436,
                      "n_repeat_sales": 177, "sqft_identity_holds": True}
 
@@ -78,3 +78,10 @@ def test_training_rows_keep_the_csv_values(synthetic_csv):
         prepared.training[list(data.EXPECTED_COLUMNS)].reset_index(drop=True),
         original.astype({"id": "str", "date": "str", "zipcode": "str"}),
         check_dtype=False)
+
+
+def test_no_public_function_returns_the_parsed_file():
+    """#60 R1 F-3: the full frame (which holds the test rows) is private to the data module."""
+    assert not hasattr(data, "read_csv")
+    public = [name for name in dir(data) if not name.startswith("_")]
+    assert "structural_facts" in public and "_read_csv" not in public

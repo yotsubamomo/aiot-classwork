@@ -6,6 +6,11 @@ the split, which needs only the ``id`` column. :func:`load_and_split` then retur
 and the test-row identifiers (row positions, ``id``) with n_test; it never returns the features or
 ``price`` of a test row. Distributions and extreme values are computed from training rows only
 (B-14).
+
+The only public way to the features and ``price`` of the test rows is the test-evaluation gate
+(:mod:`hw2.testgate`, G-3), which re-reads the file through :func:`_read_csv`. There is no public
+function that returns the full parsed file (#60 R1 F-3): :func:`structural_facts` parses it and
+returns the structural facts only.
 """
 import hashlib
 import time
@@ -63,9 +68,16 @@ def verify_sha256(path: Path, expected: str = EXPECTED_SHA256) -> str:
     return actual
 
 
-def read_csv(path: Path) -> pd.DataFrame:
-    """Parse the CSV (call :func:`verify_sha256` first)."""
+def _read_csv(path: Path) -> pd.DataFrame:
+    """Parse the whole CSV (call :func:`verify_sha256` first). Private: the full frame holds the
+    test rows, so only :func:`load_and_split`, :func:`structural_facts` and the test gate use it."""
     return pd.read_csv(path, dtype=_TEXT_COLUMNS)
+
+
+def structural_facts(path: Path = DATA_CSV, expected_sha256: str = EXPECTED_SHA256) -> dict:
+    """sha256, then parse and :func:`validate_structure`; returns the structural facts only."""
+    verify_sha256(path, expected_sha256)
+    return validate_structure(_read_csv(path))
 
 
 def validate_structure(df: pd.DataFrame, expected_rows: int = EXPECTED_ROWS,
@@ -112,6 +124,7 @@ class PreparedData:
     test_fraction: float
     n_folds: int
     timings_s: dict = field(default_factory=dict)
+    source_path: Path | None = None   # the CSV the split was made from (read again only by the gate)
 
     @property
     def n_train(self) -> int:
@@ -132,7 +145,7 @@ def load_and_split(path: Path = DATA_CSV, expected_sha256: str = EXPECTED_SHA256
     """
     t0 = time.perf_counter()
     sha = verify_sha256(path, expected_sha256)
-    full = read_csv(path)
+    full = _read_csv(path)
     facts = validate_structure(full, expected_rows, expected_unique_ids)
     t1 = time.perf_counter()
 
@@ -148,6 +161,6 @@ def load_and_split(path: Path = DATA_CSV, expected_sha256: str = EXPECTED_SHA256
 
     return PreparedData(sha256=sha, facts=facts, training=training, test_rows=test_pos,
                         test_ids=test_ids, seed=seed, test_fraction=test_fraction,
-                        n_folds=n_folds,
+                        n_folds=n_folds, source_path=Path(path),
                         timings_s={"data_load_validate": round(t1 - t0, 4),
                                    "split_and_folds": round(t2 - t1, 4)})

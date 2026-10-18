@@ -17,8 +17,15 @@
 py -3.11 -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt
 .venv/Scripts/python -m hw2.run_notebook      # 非互動執行 hw2.ipynb，寫出 results/ 與 assets/model_data.js
-.venv/Scripts/python -m pytest                # Python 測試
+.venv/Scripts/python -m pytest                # Python 測試（含以 synthetic fixture 執行的 Node 一致性測試）
 .venv/Scripts/python -m hw2.offline_scan      # dashboard 外部資源靜態掃描
+node --test tests/js/core.test.js             # dashboard 計算的 Node 測試（前處理案例；fixture 部分由 pytest 執行）
+```
+
+Test 區塊與實際 vs 預測圖在正式 Test 評估執行之前沒有資料。要檢視它們的行為或量測繪圖效能，可以在單元目錄**以外**產生一份使用 synthetic fixture 的 dashboard 複本（不是正式結果，頁面頂端會顯示警告）：
+
+```bash
+.venv/Scripts/python -m hw2.fixture <單元以外的輸出目錄>
 ```
 
 macOS／Linux 把 `.venv/Scripts/python` 換成 `.venv/bin/python`。Dashboard 直接以瀏覽器開啟 `index.html`（`file://` 即可，不需要伺服器或網路）。
@@ -39,9 +46,9 @@ macOS／Linux 把 `.venv/Scripts/python` 換成 `.venv/bin/python`。Dashboard �
 | 路徑 | 說明 |
 | --- | --- |
 | `hw2.ipynb` | 主程式（CRISP-DM 六章；唯一的數字來源） |
-| `hw2/` | 分析套件：資料、前處理、分割、`model_data` 契約與匯出、離線掃描 |
-| `tests/` | pytest |
+| `hw2/` | 分析套件：資料、前處理、分割、OLS 與預測區間、模型候選與 CV winner、Test 評估守門、`model_data` 契約與匯出、synthetic fixture、離線掃描 |
+| `tests/` | pytest；`tests/js/` 是 dashboard 計算的 Node 測試 |
 | `data/kc_house_data.csv` | 資料檔 |
 | `results/model_data.json`、`assets/model_data.js` | 匯出的 `model_data`（同一物件；`.js` 供 `file://` 載入） |
 | `results/split/split_assignment.csv` | 每筆交易屬於 training 或 Test 與其 fold（只有識別，沒有特徵或價格） |
-| `index.html`、`assets/` | Dashboard；Chart.js 4.4.1 打包在 `assets/vendor/`（MIT，授權檔同目錄） |
+| `index.html`、`assets/` | Dashboard；`assets/hw2core.js` 是 dashboard 自己的前處理與預測計算，`assets/app.js` 是頁面；Chart.js 4.4.1 打包在 `assets/vendor/`（MIT，授權檔同目錄） |

@@ -1,6 +1,12 @@
 """``test_inputs`` schema and the model_data writer, exercised with synthetic fixtures only
-(DA TR-01: no official test row is loaded; fixture model_data never reaches official paths)."""
+(DA TR-01: no official test row is loaded; fixture model_data never reaches official paths).
+
+The writer's guards are tested against temporary paths registered as official
+(``export.OFFICIAL_PATHS`` monkeypatched), never against the tracked files, so that a broken guard
+cannot overwrite them (#60 R1 F-1)."""
 import copy
+import hashlib
+import json
 
 import pytest
 
@@ -94,38 +100,80 @@ def test_unwritten_schema_with_rows_is_rejected(synthetic_frame):
         contract.validate_test_inputs(obj)
 
 
-def test_fixture_model_data_round_trips_through_json_and_js(tmp_path, synthetic_csv, synthetic_frame):
-    prepared = _fixture_prepared(synthetic_csv)
-    md = export.build_model_data(prepared, fixture=True)
-    md["test_inputs"] = contract.build_test_inputs(_fixture_test_rows(synthetic_frame, prepared))
+def test_fixture_model_data_round_trips_through_json_and_js(tmp_path, fixture_run):
+    md = fixture_run["model_data"]
     json_path, js_path = export.write_model_data(md, tmp_path / "md.json", tmp_path / "md.js")
-    import json
     from_json = json.loads(json_path.read_text(encoding="utf-8"))
     from_js = export.parse_js(js_path.read_text(encoding="utf-8"))
     assert from_json == from_js == json.loads(export.to_json(md))
-    contract.validate_test_inputs(from_js["test_inputs"], n_test=prepared.n_test)
+    contract.validate_model_data(from_js)
     assert from_js["meta"]["fixture"] is True
+    assert from_js["test_inputs"]["written"] is True and "test" in from_js
+
+
+def test_test_inputs_rows_without_test_results_are_refused(tmp_path, synthetic_csv,
+                                                           synthetic_frame):
+    """TR-01: the test_inputs rows and test are written together by the same export."""
+    prepared = _fixture_prepared(synthetic_csv)
+    md = export.build_model_data(prepared, fixture=True)
+    md["test_inputs"] = contract.build_test_inputs(_fixture_test_rows(synthetic_frame, prepared))
+    with pytest.raises(contract.ContractError, match="only together with test"):
+        export.write_model_data(md, tmp_path / "md.json", tmp_path / "md.js")
+
+
+def _sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+
+
+@pytest.fixture
+def stand_in_official(tmp_path, monkeypatch):
+    """Temporary files registered as the official paths; the tracked files are never targeted."""
+    paths = (tmp_path / "official" / "model_data.json", tmp_path / "official" / "model_data.js")
+    monkeypatch.setattr(export, "OFFICIAL_PATHS", paths)
+    tracked = {p: _sha(p) for p in (MODEL_DATA_JSON, MODEL_DATA_JS)}
+    yield paths
+    assert {p: _sha(p) for p in (MODEL_DATA_JSON, MODEL_DATA_JS)} == tracked
 
 
 @pytest.mark.parametrize("target", ["json", "js"])
-def test_fixture_model_data_is_refused_on_official_paths(tmp_path, synthetic_csv, target):
+def test_fixture_model_data_is_refused_on_official_paths(tmp_path, synthetic_csv, target,
+                                                         stand_in_official):
     prepared = _fixture_prepared(synthetic_csv)
     md = export.build_model_data(prepared, fixture=True)
-    before = {p: (p.read_bytes() if p.exists() else None) for p in (MODEL_DATA_JSON, MODEL_DATA_JS)}
-    kwargs = ({"json_path": MODEL_DATA_JSON, "js_path": tmp_path / "x.js"} if target == "json"
-              else {"json_path": tmp_path / "x.json", "js_path": MODEL_DATA_JS})
+    official_json, official_js = stand_in_official
+    kwargs = ({"json_path": official_json, "js_path": tmp_path / "x.js"} if target == "json"
+              else {"json_path": tmp_path / "x.json", "js_path": official_js})
     with pytest.raises(export.ExportError, match="official"):
         export.write_model_data(md, **kwargs)
-    after = {p: (p.read_bytes() if p.exists() else None) for p in (MODEL_DATA_JSON, MODEL_DATA_JS)}
-    assert before == after
+    assert not official_json.exists() and not official_js.exists()
+    assert not (tmp_path / "x.js").exists() and not (tmp_path / "x.json").exists()
 
 
-def test_unmarked_model_data_is_treated_as_fixture(synthetic_csv):
+def test_unmarked_model_data_is_treated_as_fixture(synthetic_csv, stand_in_official):
     prepared = _fixture_prepared(synthetic_csv)
     md = export.build_model_data(prepared, fixture=False)
     del md["meta"]["fixture"]
     with pytest.raises(export.ExportError):
-        export.write_model_data(md)
+        export.write_model_data(md, *stand_in_official)
+    assert not any(p.exists() for p in stand_in_official)
+
+
+def test_official_paths_refuse_test_results_while_the_gate_is_closed(fixture_run,
+                                                                    stand_in_official):
+    """Even data marked non-fixture cannot put test results on the official paths before #63."""
+    md = copy.deepcopy(fixture_run["model_data"])
+    md["meta"]["fixture"] = False
+    with pytest.raises(export.ExportError, match="test gate is closed"):
+        export.write_model_data(md, *stand_in_official)
+    assert not any(p.exists() for p in stand_in_official)
+
+
+def test_non_fixture_model_data_without_test_reaches_stand_in_official_paths(synthetic_csv,
+                                                                            stand_in_official):
+    prepared = _fixture_prepared(synthetic_csv)
+    md = export.build_model_data(prepared, fixture=False)
+    export.write_model_data(md, *stand_in_official)
+    assert all(p.exists() for p in stand_in_official)
 
 
 def test_writer_validates_test_inputs_against_n_test(tmp_path, synthetic_csv, synthetic_frame):

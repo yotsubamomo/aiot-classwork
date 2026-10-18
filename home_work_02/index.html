@@ -20,8 +20,15 @@
         <div class="brand__sub">NCHU AIoT HW2 · CRISP-DM · 特徵選擇比較與 95% 預測區間</div>
       </div>
     </div>
-    <nav class="topnav" aria-label="頁內導覽">
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="topnav">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+      <span>選單</span>
+    </button>
+    <nav class="topnav" id="topnav" aria-label="頁內導覽">
       <a href="#overview">概覽</a>
+      <a href="#model">模型與訓練 CV</a>
+      <a href="#predictor">即時預測</a>
+      <a href="#test">Test 評估</a>
     </nav>
   </div>
 </header>
@@ -68,11 +75,125 @@
       <h2 id="h-repro">重現條件</h2>
       <dl class="facts facts--inline small">
         <dt>套件版本</dt><dd id="meta-versions"></dd>
-        <dt>資料與分割耗時</dt><dd id="meta-timing"></dd>
+        <dt>計算耗時</dt><dd id="meta-timing"></dd>
         <dt>產生時間（UTC）</dt><dd id="meta-generated"></dd>
         <dt>已匯出的區段</dt><dd id="meta-sections"></dd>
       </dl>
     </article>
+  </section>
+
+  <!-- B + C. 模型選擇與訓練 CV（KPI 來自 cv，標「訓練 CV（USD）」；BR-01 第 1 點） -->
+  <section class="section" id="model" aria-labelledby="h-model">
+    <div class="section__head">
+      <span class="eyebrow">B · 模型選擇 ／ C · 訓練 CV 表現</span>
+      <h2 id="h-model">模型選擇與訓練 CV 表現</h2>
+    </div>
+    <div class="layout-2col">
+      <aside class="card control" aria-label="模型選擇控制">
+        <div class="field">
+          <span class="label" id="lbl-method">特徵選擇方法</span>
+          <div class="seg" role="group" aria-labelledby="lbl-method" id="method-seg"></div>
+        </div>
+        <div class="field">
+          <span class="label" id="lbl-k">特徵數 k（feature groups）</span>
+          <div class="kgrid" role="group" aria-labelledby="lbl-k" id="k-grid"></div>
+          <p class="help" id="k-help"></p>
+        </div>
+        <div class="selected-model" id="selected-model" aria-live="polite"></div>
+      </aside>
+
+      <div class="stack">
+        <div class="block-head">
+          <h3>訓練 CV 指標 <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+          <p class="small muted">來源：所選模型的 <code>cv</code>（訓練集內 <span id="cv-nfolds">5</span> 個分組 fold 的平均 ± 標準差）；不含任何 Test 資料。</p>
+        </div>
+        <div class="grid grid--kpi" id="kpi-cv"></div>
+        <div class="card card--flat" id="fit-card">
+          <h3>全訓練集擬合 <span class="tag tag--fit">全訓練集擬合，R²／Adjusted R² 為 log 尺度</span></h3>
+          <dl class="facts facts--inline small" id="fit-facts"></dl>
+        </div>
+        <p class="small muted" id="status-box" role="status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. 即時預測（只對 OLS 子集；來自 fit；BR-01 第 2 點；SR-07） -->
+  <section class="section" id="predictor" aria-labelledby="h-predictor">
+    <div class="section__head">
+      <span class="eyebrow">D · 即時預測</span>
+      <h2 id="h-predictor">即時房價預測</h2>
+    </div>
+    <div class="card predictor">
+      <form id="pred-form" novalidate>
+        <p class="small muted" id="pred-intro"></p>
+        <div class="fields" id="pred-fields"></div>
+      </form>
+      <aside class="result card card--flat" aria-live="polite" aria-atomic="true">
+        <h3>預測結果</h3>
+        <div>
+          <div class="small muted">點預測（USD；exp(log 預測)，估計的是條件中位數，不是條件平均）</div>
+          <div class="result__price num" id="pred-price">—</div>
+        </div>
+        <div>
+          <div class="small muted">95% 預測區間（參數式 OLS PI，在 log 尺度計算後轉回 USD，不對稱）</div>
+          <div class="result__pi num" id="pred-pi">—</div>
+        </div>
+        <div class="result__status" id="pred-status"></div>
+        <div class="result__meta">
+          <span>模型：<strong id="pred-model"></strong></span>
+          <span>來源：所選模型的 <code>fit</code>（在整個 training set 上擬合）</span>
+          <span>Ridge／Lasso 對照模型不提供即時預測與區間。</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- E. Test 評估（只讀 model_data.test；BR-01 第 3–5 點；Q43） -->
+  <section class="section" id="test" aria-labelledby="h-test">
+    <div class="section__head">
+      <span class="eyebrow">E · 保留 Test 集評估</span>
+      <h2 id="h-test">保留 Test 集評估</h2>
+    </div>
+    <div class="testzone">
+      <div class="testzone__head">
+        <span class="tag tag--test">Test 評估（USD）</span>
+        <span class="testzone__model">展示模型：<strong id="test-model">—</strong></span>
+        <span class="tag tag--winner" id="test-winner-tag" hidden></span>
+      </div>
+      <p class="small muted" id="test-source">來源：<code>test[kind=ols_subset]</code>；只對被授權評估的模型，每個模型只評估一次。本頁的任何操作都不會觸發新的 Test 評估。</p>
+      <div class="notice" id="test-notice" role="status" hidden></div>
+      <div class="notice notice--empty" id="test-empty" hidden>Test 評估尚未執行：依協定，Test set 只在全部模型選擇與 alpha 固定之後評估一次，結果由主程式匯出。</div>
+
+      <div id="test-body" hidden>
+        <div class="grid grid--kpi4" id="kpi-test"></div>
+
+        <div class="scatter-wrap">
+          <div class="chart__toolbar">
+            <h3>實際 vs 預測（log 刻度，逐筆 95% PI）</h3>
+            <span class="spacer"></span>
+            <button class="btn btn--icon" type="button" id="zoom-in" aria-label="放大">＋</button>
+            <button class="btn btn--icon" type="button" id="zoom-out" aria-label="縮小">－</button>
+            <button class="btn" type="button" id="zoom-reset">重設檢視</button>
+          </div>
+          <div class="scatter" id="scatter">
+            <canvas id="scatter-canvas" tabindex="0" role="img" aria-describedby="scatter-help"
+              aria-label="散佈圖：x 軸為預測價格、y 軸為實際價格，皆為 log 刻度；每筆 Test 樣本有一條垂直的 95% 預測區間線段，依實際價格是否落入區間著色並以不同形狀標示；含 y = x 參考線。"></canvas>
+            <div class="scatter__tip" id="scatter-tip" hidden></div>
+          </div>
+          <div class="scatter__meta">
+            <span><span class="key key--in" aria-hidden="true"></span>落入 PI（圓點）</span>
+            <span><span class="key key--out" aria-hidden="true"></span>未落入 PI（方塊）</span>
+            <span><span class="key key--diag" aria-hidden="true"></span>y = x</span>
+            <span id="scatter-help">滾輪縮放、拖曳平移、游標停留讀取單筆；鍵盤：方向鍵平移、＋／－ 縮放、0 重設。全部 Test 樣本逐筆繪製，不抽樣、不聚合。</span>
+          </div>
+          <p class="small muted num" id="scatter-perf" aria-live="off"></p>
+        </div>
+
+        <div class="covstats" id="covstats"></div>
+        <p class="small muted" id="coverage-note">涵蓋率的不確定性是假設各筆涵蓋事件獨立的二項近似（1.96·√(p(1−p)/n_test)）。Test set 含同一房屋的重複交易，涵蓋事件不保證獨立，這個近似的準確度未經估計，本頁不陳述偏差的方向或幅度。</p>
+        <p class="small muted">預測區間假設殘差常態、同質變異、獨立；特徵選擇後的推論與模型誤設都會影響名目涵蓋率，<strong>不宣稱保證 95% 的經驗涵蓋率</strong>。經驗涵蓋率偏離 95% 時需要分析原因，不自動判定失敗。</p>
+      </div>
+    </div>
   </section>
 </main>
 
@@ -82,6 +203,7 @@
 
 <script src="assets/vendor/chart.umd.js"></script>
 <script src="assets/model_data.js"></script>
+<script src="assets/hw2core.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

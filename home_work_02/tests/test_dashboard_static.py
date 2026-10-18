@@ -24,7 +24,8 @@ def test_dashboard_has_no_external_resource_reference():
 def test_page_loads_data_as_a_js_global_and_the_bundled_chartjs():
     html = DASHBOARD_HTML.read_text(encoding="utf-8")
     scripts = re.findall(r'<script\s+src="([^"]+)"', html)
-    assert scripts == ["assets/vendor/chart.umd.js", "assets/model_data.js", "assets/app.js"]
+    assert scripts == ["assets/vendor/chart.umd.js", "assets/model_data.js", "assets/hw2core.js",
+                       "assets/app.js"]
     assert all((UNIT_DIR / s).is_file() for s in scripts)
     assert 'lang="zh-Hant-TW"' in html
 
@@ -36,7 +37,8 @@ def test_bundled_chartjs_is_the_pinned_release():
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
-@pytest.mark.parametrize("script", ["assets/app.js", "assets/model_data.js"])
+@pytest.mark.parametrize("script", ["assets/app.js", "assets/hw2core.js",
+                                    "assets/model_data.js"])
 def test_scripts_parse(script):
     subprocess.run(["node", "--check", str(UNIT_DIR / script)], check=True)
 
@@ -90,3 +92,31 @@ def test_scanner_accepts_hyperlinks_banners_and_local_files(tmp_path):
 def test_scanner_reports_external_resources(tmp_path, html, files, rule):
     files = {"assets/a.js": "", **files}
     assert rule in _rules(_unit(tmp_path, html, files))
+
+
+# --- BR-01 / DA B-3, G-3: the UI never scores a model on test data ---------------------------
+
+def _code(path):
+    """Source without comments (block and line comments)."""
+    text = path.read_text(encoding="utf-8")
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    return re.sub(r"(?m)^\s*//.*$|(?<=[;{}])\s*//.*$", "", text)
+
+
+def test_ui_predicts_only_from_user_inputs_and_never_from_test_inputs():
+    app = _code(ASSETS_DIR / "app.js")
+    calls = re.findall(r"Core\.predict\(([^)]*)\)", app)
+    assert calls == ["entry.fit, read.raw, MD.preprocess"]
+    assert "Core.encode(" not in app and "Core.rowObject(" not in app
+    # test_inputs is read in one accessor (identifiers and actual prices for drawing) plus the
+    # presence flag and the house / repeat-sale counts shown next to the coverage statistics.
+    uses = re.findall(r"test_inputs(?:\.\w+)?", app)
+    assert sorted(set(uses)) == ["test_inputs", "test_inputs.n_houses", "test_inputs.n_repeat_sales",
+                                 "test_inputs.written"]
+    assert app.count("var ti = MD.test_inputs;") == 1
+
+
+def test_dashboard_core_has_no_metric_coverage_or_selection_code():
+    core = _code(ASSETS_DIR / "hw2core.js")
+    for name in ("rmse", "mse", "mae", "coverage", "covered", "r2", "winner", "test_inputs.rows"):
+        assert not re.search(rf"\b{name}\b", core, re.I), name

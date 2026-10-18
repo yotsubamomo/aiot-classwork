@@ -75,3 +75,23 @@ def real_csv_present():
 def prepared_real(real_csv_present):
     """The real data stage: training rows and test identifiers only."""
     return data.load_and_split()
+
+
+@pytest.fixture(scope="session")
+def fixture_run(tmp_path_factory):
+    """One synthetic run through the official code path, test evaluation included (hw2.fixture).
+
+    Synthetic data only (DA TR-01); its model_data lives in a pytest temporary directory."""
+    from hw2 import fixture
+    return fixture.run_fixture(tmp_path_factory.mktemp("fixture_run"), n_houses=1500,
+                               n_repeats=40)
+
+
+@pytest.fixture(scope="session")
+def fixture_model_data(fixture_run, tmp_path_factory):
+    """The fixture model_data as written to disk and read back from the .json file."""
+    import json
+    from hw2 import fixture
+    out = tmp_path_factory.mktemp("fixture_md")
+    json_path, _ = fixture.write_fixture(fixture_run["model_data"], out)
+    return json.loads(json_path.read_text(encoding="utf-8")), json_path

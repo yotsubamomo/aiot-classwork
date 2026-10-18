@@ -1,12 +1,17 @@
 """Building and writing ``model_data`` (``.json`` and the same object as a ``.js`` global).
 
-At this stage the official contract carries ``meta``, ``preprocess``, ``inputs`` and the
-``test_inputs`` schema without rows; it has no ``test`` section (DA TR-01). Later stages add
-``methods``, ``baselines``, ``winners`` and, behind the test gate, the ``test_inputs`` rows and
-``test``.
+Sections: ``meta``, ``preprocess``, ``inputs``, ``test_inputs``; ``baselines`` (``allin``) and
+``winners`` from #61; ``methods`` from #62; the ``test_inputs`` rows and ``test`` only from the
+one-time evaluation behind the test gate (:mod:`hw2.testgate`), written together by the same export
+in the same run (DA TR-01).
 
-Fixture data never reaches the official paths: a ``model_data`` whose ``meta.fixture`` is true is
-refused by :func:`write_model_data` when any target is an official path.
+Guards of :func:`write_model_data` on the official (tracked) paths:
+
+- a ``model_data`` whose ``meta.fixture`` is true or missing is refused (fixture data never reaches
+  the official paths);
+- test results or ``test_inputs`` rows are refused while the official test gate is closed
+  (:data:`hw2.testgate.OFFICIAL_TEST_GATE_ENABLED`);
+- every write validates the contract invariants (:func:`hw2.contract.validate_model_data`).
 """
 import json
 import platform
@@ -16,7 +21,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import contract, data, preprocess
+from . import contract, data, preprocess, testgate
 from .paths import (MODEL_DATA_JS, MODEL_DATA_JS_GLOBAL, MODEL_DATA_JSON, SPLIT_ASSIGNMENT_CSV,
                     UNIT_DIR)
 
@@ -41,14 +46,15 @@ def package_versions() -> dict:
 
 
 def build_meta(prepared: data.PreparedData, timings_s: dict | None = None,
-               fixture: bool = False) -> dict:
+               fixture: bool = False, sections: list | None = None) -> dict:
     train = prepared.training
     fold_rows = train["fold"].value_counts().sort_index()
     fold_houses = train.groupby("fold")["id"].nunique().sort_index()
     return {
         "contract_version": CONTRACT_VERSION,
         "fixture": fixture,
-        "sections_written": ["meta", "preprocess", "inputs", "test_inputs (schema only)"],
+        "sections_written": sections or ["meta", "preprocess", "inputs",
+                                         "test_inputs (schema only)"],
         "dataset": dict(data.DATASET),
         "csv_sha256": prepared.sha256,
         "n_rows": prepared.facts["n_rows"],
@@ -91,17 +97,46 @@ def build_meta(prepared: data.PreparedData, timings_s: dict | None = None,
 
 
 def build_model_data(prepared: data.PreparedData, timings_s: dict | None = None,
-                     fixture: bool = False) -> dict:
-    """The stage-1 ``model_data`` from the data stage (training rows and test identifiers)."""
+                     fixture: bool = False, allin=None, winners: dict | None = None,
+                     methods: dict | None = None,
+                     evaluation: "testgate.TestEvaluation | None" = None) -> dict:
+    """``model_data`` from the data stage plus whatever later stages produced.
+
+    `allin` is the All-in :class:`~hw2.models.Candidate`; `methods` maps a path method to its
+    candidates; `evaluation` is the result of :meth:`hw2.testgate.TestGate.evaluate` (it carries
+    the ``test_inputs`` rows and ``test`` of the same run).
+    """
     full_fit = preprocess.fit_preprocessor(prepared.training)
     rules = preprocess.preprocess_rules()
     rules["training_fit"] = full_fit.to_dict()
-    return {
-        "meta": build_meta(prepared, timings_s, fixture),
+    sections = ["meta", "preprocess", "inputs"]
+    out = {
+        "meta": None,
         "preprocess": rules,
         "inputs": preprocess.training_input_ranges(prepared.training),
         "test_inputs": contract.empty_test_inputs(),
     }
+    if methods:
+        out["methods"] = {m: [c.to_entry() for c in cands] for m, cands in methods.items()}
+        sections.append("methods")
+    if allin is not None:
+        out["baselines"] = {"allin": allin.to_entry()}
+        sections.append("baselines.allin")
+    if winners is not None:
+        out["winners"] = winners
+        sections.append("winners" if winners.get("complete") else "winners (partial)")
+    if evaluation is not None:
+        out["test_inputs"] = evaluation.test_inputs
+        out["test"] = evaluation.test
+        sections += ["test_inputs", "test"]
+    else:
+        sections.append("test_inputs (schema only)")
+    out["meta"] = build_meta(prepared, timings_s, fixture, sections)
+    if evaluation is not None:
+        out["meta"]["test_evaluation"] = {"opened_at": evaluation.opened_at,
+                                          "evaluated_at": evaluation.evaluated_at,
+                                          "timing_s": evaluation.timing_s}
+    return out
 
 
 def to_json(model_data: dict) -> str:
@@ -130,11 +165,15 @@ def write_model_data(model_data: dict, json_path: Path = MODEL_DATA_JSON,
                      js_path: Path = MODEL_DATA_JS) -> tuple[Path, Path]:
     """Write the JSON and JS files (same content). Refuses fixture data on official paths."""
     meta = model_data.get("meta", {})
-    if meta.get("fixture", True) and (_is_official(json_path) or _is_official(js_path)):
+    official = _is_official(json_path) or _is_official(js_path)
+    if meta.get("fixture", True) and official:
         raise ExportError("fixture (or unmarked) model_data must not be written to the official "
                           "model_data paths (DA TR-01)")
-    contract.validate_test_inputs(model_data["test_inputs"],
-                                  n_test=meta.get("split", {}).get("n_test"))
+    has_test = "test" in model_data or model_data["test_inputs"].get("written")
+    if official and has_test and not testgate.OFFICIAL_TEST_GATE_ENABLED:
+        raise ExportError("test results and test_inputs rows must not be written to the official "
+                          "model_data paths while the official test gate is closed (DA TR-01)")
+    contract.validate_model_data(model_data)
     json_path, js_path = Path(json_path), Path(js_path)
     json_path.parent.mkdir(parents=True, exist_ok=True)
     js_path.parent.mkdir(parents=True, exist_ok=True)
