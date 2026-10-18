@@ -52,6 +52,13 @@
 - 沒有新的 Blocking／High finding。殘餘風險只有計算時間（Q34 已有義務）與參考環境的機器差異（SR-09 已要求記錄）。
 - **Verdict：Spec rev 3 可進入下一階段（`/ui-ux-pro-max` wireframe），待 acceptor 指示。** 本紀錄是起草者的 self-reconciliation，不是 independent audit。
 
+## rev 3 補正（2026-10-18，acceptor 審閱後）
+
+- acceptor 指出 Testing Decisions 仍有舊敘述「All-in 或 canonical subset 在整個 training set 上人為共線時以錯誤停止」，與 SR-10 的最終語義不一致。
+- 修正：測試案例改為與 failure semantics 逐項對應——非 winner canonical subset 秩不足 → `invalid`、不停止；All-in 秩不足、任一方法無有效候選、整體 winner 無法決定 → 停止並回報。兩條重複的測試項合併為一條。
+- 針對性一致性檢查：Spec 內所有「秩不足」「人為共線」「以錯誤停止」的句子只剩「指標與推論」一節的三類定義與 Testing Decisions 的對應案例，兩處語義相同；沒有其他地方再把 canonical 秩不足當成停止條件。
+- Verdict 不變：Blocking／High 全部 CLOSED。acceptor 2026-10-18：「Spec rev 3 Review：原則接受。已確認 SR-01～SR-12 的處理方向，允許進入下一階段。」
+
 ## 未改變的事項
 
 - Brief 的所有決定（Q1–Q43、BR-01～BR-04）與 Outcome Contract 接受紀錄。

@@ -221,9 +221,8 @@
 - 分割：train/test 無共同 `id`、聯集為全部列、同 seed 重現、比例近似 80/20；fold 兩兩無共同 `id`。
 - 前處理：fit 後的類別與統計量只由訓練列決定（改動驗證列不改變它們）；未見類別編為基準；`sale_days` 與整修衍生欄的數值案例。
 - 特徵選擇：在小型合成資料上，Forward／Backward／RFE 每步變動恰一個 group；Lasso 排序平手依 canonical order；p-value backward 只移除 p > 門檻的 group。
-- 模型與推論：秩不足的三類語義各有案例——fold 訓練列缺少某類別時該 fold 的設計矩陣沒有該欄且 fit 成功（合法 encoding）；人為使某欄在 fold 訓練列上為常數時該 (方法, k, fold) 標為無效且 CV winner 排除它；All-in 或 canonical subset 在整個 training set 上人為共線時以錯誤停止。Adjusted R² 用實際秩；PI 公式以手算的小例子核對；coverage 計算以已知的上下界核對。
+- 模型與推論：秩不足的語義各有案例，與「指標與推論」一節的 failure semantics 一致——(1) 合法 encoding：fold 訓練列缺少某類別時該 fold 的設計矩陣沒有該欄且 fit 成功；(2) 無效候選：人為使某欄在 fold 訓練列上為常數時該 (方法, k, fold) 標為無效、該 (方法, k) 為 `invalid` 且 CV winner 排除它；**非 winner 的 canonical subset 在整個 training set 上人為共線時，該 (方法, k) 為 `invalid`（`canonical_rank_deficient`）、沒有 `fit`、不被選為 winner，而其他有效候選的 CV 與 test 評估照常完成，不停止**；(3) 實驗層級失敗：All-in 在任一 fold 或整個 training set 上人為共線時、某方法全部候選無效時、或整體 winner 無法決定時，以錯誤停止並列出全部 invalid 候選。Adjusted R² 用實際秩；PI 公式以手算的小例子核對；coverage 計算以已知的上下界核對。
 - 選擇邊界：在小型合成資料上，改動某 fold 驗證列的值不改變該 fold 的子集序列（fold-internal selection 只看訓練列，p-value backward 亦同）；canonical subset 只由整個 training set 決定。
-- 無效候選：canonical subset 人為共線時該 (方法, k) 為 `invalid`、沒有 `fit`、不被選為 winner，而其他候選的 CV 與 test 評估照常完成；某方法全部候選無效時以錯誤停止。
 - 選模：CV winner 的平手規則；授權評估集合的推導；test 評估函式在同一執行內第二次呼叫時報錯。
 - 前例：`home_work_01` 的 pytest 配置與 CI workflow（本單元另設自己的 CI 路徑過濾）。
 
