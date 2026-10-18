@@ -37,8 +37,9 @@ import pandas as pd
 from . import contract, data, metrics, ols
 from .paths import DATA_CSV
 
-# DA TR-01: opened only in #63, after every training-CV selection and alpha is fixed.
-OFFICIAL_TEST_GATE_ENABLED = False
+# DA TR-01: opened in #63 after every training-CV selection and alpha was fixed and recorded
+# (worklog issue-63 §4, pre-gate commit 69eb814). Tests keep it closed (tests/conftest.py).
+OFFICIAL_TEST_GATE_ENABLED = True
 METRIC_ONLY_MODELS = ("ridge", "lasso")
 CLOSED, OPEN, EVALUATED = "closed", "open", "evaluated"
 

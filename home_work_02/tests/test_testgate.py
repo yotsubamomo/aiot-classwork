@@ -50,7 +50,13 @@ def small_run(tmp_path):
             "ols": testgate.ols_models_for(winners, pool)}
 
 
-def test_the_official_gate_is_closed_in_this_ticket():
+def test_the_official_gate_is_open_in_the_program_and_closed_in_every_test():
+    """TR-01: #63 opened the official gate for the notebook (after the selection was fixed); every
+    test runs with it closed (conftest), so no test can load an official test row."""
+    import re
+    from pathlib import Path
+    source = Path(testgate.__file__).read_text(encoding="utf-8")
+    assert re.search(r"^OFFICIAL_TEST_GATE_ENABLED = True$", source, re.M)
     assert testgate.OFFICIAL_TEST_GATE_ENABLED is False
 
 
