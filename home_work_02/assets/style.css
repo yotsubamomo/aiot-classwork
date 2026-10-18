@@ -106,7 +106,7 @@ h2 { font-size: 1.05rem; margin: 0 0 var(--space-2); }
   --c-test-edge: #475569;
 }
 h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
-.stack { display: grid; gap: var(--space-4); min-width: 0; }
+.stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); min-width: 0; }
 .block-head p { margin: 0; }
 .layout-2col { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: var(--space-4); align-items: start; }
 .control { display: grid; gap: var(--space-4); }
@@ -148,6 +148,43 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
 .kpi__value { font-size: 1.35rem; font-weight: 700; overflow-wrap: anywhere; }
 .kpi__sub { font-size: 0.75rem; color: var(--c-muted); overflow-wrap: anywhere; }
 .facts--inline { grid-template-columns: max-content 1fr; }
+
+/* --- B/C k paths: compare toggle, metric vs k chart, comparison table (#62) ---------------- */
+.toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px; border: 1px solid var(--c-border); border-radius: var(--radius); background: var(--c-surface); font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.toggle:hover { background: var(--c-surface-2); }
+.toggle:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.toggle__sw { position: relative; flex: none; width: 34px; height: 20px; border-radius: 999px; background: #CBD5E1; transition: background 150ms; }
+.toggle__sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 150ms; }
+.toggle[aria-pressed="true"] { border-color: var(--c-primary); background: var(--c-primary-soft); font-weight: 600; }
+.toggle[aria-pressed="true"] .toggle__sw { background: var(--c-primary); }
+.toggle[aria-pressed="true"] .toggle__sw::after { left: 16px; }
+@media (prefers-reduced-motion: reduce) { .toggle__sw, .toggle__sw::after { transition: none; } }
+.input.input--inline { width: auto; min-height: 40px; }
+.kchart { position: relative; width: 100%; height: 340px; }
+.kchart canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: var(--space-2) 0; color: var(--c-muted); }
+.legend__item { display: inline-flex; align-items: center; gap: 6px; }
+.legend__item.is-dim { opacity: 0.45; }
+.legend__line { display: inline-block; width: 22px; height: 0; border-top: 3px solid currentColor; }
+.legend__line--dash { border-top-style: dashed; border-top-width: 2px; }
+.legend__mark { display: inline-block; width: 12px; height: 12px; }
+.legend__mark--ring { border: 2px solid var(--c-text); border-radius: 50%; }
+.legend__mark--sel { width: 16px; height: 16px; border: 2px solid var(--c-text); border-radius: 50%; box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px rgba(15,23,42,0.25); }
+.legend__mark--cross { position: relative; color: var(--c-danger); }
+.legend__mark--cross::before, .legend__mark--cross::after { content: ""; position: absolute; left: 5px; top: -1px; width: 2px; height: 14px; background: currentColor; transform: rotate(45deg); }
+.legend__mark--cross::after { transform: rotate(-45deg); }
+#compare-card[hidden] { display: none; }
+.tablewrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.table th, .table td { padding: 6px 10px; border-bottom: 1px solid var(--c-border); text-align: left; vertical-align: top; }
+.table th { color: var(--c-muted); font-weight: 600; }
+.table thead th { vertical-align: bottom; }
+.table td:last-child { min-width: 9em; }
+.table td.num, .table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.table td.num { white-space: nowrap; }
+.table tr.is-overall td { background: var(--c-success-soft); }
+.folds { margin: 0; padding-left: 1.1em; }
+.folds li { overflow-wrap: anywhere; }
 
 /* --- D predictor ------------------------------------------------------------------------- */
 .predictor { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-4); align-items: start; }
@@ -221,6 +258,7 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
   .covstats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kgrid { grid-template-columns: repeat(6, 1fr); }
   .scatter { aspect-ratio: 4 / 3; min-height: 260px; }
+  .kchart { height: 280px; }
 }
 @media (max-width: 480px) {
   .grid--kpi, .grid--kpi4, .covstats { grid-template-columns: 1fr; }

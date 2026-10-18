@@ -1,7 +1,8 @@
 """Building and writing ``model_data`` (``.json`` and the same object as a ``.js`` global).
 
 Sections: ``meta``, ``preprocess``, ``inputs``, ``test_inputs``; ``baselines`` (``allin``) and
-``winners`` from #61; ``methods`` from #62; the ``test_inputs`` rows and ``test`` only from the
+``winners`` from #61; ``methods`` (the four path methods, k = 1…18) and complete ``winners`` from
+#62; the ``test_inputs`` rows and ``test`` only from the
 one-time evaluation behind the test gate (:mod:`hw2.testgate`), written together by the same export
 in the same run (DA TR-01).
 
@@ -21,7 +22,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import contract, data, preprocess, testgate
+from . import contract, data, preprocess, selection, testgate
 from .paths import (MODEL_DATA_JS, MODEL_DATA_JS_GLOBAL, MODEL_DATA_JSON, SPLIT_ASSIGNMENT_CSV,
                     UNIT_DIR)
 
@@ -99,12 +100,15 @@ def build_meta(prepared: data.PreparedData, timings_s: dict | None = None,
 def build_model_data(prepared: data.PreparedData, timings_s: dict | None = None,
                      fixture: bool = False, allin=None, winners: dict | None = None,
                      methods: dict | None = None,
-                     evaluation: "testgate.TestEvaluation | None" = None) -> dict:
+                     evaluation: "testgate.TestEvaluation | None" = None,
+                     path_timing: dict | None = None) -> dict:
     """``model_data`` from the data stage plus whatever later stages produced.
 
     `allin` is the All-in :class:`~hw2.models.Candidate`; `methods` maps a path method to its
     candidates; `evaluation` is the result of :meth:`hw2.testgate.TestGate.evaluate` (it carries
-    the ``test_inputs`` rows and ``test`` of the same run).
+    the ``test_inputs`` rows and ``test`` of the same run). `path_timing` is the per-method run time
+    of :func:`hw2.selection.run_path_methods` (Q34), written to ``meta.path_timing_s`` together with
+    the method notes in ``meta.selection``.
     """
     full_fit = preprocess.fit_preprocessor(prepared.training)
     rules = preprocess.preprocess_rules()
@@ -132,6 +136,12 @@ def build_model_data(prepared: data.PreparedData, timings_s: dict | None = None,
     else:
         sections.append("test_inputs (schema only)")
     out["meta"] = build_meta(prepared, timings_s, fixture, sections)
+    if methods:
+        out["meta"]["selection"] = {"common": selection.COMMON_NOTE,
+                                    "methods": selection.METHOD_NOTES,
+                                    "tie_rtol": selection.TIE_RTOL}
+    if path_timing:
+        out["meta"]["path_timing_s"] = path_timing
     if evaluation is not None:
         out["meta"]["test_evaluation"] = {"opened_at": evaluation.opened_at,
                                           "evaluated_at": evaluation.evaluated_at,
@@ -140,7 +150,9 @@ def build_model_data(prepared: data.PreparedData, timings_s: dict | None = None,
 
 
 def to_json(model_data: dict) -> str:
-    return json.dumps(model_data, ensure_ascii=False, indent=1, allow_nan=False)
+    """Compact JSON (no indentation): with ``methods`` the object holds an (XᵀX)⁻¹ per (method, k),
+    and indentation alone would add about 40% to the file the dashboard parses."""
+    return json.dumps(model_data, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
 
 
 def to_js(model_data: dict) -> str:

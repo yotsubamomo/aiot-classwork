@@ -48,8 +48,10 @@ def test_no_test_rows_and_no_test_results_are_tracked(official):
     assert "test" not in md
     assert md["test_inputs"]["rows"] == [] and md["test_inputs"]["written"] is False
     contract.validate_test_inputs(md["test_inputs"], n_test=md["meta"]["split"]["n_test"])
-    assert set(md) == {"meta", "preprocess", "inputs", "test_inputs", "baselines", "winners"}
+    assert set(md) == {"meta", "preprocess", "inputs", "test_inputs", "methods", "baselines",
+                       "winners"}
     assert contract.test_field_paths(md["baselines"]) == []
+    assert contract.test_field_paths(md["methods"]) == []
     contract.validate_model_data(md)
 
 
@@ -98,8 +100,60 @@ def test_allin_baseline_is_reproduced_from_the_training_rows(official, prepared_
     assert tracked["fit"]["coef"] == pytest.approx(fresh["fit"]["coef"], rel=1e-9, abs=1e-12)
 
 
-def test_winners_are_partial_until_the_path_methods_exist(official):
-    winners = official[0]["winners"]
-    assert winners["complete"] is False and winners["overall"] is None
-    assert winners["authorized_test_models"] == ["allin"]
-    assert winners["pending_methods"] == ["forward_sfs", "backward_sfs", "rfe", "lasso_path"]
+def test_methods_hold_every_k_for_every_path_method(official):
+    md = official[0]
+    assert list(md["methods"]) == list(models_mod().PATH_METHODS)
+    for method, items in md["methods"].items():
+        assert [e["k"] for e in items] == list(range(1, 19))
+        assert all(len(e["canonical_groups"]) == e["k"] for e in items)
+        assert all(len(g) == e["k"] for e in items for g in e["fold_groups"])
+        assert all(e["cv"]["n_folds"] == md["meta"]["cv"]["n_folds"] for e in items)
+    assert set(md["meta"]["path_timing_s"]) == set(md["methods"])
+    for m, t in md["meta"]["path_timing_s"].items():
+        assert len(t["selection_folds"]) == 5 and t["total"] > 0
+        assert md["meta"]["timing_s"][f"path_{m}"] == t["total"]
+
+
+def test_winners_are_complete_and_never_metric_only(official):
+    """G-2 (CC-1 (2)): neither a method winner nor the overall winner is Ridge or Lasso."""
+    w = official[0]["winners"]
+    assert w["complete"] is True and w["pending_methods"] == []
+    assert set(w["method_winners"]) == {"forward_sfs", "backward_sfs", "rfe", "lasso_path"}
+    named = {x["model_key"] for x in w["method_winners"].values()}
+    named |= {x["test_model_key"] for x in w["method_winners"].values()}
+    named |= {w["overall"]["model_key"], w["overall"]["test_model_key"]}
+    named |= set(w["authorized_test_models"])
+    assert not named & {"ridge", "lasso"}
+    assert "allin" in w["authorized_test_models"]
+
+
+def models_mod():
+    from hw2 import models
+    return models
+
+
+def test_canonical_paths_are_reproduced_from_the_training_rows(official, prepared_real):
+    """The canonical subsets equal a fresh selection on the training rows (no test row)."""
+    from hw2 import selection
+    md = official[0]
+    for method, items in md["methods"].items():
+        fresh = selection.PATH_FUNCTIONS[method](prepared_real.training).subsets
+        assert [tuple(e["canonical_groups"]) for e in items] == list(fresh), method
+
+
+def test_overall_winner_cv_is_reproduced_from_the_training_rows(official, prepared_real):
+    """Re-run the overall CV winner's method on the folds (fold-internal) and re-evaluate it."""
+    from hw2 import models, selection
+    md = official[0]
+    overall = md["winners"]["overall"]
+    if overall["method"] == "allin":
+        pytest.skip("the overall CV winner is the All-in baseline (reproduced elsewhere)")
+    paths = selection.method_paths(prepared_real.training, overall["method"])
+    entry = contract.model_entries(md)[overall["model_key"]]
+    k = entry["k"]
+    assert [list(g) for g in paths.fold_groups(k)] == entry["fold_groups"]
+    fresh = models.evaluate_candidate(prepared_real.training, overall["method"], k,
+                                      paths.canonical.subsets[k - 1], paths.fold_groups(k))
+    for m in ("mae", "mse", "rmse", "r2"):
+        assert entry["cv"]["mean"][m] == pytest.approx(fresh.cv()["mean"][m], rel=1e-9)
+    assert overall["cv_rmse"] == pytest.approx(fresh.cv_rmse, rel=1e-9)

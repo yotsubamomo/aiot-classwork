@@ -22,6 +22,8 @@ py -3.11 -m venv .venv
 node --test tests/js/core.test.js             # dashboard 計算的 Node 測試（前處理案例；fixture 部分由 pytest 執行）
 ```
 
+四種特徵選擇方法各自的路徑計算時間（5 個 fold＋整個 training set 的選擇，以及 k = 1…18 的 CV 與全訓練集擬合）每次重跑都會量測，寫在 `model_data` 的 `meta.timing_s`（`path_<方法>`）與 `meta.path_timing_s`，notebook 第 4.2 節也會列出；本 README 不抄寫數字。
+
 Test 區塊與實際 vs 預測圖在正式 Test 評估執行之前沒有資料。要檢視它們的行為或量測繪圖效能，可以在單元目錄**以外**產生一份使用 synthetic fixture 的 dashboard 複本（不是正式結果，頁面頂端會顯示警告）：
 
 ```bash
@@ -46,7 +48,7 @@ macOS／Linux 把 `.venv/Scripts/python` 換成 `.venv/bin/python`。Dashboard �
 | 路徑 | 說明 |
 | --- | --- |
 | `hw2.ipynb` | 主程式（CRISP-DM 六章；唯一的數字來源） |
-| `hw2/` | 分析套件：資料、前處理、分割、OLS 與預測區間、模型候選與 CV winner、Test 評估守門、`model_data` 契約與匯出、synthetic fixture、離線掃描 |
+| `hw2/` | 分析套件：資料、前處理、分割、四種特徵選擇方法的 k 路徑（`selection`）、OLS 與預測區間、模型候選與 CV winner、Test 評估守門、`model_data` 契約與匯出、synthetic fixture、離線掃描 |
 | `tests/` | pytest；`tests/js/` 是 dashboard 計算的 Node 測試 |
 | `data/kc_house_data.csv` | 資料檔 |
 | `results/model_data.json`、`assets/model_data.js` | 匯出的 `model_data`（同一物件；`.js` 供 `file://` 載入） |

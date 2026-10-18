@@ -184,6 +184,12 @@ def evaluate_candidate(training: pd.DataFrame, method: str, k: int, canonical_gr
         fold_groups = [canonical] * len(fold_ids)
     fold_groups = [tuple(g for g in preprocess.FEATURE_GROUPS if g in set(gs))
                    for gs in fold_groups]
+    if len(fold_groups) != len(fold_ids):
+        # every method and k uses the same folds (#61 R1 F-2): never truncate silently
+        raise ValueError(f"{model_key(method, k)}: {len(fold_groups)} fold subsets for "
+                         f"{len(fold_ids)} folds")
+    if any(len(g) != k for g in fold_groups) or len(canonical) != k:
+        raise ValueError(f"{model_key(method, k)}: every subset must have k = {k} groups")
     folds = []
     for fold, groups in zip(fold_ids, fold_groups):
         is_valid = (training["fold"] == fold).to_numpy()
@@ -292,16 +298,41 @@ def determine_winners(allin: Candidate, path_candidates: dict) -> dict:
                                                    for c in m]))
         method, key, rmse = min(pool, key=lambda t: (t[2], METHOD_ORDER.index(t[0])))
         overall = {"model_key": key, "method": method, "cv_rmse": rmse}
-    authorized = [allin.key] + [w["model_key"] for w in method_winners.values()]
+    # The authorized test set is {All-in} ∪ method CV winners ∪ {overall CV winner}, and a model
+    # shared between these is scored once (Spec 「特徵選擇與模型」; BR-01 point 3). A model is the
+    # OLS fitted on the whole training set on a canonical subset, so two keys with the same
+    # canonical subset are the same model (e.g. a path method's k = 18 is the All-in baseline).
+    # Each winner records the key under which its model is scored (`test_model_key`): the first
+    # key in the order All-in, the method winners in method order, the overall winner.
+    by_key = {allin.key: allin}
+    by_key.update({c.key: c for cands in path_candidates.values() for c in cands})
+    representative = {}                       # canonical subset -> key it is scored under
+    order = [allin.key] + [w["model_key"] for w in method_winners.values()]
     if overall is not None:
-        authorized.append(overall["model_key"])
-    authorized = sorted(set(authorized), key=lambda k: authorized.index(k))
+        order.append(overall["model_key"])
+    for key in order:
+        representative.setdefault(tuple(by_key[key].canonical_groups), key)
+
+    def test_key(key):
+        return representative[tuple(by_key[key].canonical_groups)]
+
+    for w in method_winners.values():
+        w["test_model_key"] = test_key(w["model_key"])
+    if overall is not None:
+        overall["test_model_key"] = test_key(overall["model_key"])
+    authorized = []
+    for key in order:
+        if test_key(key) not in authorized:
+            authorized.append(test_key(key))
     return {
         "complete": complete,
         "selection_metric": "CV RMSE (USD), grouped 5-fold on the training set",
         "tie_break": {"method_winner": "smaller k",
                       "overall": "fixed method order " + " > ".join(METHOD_ORDER)},
-        "allin": {"model_key": allin.key, "cv_rmse": allin.cv_rmse},
+        "shared_models": ("winners with the same canonical subset are the same model (OLS on the "
+                          "whole training set) and are scored once under test_model_key"),
+        "allin": {"model_key": allin.key, "cv_rmse": allin.cv_rmse,
+                  "test_model_key": allin.key},
         "method_winners": method_winners,
         "pending_methods": [m for m in PATH_METHODS if m not in method_winners],
         "overall": overall,

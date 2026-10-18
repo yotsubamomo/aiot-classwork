@@ -206,7 +206,7 @@ def model_entries(md: dict) -> dict:
     return out
 
 
-def validate_entry(entry: dict, where: str) -> None:
+def validate_entry(entry: dict, where: str, n_folds: int | None = None) -> None:
     missing = ENTRY_KEYS - set(entry)
     if missing:
         raise ContractError(f"{where} lacks {sorted(missing)}")
@@ -222,11 +222,25 @@ def validate_entry(entry: dict, where: str) -> None:
         raise ContractError(f"{where}: canonical groups do not number k")
     if any(len(g) != entry["k"] for g in entry["fold_groups"]):
         raise ContractError(f"{where}: a fold subset does not have k groups")
+    for groups in [entry["canonical_groups"], *entry["fold_groups"]]:
+        if list(groups) != [g for g in FEATURE_GROUPS if g in set(groups)] \
+                or len(set(groups)) != len(groups):
+            raise ContractError(f"{where}: subsets must be feature groups in canonical order")
     cv = entry["cv"]
     if cv.get("scale") != "USD":
         raise ContractError(f"{where}.cv must be on the USD scale")
-    if len(cv["folds"]) != cv["n_folds"]:
-        raise ContractError(f"{where}.cv: fold records differ from n_folds")
+    if len(cv["folds"]) != cv["n_folds"] or len(entry["fold_groups"]) != cv["n_folds"]:
+        raise ContractError(f"{where}.cv: fold records and fold subsets differ from n_folds")
+    if n_folds is not None and cv["n_folds"] != n_folds:
+        # every method, k and model uses the same folds (#61 R1 F-2)
+        raise ContractError(f"{where}.cv.n_folds {cv['n_folds']} != meta.cv.n_folds {n_folds}")
+    for record, groups in zip(cv["folds"], entry["fold_groups"]):
+        if list(record.get("groups", groups)) != list(groups):
+            raise ContractError(f"{where}: fold {record.get('fold')} record groups differ from "
+                                "fold_groups")
+    agree = sum(1 for g in entry["fold_groups"] if list(g) == list(entry["canonical_groups"]))
+    if entry["folds_agree"] != agree:
+        raise ContractError(f"{where}.folds_agree {entry['folds_agree']} != {agree}")
     if status["state"] == "valid":
         if cv["mean"] is None or entry["fit"] is None:
             raise ContractError(f"{where}: a valid entry needs cv.mean and fit")
@@ -271,7 +285,46 @@ def validate_fit(fit: dict, where: str, groups) -> None:
             raise ContractError(f"{where}: zipcode columns differ from the categories")
 
 
-def validate_winners(winners: dict, entries: dict) -> None:
+PATH_METHODS = ("forward_sfs", "backward_sfs", "rfe", "lasso_path")
+METHOD_ORDER = ("allin", *PATH_METHODS)           # overall tie-break order (Brief §5: A…E)
+N_K = len(FEATURE_GROUPS)
+
+
+def path_model_key(method: str, k: int) -> str:
+    return f"{method}_k{k:02d}"
+
+
+def validate_methods(methods: dict, n_folds: int | None) -> None:
+    """Each path method has exactly k = 1…18 in order, with its own keys; every step of the
+    canonical path and of each fold's path changes exactly one feature group."""
+    unknown = set(methods) - set(PATH_METHODS)
+    if unknown:
+        raise ContractError(f"unknown path methods {sorted(unknown)} (metric-only models and "
+                            "baselines are not path methods)")
+    for method, items in methods.items():
+        if [e.get("k") for e in items] != list(range(1, N_K + 1)):
+            raise ContractError(f"methods.{method} must hold k = 1…{N_K} once each, in order")
+        for i, entry in enumerate(items):
+            where = f"methods.{method}[{i}]"
+            if entry["method"] != method or entry["model_key"] != path_model_key(method, i + 1):
+                raise ContractError(f"{where}: method or model_key does not match")
+            validate_entry(entry, where, n_folds)
+            if i:
+                prev = items[i - 1]
+                paths = [(prev["canonical_groups"], entry["canonical_groups"])] + list(
+                    zip(prev["fold_groups"], entry["fold_groups"]))
+                if any(not set(a) < set(b) for a, b in paths):
+                    raise ContractError(f"{where}: the step from k={i} to k={i + 1} must add "
+                                        "exactly one group (canonical and every fold)")
+
+
+def _cv_rmse(entry):
+    return entry["cv"]["mean"]["rmse"] if entry["status"]["state"] == "valid" else None
+
+
+def validate_winners(winners: dict, entries: dict, methods: dict | None = None) -> None:
+    """Winners are the recomputable CV winners; the authorized set is their union (shared models
+    once) and never holds a metric-only model (G-2; #61 R1 F-3)."""
     authorized = winners.get("authorized_test_models")
     if not authorized or "allin" not in authorized:
         raise ContractError("winners.authorized_test_models must include allin")
@@ -284,15 +337,57 @@ def validate_winners(winners: dict, entries: dict) -> None:
             raise ContractError(f"authorized model {key} has no entry")
         if entries[key]["status"]["state"] != "valid":
             raise ContractError(f"authorized model {key} is invalid")
-    for method, w in winners.get("method_winners", {}).items():
+    method_winners = winners.get("method_winners", {})
+    if set(method_winners) - set(PATH_METHODS):
+        raise ContractError(f"method winners only for path methods, not "
+                            f"{sorted(set(method_winners) - set(PATH_METHODS))} (G-2)")
+    flagged = {e["model_key"] for e in entries.values()
+               if e["is_method_winner"] and e["method"] != "allin"}
+    if flagged != {w["model_key"] for w in method_winners.values()}:
+        raise ContractError("is_method_winner flags differ from winners.method_winners")
+    for method, w in method_winners.items():
         entry = entries.get(w["model_key"])
         if entry is None or not entry["is_method_winner"] or entry["method"] != method:
             raise ContractError(f"method winner {w['model_key']} does not match its entry")
+        if methods is not None and method in methods:
+            valid = [e for e in methods[method] if e["status"]["state"] == "valid"]
+            best = min(valid, key=lambda e: (_cv_rmse(e), e["k"])) if valid else None
+            if best is None or best["model_key"] != w["model_key"] or w["k"] != best["k"]:
+                raise ContractError(f"method winner of {method} is not the valid entry with the "
+                                    "lowest CV RMSE (ties: smaller k)")
+    if methods is not None and set(methods) != set(method_winners):
+        raise ContractError("every path method in methods needs its CV winner")
     if winners.get("complete"):
-        if winners.get("overall") is None or winners["overall"]["model_key"] not in authorized:
-            raise ContractError("complete winners need an authorized overall CV winner")
+        overall = winners.get("overall")
+        if overall is None or set(method_winners) != set(PATH_METHODS):
+            raise ContractError("complete winners need every method winner and the overall one")
+        pool = [("allin", "allin")] + [(m, method_winners[m]["model_key"])
+                                       for m in PATH_METHODS]
+        method, key = min(pool, key=lambda t: (_cv_rmse(entries[t[1]]), METHOD_ORDER.index(t[0])))
+        if overall["model_key"] != key or overall.get("method") != method:
+            raise ContractError("overall CV winner is not the lowest CV RMSE among the method "
+                                "winners and All-in (ties: fixed method order)")
     elif winners.get("overall") is not None:
         raise ContractError("incomplete winners cannot name an overall CV winner")
+    # authorized = {All-in} ∪ method winners ∪ {overall}, a shared model (same canonical subset)
+    # once under its test_model_key (#61 R1 F-3)
+    named = [("allin", (winners.get("allin") or {}).get("test_model_key", "allin"))]
+    named += [(w["model_key"], w.get("test_model_key", w["model_key"]))
+              for w in method_winners.values()]
+    if winners.get("overall") is not None:
+        o = winners["overall"]
+        named.append((o["model_key"], o.get("test_model_key", o["model_key"])))
+    for key, tkey in named:
+        if tkey not in authorized or key not in entries or tkey not in entries:
+            raise ContractError(f"winner {key} is scored under {tkey}, which is not authorized")
+        if list(entries[key]["canonical_groups"]) != list(entries[tkey]["canonical_groups"]):
+            raise ContractError(f"winner {key} and its test model {tkey} are different models")
+    if set(authorized) != {t for _, t in named}:
+        raise ContractError(f"authorized set {sorted(authorized)} differs from All-in, the "
+                            f"method winners and the overall winner {sorted({t for _, t in named})}")
+    subsets = [tuple(entries[k]["canonical_groups"]) for k in authorized]
+    if len(set(subsets)) != len(subsets):
+        raise ContractError("the authorized set scores one model (canonical subset) twice")
 
 
 def validate_test(md: dict) -> None:
@@ -317,6 +412,9 @@ def validate_test(md: dict) -> None:
     for key in metric_keys:
         if set(test[key]) != METRIC_ONLY_TEST_KEYS:
             raise ContractError(f"test.{key} (metric_only) has keys {sorted(test[key])}")
+    for key, entry in test.items():
+        if entry.get("model_key") != key:
+            raise ContractError(f"test.{key}.model_key is {entry.get('model_key')!r}")
     for key in ols_keys:
         entry = test[key]
         if set(entry) != OLS_TEST_KEYS:
@@ -352,19 +450,19 @@ def validate_model_data(md: dict) -> None:
             paths = test_field_paths(md[section])
             if paths:
                 raise ContractError(f"{section} holds test fields {paths[:5]}")
+    n_folds = (md["meta"].get("cv") or {}).get("n_folds")
     allin = (md.get("baselines") or {}).get("allin")
     if allin is not None:
-        validate_entry(allin, "baselines.allin")
+        validate_entry(allin, "baselines.allin", n_folds)
         if allin["method"] != "allin" or allin["k"] != len(FEATURE_GROUPS) \
                 or allin["canonical_groups"] != list(FEATURE_GROUPS):
             raise ContractError("baselines.allin must be the single OLS on all 18 feature groups")
         if allin["status"]["state"] != "valid":
             raise ContractError("an invalid All-in baseline is an experiment-level failure")
-    for method, items in (md.get("methods") or {}).items():
-        for i, entry in enumerate(items):
-            validate_entry(entry, f"methods.{method}[{i}]")
+    if "methods" in md:
+        validate_methods(md["methods"], n_folds)
     if "winners" in md:
-        validate_winners(md["winners"], model_entries(md))
+        validate_winners(md["winners"], model_entries(md), md.get("methods"))
     if "test" in md:
         validate_test(md)
     elif md["test_inputs"].get("written"):

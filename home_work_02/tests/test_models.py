@@ -131,8 +131,13 @@ def test_a_method_without_any_valid_candidate_stops_the_run(training):
 
 # --- winners from candidates with given CV RMSE ------------------------------------------------
 
-def _cand(method, k, rmse, valid=True):
-    groups = preprocess.FEATURE_GROUPS[:k]
+def _cand(method, k, rmse, valid=True, groups=None):
+    """A candidate with a given CV RMSE; each method gets its own canonical subsets (rotated
+    canonical order) unless `groups` is given, so that different methods are different models."""
+    if groups is None:
+        shift = models.METHOD_ORDER.index(method)
+        rotated = preprocess.FEATURE_GROUPS[shift:] + preprocess.FEATURE_GROUPS[:shift]
+        groups = tuple(g for g in preprocess.FEATURE_GROUPS if g in set(rotated[:k]))
     folds = [{"fold": f, "valid": valid, "mae": rmse, "mse": rmse ** 2, "rmse": rmse, "r2": 0.5}
              for f in range(5)]
     status = {"state": "valid", "reason": None} if valid else \
@@ -191,3 +196,45 @@ def test_overall_winner_cannot_be_determined_without_a_finite_cv_rmse():
     allin, paths = _complete(allin_rmse=float("nan"))
     with pytest.raises(models.ExperimentFailure, match="cannot be determined"):
         models.determine_winners(allin, paths)
+
+
+# --- shared models: the same canonical subset is one model, scored once ------------------------
+
+def test_a_path_winner_at_k18_is_the_allin_model_and_is_scored_once():
+    """A path method's k = 18 subset is all 18 groups, i.e. the All-in baseline itself
+    (CONTEXT「All-in baseline」); it is authorized once, under 'allin'."""
+    allin, paths = _complete(allin_rmse=10.0)
+    paths["forward_sfs"].append(_cand("forward_sfs", 18, 9.0, groups=preprocess.FEATURE_GROUPS))
+    winners = models.determine_winners(allin, paths)
+    fw = winners["method_winners"]["forward_sfs"]
+    assert fw["model_key"] == "forward_sfs_k18" and fw["test_model_key"] == "allin"
+    assert winners["overall"]["model_key"] == "forward_sfs_k18"
+    assert winners["overall"]["test_model_key"] == "allin"
+    assert "forward_sfs_k18" not in winners["authorized_test_models"]
+    assert winners["authorized_test_models"].count("allin") == 1
+
+
+def test_two_methods_with_the_same_canonical_subset_share_one_test_model():
+    allin, paths = _complete()
+    same = ("sqft_living", "grade", "zipcode")
+    paths["backward_sfs"].append(_cand("backward_sfs", 3, 5.0, groups=same))
+    paths["rfe"].append(_cand("rfe", 3, 6.0, groups=same))
+    winners = models.determine_winners(allin, paths)
+    assert winners["method_winners"]["backward_sfs"]["test_model_key"] == "backward_sfs_k03"
+    assert winners["method_winners"]["rfe"]["test_model_key"] == "backward_sfs_k03"
+    auth = winners["authorized_test_models"]
+    assert "rfe_k03" not in auth and auth.count("backward_sfs_k03") == 1
+    assert winners["overall"]["test_model_key"] == "backward_sfs_k03"
+
+
+def test_winners_never_include_ridge_or_lasso():
+    """G-2 (CC-1 (2)): the metric-only models never compete for any CV winner."""
+    allin, paths = _complete(allin_rmse=30.0, rfe=12.0)
+    winners = models.determine_winners(allin, paths)
+    keys = {w["model_key"] for w in winners["method_winners"].values()}
+    keys |= {winners["overall"]["model_key"], winners["overall"]["test_model_key"]}
+    keys |= set(winners["authorized_test_models"])
+    assert not keys & {"ridge", "lasso"}
+    assert set(winners["method_winners"]) == set(models.PATH_METHODS)
+    with pytest.raises(ValueError, match="unknown path methods"):
+        models.determine_winners(allin, {**paths, "ridge": [_cand("rfe", 1, 1.0)]})

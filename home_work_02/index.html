@@ -99,6 +99,10 @@
           <div class="kgrid" role="group" aria-labelledby="lbl-k" id="k-grid"></div>
           <p class="help" id="k-help"></p>
         </div>
+        <button class="toggle" id="compare-all" type="button" aria-pressed="false" aria-controls="compare-card kchart-card">
+          <span class="toggle__sw" aria-hidden="true"></span>
+          <span>比較全部方法</span>
+        </button>
         <div class="selected-model" id="selected-model" aria-live="polite"></div>
       </aside>
 
@@ -108,6 +112,31 @@
           <p class="small muted">來源：所選模型的 <code>cv</code>（訓練集內 <span id="cv-nfolds">5</span> 個分組 fold 的平均 ± 標準差）；不含任何 Test 資料。</p>
         </div>
         <div class="grid grid--kpi" id="kpi-cv"></div>
+
+        <div class="card" id="kchart-card">
+          <div class="chart__toolbar">
+            <h3>指標 vs k <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+            <span class="spacer"></span>
+            <label class="small muted" for="metric-select">指標</label>
+            <select class="input input--inline" id="metric-select">
+              <option value="rmse">RMSE（USD）</option>
+              <option value="mae">MAE（USD）</option>
+              <option value="mse">MSE（USD²）</option>
+              <option value="r2">R²（USD 尺度）</option>
+            </select>
+          </div>
+          <div class="kchart"><canvas id="kchart-canvas" role="img" aria-describedby="kchart-summary"
+            aria-label="折線圖：四種特徵選擇方法在 k = 1 到 18 的訓練 CV 指標；All-in baseline 為水平參考線；各方法 CV winner 以圓環標示，invalid 候選以叉號標示，目前選取的模型以大圓圈標示。"></canvas></div>
+          <p class="small muted" id="kchart-summary"></p>
+          <div class="legend small" id="kchart-legend"></div>
+          <p class="small muted">來源：<code>methods[].cv</code> 與 <code>baselines.allin.cv</code>（5 個分組 fold 的平均）。每個 fold 的子集只在該 fold 的訓練列上選出；CV 指標估計的是「方法在 k 下的程序」，不是 canonical subset 本身。不含任何 Test 資料。</p>
+        </div>
+
+        <div class="card card--flat" id="compare-card" hidden>
+          <h3>各方法 CV winner 比較 <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+          <div class="tablewrap"><table class="table" id="compare-table"></table></div>
+          <p class="small muted">整體 CV winner 是 CV RMSE 最小者（平手依方法順序 All-in、Forward SFS、Backward SFS、RFE、Lasso 路徑排序）。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤；Test 評估才是獨立估計，Test 排名不同時也不換模型。</p>
+        </div>
         <div class="card card--flat" id="fit-card">
           <h3>全訓練集擬合 <span class="tag tag--fit">全訓練集擬合，R²／Adjusted R² 為 log 尺度</span></h3>
           <dl class="facts facts--inline small" id="fit-facts"></dl>

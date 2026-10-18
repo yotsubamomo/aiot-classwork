@@ -116,6 +116,33 @@ def test_ui_predicts_only_from_user_inputs_and_never_from_test_inputs():
     assert app.count("var ti = MD.test_inputs;") == 1
 
 
+def test_k_chart_and_comparison_table_read_cv_only():
+    """BR-01 point 1: the metric-vs-k chart and the comparison table use `cv` (and `fit` for the
+    log-scale Adjusted R²), never `test`; they are labeled 訓練 CV（USD）."""
+    app = _code(ASSETS_DIR / "app.js")
+    start = app.index("function renderKChart(")
+    end = app.index("function renderPredictor(")
+    block = app[start:end]
+    assert "MD.test" not in block and "test_inputs" not in block and ".test[" not in block
+    assert "e.cv.mean" in block and "fit.adj_r2_log" in block
+    html = DASHBOARD_HTML.read_text(encoding="utf-8")
+    for anchor in ('id="kchart-card"', 'id="compare-card"', 'id="compare-all"', 'id="metric-select"'):
+        assert anchor in html, anchor
+    chart_card = html[html.index('id="kchart-card"'):html.index('id="compare-card"')]
+    compare_card = html[html.index('id="compare-card"'):html.index('id="fit-card"')]
+    assert "訓練 CV（USD）" in chart_card and "訓練 CV（USD）" in compare_card
+    assert "Test" not in chart_card.replace("不含任何 Test 資料", "")
+
+
+def test_test_block_never_keeps_numbers_of_another_model():
+    """#61 R1 F-3: without a test entry for the shown model, the Test body is hidden and emptied."""
+    app = _code(ASSETS_DIR / "app.js")
+    block = app[app.index("if (!tEntry) {"):app.index("var box = byId('kpi-test');")]
+    for needle in ("byId('test-body').hidden = true", "byId('kpi-test').textContent = ''",
+                   "byId('covstats').textContent = ''", "shownTestKey = null", "return;"):
+        assert needle in block, needle
+
+
 def test_dashboard_core_has_no_metric_coverage_or_selection_code():
     core = _code(ASSETS_DIR / "hw2core.js")
     for name in ("rmse", "mse", "mae", "coverage", "covered", "r2", "winner", "test_inputs.rows"):

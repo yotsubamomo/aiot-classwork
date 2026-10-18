@@ -78,7 +78,9 @@ def test_ols_subset_keys_equal_the_authorized_set_and_metric_only_is_ridge_and_l
     ols_keys = {k for k, v in md["test"].items() if v["kind"] == "ols_subset"}
     assert ols_keys == set(w["authorized_test_models"])
     assert "allin" in ols_keys
-    assert {m["model_key"] for m in w["method_winners"].values()} <= ols_keys
+    # each method winner is scored under its test_model_key (a shared model once)
+    assert {m["test_model_key"] for m in w["method_winners"].values()} <= ols_keys
+    assert w["overall"]["test_model_key"] in ols_keys
     metric = {k: v for k, v in md["test"].items() if v["kind"] == "metric_only"}
     assert sorted(metric) == ["lasso", "ridge"]            # fixture stand-ins (CC-1 shape)
     assert all(set(v) == contract.METRIC_ONLY_TEST_KEYS for v in metric.values())

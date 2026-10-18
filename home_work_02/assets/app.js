@@ -1,5 +1,6 @@
 /* HW2 dashboard: reads window.MODEL_DATA (assets/model_data.js) and renders
- *   A overview (meta), B/C model selection and training-CV KPI (cv; "訓練 CV（USD）"),
+ *   A overview (meta), B/C model selection, training-CV KPI, the metric-vs-k chart and the
+ *   comparison table (cv only; "訓練 CV（USD）"),
  *   D live predictor (fit; OLS subset models only), E Test block (test only; "Test 評估（USD）").
  *
  * Layering (BR-01): every KPI comes from the selected model's `cv`, the predictor from its `fit`,
@@ -32,7 +33,10 @@
 
   var nf = new Intl.NumberFormat('zh-TW');
   var usdFmt = new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-  var state = { method: 'allin', k: null, zipOverride: null };
+  var state = { method: 'allin', k: null, zipOverride: null, compareAll: false, metric: 'rmse' };
+  var METHOD_COLORS = { forward_sfs: '#1E40AF', backward_sfs: '#0E7490', rfe: '#6D28D9', lasso_path: '#C2410C' };
+  var ALLIN_COLOR = '#334155';
+  var kchart = null;
   var scatter = null;
   var shownTestKey = null;
 
@@ -162,7 +166,7 @@
       });
       grid.appendChild(b);
     });
-    setText('k-help', '綠點：該方法 CV winner；紅斜紋：invalid 候選。');
+    setText('k-help', '綠點：該方法 CV winner；紅斜紋：invalid 候選（仍可選取並顯示原因，但不提供即時預測）。');
   }
 
   function renderSelected(entry) {
@@ -177,6 +181,27 @@
     if (tags.length) box.appendChild(el('div', { class: 'tags' }, tags));
     box.appendChild(el('span', { class: 'small', text: 'Canonical subset（整個 training set 上計算）：' + entry.canonical_groups.join('、') }));
     box.appendChild(el('span', { class: 'small muted', text: entry.folds_agree + '／' + entry.fold_groups.length + ' 個 fold 的子集與 canonical subset 相同' }));
+    if (entry.method !== 'allin') {
+      var items = entry.fold_groups.map(function (g, i) {
+        var plus = g.filter(function (x) { return entry.canonical_groups.indexOf(x) < 0; });
+        var minus = entry.canonical_groups.filter(function (x) { return g.indexOf(x) < 0; });
+        var text = !plus.length && !minus.length ? '與 canonical subset 相同'
+          : '多 ' + plus.join('、') + '；少 ' + minus.join('、');
+        var fold = entry.cv.folds[i] && entry.cv.folds[i].fold != null ? entry.cv.folds[i].fold : i;
+        return el('li', { text: 'Fold ' + fold + '：' + text });
+      });
+      box.appendChild(el('details', { class: 'small' }, [el('summary', { text: '各 fold 的子集（只在該 fold 的訓練列上選出）' }),
+        el('ol', { class: 'folds' }, items)]));
+    }
+    var shared = sharedWith(entry);
+    if (shared) box.appendChild(el('span', { class: 'small', text: '與 ' + modelName(shared) + ' 的 canonical subset 相同，是同一個模型；Test 評估只做一次。' }));
+  }
+
+  /* A CV winner whose model (canonical subset) is scored under another key (winners.*.test_model_key). */
+  function sharedWith(entry) {
+    if (!entry || !entry.is_method_winner || entry.method === 'allin') return null;
+    var tKey = Core.testEntryKey(MD, entry.method);
+    return tKey && tKey !== entry.model_key ? entryByKey(tKey) : null;
   }
 
   /* ---- C. KPI (cv) and fit --------------------------------------------------------------- */
@@ -219,6 +244,151 @@
     ].forEach(function (p) { dl.appendChild(el('dt', { text: p[0] })); dl.appendChild(el('dd', { class: 'num', text: p[1] })); });
   }
 
+  /* ---- C. metric vs k chart (cv only) and the comparison table ------------------------------ */
+  var METRICS = {
+    rmse: { label: 'CV RMSE（USD）', fmt: function (v) { return usd(v); } },
+    mae: { label: 'CV MAE（USD）', fmt: function (v) { return usd(v); } },
+    mse: { label: 'CV MSE（USD²）', fmt: function (v) { return sci(v); } },
+    r2: { label: 'CV R²（USD 尺度）', fmt: function (v) { return fixed(v, 4); } }
+  };
+  function pathMethods() { return METHOD_ORDER.filter(function (m) { return m !== 'allin' && CAT[m] && CAT[m].length; }); }
+  function cvValue(e, metric) {
+    return e && e.status.state === 'valid' && e.cv && e.cv.mean ? e.cv.mean[metric] : null;
+  }
+  function rgba(hex, a) {
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  function emphasized(m) { return state.compareAll || state.method === 'allin' || state.method === m; }
+
+  function renderKChart(entry) {
+    var methods = pathMethods();
+    var card = byId('kchart-card');
+    card.hidden = !methods.length;
+    if (!methods.length) return;
+    var metric = state.metric, fmt = METRICS[metric].fmt;
+    var values = [], datasets = [];
+    methods.forEach(function (m) {
+      var list = CAT[m], color = METHOD_COLORS[m] || '#475569', on = emphasized(m);
+      var data = list.map(function (e) { return { x: e.k, y: cvValue(e, metric) }; });
+      data.forEach(function (d) { if (d.y != null) values.push(d.y); });
+      datasets.push({ type: 'line', label: METHOD_LABELS[m], data: data, spanGaps: false, order: on ? 1 : 3,
+        borderColor: on ? color : rgba(color, 0.25), borderWidth: on ? 2.25 : 1.25,
+        pointRadius: list.map(function (e) { return e.is_method_winner ? 7 : 2.5; }),
+        pointHoverRadius: list.map(function (e) { return e.is_method_winner ? 8 : 4; }),
+        pointBorderWidth: list.map(function (e) { return e.is_method_winner ? 2.5 : 1; }),
+        pointBackgroundColor: list.map(function (e) { return e.is_method_winner ? '#FFFFFF' : (on ? color : rgba(color, 0.25)); }),
+        pointBorderColor: on ? color : rgba(color, 0.35), entries: list });
+    });
+    var allinV = cvValue(CAT.allin && CAT.allin[0], metric);
+    if (allinV != null) {
+      values.push(allinV);
+      datasets.push({ type: 'line', label: 'All-in baseline（k = 18 固定，參考線）', data: [{ x: 0.5, y: allinV }, { x: 18.5, y: allinV }],
+        borderColor: ALLIN_COLOR, borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, order: 2 });
+    }
+    var lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
+    var span = (hi - lo) || Math.abs(hi) || 1;
+    lo -= span * 0.1; hi += span * 0.06;
+    var invalid = [];
+    methods.forEach(function (m) {
+      CAT[m].forEach(function (e) { if (e.status.state === 'invalid') invalid.push({ x: e.k, y: lo + span * 0.04, entry: e }); });
+    });
+    if (invalid.length) datasets.push({ type: 'scatter', label: 'invalid 候選', data: invalid, pointStyle: 'crossRot',
+      pointRadius: 7, pointHoverRadius: 8, pointBorderWidth: 2.5, borderColor: '#B91C1C', backgroundColor: '#B91C1C', order: 0 });
+    if (entry && entry.method !== 'allin') {
+      var sy = cvValue(entry, metric);
+      datasets.push({ type: 'scatter', label: '目前選取', data: [{ x: entry.k, y: sy != null ? sy : lo + span * 0.04, entry: entry }],
+        pointRadius: 12, pointHoverRadius: 12, pointBorderWidth: 2.5, borderColor: '#0F172A', backgroundColor: 'rgba(15,23,42,0.06)', order: 0 });
+    }
+    var options = {
+      animation: false, responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: true },
+      scales: {
+        x: { type: 'linear', min: 0.5, max: 18.5, title: { display: true, text: 'k（feature groups）' },
+          ticks: { stepSize: 1, autoSkip: false, callback: function (v) { return Number.isInteger(v) && v >= 1 && v <= 18 ? v : ''; } } },
+        y: { min: lo, max: hi, title: { display: true, text: METRICS[metric].label + '（訓練 CV）' },
+          ticks: { callback: function (v) { return fmt(v); } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function (ctx) {
+          var raw = ctx.raw || {}, ds = ctx.dataset, e = raw.entry || (ds.entries ? ds.entries[ctx.dataIndex] : null);
+          if (!e) return ds.label + '：' + fmt(ctx.parsed.y);
+          var head = (METHOD_LABELS[e.method] || e.method) + ' · k = ' + e.k;
+          if (e.status.state === 'invalid') return head + '：invalid（' + e.status.reason + '）';
+          return head + '：' + fmt(cvValue(e, metric)) + (e.is_method_winner ? '（該方法 CV winner）' : '');
+        } } }
+      }
+    };
+    if (!window.Chart) {
+      setText('kchart-summary', '找不到本機打包的 Chart.js，無法繪製指標 vs k 圖。');
+    } else if (!kchart) {
+      kchart = new window.Chart(byId('kchart-canvas'), { type: 'line', data: { datasets: datasets }, options: options });
+    } else {
+      kchart.data.datasets = datasets;
+      kchart.options = options;
+      kchart.update('none');
+    }
+    var parts = methods.map(function (m) {
+      var w = CAT[m].filter(function (e) { return e.is_method_winner; })[0];
+      return METHOD_LABELS[m] + ' 的 CV winner 為 k = ' + (w ? w.k + '（' + fmt(cvValue(w, metric)) + '）' : '—');
+    });
+    if (allinV != null) parts.push('All-in baseline ' + fmt(allinV));
+    if (window.Chart) setText('kchart-summary', METRICS[metric].label + '：' + parts.join('；') + '。');
+    renderLegend(methods);
+  }
+
+  function renderLegend(methods) {
+    var lg = byId('kchart-legend');
+    lg.textContent = '';
+    methods.forEach(function (m) {
+      lg.appendChild(el('span', { class: 'legend__item' + (emphasized(m) ? '' : ' is-dim'), style: 'color:' + METHOD_COLORS[m] },
+        [el('span', { class: 'legend__line' }), el('span', { style: 'color:#334155', text: METHOD_LABELS[m] })]));
+    });
+    lg.appendChild(el('span', { class: 'legend__item', style: 'color:' + ALLIN_COLOR },
+      [el('span', { class: 'legend__line legend__line--dash' }), el('span', { style: 'color:#334155', text: 'All-in baseline（參考線）' })]));
+    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--ring' }), 'CV winner（圓環）']));
+    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--cross' }), 'invalid 候選（叉號，沒有 CV 指標）']));
+    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--sel' }), '目前選取']));
+  }
+
+  function renderCompare() {
+    var card = byId('compare-card');
+    byId('compare-all').setAttribute('aria-pressed', String(state.compareAll));
+    card.hidden = !state.compareAll;
+    if (!state.compareAll) return;
+    var table = byId('compare-table');
+    table.textContent = '';
+    var heads = ['方法', 'CV winner k', 'CV RMSE（± 標準差）', 'CV MAE', 'CV MSE（USD²）', 'CV R²（USD 尺度）',
+      'Adjusted R²（log 尺度，全訓練集擬合）', 'fold 子集＝canonical', '備註'];
+    table.appendChild(el('thead', {}, [el('tr', {}, heads.map(function (h, i) {
+      return el('th', { class: i >= 1 && i <= 7 ? 'num' : null, scope: 'col', text: h });
+    }))]));
+    var overall = MD.winners && MD.winners.overall;
+    var body = el('tbody');
+    METHOD_ORDER.filter(function (m) { return CAT[m] && CAT[m].length; }).forEach(function (m) {
+      var e = m === 'allin' ? CAT.allin[0] : CAT[m].filter(function (x) { return x.is_method_winner; })[0];
+      if (!e) return;
+      var mean = e.cv.mean || {}, sd = e.cv.std || {};
+      var notes = [];
+      var isOverall = !!(overall && overall.model_key === e.model_key);
+      if (isOverall) notes.push(el('span', { class: 'tag tag--overall', text: '整體 CV winner' }));
+      var shared = sharedWith(e);
+      if (shared) notes.push(el('span', { class: 'small', text: ' 與 ' + modelName(shared) + ' 為同一模型' }));
+      body.appendChild(el('tr', { class: isOverall ? 'is-overall' : null }, [
+        el('th', { scope: 'row', text: METHOD_LABELS[m] }),
+        el('td', { class: 'num', text: m === 'allin' ? '18（固定）' : String(e.k) }),
+        el('td', { class: 'num', text: usd(mean.rmse) + ' ± ' + usd(sd.rmse) }),
+        el('td', { class: 'num', text: usd(mean.mae) }),
+        el('td', { class: 'num', text: sci(mean.mse) }),
+        el('td', { class: 'num', text: fixed(mean.r2, 4) }),
+        el('td', { class: 'num', text: e.fit ? fixed(e.fit.adj_r2_log, 4) : '—' }),
+        el('td', { class: 'num', text: e.folds_agree + '／' + e.fold_groups.length }),
+        el('td', {}, notes)]));
+    });
+    table.appendChild(body);
+  }
+
   /* ---- D. predictor (fit) ----------------------------------------------------------------- */
   var URL_PARAMS = (function () { try { return new URLSearchParams(window.location.search); } catch (e) { return null; } })();
 
@@ -227,7 +397,7 @@
     box.textContent = '';
     setText('pred-model', modelName(entry));
     if (!Core.canPredict(entry)) {
-      setText('pred-intro', entry ? 'invalid 候選：沒有 fit，不提供即時預測。' : '沒有可用的模型。');
+      setText('pred-intro', entry ? 'invalid 候選（' + entry.status.reason + '）：不提供即時預測。' : '沒有可用的模型。');
       setText('pred-price', '—'); setText('pred-pi', '—');
       byId('pred-status').textContent = '';
       return;
@@ -349,15 +519,19 @@
     byId('test-body').hidden = !hasTest;
     var notice = byId('test-notice');
     notice.hidden = true;
-    var key = Core.testModelKey(MD, state.method);
-    var tEntry = hasTest && key ? MD.test[key] : null;
+    var key = Core.testModelKey(MD, state.method);          /* the model shown: the method's CV winner */
+    var tKey = Core.testEntryKey(MD, state.method);         /* where that model was scored (shared once) */
+    var tEntry = hasTest && tKey ? MD.test[tKey] : null;
     var shown = key ? entryByKey(key) : null;
-    setText('test-model', shown ? modelName(shown) : '—');
+    var shared = shown && tKey && tKey !== key ? entryByKey(tKey) : null;
+    setText('test-model', shown ? modelName(shown) + (shared ? '（與 ' + modelName(shared) + ' 為同一模型，Test 只評估一次）' : '') : '—');
     var tag = byId('test-winner-tag');
     tag.hidden = !shown;
     if (shown) {
-      var overall = MD.winners && MD.winners.overall && MD.winners.overall.model_key === key;
-      tag.textContent = overall ? '整體 CV winner' : (shown.method === 'allin' ? 'All-in baseline' : '該方法 CV winner');
+      var o = MD.winners && MD.winners.overall;
+      var isOverall = !!(o && (o.model_key === key || (o.test_model_key || o.model_key) === tKey));
+      tag.textContent = isOverall ? (o.model_key !== key ? '與整體 CV winner 為同一模型' : '整體 CV winner') :
+        (shown.method === 'allin' ? 'All-in baseline' : '該方法 CV winner');
     }
     if (!hasTest) return;
     if (entry && shown && entry.model_key !== shown.model_key) {
@@ -366,8 +540,13 @@
       notice.hidden = false;
     }
     if (!tEntry) {
-      notice.textContent = '這個方法沒有可展示的 Test 結果。';
+      /* never leave a previous model's numbers on screen (#61 R1 F-3) */
+      notice.textContent = 'Test 評估中沒有這個方法 CV winner 的結果，因此不顯示任何 Test 數值。';
       notice.hidden = false;
+      byId('test-body').hidden = true;
+      byId('kpi-test').textContent = '';
+      byId('covstats').textContent = '';
+      shownTestKey = null;
       return;
     }
     var box = byId('kpi-test');
@@ -391,8 +570,8 @@
       cov.appendChild(el('div', { class: 'kpi kpi--test' }, [el('div', { class: 'kpi__label', text: p[0] }),
         el('div', { class: 'kpi__value num', text: p[1] }), el('div', { class: 'kpi__sub', text: p[2] })]));
     });
-    if (shownTestKey !== key) {
-      shownTestKey = key;
+    if (shownTestKey !== tKey) {
+      shownTestKey = tKey;
       scatter.setData(tEntry, testRows());
       scatter.reset();
     }
@@ -674,6 +853,8 @@
     renderControls();
     renderSelected(entry);
     renderKpi(entry);
+    renderKChart(entry);
+    renderCompare();
     renderFit(entry);
     renderPredictor(entry);
     renderTest(entry);
@@ -691,6 +872,12 @@
     state.method = 'allin';
     state.k = defaultK('allin');
     scatter = new Scatter(byId('scatter-canvas'), byId('scatter-tip'));
+    byId('compare-all').addEventListener('click', function (ev) {
+      timed('compare-all', ev, function () { state.compareAll = !state.compareAll; update(); });
+    });
+    byId('metric-select').addEventListener('change', function (ev) {
+      timed('metric', ev, function () { state.metric = ev.target.value; renderKChart(entryFor(state.method, state.k)); });
+    });
     update();
   }
 

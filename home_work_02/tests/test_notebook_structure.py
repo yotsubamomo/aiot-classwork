@@ -71,3 +71,16 @@ def test_evaluation_states_the_interval_assumptions_and_limits():
     for phrase in ("不宣稱保證 95% 的經驗涵蓋率", "條件中位數", "不是條件平均", "二項近似",
                    "不陳述偏差的方向或幅度", "殘差常態、同質變異、彼此獨立", "樂觀偏誤"):
         assert phrase in text, phrase
+
+
+def test_modeling_and_evaluation_state_the_selection_protocol_and_its_bias():
+    """#62 AC (DA TK-3; Spec 「分割與交叉驗證」): fold-internal selection, canonical subset, the RFE
+    group-importance rule, and the selection bias of the CV winner's CV score."""
+    modeling = "\n".join(_chapters()["Modeling"])
+    for phrase in ("fold-internal selection", "canonical subset", "Group 重要度的彙總規則",
+                   "驗證列不參與任何子集的選擇", "平手", "canonical order"):
+        assert phrase in modeling, phrase
+    evaluation = "\n".join(_chapters()["Evaluation"])
+    for phrase in ("選擇偏誤", "樂觀偏誤", "不是它表現的不偏估計", "Test 評估才是 CV winner 表現的獨立估計",
+                   "同一模型只評估一次"):
+        assert phrase in evaluation, phrase

@@ -133,6 +133,16 @@
     return mw ? mw.model_key : null;
   }
 
+  /* The key under which that model was scored in model_data.test: a winner that is the same model
+   * as another (same canonical subset, e.g. a method's k = 18 is the All-in baseline) points to the
+   * one shared test entry (winners.*.test_model_key); the dashboard never scores anything itself. */
+  function testEntryKey(modelData, method) {
+    var w = modelData.winners || {};
+    var mw = method === 'allin' ? w.allin : (w.method_winners || {})[method];
+    if (!mw) return method === 'allin' ? 'allin' : null;
+    return mw.test_model_key || mw.model_key;
+  }
+
   /* Raw inputs the predictor asks for: the source features used by the model's groups. */
   function inputSpec(fit, inputs) {
     return fit.uses_source_features.map(function (name) {
@@ -173,6 +183,7 @@
     rowObject: rowObject,
     canPredict: canPredict,
     testModelKey: testModelKey,
+    testEntryKey: testEntryKey,
     inputSpec: inputSpec,
     outOfRange: outOfRange
   };

@@ -91,6 +91,40 @@ test('official All-in: prediction = intercept + sum of contributions; PI contain
   close(out.prediction, Math.exp(out.logPrediction), 1e-6, 'exp');
 });
 
+// ---- official model_data: four path methods, k = 1…18, winners (#62) ------------------------
+function checkPaths(md) {
+  const byKey = entries(md);
+  assert.deepEqual(Object.keys(md.methods), ['forward_sfs', 'backward_sfs', 'rfe', 'lasso_path']);
+  for (const [method, list] of Object.entries(md.methods)) {
+    assert.deepEqual(list.map((e) => e.k), Array.from({ length: 18 }, (_, i) => i + 1), method);
+    list.forEach((e) => {
+      assert.equal(e.canonical_groups.length, e.k);
+      e.fold_groups.forEach((g) => assert.equal(g.length, e.k));
+      if (e.status.state === 'invalid') assert.equal(e.is_method_winner, false, `${e.model_key} invalid`);
+    });
+    const valid = list.filter((e) => e.status.state === 'valid');
+    const best = valid.slice().sort((a, b) => a.cv.mean.rmse - b.cv.mean.rmse || a.k - b.k)[0];
+    assert.equal(md.winners.method_winners[method].model_key, best.model_key, `${method} winner`);
+    assert.deepEqual(list.filter((e) => e.is_method_winner).map((e) => e.model_key), [best.model_key]);
+    assert.equal(Core.testModelKey(md, method), best.model_key);
+    const tKey = Core.testEntryKey(md, method);
+    assert.ok(md.winners.authorized_test_models.includes(tKey));
+    assert.deepEqual(byKey[tKey].canonical_groups, best.canonical_groups);
+  }
+  assert.equal(Core.testEntryKey(md, 'allin'), 'allin');
+  for (const k of ['ridge', 'lasso']) {
+    assert.ok(!md.winners.authorized_test_models.includes(k));
+    assert.ok(!(k in md.winners.method_winners));
+  }
+}
+
+test('official: every path method has k = 1…18; winners follow the CV RMSE rule; invalid never wins', () => {
+  checkPaths(OFFICIAL);
+  assert.equal(OFFICIAL.winners.complete, true);
+});
+
+test('fixture: the same checks on the synthetic run', needFixture, () => { checkPaths(FIXTURE); });
+
 test('official model_data has no test results and no test rows (TR-01)', () => {
   assert.equal(OFFICIAL.test, undefined);
   assert.equal(OFFICIAL.test_inputs.written, false);
@@ -154,5 +188,14 @@ test('fixture: Test block model per method follows the winners; invalid entries 
     assert.equal(best.model_key, w.model_key);
     list.filter((e) => e.status.state === 'invalid').forEach((e) => assert.equal(e.is_method_winner, false));
   }
-  assert.ok(md.test[md.winners.overall.model_key]);
+  assert.ok(md.test[md.winners.overall.test_model_key]);
+  for (const method of Object.keys(md.methods)) {
+    const tKey = Core.testEntryKey(md, method);
+    assert.ok(md.test[tKey], `${method}: its winner's test entry ${tKey}`);
+    const winner = entries(md)[Core.testModelKey(md, method)];
+    assert.deepEqual(entries(md)[tKey].canonical_groups, winner.canonical_groups);
+  }
+  const injected = Object.values(md.methods).flat().filter((e) => e.status.state === 'invalid');
+  assert.ok(injected.length >= 1, 'the fixture holds an (injected) invalid candidate');
+  injected.forEach((e) => { assert.equal(e.is_method_winner, false); assert.equal(Core.canPredict(e), false); });
 });
