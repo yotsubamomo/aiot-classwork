@@ -2,7 +2,7 @@
 
 - **Work item**：GitHub issue [#60](https://github.com/yotsubamomo/aiot-classwork/issues/60)，run `run-20261018-hw2-formal`（Formal，並行度 1）。
 - **狀態**：Executor 工作完成，待 Orchestrator 核對 binding 並派 R1 audit（本檔不代表 audit 或 closure）。
-- **Subject**：branch `home_work_02-regrill`，base `e2d3e0b`；實作 commit 見第 5 節（本機 commit，未 push）。
+- **Subject**：branch `home_work_02-regrill`，base `e2d3e0b`；實作 commit `f20d70ebdc76ba7e1fd244769fa141fa23bf0641`（本機，未 push；見第 5 節）。
 
 ## 1. Contract reference
 
@@ -106,7 +106,12 @@
 
 ## 5. Commit 與 A-4 核對
 
-（commit 後補記）
+- **實作 commit**：`f20d70ebdc76ba7e1fd244769fa141fa23bf0641`（`home_work_02-regrill`，parent `e2d3e0b`），35 個檔案，全部在 `home_work_02/` 內、不含 `doc/requirement/`。本節的紀錄更新另以 record-only commit 加在其後（Bindings §7：`doc/governance/**` 不影響受審 subject 的 identity）。工作樹中 `doc/governance/run/run-20261018-hw2-formal.md` 的未提交修改是 Orchestrator 的紀錄，本 Executor 沒有修改也沒有 stage 它。
+- **未 push**。
+- **A-4（對 `f20d70e` 的追蹤檔案）**：`git ls-files home_work_02` 中的 PDF 只有老師文件 `doc/requirement/50 Startups_…Explorer.pdf`；沒有 `.zip`、`.env`、`kaggle.json`、`.local/`、`acceptor_materials/`、`dist/`、`.venv/`；`git grep` `KAGGLE_KEY`／`KAGGLE_USERNAME`／`kaggle.json` 只命中 hygiene 測試本身的比對字串；`tests/test_repo_hygiene.py` 15 passed、1 skipped（學號設定未提供，見第 7 節）。
+- **Checkout 位元檢查**：`git archive f20d70e` 取出的 `data/kc_house_data.csv` sha256 = `d0875baa…57b7e`、`assets/vendor/chart.umd.js` sha256 = `74401d73…fd8f3`，`.gitattributes` 生效。
+- **Binding 再觀測**（commit 後）：agentId `a447664b1c57e651b`，`('claude-opus-5-5', 'high')` 164 則，單一元素。
+- **工作時間**：2026-10-18 約 16:30（讀取契約）至 16:58 +0800。
 
 ## 6. Audit status
 
