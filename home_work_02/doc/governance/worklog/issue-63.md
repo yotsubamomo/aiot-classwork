@@ -1,7 +1,7 @@
 # Worklog — issue #63（HW2 T4 Ridge／Lasso 對照、p-value backward、Adjusted R² 與一次性正式 Test 評估）
 
 - **Work item**：GitHub issue [#63](https://github.com/yotsubamomo/aiot-classwork/issues/63)，run `run-20261018-hw2-formal`（Formal，並行度 1）。
-- **狀態**：實作、self-verification 與唯一一次正式 Test 評估完成；**一項 AC 部分 BLOCKED**（Node 逐筆重算在 2 個數值上超出絕對容差 1e-6 USD，需 Design Authority 裁決容差語義，見 §7 C-1）。本檔不代表 audit 或 closure。
+- **狀態**：實作、self-verification 與唯一一次正式 Test 評估完成。C-1／C-4 已由 Design Authority 裁決（`decisions/decision-20261018-issue63-js-tolerance.md`（`7f0339e`）），依其 §7 只改測試的 targeted correction 已完成並重新驗證（§9）。本檔不代表 audit 或 closure。
 - **Subject base**：branch `home_work_02-regrill` @ `b686b3a`。
 - **Commits**（本機，未 push）：`69eb814`（pre-gate 實作）→ `1aefe05`（pre-gate 紀錄，record-only）→ `d413e58`（開啟守門）→ `052984b`（正式評估的產物）→ 本檔的 record-only commit。最終 implementation commit＝`052984ba21568499aad4b02e6ba8c564901e8c76`。
 
@@ -136,16 +136,36 @@
 
 | ID | 內容 | Required authority |
 | --- | --- | --- |
-| C-1 | **Node 逐筆重算的容差語義**（AC「SR-02 獨立重算…pytest（numpy）與 Node…逐筆相符（容差 1e-6）」；Spec「主 seam」）。現行測試把 1e-6 解讀為絕對 USD；正式資料有千萬美元級的 PI 端點，float64 的捨入（相對約 1e-13）在這裡就超過 1e-6 USD——匯出值本身與精確值差 2.26e-6。正式評估的數值不能重算（不得再次評估），重新評估也會得到同樣的值，所以這不是需要重新評估的缺陷。兩種合理讀法：(a) 絕對 1e-6 USD（目前 2 個值不符）；(b) 相對 1e-6（或「絕對 1e-6 或相對 1e-12」之類的組合；全部相符，最大相對差 2.6e-13）。這是 accepted verification 門檻的語義，我不自行放寬測試：`core.test.js` 維持絕對 1e-6 並如實失敗 | **Design Authority**（BLOCKED，只限這一項；其他工作已完成） |
+| C-1 | ~~Node 逐筆重算的容差語義~~ — **已裁決**：`decisions/decision-20261018-issue63-js-tolerance.md`（`7f0339e`） T-1：主 seam 的「容差 1e-6」是相對容差（\|重算 − 契約\| ≤ 1e-6 × \|契約\|），pytest 與 Node 都適用；T-2：covered 完全相等、全部列與模型、其他斷言不變；T-3：正式評估結果有效、不重新評估。修正與驗證見 §9。原始描述：Node 在 2 個千萬美元級的 PI 端點上超出絕對 1e-6 USD（最大相對差 2.6e-13） | 已結（DA） |
 | C-2 | Ridge 與 Lasso 的 alpha 都落在網格下緣（CV RMSE 隨懲罰減弱單調下降、趨近 All-in OLS）。符合 CC-1「alpha 只以 training CV 選」；契約記錄 `alpha_at_grid_edge: "lower"`，notebook 印出說明；報告（#65）需要如實說明「正則化在此資料上沒有改善 CV」 | Reviewer（若有爭議 → Design Authority） |
 | C-3 | Test RMSE（約 183,400–183,600）明顯高於 CV RMSE（約 157,300–158,200），是描述性事實；依協定不換模型。報告（#65）需說明（CV winner 的樂觀偏誤、test 的獨立估計） | 無（告知 #65） |
-| C-4 | `test_node_core.py`（pytest 經由它執行整個 `core.test.js`）因 C-1 失敗；C-1 裁決後依裁決調整 | 隨 C-1 |
+| C-4 | `test_node_core.py` 因 C-1 失敗 — **已結**：依 T-1 修正後通過（§9） | 已結（DA） |
 | C-5 | 比較表在 1440 px 有約 11 px 的表格內橫向捲動（頁面不溢出）；更窄時表格在容器內捲動 | 無（OV-2 的正式量測屬 #67） |
 
 ## 8. Audit status 與 remaining work
 
 - **Audit**：Required（Formal；觸及 H-2：dashboard 參考線、比較表、Test 區塊改讀正式結果、notebook 章節內容；H-3：唯一一次正式評估、CC-1 約束、契約不變量）。依 A-1 需要 R1 record 的類別核對節；依 A-2 Reviewer 自行執行 pytest／Node 與重算；依 A-3 核對 `methods`／`baselines` 無 test 欄位、`test` 鍵集合、UI 不以 `test_inputs` 評估。尚未派工（由 Orchestrator 依 Bindings §3.7）。本檔的 self-verification 不是 audit。
 - **之後的票**（DA §9.3）：#64～#67 完整重跑 notebook 時會以同一 seed 與鎖版本重做這次評估；結果必須與 §5 的摘要與 `result_digest` 一致（digest 是 bit-exact；若只在最後幾位不同，依 §5 的數值摘要判斷並 route 給 DA）。任何會改變選擇、alpha、前處理或模型集合的修改都不得以 test 結果為理由。
-- **Remaining**：C-1 的 DA 裁決與其後 `core.test.js` 的對應調整；學號比對（S-2～S-5）；push 依 run record 選項 (a)。
+- **Remaining**：學號比對（S-2～S-5）；push 依 run record 選項 (a)；#63 R1（依 DA 紀錄 §7 第 4 點，一併審查 §9 的修正）。
 - **Scratchpad 產物**（不在 repo）：`ex63/`——`probe_alpha.py`、`probe_cmp.py`、`pregate.py`／`pregate.json`、`rehearse_nb.py`、`reh_small/`、`reh_full/`、`reh_plugin.py`、`nb_plugin.py`、`page_check63.js`、`tw.js`、`pc63_*.json`、截圖、`mutants63.py`／`mutants63.out`、`formal_run.log`、`jsdiff.js`、`jscovered.js`／`jscovered.json`、`edit_*.py`。
 - **工作時間**：2026-10-18 約 20:40 至 21:55 +0800。
+
+## 9. Targeted correction：C-1 的容差（依 `decisions/decision-20261018-issue63-js-tolerance.md`（`7f0339e`） §7）
+
+- **依據**：DA 紀錄 §4 T-1～T-3、§7 第 1～3 點；Orchestrator 2026-10-18 的 targeted-correction 派工（只改測試、不重新評估、`model_data` 與 `result_digest` 不變）。同一 worklog identity。
+- **只改測試**（`home_work_02/tests/`）：
+  - `tests/js/core.test.js`：`recomputeAll` 的 prediction、lower、upper 改用 `closeRel`——先斷言契約值有限且 > 0，再判斷 `|js − contract| ≤ 1e-6 × |contract|`，失敗訊息同時印出絕對差與相對差；正式與 fixture 兩個 test 都經過它。`covered` 的 `assert.equal`、列數 × 模型數的斷言、第 93 行的 `exp` 單元檢查（絕對 `close`）都不變。檔頭與 `TOL` 註解改為相對並引用 DA 紀錄。
+  - `tests/test_model_data_official.py`、`tests/test_test_section.py`：逐筆 `assert_allclose` 由 `rtol=0, atol=TOL` 改為 `rtol=TOL, atol=0`；`TOL` 註解改為相對並引用 DA 紀錄。covered、coverage、mean_width、指標、二項近似的斷言不變。
+  - 沒有修改 `hw2/`、`assets/`、`results/`、`hw2.ipynb`、`index.html`；`OFFICIAL_TEST_GATE_ENABLED` 不動；沒有執行 `hw2.run_notebook` 或任何載入正式 test 列的程式。
+- **修正 commit**：`1f8e7c4408dfbd22bc3c11f4d9590dae5cb4431a`（parent `7f0339e`；delta 只有 `tests/js/core.test.js`、`tests/test_model_data_official.py`、`tests/test_test_section.py`）。
+- **重新驗證**（工作樹＝`1f8e7c4`）：
+
+| # | 方法 | 結果 |
+| --- | --- | --- |
+| C1-1 | `node --test tests/js/core.test.js` | 9 pass、0 fail、3 skip（fixture 項目，由 pytest 以 fixture 執行）；正式 test「official: JS prediction, PI and covered reproduce the contract on every test row」通過 |
+| C1-2 | 全部 25,938 個數值（2 個 `ols_subset` 模型 × 4,323 列 × 3）的 JS 與契約差（scratchpad `ex63/c1_maxdiff.json`） | 最大絕對差 2.902e-6 USD、最大相對差 2.630e-13；covered 8,646 筆全部一致（`ex63/jscovered_c1.json`） |
+| C1-3 | 完整 pytest `.venv/Scripts/python -m pytest -q -rs -p no:cacheprovider`（含 `test_node_core.py`） | **281 passed、1 skipped**（skip＝學號設定未提供） |
+| C1-4 | 偵測力：scratchpad 的單元複本（只複製 `assets/hw2core.js`、`assets/model_data.js`、`tests/js/core.test.js`；`ex63/js_mutants_c1.py`、輸出 `js_mutants_c1.out`），只跑正式 recompute | baseline 通過；`sale_days` 差一天 → DETECTED（allin 第 0 列 predicted 相對差 2.21e-4）；以 1.96 取代 `t_crit` → DETECTED（allin 第 0 列 lower 相對差 1.87e-5）。repo 的 `assets/` 對 HEAD 沒有差異（`git diff --quiet HEAD -- home_work_02/assets`） |
+| C1-5 | 產物不變 | `results/model_data.json` sha256 `fa86d76cd6fadeeac2026e074c25832288bac17512fbc12c57b8052d08b891e3`、`assets/model_data.js` sha256 `37626bf9a29dabbf218615e320e9c697f56e5e8239b8a459754b0368b5b29a72`，都與 `git show 052984b:…` 相同；`export.result_digest`＝`b53ff286ae0734add8b272089aba904a1cb7f5aca444a62d356420b25dc3cfc6`（與 §5 相同） |
+
+- **Binding**：同一 subagent（agentId `a9f28ccd59c59b6b3`，`gov-executor`）續派；全程核對由 Orchestrator 執行。
