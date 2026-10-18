@@ -5,7 +5,7 @@
 ## 目的
 
 - 以房屋的條件（面積、房間數、建築等級、屋齡與整修、位置、交易日期）預測成交價格，並為每一筆預測給出有統計定義的 95% 預測區間。
-- 依作業要求比較特徵選擇方法：四種能對每個 k 給出子集的方法（Forward SFS、Backward SFS、RFE、Lasso 路徑排序，k = 1…18）與單一的 All-in baseline，只用 training set 的交叉驗證選模。
+- 依作業要求執行特徵選擇：比較四種能對每個 k 給出子集的方法（Forward SFS、Backward SFS、RFE、Lasso 路徑排序，k = 1…18；方法取自作業頁「補充」段建議清單的一部分）與單一的 All-in baseline，只用 training set 的交叉驗證選模。
 - 交付老師要求的主程式、PDF 報告、AI 協助證據與學號 ZIP，加上課堂口頭要求的互動 dashboard。
 
 ## 資料來源與授權

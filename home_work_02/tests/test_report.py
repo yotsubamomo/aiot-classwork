@@ -263,3 +263,67 @@ def test_acceptance_marks_nothing_pass_before_it_is_verified():
                 for row in ACCEPTANCE.splitlines()
                 if re.match(r"^\| (?:[A-E]-\d+|OV-\d) \|", row)]
     assert statuses and all(not s.startswith(("PASS", "FAIL")) for s in statuses), statuses
+
+
+# --- section-level labels (R1 F-1, F-2) --------------------------------------------------------
+
+def _headings(text):
+    return [(n, line) for n, line in enumerate(text.splitlines()) if re.match(r"^#{2,4} ", line)]
+
+
+def _section(text, prefix):
+    lines = text.splitlines()
+    start = next(n for n, line in enumerate(lines) if re.match(rf"^#{{2,4}} {re.escape(prefix)}", line))
+    level = len(lines[start].split(" ", 1)[0])
+    end = next((n for n in range(start + 1, len(lines))
+                if re.match(r"^#{2,4} ", lines[n]) and len(lines[n].split(" ", 1)[0]) <= level), len(lines))
+    return lines[start], "\n".join(lines[start:end])
+
+
+@pytest.mark.parametrize("prefix", ["5.2 ", "6.4 ", "7.2 ", "7.3 "])
+def test_adopted_supplement_sections_carry_the_supplement_label(prefix):
+    heading, _ = _section(TEMPLATE, prefix)
+    assert "〔依老師補充建議〕" in heading and "〔老師要求" not in heading, heading
+
+
+def test_adjusted_r2_in_6_2_is_labelled_as_a_supplement():
+    heading, body = _section(TEMPLATE, "6.2 ")
+    assert "Adjusted R² 為依老師補充建議" in heading
+    for line in body.splitlines():
+        if "Adjusted R²" in line and not line.startswith(("#", "|", "{{")):
+            assert "〔依老師補充建議〕" in line, line
+
+
+@pytest.mark.parametrize("prefix", ["7.1 ", "9. "])
+def test_dashboard_headings_say_classroom_oral_requirement(prefix):
+    heading, _ = _section(TEMPLATE, prefix)
+    assert "課堂口頭" in heading, heading
+
+
+def test_every_supplement_quote_is_attributed_to_the_supplement():
+    """No text of the assignment page's supplement is presented as a written requirement: each
+    src2t quotation sits under a supplement-labelled heading or right after a sentence that names
+    the supplement as its source (R1 F-1)."""
+    lines = TEMPLATE.splitlines()
+    for n, line in enumerate(lines):
+        if "{{quote:src2t:" not in line:
+            continue
+        heading = next(lines[i] for i in range(n, -1, -1) if re.match(r"^#{2,4} ", lines[i]))
+        before = next(lines[i] for i in range(n - 1, -1, -1)
+                      if lines[i].strip() and not lines[i].lstrip().startswith(">"))
+        assert "〔依老師補充建議〕" in heading or "「補充」段" in before or "補充段" in before, (n + 1, line)
+
+
+def test_teacher_body_quotes_are_attributed_to_the_body():
+    lines = TEMPLATE.splitlines()
+    for n, line in enumerate(lines):
+        if "{{quote:src1:" in line:
+            before = next(lines[i] for i in range(n - 1, -1, -1)
+                          if lines[i].strip() and not lines[i].lstrip().startswith(">"))
+            assert "補充" not in before, (n + 1, before)
+
+
+def test_readme_does_not_present_the_method_comparison_as_a_requirement():
+    purpose = README.split("## 目的", 1)[1].split("\n## ", 1)[0]
+    assert "依作業要求比較" not in purpose
+    assert "依作業要求執行特徵選擇" in purpose and "補充" in purpose

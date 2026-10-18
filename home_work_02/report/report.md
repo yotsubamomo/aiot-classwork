@@ -159,6 +159,8 @@ Ridge 與 Lasso 使用全部 {{n_groups}} 個 group、標準化後擬合，alpha
 
 ## 6. Evaluation 〔老師要求〕
 
+作業頁正文要求模型評估與加上區間的預測圖（見前面的標示對照表與第 6.3 節）。下面這句出自作業頁的「補充」段，是對這一階段的**建議**，不是作業頁正文的要求；本專案採用的部分是第 6.2 節的 Adjusted R² 與第 6.4 節的五大回歸假設診斷，都標〔依老師補充建議〕：
+
 > {{quote:src2t:5. Evaluation: Compare MAE}}
 
 ### 6.1 評估協定 〔專案延伸〕
@@ -167,9 +169,9 @@ Ridge 與 Lasso 使用全部 {{n_groups}} 個 group、標準化後擬合，alpha
 - 被授權在 Test 上評估的是各方法的 CV winner、All-in 與整體 CV winner；canonical subset 相同的 winner 是同一個模型，只評估一次。另依作者核准的對照，Ridge 與 Lasso 各評估一次，只報 MAE、MSE、RMSE、R²。實際在 Test 上評估的是 {{n_authorized_ols}} 個不同的 OLS 模型（{{authorized_keys}}）加上 {{n_metric_only}} 個 metric-only 模型，共 {{n_evaluated_models}} 個；{{n_winners}} 個 CV winner（含 All-in）共用其中的 OLS 模型。
 - 唯一一次正式 Test 評估的執行識別是 {{formal_run_id}}，Test 結果的 sha256 摘要是 {{formal_result_digest}}（紀錄在 repo 的 {{formal_record}}）。之後若完整重跑 notebook，是以相同的 seed 與鎖定的套件版本**重現**同一個評估，結果必須與這個摘要完全相同；本報告建置時會核對這一點，不符就拒絕建置。
 
-### 6.2 訓練 CV 與 Test 的比較
+### 6.2 訓練 CV 與 Test 的比較 〔老師要求；Adjusted R² 為依老師補充建議〕
 
-訓練 CV 欄與 Test 欄分開列出，兩者不可混用。Adjusted R² 只對 OLS 子集模型、在 log 尺度以整個 training set 的擬合計算（自由度依設計矩陣的實際秩，整體 winner 為 {{overall_rank}}）；Ridge／Lasso 與 CV 平均值不適用。
+訓練 CV 欄與 Test 欄分開列出，兩者不可混用。〔依老師補充建議〕Adjusted R² 只對 OLS 子集模型、在 log 尺度以整個 training set 的擬合計算（自由度依設計矩陣的實際秩，整體 winner 為 {{overall_rank}}）；Ridge／Lasso 與 CV 平均值不適用。
 
 {{table:comparison}}
 
@@ -179,7 +181,7 @@ Ridge 與 Lasso 的 Test 指標（metric-only，只出現在比較表）：
 
 - 整體 CV winner（{{overall_label}}）在 Test 上的 RMSE 是 **{{overall_test_rmse}} USD**、MAE {{overall_test_mae}} USD、R² {{overall_test_r2}}。
 - Test RMSE {{overall_test_higher}}它的訓練 CV RMSE（{{overall_cv_rmse}}），相差 {{overall_test_minus_cv}} USD，約為 CV 各折 RMSE 標準差（{{overall_cv_rmse_std}}）的 {{overall_gap_in_fold_sd}} 倍。兩個原因：第一，從 {{n_methods}} 個方法、每個方法 {{k_max}} 個 k 之中挑 CV RMSE 最小者，會使 **CV winner 的 CV 分數帶有樂觀偏誤**，它不是不偏的估計；凍結選擇之後的 Test 評估才是獨立的估計。第二，USD 的 RMSE 受少數高價房屋的大誤差主導，不同切分之間本來就有相當的波動（見各折的標準差）。依協定，這個差距不會讓我們換模型。
-- Adjusted R²（log 尺度）：All-in {{allin_adj_r2_log}}，整體 CV winner {{overall_adj_r2_log}}；與 log 尺度的 R²（{{overall_r2_log}}）幾乎相同，因為樣本數遠大於參數數。
+- 〔依老師補充建議〕Adjusted R²（log 尺度）：All-in {{allin_adj_r2_log}}，整體 CV winner {{overall_adj_r2_log}}；與 log 尺度的 R²（{{overall_r2_log}}）幾乎相同，因為樣本數遠大於參數數。
 
 ### 6.3 預測區間與經驗涵蓋率 〔老師要求；涵蓋率驗證為專案延伸〕
 
@@ -226,6 +228,8 @@ Ridge 與 Lasso 的 Test 指標（metric-only，只出現在比較表）：
 **結論。** 五項假設在 training 殘差上都有偏離。點預測與 CV／Test 指標不依賴這些假設；受影響的是係數的標準誤、p-value 與預測區間。經驗涵蓋率接近名目值（第 6.3 節）是對區間的實際檢驗，但不能據此宣稱假設成立。
 
 ## 7. Deployment 〔老師要求〕
+
+作業頁正文要求的是 CRISP-DM 的 Deployment 階段。下面這句出自作業頁的「補充」段，是對這一階段的**建議**，不是作業頁正文的要求；本專案採用它，見第 7.2 節與第 7.3 節，都標〔依老師補充建議〕：
 
 > {{quote:src2t:6. Deployment: Predict new samples}}
 
