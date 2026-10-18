@@ -51,7 +51,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
 | #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
 | #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
-| #63 T4 | #62 | targeted correction（DA C-1） | `worklog/issue-63.md` | — |
+| #63 T4 | #62 | audit 中（R1） | `worklog/issue-63.md` | 待 `audit/issue-63-c1-r1.md` |
 | #64 T5 | #62 | 待執行 | — | — |
 | #65 T6 | #63、#64 | 待執行 | — | — |
 | #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
@@ -132,3 +132,5 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Required gate 失敗**：Node 逐筆重算（`tests/test_node_core.py`）在 2／25,938 個數值超過絕對 1e-6。Orchestrator 不判斷 gate 是否適用（orch-default §7 P3）。
 - **Routing**：C-1 指明 Design Authority → 直接派 DA（agentId `a402db018ade125ae`；Opus 5.5／`high` 單一元素）。Record `decisions/decision-20261018-issue63-js-tolerance.md`：容差為**相對 1e-6**（§5.3 第 2 類 clarification，不改 accepted 語義，不需 acceptor，**不重新評估**）；§7 指定只改測試的 targeted correction。
 - **Targeted correction**：依 DA record §7，以 SendMessage 續派同一 Executor（同一 worklog identity）。
+- **Correction return**：`DONE`；同一 Executor 全程 `('claude-opus-5-5','high')` 單一元素。Commit `1f8e7c4408dfbd22bc3c11f4d9590dae5cb4431a`（parent `7f0339e`）只改三個測試檔；`git diff 052984b 1f8e7c4` 在 `hw2/`、`assets/`、`results/`、notebook、`index.html` 無差異（Orchestrator 機械核對）；之後 `3312006` 只改 worklog。
+- **R1**：派 `gov-primary-reviewer`（fresh context），subject＝`1f8e7c4`（含正式評估產出 `052984b` 與測試修正），record `audit/issue-63-c1-r1.md`。
