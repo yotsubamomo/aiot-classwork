@@ -49,6 +49,8 @@
 | OV-5 | 色彩對比量測（文字 ≥ 4.5:1、非文字 ≥ 3:1） | OPEN | 設計系統 token；人工檢查表 H | 正式 dashboard 的票 |
 | OV-6 | 正式 dashboard 的逐筆 PI 渲染效能：首次繪製 ≤ 3 秒、互動 ≤ 1 秒、不抽樣、量測紀錄 | OPEN | SR-09 (a)(b)(f)(g) | 正式 dashboard 的票；ACCEPTANCE.md 效能一節 |
 
+**Gate 分類（acceptor 2026-10-18 F-5；原文見 `doc/governance/outcome-contract.md` §4 AD-1）**：OV-1、OV-6 為硬性 PASS／FAIL gate；OV-2 的 required gate 是 DevTools 375／768 px 無水平溢出且主要功能可操作（真實觸控 best effort）；OV-3 的 required gate 是 Chrome 或 Edge PASS（Firefox／Safari best effort）；OV-4 的 required gate 是鍵盤、focus、label、選單狀態與基本語意（螢幕閱讀器 best effort）；OV-5 的 required gate 是文字 ≥ 4.5:1、大字 ≥ 3:1 且不只靠顏色。Best-effort 項目無環境時記 NOT TESTED。
+
 這些項目在 wireframe 階段**不得標示為 PASS**；wireframe 的自動／半自動檢查結果（檢查表 §L）只證明原型在本機 Chromium 以本機伺服器開啟時的行為。
 
 ## 本紀錄之後

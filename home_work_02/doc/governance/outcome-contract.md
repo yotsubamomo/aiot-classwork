@@ -118,3 +118,40 @@
 > 目前仍不授權 Implementation、Push、Merge 或 Deployment。
 
 轉錄者：無角色主 session。變更的效力來自上述 acceptor 原文；本檔檔頭所列的接受內容（Brief @ `dff7c55c`）連同本變更，構成現行 accepted 語義。
+
+### AD-1（2026-10-18）— F-5：Open Verification Items 的 gate 分類（acceptor 決定，不改變 scope）
+
+- **性質**：acceptance boundary 的具體化（為 Wireframe Acceptance 留下的 OV-1～OV-6 定 PASS／FAIL 與 best-effort 的門檻），不新增 scope；依治理 §3.1 第 3 項由 acceptor 定義可觀察的 PASS／FAIL 語義。寫入 `doc/spec/SPEC.md` rev 5 的人工檢查表與 `design/WIREFRAME-ACCEPTANCE.md`。
+- **Acceptor 原文（逐字）**：
+
+> F-5：APPROVED
+> OV-2 手機／觸控：
+>
+> * Required gate：Chrome DevTools 375 px／768 px 無水平溢出，主要功能可操作。
+> * 真實觸控裝置有環境時補測；無環境則明確記錄 NOT TESTED。
+>
+> OV-3 跨瀏覽器：
+>
+> * Required gate：Chrome 或 Edge PASS。
+> * Firefox／Safari 為 best effort，無環境不得標示 PASS。
+>
+> OV-4 Accessibility：
+>
+> * Required gate：鍵盤操作、focus visibility、正確 label、選單狀態及基本語意。
+> * 螢幕閱讀器為 best effort，無環境記錄 NOT TESTED。
+>
+> OV-5 色彩對比：
+>
+> * Required gate：一般文字 ≥4.5:1、大字 ≥3:1。
+> * 重要狀態與圖表不可只靠顏色辨識。
+>
+> OV-1 完全離線 file:// 與 OV-6 全部 Test PI 渲染效能，仍為原定硬性 PASS／FAIL gate，不降級。
+
+### AD-2（2026-10-18）— F-3、push、`/to-tickets`（acceptor 決定）
+
+- **F-3**：「依現行 MATT 與治理流程，對已被 N-10 取代的『本單元另設 CI』敘述，以及 CONTEXT.md 的 CV winner 詞條，進行最小編輯性修正。不得新增 CI Workflow、改變統計流程或擴大需求。」→ Spec rev 5、CONTEXT.md 已修。
+- **Push**：「完成上述修訂、必要審查與本機 commit 後，授權將目前 `home_work_02-regrill` 分支以一般 fast-forward push 推送至 origin。禁止 force push、merge、deployment。Push 後確認 HEAD 一致，並同步 GitHub Issue #59。」
+- **`/to-tickets`**：「完成決策同步後，正式執行 MATT `/to-tickets`。以 Accepted Brief（含 CC-1）、最新 Spec、CONTEXT、DA derivation、已接受的 Wireframe v0.2 為輸入。Tickets 必須涵蓋：Spec 全部功能與正式交付物。DA G-1～G-4。H-1～H-4 對應的 assurance requirements。OV-1～OV-6 的 gate／best-effort 分類。明確依賴、驗收標準、驗證證據與需求追溯。遵守 MATT 原生 to-tickets 流程及現行治理要求，不重新開啟已接受的設計決策。」
+- **Fable probe**：「請在現行 Bindings 所要求的 Orchestrator 啟動點前完成。若失敗，保留證據並依現行規則回報，不自行豁免。」
+- **未授權**：「本次不授權 Implementation 或啟動 Orchestrator。」
+- 本節的授權範圍到此為止；OC §2「本次實際授權的範圍」依本節擴充為：接受紀錄、`/to-spec`、CC-1 文件修訂、F-3／F-5 修訂、fast-forward push、`/to-tickets`。

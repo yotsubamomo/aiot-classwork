@@ -82,8 +82,11 @@ shows, what the live predictor uses, and what is evaluated on the test set when 
 _Avoid_: The CV subset (fold subsets may differ), the selected features (ambiguous)
 
 **CV winner**:
-The feature subset (and, overall, the method) with the lowest cross-validated RMSE on the training
-set. It is chosen before the test set is touched and is not changed by test results.
+Two levels, both chosen among valid candidates by the lowest cross-validated RMSE (USD) on the
+training set, before the test set is touched, and never changed by test results. A **method CV
+winner** is the k whose canonical subset wins within one path method. The **overall CV winner** is
+the single best of the four method CV winners and the All-in baseline; metric-only models do not
+compete.
 _Avoid_: Best model (ambiguous with the best test result), final model (until frozen)
 
 **Test evaluation**:

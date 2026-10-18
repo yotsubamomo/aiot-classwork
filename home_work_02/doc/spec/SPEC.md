@@ -2,7 +2,7 @@
 
 - **來源**：已接受的 [Brief](../brief/BRIEF.md)（commit `dff7c55c`；接受紀錄 [`../governance/outcome-contract.md`](../governance/outcome-contract.md)）。本 Spec 由 MATT `/to-spec` 產生，不重新開啟 Grill 的決定；Brief 與本 Spec 不一致時以 Brief 為準並回報。
 - **詞彙**：依 [`../../CONTEXT.md`](../../CONTEXT.md)。
-- **版本**：rev 4（2026-10-18）— 依 CC-1（Ridge／Lasso 一次性 test evaluation 的 contract change）補記授權依據與約束，metric_only 契約本身不變；rev 3 依 acceptor 對 SR-06／SR-09 的決定與 Spec Review SR-10～SR-12 修訂；rev 2 依 SR-01～SR-09 修訂（處理紀錄見 [`SPEC-review-2026-10-18.md`](SPEC-review-2026-10-18.md)）；rev 1 為 `/to-spec` 的初版（commit `3aacb54`）。
+- **版本**：rev 5（2026-10-18）— F-3 移除「另設 CI」敘述（改記 N-10）；F-5 寫入 OV-1～OV-6 的 gate／best-effort 分類；rev 4 依 CC-1（Ridge／Lasso 一次性 test evaluation 的 contract change）補記授權依據與約束，metric_only 契約本身不變；rev 3 依 acceptor 對 SR-06／SR-09 的決定與 Spec Review SR-10～SR-12 修訂；rev 2 依 SR-01～SR-09 修訂（處理紀錄見 [`SPEC-review-2026-10-18.md`](SPEC-review-2026-10-18.md)）；rev 1 為 `/to-spec` 的初版（commit `3aacb54`）。
 - **GitHub Issue**：[yotsubamomo/aiot-classwork#59](https://github.com/yotsubamomo/aiot-classwork/issues/59)（label `ready-for-agent`；2026-10-18 發布）。Issue 本文與本檔於發布時相同；之後若修訂，以本檔為準並同步更新 Issue。
 - **測試 seams**（acceptor 2026-10-18 確認）：主 seam 是 `model_data` 匯出契約（pytest＋Node test）；次 seam 是 Python 套件的公開函式（pytest）；UI 以人工檢查表驗收。
 
@@ -224,7 +224,7 @@
 - 模型與推論：秩不足的語義各有案例，與「指標與推論」一節的 failure semantics 一致——(1) 合法 encoding：fold 訓練列缺少某類別時該 fold 的設計矩陣沒有該欄且 fit 成功；(2) 無效候選：人為使某欄在 fold 訓練列上為常數時該 (方法, k, fold) 標為無效、該 (方法, k) 為 `invalid` 且 CV winner 排除它；**非 winner 的 canonical subset 在整個 training set 上人為共線時，該 (方法, k) 為 `invalid`（`canonical_rank_deficient`）、沒有 `fit`、不被選為 winner，而其他有效候選的 CV 與 test 評估照常完成，不停止**；(3) 實驗層級失敗：All-in 在任一 fold 或整個 training set 上人為共線時、某方法全部候選無效時、或整體 winner 無法決定時，以錯誤停止並列出全部 invalid 候選。Adjusted R² 用實際秩；PI 公式以手算的小例子核對；coverage 計算以已知的上下界核對。
 - 選擇邊界：在小型合成資料上，改動某 fold 驗證列的值不改變該 fold 的子集序列（fold-internal selection 只看訓練列，p-value backward 亦同）；canonical subset 只由整個 training set 決定。
 - 選模：CV winner 的平手規則；授權評估集合的推導；test 評估函式在同一執行內第二次呼叫時報錯。
-- 前例：`home_work_01` 的 pytest 配置與 CI workflow（本單元另設自己的 CI 路徑過濾）。
+- 前例：`home_work_01` 的 pytest 配置。本單元**不新增 CI workflow**（N-10，acceptor 2026-10-18）：測試由 Executor 與 Reviewer 在本機執行並記錄證據；Tickets 不得以「PR checks 成功」為條件；`.github/workflows/` 屬單元外（RB-5），CI 之後另議。
 
 ### 人工檢查表（ACCEPTANCE.md）
 
@@ -232,6 +232,14 @@
 - 報告：章節完整、三種標示、數字與匯出一致（抽查）、附錄 ChatGPT PDF、NotebookLM 摘要字數與可追溯性、主流解法來源連結可開啟。
 - Repo：`git grep` 無實際學號；追蹤檔案不含 acceptor 材料、PDF、ZIP、`.env`。
 - 乾淨環境重跑：新建虛擬環境、安裝、非互動執行 notebook、重跑測試、建置報告、打包；數字與追蹤的結果檔一致。
+- **Open Verification Items 的 gate 分類**（acceptor 2026-10-18 F-5 決定；來源 `design/WIREFRAME-ACCEPTANCE.md`）：
+  - **OV-1 完全離線 `file://`**：硬性 PASS／FAIL gate（Dashboard 一節的離線驗收）。
+  - **OV-2 手機／觸控**：Required gate＝Chrome DevTools 375 px 與 768 px 無水平溢出、主要功能可操作；真實觸控裝置有環境時補測，無環境則明確記錄 NOT TESTED。
+  - **OV-3 跨瀏覽器**：Required gate＝Chrome 或 Edge PASS；Firefox／Safari 為 best effort，無環境不得標 PASS。
+  - **OV-4 Accessibility**：Required gate＝鍵盤操作、focus visibility、正確 label、選單狀態（`aria-expanded`）與基本語意；螢幕閱讀器為 best effort，無環境記錄 NOT TESTED。
+  - **OV-5 色彩對比**：Required gate＝一般文字 ≥ 4.5:1、大字 ≥ 3:1；重要狀態與圖表不可只靠顏色辨識。
+  - **OV-6 全部 test 逐筆 PI 渲染效能**：硬性 PASS／FAIL gate（SR-09 (a)～(g)）。
+  - 任何 best-effort 項目沒有證據時一律記 NOT TESTED，不得標 PASS。
 
 ## Out of Scope
 
