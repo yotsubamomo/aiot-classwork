@@ -52,8 +52,8 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
 | #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
 | #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
-| #64 T5 | #62 | audit 中（R1） | `worklog/issue-64.md` | 待 `audit/issue-64-c1-r1.md` |
-| #65 T6 | #63、#64 | 待執行 | — | — |
+| #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
+| #65 T6 | #63、#64 | READY → 派工 | `worklog/issue-65.md` | — |
 | #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
 | #67 T8 | #66；學號；RB-5 | 待執行 | — | — |
 
@@ -102,7 +102,8 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | #60 | `bbf0ed5` | 待 acceptor 授權；前置：學號設定＋S-2 無命中 |
 | #61 | `6f18d8f` | 同上 |
 | #62 | `b686b3a` | 同上 |
-| #63 | #63 結案 commit | 同上 |
+| #63 | `b34cc50` | 同上 |
+| #64 | #64 結案 commit | 同上 |
 
 ## 10. #61
 
@@ -146,3 +147,7 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Routing**：C-1（notebook 全量重跑與單次評估）Executor 指明 DA → 直接派 DA（agentId `a01ab70cca718e6e7`；Opus 5.5／`high` 單一元素）。Record `decisions/decision-20261018-issue64-notebook-rerun.md`：N-1～N-6、§9.3 條件 7、8、I-4（C-3）；§5.3 第 2 類，不改 accepted 語義，不需 acceptor；#64 不需修改。C-2 屬 Reviewer 範圍，交 R1。
 - **N-6（對本 Orchestrator 的指示）**：#64 派工的「不得重跑 notebook」限制不帶入 #67；#65～#67 的 pack 納入本 record。
 - **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-64-c1-r1.md`。
+- **R1**（agentId `a7abd78613bbbdc1d`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 165 則單一元素；record 自寫，原樣 commit `17de19b`。VERDICT: CLOSURE；F-1（Low，owner #67）；#63 F-1、F-2 resolved；routing R-1 → Design Authority（reviewer 指明）。
+- **DA R-1**（agentId `af5e861cef19be456`；Opus 5.5／`high` 單一元素）：record `decisions/decision-20261018-issue64-standardized-reading.md`：#64 的 per-SD 讀法滿足 Brief §8；不改 accepted 語義；#64 不需修改；R-1.5 對 #65 有約束力。DA 建議附加於 #65 的 AC 行屬選擇性（record 自述裁決不因是否附加而改變）；Orchestrator 不修改 Ticket，改以 bounded pack 引用本 record。
+- **Completion predicates**：P1 #62 已結案；P2 引用鏈存在；P3 evidence 在 worklog §5；P4 R1 CLOSURE；P5 無 blocking；P6 C-1、C-3（`decision-20261018-issue64-notebook-rerun.md`）、R-1（本 record）皆有 DA record；P7 closed subject＝`003b825`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`20c7210`）。→ **#64 結案**。
+- **註**：DA R-1 return 抵達後，本 session 有一段未推進（未派工、未改紀錄），於 acceptor 詢問狀況時恢復；期間無任何工作或副作用。
