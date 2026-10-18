@@ -190,3 +190,5 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Targeted correction**：以 SendMessage 續派同一 Executor（同一 worklog identity），依 DA record F-4／F-5。
 - **Correction return**：`DONE`；同一 Executor 全程 `('claude-opus-5-5','high')` 單一元素。Corrected subject `0b57c0265f01e7732fdd1250e58101819a1b416f`（parent `e03fcb0`）；之後 `a0a1b70` 只改 worklog。Machine gates：delta 全在 `home_work_02/`、無 `doc/requirement/`；`results/model_data.json`、`assets/model_data.js`、`results/tables/` 與 `741a21b` 相同（Orchestrator 機械核對）。
 - **R1**：派 `gov-primary-reviewer`（fresh context），subject＝`0b57c02`，record `audit/issue-65-c1-r1.md`。
+- **R1**（agentId `a3ff011d2766ef922`）：`gov-primary-reviewer`；Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: **BLOCKING**（F-1 Medium／H-4：第 6、7 章把補充建議標成老師要求）；F-2、F-3 Low（可併入 F-1 修正）；F-4 Low（cell 28 缺字，owner #67，修正前須 DA 裁決）。
+- **Routing**：F-1 → 同一 Executor targeted correction（同一 worklog identity），之後 R2。F-4 的 DA 裁決在 #67 派工前派出（Orchestrator 記為 #67 前置事項；現在不派，以免與進行中的 Executor commit 交錯）。
