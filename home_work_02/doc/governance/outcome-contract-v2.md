@@ -1,6 +1,8 @@
 # Outcome Contract v2 — HW2 Multiple Linear Regression（`home_work_02/`）
 
-- **狀態**：**DRAFT r1（2026-10-18）。尚未接受，不具任何效力。** 本檔是 Outcome Contract r4（[`outcome-contract.md`](outcome-contract.md)）的**提議後繼契約**。要等 acceptor 依第 9 節完成有效接受，才會成為之後工作的 Outcome Contract。在那之前：
+- **狀態**：**DRAFT r2（2026-10-18）。尚未接受，不具任何效力。**
+- **取代**：DRAFT r1（commit `9547f687ef2a636051bdd0f681f5e8506c9a61dd`；檔案 blob `0e4808ecb7077a5f836fdd4a0c6bcf73ae14547f`，內容 sha256 `a578e7c71b3db87b77a24caa252386afdac92a5f4505e84676bfa9fc6c05f748`）。r1 未被接受；逐條變更見第 11 節。r2 依 acceptor 2026-10-18 對 U-1～U-5 的決定（第 12 節，逐字）與 r2 審閱要求修訂，**沒有重新開啟 Grill，也沒有改變 F-1～F-7 的裁決**。
+- **定位**：本檔是 Outcome Contract r4（[`outcome-contract.md`](outcome-contract.md)）的**提議後繼契約**。要等 acceptor 依第 9 節完成有效接受，才會成為之後工作的 Outcome Contract。在那之前：
   - r4（ACCEPTED，normative 第 1–8 節 @ `e2153254ccf7a97475d1c22e10d6a1e0717c5497`，接受紀錄 @ `370c0ae1`）仍是 HW2 唯一已接受的 Outcome Contract；
   - 本檔不授權任何規劃、分解、實作、審查或合併。
 - **不修改 r4**：r4 的檔案、內容、接受紀錄與 commit identifiers 保持原樣，作為歷史證據。Brief v0.3、Spec v1.1、derivation 與 decision records 也一樣。
@@ -41,8 +43,8 @@
 
 | ID | 檔案 | sha256 | 角色 |
 | --- | --- | --- | --- |
-| **SRC-2** | `home_work_02/doc/requirement/HW2-requirements-Multiple Linear regression.pdf`（iLearning 作業頁列印，2026-10-18 02:59，4 頁，1,083,106 bytes） | `1b3a5aad1c261425eb34f2eb46aebe6a62c73aba4fbf2d67a166fe9df28639d7` | **本契約的上位契約**。原始檔只保留在 acceptor 本機，不納入 git（單元 `.gitignore`；理由見 Delta record §1.1） |
-| **SRC-2T** | `home_work_02/doc/requirement/HW2-requirements-Multiple Linear regression_SRC-2_2026-10-18.txt` | 以納入的 commit 固定（第 7 節） | SRC-2 的忠實轉寫，是 git 中追蹤的副本。SRC-2T 與 SRC-2 不一致時，以 SRC-2 為準 |
+| **SRC-2** | `home_work_02/doc/requirement/HW2-requirements-Multiple Linear regression.pdf`（iLearning 作業頁列印，2026-10-18 02:59，4 頁，1,083,106 bytes） | `1b3a5aad1c261425eb34f2eb46aebe6a62c73aba4fbf2d67a166fe9df28639d7` | **本契約的上位契約**。依 acceptor 2026-10-18 U-4 決定**不公開**：原始檔只保留在 acceptor 本機，由單元 `.gitignore` 排除（理由見 Delta record §1.1） |
+| **SRC-2T** | `home_work_02/doc/requirement/HW2-requirements-Multiple Linear regression_SRC-2_2026-10-18.txt`（9,144 bytes；首次納入 commit `9547f687ef2a636051bdd0f681f5e8506c9a61dd`） | git blob `d185f89d5a3d923e24bb581eecd95481cfe2f335`；內容 sha256 `e5eb6a315dd5860e7562467012c748911454becb0c6bccde95823d1f0834e77c`（LF；Windows 工作目錄因 `core.autocrlf` 可能為 CRLF，以 blob 為準） | SRC-2 的忠實、標示頁碼的轉寫，是 git 中追蹤的副本。檔首記錄 SRC-2 的 sha256 與來源。SRC-2T 與 SRC-2 不一致時，以 SRC-2 為準；SRC-2T 的任何修改都受 RB-5 保護，並使上列識別失效 |
 | SRC-1 | `home_work_02/doc/requirement/HW2-requirements-Multiple Linear regression.txt` | `a969e7e2228e97a35027ad63d3747f2e502bdd685cf7cfca30aaab50048761ab`（git blob） | 歷史基準（r4 的上位契約），保持原樣。正文與 SRC-2 相同，差別只有「已缴交」人數 |
 
 - 上位契約對所有 Agent 唯讀（Bindings §2.2）；之後任何修改都受 RB-5 保護。
@@ -71,7 +73,7 @@
 | | M8 報告比較並說明網路上主流或更優的解法 | T-14 | 老師要求 |
 | | M9 主程式 `<學號>_hw2.ipynb`（或 `.py`）與報告 PDF，壓縮為 `<學號>_hw2.zip` | T-13、T-15 | 老師要求 |
 | | M10 使用 GitHub（G7），因此提供連結，並在 `home_work_02/README.md` 整理流程與成果 | T-16（optional 條款，因 G7 成為必要） | 老師要求（條件式條款） |
-| **ENHANCED REQUIRED**（acceptor 授權） | E1 比較範圍：multiple LR baseline、forward LR、backward LR、Ridge、Lasso（**不新增**其他候選，F-3） | G1；F-3 | 依老師補充建議（S-08d 的 LinearRegression、Ridge、Lasso；S-09 的 Sequential Feature Selection 與 Lasso）。比較的協定（E2～E5）標「專案延伸」 |
+| **ENHANCED REQUIRED**（acceptor 授權） | E1 比較範圍：multiple LR baseline、forward LR、backward LR、Ridge、Lasso（**不新增**其他候選，F-3） | G1；F-3 | **逐項標示，不整體歸類**（第 2.4.6 節表 A；**r2 修訂**，U-2）。摘要如下：<br>• 線性回歸與執行特徵選擇的義務：老師要求（M2）；<br>• Ridge、Lasso：依老師補充建議（S-08d；Lasso 亦見 S-09）；<br>• forward／backward 所屬的方法族 Sequential Feature Selection：依老師補充建議（S-09）；<br>• group 層級、以 inner CV 選 k 的具體程序：專案延伸；<br>• 把五者作為 candidate procedures 比較：專案延伸 |
 | | E2 60／20／20 Fit／Calibration／Test 分區，Development＝Fit＋Calibration，所有選模與 CV 只在 Fit 內進行 | G2、G4、C1 | 專案延伸 |
 | | E3 依 house `id` 做 group-aware 分區與 CV | C2；F-2 | 專案延伸 |
 | | E4 所有候選用同一組 outer 5-fold 比較，inner CV 選特徵數與 hyperparameter；以 USD 的 outer-CV RMSE 排序，另報 R²、MAE、MSE（以及 E11 的 Adjusted R²） | G2、C3、C4；F-3 | 專案延伸 |
@@ -80,10 +82,10 @@
 | | E7 模組化 Python（data、selection、modeling、evaluation、conformal），notebook 為主程式 | G5 | 專案延伸 |
 | | E8 驗證：模組測試、leakage 測試、conformal 計算驗證、notebook 完整重跑、繳交文件檢查；以及 E10～E12 的對應驗證 | G8；F-4～F-6 | 專案延伸 |
 | | E9 資料以 CSV sha256 固定版本（第 5 節）；依 CC0-1.0 可隨繳交附上 | Brief v0.3 §10；F-2 | 專案延伸 |
-| | **E10 五個回歸假設的診斷面向**（第 2.4.3 節）（**v2 新增**） | S-08f；F-4 | 依老師補充建議 |
-| | **E11 Adjusted R²**（第 2.4.4 節）（**v2 新增**） | S-08e；F-5 | 依老師補充建議 |
-| | **E12 凍結 predictor 的解釋**（第 2.4.5 節）（**v2 新增**） | S-08g；F-6 | 依老師補充建議；以 permutation importance 作為解釋工具是本專案的選擇（S-09 把它列為特徵選擇方法），標「專案延伸」 |
-| | **E13 三種報告標示**（第 2.4.6 節）（**v2 新增**） | F-7 #8、#9 | —（標示規則本身） |
+| | **E10 五個回歸假設的診斷面向**（第 2.4.3 節）（**v2 新增**） | S-08f；F-4 | 檢驗假設：依老師補充建議（S-08f）。只用 Fit、在 log 尺度上分析、與 conformal 假設分開陳述的規則：專案延伸（**r2 修訂**） |
+| | **E11 Adjusted R²**（第 2.4.4 節）（**v2 新增**） | S-08e；F-5 | 指標本身：依老師補充建議（S-08e）。DA 定義的 n／p 慣例與適用性：專案延伸（**r2 修訂**） |
+| | **E12 凍結 predictor 的解釋**（第 2.4.5 節）（**v2 新增**） | S-08g；F-6 | 解釋模型：依老師補充建議（S-08g）。以 permutation importance 作為解釋工具，是本專案對它的用法（S-09 把它列為特徵選擇方法）：專案延伸 |
+| | **E13 三種報告標示**（第 2.4.6 節）（**v2 新增**） | F-7 #8、#9；U-2 | —（標示規則本身） |
 | **OPTIONAL** | 其他候選模型的區間；E10 之外的額外診斷圖（只用 Fit） | Brief v0.3 §5.4；Spec v1.1 R-EVAL-4 | 專案延伸 |
 | **REFERENCE** | `week05/multiple_linear_regression_crisp_dm.ipynb` 與 `week05/docs/` 課程講義；`week06/` DIC-02 的特徵選擇比較；NotebookLM 或網路研究找到的他人解法；SRC-2 補充段推薦、但未採用的資料集與方法 | G5；T-11；F-2、F-3 | — |
 
@@ -204,9 +206,9 @@ Deployment 章節 MUST 包含：
 
 解釋 MUST NOT 使用 Calibration 或 Test。
 
-#### 2.4.6 報告的三種標示（E13）（v2 新增；F-7 #8、#9）
+#### 2.4.6 報告的三種標示（E13）（v2 新增；F-7 #8、#9；r2 依 U-2 修訂）
 
-報告與 notebook 的每一項做法或內容，依第 2.2 節「報告標示」欄標為：
+報告的做法與內容，依第 2.2 節「報告標示」欄與下方表 A，標為以下三種之一：
 
 | 標示 | 意義 | 來源 |
 | --- | --- | --- |
@@ -214,6 +216,36 @@ Deployment 章節 MUST 包含：
 | **依老師補充建議** | 採用的補充段建議（adopted supplemental suggestion） | SRC-2 補充段 |
 | **專案延伸** | 本專案自行定義的延伸（project-defined enhancement） | acceptor 授權的 ENHANCED |
 
+**分類的單位是方法或義務，不是候選或章節的整體**（U-2）。同一個候選可以同時含有不同來源的成分；五個候選 MUST NOT 被整體歸為「依老師補充建議」。
+
+**表 A — 方法與義務的來源對照**（r2 新增）
+
+| 方法或義務 | 標示 | 依據 |
+| --- | --- | --- |
+| 以線性回歸（Linear Regression）預測；多元線性回歸的完整分析 | 老師要求 | T-01、T-05 |
+| 執行特徵選擇（Feature Selection）與模型評估（Model Evaluation） | 老師要求 | T-07 |
+| 預測圖附區間（老師允許信賴區間或預測區間；選擇預測區間屬專案的選擇，方法見下方 conformal 列） | 老師要求 | T-08 |
+| CRISP-DM 六階段；資料集來源與連結；10–20 個特徵 | 老師要求 | T-02、T-04、T-09 |
+| 特徵數 14–39 的補充條件（與正文取交集為 14–20） | 依老師補充建議 | S-01、S-02；F-1 |
+| Ridge、Lasso | 依老師補充建議 | S-08d（Lasso 亦見 S-09） |
+| Sequential Feature Selection（forward／backward 所屬的方法族） | 依老師補充建議 | S-09 |
+| MAE、MSE、RMSE、R² 的比較 | 依老師補充建議 | S-08e（「模型評估」本身是老師要求） |
+| Adjusted R² | 依老師補充建議 | S-08e |
+| 檢驗五大回歸假設 | 依老師補充建議 | S-08f |
+| 預測新樣本、解釋模型 | 依老師補充建議 | S-08g |
+| 五個 candidate procedures 的組成與比較方式（C1 全 group OLS、group 層級的 forward／backward、inner CV 選 k 與 `alpha`、tie-break、在 Fit 上重訓） | 專案延伸 | G1、C3；F-3 |
+| 60／20／20 分區、group-aware（house `id`）分區與 CV、nested CV、以 USD outer-CV RMSE 選模、偏誤陳述 | 專案延伸 | G2、G4、C1～C4 |
+| log(price) 目標與 USD 指標 | 專案延伸 | C4 |
+| 95% split conformal（校準、區間、coverage 陳述）；凍結 predictor 與每次執行單次 Test 評估 | 專案延伸 | G3、C4 |
+| E10 的 Fit-only 與 log 尺度規則；E11 的 n／p 慣例；E12 以 permutation importance 作為解釋工具 | 專案延伸 | F-4～F-6 |
+| 模組化程式、測試、checksum、重跑驗證 | 專案延伸 | G5、G8、E9 |
+
+**標示的粒度**（r2 新增）：
+- 報告以**方法／要求對照表**（例如報告中的一張表 A 對照），或**章節層級的標示**，就足以滿足 E13。
+- 不要求逐句或逐行重複標示。
+- 一個章節同時含不同來源的內容時，該章節的標示或對照表 MUST 能讓讀者分辨各方法或義務的來源。
+
+**其他規則**：
 - 補充段的建議 MUST NOT 被寫成老師要求。
 - 未採用的建議，例如推薦資料集、SelectKBest、RFE、建議的 k 值，不得寫成已完成；報告可以說明未採用的理由。
 
@@ -254,7 +286,7 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
 | **OC-A9 回歸假設診斷**（v2 新增） | ENHANCED（E10） | notebook 與報告對五個面向（線性、誤差獨立、同質變異、殘差常態、多重共線性）各有數值或圖形證據與解讀；寫明所用的資料是 Fit 衍生的，殘差在 log(price) 尺度；偵測到的違反有說明；報告有一節分開陳述古典回歸假設與 split conformal 所依賴的 exchangeability 假設 | 缺任一面向，或只有圖沒有解讀；使用 Calibration 或 Test；把違反寫成作業失敗或隱藏違反；暗示五項診斷驗證了 exchangeability，或把 conformal 區間的有效性寫成依賴常態或同質變異 | notebook 輸出與圖；報告的診斷節；OC-A3 的隔離測試 |
 | **OC-A10 Adjusted R²**（v2 新增） | ENHANCED（E11） | 每個候選在 outer-CV 比較表中有 Adjusted R²，凍結 predictor 在 Test 指標表中有 Adjusted R²，或依 DA 的定義標示「不適用」並寫明理由；notebook 與報告寫明 DA 定義的 n 與 p 慣例、各類模型的適用性、複雜度的處理與比較限制；數值與獨立重算一致；選擇紀錄顯示選模只依 outer-CV 平均 USD RMSE | 缺數值且沒有「不適用」的理由；定義未寫明；與獨立重算不一致；Adjusted R² 影響選模或 tie-break | 比較表、Test 指標表、選擇紀錄、測試輸出 |
 | **OC-A11 模型解釋**（v2 新增） | ENHANCED（E12） | Deployment 章節（notebook 與報告）有：凍結 predictor 的解讀；係數在 log(price) 尺度的解讀，含標準化與類別編碼的說明；只以 Fit 計算的 permutation importance，寫明所用的資料與指標；預測新樣本的示範（點預測與區間）；模型限制與「非因果」的提醒 | 缺任一項；使用 Calibration 或 Test；把係數或 importance 寫成因果效果；以 permutation importance 選特徵或改變凍結 predictor | notebook 輸出；報告的 Deployment 節；OC-A3 的隔離測試 |
-| **OC-A12 來源與標示**（v2 新增） | MVM（AC 的誠實性）＋ENHANCED（E13） | 報告有 scope 標示，依第 2.2 節與第 2.4.6 節使用三種標示；每個「依老師補充建議」項目可對回 SRC-2 補充段的原文；正文沒有把補充段的建議或 ENHANCED 做法寫成「老師要求」；未採用的建議沒有被寫成已完成 | 把建議寫成老師要求；標示與第 2.2 節不符；缺標示 | 報告的標示與對照；Reviewer 逐項核對 |
+| **OC-A12 來源與標示**（v2 新增；**r2 修訂**） | MVM（AC 的誠實性）＋ENHANCED（E13） | 報告以方法／要求對照表或章節層級標示，使用三種標示，且與第 2.4.6 節表 A 一致；五個候選沒有被整體歸為單一來源；每個「依老師補充建議」項目可對回 SRC-2 補充段的原文；正文沒有把補充段的建議或 ENHANCED 做法寫成「老師要求」；未採用的建議沒有被寫成已完成 | 把建議寫成老師要求；標示與表 A 不符；五個候選被整體歸類；缺標示，或讀者無法從對照表或章節標示分辨各方法的來源 | 報告的對照表或章節標示；Reviewer 逐項核對表 A（不要求逐句標示） |
 
 ### 3.2 完成狀態（區分實作、發布與繳交）（沿用 r4；S1 加入 OC-A9～A12）
 
@@ -327,7 +359,7 @@ Spec 的具體 AC 由 Design Authority 在本邊界內 derive，並在 derivatio
 | 保留給 acceptor | RB-1 合併進 `main`，但 SA-3 涵蓋的合併除外（第 4.2 節）；RB-2 繳交（S4）；RB-3 憑證與第三方帳號（含 Kaggle、ChatGPT、NotebookLM 帳號，以及部署平台帳號的操作）；RB-4 付費；RB-5 單元目錄外的檔案（含 `week05/`、`week06/`、root `CONTEXT-MAP.md`、root `.gitignore`）與 `doc/requirement/`；RB-6 破壞性 git 操作 |
 | Acceptor 輸入 | 第 3.3 節 |
 | 不保留 | Spec review、獨立的 implementation authorization（Bindings §2.6） |
-| **既有 derived contracts 的處置** | 本檔接受後，由 Design Authority 判定 Spec v1.1 與 #50–#56 的處置（沿用、修訂或作廢），並寫 derivation record。在 DA 判定前，#50–#56 保持不變，不得作為任何 run 的依據（F-7 #6） |
+| **既有 derived contracts 的處置**（r2 依 U-5 修訂） | 本檔接受後，由 Design Authority 判定 Spec v1.1 與 #50–#56 的處置（沿用、修訂或作廢），並寫 derivation record。在 DA 判定前：<br>• #50–#56 保持不變，**包括現有 label**（`ready-for-agent`）；<br>• 任何 Formal run 或實作都**不得**使用這些舊 Tickets（F-7 #6；U-5）。<br>`ready-for-agent` label 不構成授權，也不推翻本條 |
 
 ### 4.1 Git 授權 C5（沿用 r4，重新確認；F-7 #4）
 
@@ -375,10 +407,24 @@ SA-1、SA-2 只涵蓋 `home_work_02/` 範圍內的 work item，commit message �
   - 合併前的 gate 證據、本 opt-in 條款與本契約接受的 commit SHA，記在 run record 或 worklog；
   - merge commit SHA 與合併後驗證結果，記在該 PR 的 comment。
 - **退回 RB-1**：SA-3 任一條件不成立時，合併屬 RB-1 保留給 acceptor 的動作；Agent 只停止該路徑並寫 stop report（治理 §1.5 第 3 項），可由 acceptor 逐次明確授權。
-- **第一個 HW2 PR**（**v2 修訂**；F-7 #5）：
-  - HW2 的第一個 PR，其 diff 必然包含 `home_work_02/doc/requirement/`（SRC-1、SRC-2T），不在 SA-3 範圍內，屬 RB-1；
-  - r4 接受紀錄中的一次性 RB-1 授權**不被推定涵蓋**新基準或其第一個 PR；
-  - 除非 acceptor 在本契約的接受紀錄（第 9 節）或另一次明確指示中重新授權，該 PR 由 acceptor 合併。
+- **第一個 HW2 PR**（**v2 修訂**；F-7 #5；**r2 依 U-1 修訂**）：
+  - HW2 的第一個 PR，其 diff 必然包含 `home_work_02/doc/requirement/`（SRC-1、SRC-2T），不在 SA-3 範圍內，屬 RB-1。
+  - r4 接受紀錄中的一次性 RB-1 授權**不被推定涵蓋**新基準或其第一個 PR（F-7 #5）。取而代之的是 acceptor 2026-10-18 的 **U-1 一次性 RB-1 授權**（原文見第 12 節）。
+  - **範圍**：HW2 第一個合併進 `main` 的 PR，限於本次 HW2 重新基準化與實作交付。
+  - **執行者**：獲授權的 Agent。Formal 下是 Orchestrator（Bindings §3.5）。
+  - **條件**（全部成立才可合併）：
+    - 適用的 independent audits 全部通過；
+    - Spec Integration Audit 已 closure；
+    - Design Authority 的 phase acceptance 已完成；
+    - Bindings b5 §5 的 integration／release gates 滿足；
+    - PR checks 全部完成且成功；
+    - 以 merge commit 合併；
+    - 不繞過失敗的 check；
+    - PR 不修改無關的檔案：diff 只含 `home_work_02/`；
+    - 不執行破壞性 Git 操作。
+  - **證據與合併後驗證**：沿用 SA-3 的 subject identity（受審 head SHA＝合併的 head SHA，合併指令綁定該 SHA），以及 Bindings b5 §7 Merge record 與合併後驗證的做法，並在紀錄中寫明依據是 U-1，不是 SA-3。
+  - **性質**：一次性授權，**不是 SA-3 或 Project Bindings 的變更**，不構成常設合併權限。之後的 PR 依本節 SA-3 處理。
+  - **生效**：U-1 是 acceptor 對 RB-1 的明確授權（Bindings §2.1）。它所授權的合併只會發生在本契約接受、且上列條件全部成立之後；它**不授權**本準備階段開 PR 或合併。
 - **不在此授權內**：對單元目錄以外（含 `docs/governance/`、`.claude/`、root、其他單元）的修改，或對 `doc/requirement/` 的修改，都不在 SA-3 範圍內，依 RB-5 另行處理。
 - **合併的時機**：合併進 `main`（S3）不是 work item 完成（S2）的條件；S4 iLearning 繳交仍保留給 acceptor（RB-2）。
 
