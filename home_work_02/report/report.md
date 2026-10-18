@@ -185,7 +185,9 @@ Ridge 與 Lasso 的 Test 指標（metric-only，只出現在比較表）：
 
 > {{quote:src1:結果部分需包含}}
 
-對 OLS 子集模型，在 ln(price) 尺度計算參數式 {{pi_level_pct}} 預測區間 ŷ ± t·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))（t 為 t 分布的臨界值，整體 winner 的 t = {{overall_t_crit}}），再以 exp 轉回 USD，所以區間不對稱。每一筆 Test 交易都有自己的區間；預測圖見第九章的 dashboard 截圖（實際 vs 預測，log 刻度，每一筆的垂直區間線段，依是否落在區間內著色，全部 {{n_test}} 筆，沒有抽樣）。
+對 OLS 子集模型，在 ln(price) 尺度計算參數式 {{pi_level_pct}} 預測區間 ŷ ± t·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))（t 為 t 分布的臨界值，整體 winner 的 t = {{overall_t_crit}}），再以 exp 轉回 USD，所以區間不對稱。每一筆 Test 交易都有自己的區間。下圖是主程式（notebook 5.5.1）從唯一一次 Test 評估匯出的逐筆結果畫出的預測圖：x 為預測、y 為實際，log 刻度，y = x 參考線，每一筆一條垂直的預測區間線段，依實際價格是否落在區間內著色；全部 {{n_test}} 筆都畫出，沒有抽樣或聚合。畫圖只讀取匯出的結果，不是新的評估。互動版本見第九章的 dashboard。
+
+![保留 Test 集：實際 vs 預測與每一筆的 {{pi_level_pct}} 預測區間（每個被授權評估的 OLS 模型一個面板）](fig:eval_actual_vs_predicted_pi.png)
 
 {{table:interval}}
 

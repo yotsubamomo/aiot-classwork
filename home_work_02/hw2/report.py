@@ -74,7 +74,7 @@ METHOD_ORDER = ("forward_sfs", "backward_sfs", "rfe", "lasso_path")
 METHOD_LABELS = {"allin": "All-in baseline", "forward_sfs": "Forward SFS",
                  "backward_sfs": "Backward SFS", "rfe": "RFE", "lasso_path": "Lasso 路徑排序",
                  "ridge": "Ridge", "lasso": "Lasso", "pvalue_backward": "p-value backward"}
-FIGURES = ("diag_linearity_residuals_vs_fitted.png",
+FIGURES = ("eval_actual_vs_predicted_pi.png", "diag_linearity_residuals_vs_fitted.png",
            "diag_independence_residuals_by_date_and_repeat_sales.png",
            "diag_homoscedasticity_scale_location.png", "diag_normality_qq.png",
            "diag_multicollinearity_gvif.png", "explain_coefficients_percent_effects.png",
