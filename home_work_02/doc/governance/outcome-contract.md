@@ -155,3 +155,9 @@
 - **Fable probe**：「請在現行 Bindings 所要求的 Orchestrator 啟動點前完成。若失敗，保留證據並依現行規則回報，不自行豁免。」
 - **未授權**：「本次不授權 Implementation 或啟動 Orchestrator。」
 - 本節的授權範圍到此為止；OC §2「本次實際授權的範圍」依本節擴充為：接受紀錄、`/to-spec`、CC-1 文件修訂、F-3／F-5 修訂、fast-forward push、`/to-tickets`。
+
+### AD-3（2026-10-18）— TK-1：GitHub Pages URL 檢查的安排（acceptor 決定）
+
+- **背景**：DA derivation §9 finding TK-1：Brief §7／§10 要求在 GitHub Pages 網址上重做 dashboard 檢查，但 Pages 只發布 `main`，合併屬 RB-1，#67 無法執行。
+- **Acceptor 原文（逐字）**：「TK-1 採 (a)：GitHub Pages URL 的檢查作為合併進 main 之後的 Lightweight work item（觸及 H-2，需 audit）；#67 與 ACCEPTANCE.md 先記 NOT TESTED（pending merge）。」
+- **效果**：Pages 檢查從 #67 的完成條件移出，成為合併後的獨立 Lightweight work item（依 Bindings §4、§5：以 acceptor 的直接指示為其 Outcome Contract；觸及 H-2 → 需 independent audit）。#67 與 ACCEPTANCE.md 對該項記 NOT TESTED（pending merge）；Spec Integration Audit 與 phase acceptance 把它列為 open item，不阻擋 S2。
