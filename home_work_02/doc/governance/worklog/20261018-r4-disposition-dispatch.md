@@ -16,3 +16,12 @@
 - **Binding 核對（全程，採用 return 前）**：同一 agentId `ac5187e3186c3b3bf`，transcript 累計 78 則 assistant 訊息，(model, effort) 集合＝{(`claude-opus-5-5`, `high`)}，等於有效 mapping；沒有 escalation 或替代。
 - **DA 提出、待 acceptor 的事項**：F-1（High，boundary，fail-closed）Ridge／Lasso 的 test 指標是否授權（Brief BR-01 第 3 點與 CONTEXT 寫 test 只對 CV winner／All-in／整體 winner，Spec rev 3 另報 Ridge／Lasso `metric_only`）；F-5（Medium）OV-2～OV-5 的完成 gate 與門檻；F-2、F-3（Low）CONTEXT.md 修改未記入 Brief §14、Spec 的「另設 CI」文字；Orchestrator 啟動前：授權 `/to-tickets` 與實作、釐清 push、重跑 Fable probe（Bindings §8.2 #3）。
 - **本 session 未做**：`/to-tickets`、實作、push、merge。
+
+## CC-1（F-1 contract change）文件修訂（2026-10-18）
+
+- **依據**：acceptor 原文逐字記於 `outcome-contract.md` §4 CC-1（選擇 (a)，APPROVED CONTRACT CHANGE，六項約束，範圍限 F-1）。
+- **本 session 的修訂**：`outcome-contract.md` §4 新增；`BRIEF.md` §5、§7 BR-01 第 3、4 點、§14（CC-1 列與 CONTEXT 修訂補記）；`CONTEXT.md` Test evaluation 詞條、新增 Metric-only model 詞條（修正一行重複的 `_Avoid_`）；`SPEC.md` rev 4：對照模型一句補 CC-1 授權依據與約束、dashboard 分層規則補「所有 test 數值只讀自 `model_data`，任何操作不觸發新的 test 評估」、版本行；issue #59 本文同步並留 comment。
+- **DA（同一 agent）修訂**：`derivation-SPEC.md` B-2／F-1 → RESOLVED by CC-1，新增 §11 ticket 義務 G-1～G-4（alpha 只用 training 列的證明；`winners` 不含 Ridge／Lasso；單次評估守門涵蓋 metric_only 且在 alpha 與 winner 固定後；比較表與報告分欄標示訓練 CV／Test）；F-2 部分結案；`decision-20261018-lane.md` §4 第 5 列；`decision-20261018-high-risk-categories.md` H-3 改引用 CC-1。
+- **Binding 核對（全程，採用前）**：agentId `ac5187e3186c3b3bf` 累計 101 則 assistant 訊息，(model, effort)＝{(`claude-opus-5-5`, `high`)}，等於有效 mapping。
+- **一致性檢查**：Brief／CONTEXT 沒有殘留「test 只對 CV winner」的排他敘述；Spec `metric_only` 的 schema、不變量、pytest／Node 檢查存在；issue #59 本文與 SPEC.md 逐字元相同。
+- **未做**：`/to-tickets`、實作、push、merge。

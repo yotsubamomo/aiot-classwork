@@ -40,7 +40,7 @@ HW2 的整體工作應走 Lightweight 還是 Formal？OC §2 預期是 Formal，
 | 2 | Spec rev 3 的 derivation record | 完成（`derivation-SPEC.md`） | DA |
 | 3 | 現行契約下的 lane 與高風險紀錄 | 完成（本紀錄與高風險紀錄） | DA |
 | 4 | Tickets derive 完成，並填寫 `derivation-SPEC.md` §9 | 未開始 | DA（`/to-tickets` 為 HOW） |
-| 5 | F-1（Ridge／Lasso 的 test 評分）：acceptor 已決定，或 Tickets 明確排除該路徑 | 待 acceptor | acceptor |
+| 5 | F-1（Ridge／Lasso 的 test 評分）：acceptor 已決定，或 Tickets 明確排除該路徑 | **完成**（2026-10-18 更新）：acceptor 選 (a)，即 CC-1（OC §4）。Tickets 依 `derivation-SPEC.md` 第 11 節的六項約束與 G-1～G-4 實作。本次更新者：`gov-design-authority`，`claude-opus-5-5`／`high` | acceptor |
 | 6 | Bindings §8.2 #3：`model: fable` 的 binding 實測仍未完成（2026-10-14 遇到 HTTP 429）。r4 時 acceptor「不阻擋」的決定沒有沿用（處置紀錄 N-2）。Bindings 要求 activation 前完成 | 未完成 | 先重跑 probe（不需要 acceptor）；Fable 仍不可用時，是否視為阻擋由 acceptor 決定 |
 | 7 | Push 的授權狀態：acceptor 2026-10-18 明示不授權 push；SA-1 涵蓋 push，但被這次的指示排除 | 待 acceptor 釐清 | acceptor（不阻擋本機工作，只影響 push 與 PR） |
 | 8 | Disposition 中的 GitHub 操作（#50–#56 關閉） | 完成（派工者以 `gh` 核對） | — |

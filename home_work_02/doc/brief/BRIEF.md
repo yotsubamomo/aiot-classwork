@@ -72,7 +72,7 @@
 - **k 的範圍**：每個方法 k = 1…18 的完整路徑 [D Q34]。**執行時間必須量測並記錄；若成本過高，先回報可行的改善方案，不自行縮小範圍。**
 - **公平性** [D Q13]：同一 train/test split、training set 內同一組分組 CV 折、同樣的前處理規則；每個 k 以 CV RMSE（USD）評分。
 - **模型**：每個方法的每個 k 都 fit OLS（log 尺度）；Ridge 與 Lasso 用全部 group、alpha 以 training CV 選，作為對照 [D Q20]。
-- **最佳的定義** [D Q20]：各方法的 **CV winner**＝CV RMSE 最小的 k；整體 CV winner＝各方法 CV winner 中 CV RMSE 最小者。Test evaluation 只對各方法的 CV winner、All-in baseline 與整體 CV winner 各報一次（同一模型不重複評估；BR-01），是描述性比較；**test 排名與 CV 排名不同時不換模型**。
+- **最佳的定義** [D Q20]：各方法的 **CV winner**＝CV RMSE 最小的 k；整體 CV winner＝各方法 CV winner 中 CV RMSE 最小者。Test evaluation 只對各方法的 CV winner、All-in baseline 與整體 CV winner 各報一次（同一模型不重複評估；BR-01），是描述性比較；**test 排名與 CV 排名不同時不換模型**。Ridge 與 Lasso 另依 CC-1 各報一次 test 的 MAE、MSE、RMSE、R²（USD）作為對照，不參與 winner 競爭、不提供 PI。
 - **最終模型** [A]：整體 CV winner 在整個 training set 上重新擬合，用於 Deployment、`predict_price()`、pickle 與報告主要結果。
 - **指標** [D Q21、Q29]：CV 與 test 都報 MAE、MSE、RMSE、R²（USD 尺度，以回轉後預測計算，標明）。Adjusted R² 只對 OLS 子集模型、在 log 尺度以古典公式（n_train、實際 model rank）計算，與 log 尺度 R² 並列；Ridge／Lasso 與 CV 聚合值不套用；任何替代統計量都要明確定義並標示。
 - **統計推論**：自由度與秩一律以實際 design matrix 為準，不是 source feature 數 [D Q16]。
@@ -99,8 +99,8 @@
 - **資料來源與操作行為的分層規則**（BR-01，**Resolved**：acceptor 2026-10-18 確認方案 A）[D BR-01]：
   1. 任意 (方法, k) 的模型比較與 KPI 使用 **training CV** 結果（CV RMSE／MAE／MSE／R²、log 尺度 Adjusted R²），標示「訓練 CV」。
   2. 即時預測器使用目前選取的 (方法, k) 在**完整 training set 上擬合的 OLS 模型**。
-  3. **Test evaluation 只針對**各方法的 CV winner、All-in baseline 與整體 CV winner；若為同一模型，不重複評估。
-  4. Test KPI、實際 vs 預測圖、逐筆 95% PI 與 coverage 統計只使用第 3 點的 test 結果。
+  3. **Test evaluation 只針對**各方法的 CV winner、All-in baseline 與整體 CV winner；若為同一模型，不重複評估。**另依 CC-1（acceptor 2026-10-18 核准的 contract change，見 `doc/governance/outcome-contract.md` §4）**：Ridge 與 Lasso 各進行一次最終 test evaluation，只提供 USD 尺度的 MAE、MSE、RMSE、R² 作為描述性對照；alpha 只以 training CV 選；不參與整體 CV winner 競爭；不因 dashboard 互動重新測試；test 結果不回饋任何選擇；仍為 metric_only，沒有 PI、coverage 或即時預測。
+  4. Test KPI、實際 vs 預測圖、逐筆 95% PI 與 coverage 統計只使用第 3 點前段（OLS 子集）的 test 結果；Ridge／Lasso 的 test 指標只出現在比較表，並與訓練 CV 指標清楚區分。
   5. 選取非 CV winner 的 k 時，test 區塊展示該方法 CV winner 的結果。
   - **UI 驗收**（acceptor 原文）：「Test 區塊必須明確標示正在展示的模型方法與 k。當目前選取模型不同於 Test 區塊模型時，應以清楚可見的提示說明兩者不同。Training CV 與 Test Evaluation 的資料來源標示必須清晰，不得混淆。不允許因 Dashboard 切換操作而產生新的 Test evaluation。model_data 僅包含已授權評估模型的 Test 結果，避免 Test 資料被當作互動式選模依據。」
   - 本規則細化 Q22 的「同步更新」，不改變 Q20；Q43 的逐筆 PI 驗收對每個被評估模型的全部 test 樣本成立。
@@ -173,6 +173,8 @@ seed 值；CV 折數（假設 5）；Ridge／Lasso 的 alpha 網格與標準化�
 | --- | --- | --- | --- |
 | 2026-10-18 | §1 | 「五種特徵選擇方法」→「四種具有 k=1…18 路徑的特徵選擇方法＋單一 All-in baseline」 | Spec Review SR-06；acceptor「ACCEPTED，不改變既有需求」 |
 | 2026-10-18 | §5 | 講義方法對照「做一次」→「產生單一子集、不進 k 路徑（選擇邊界與正式方法相同，由 Spec 定）」 | Spec Review SR-11：fold-internal selection 下「做一次」指單一子集而非單次計算；acceptor 允許必要的 Brief 編輯性文字更新 |
+| 2026-10-18 | §5、§7 BR-01 第 3、4 點 | **CC-1（非編輯性：accepted 語義變更）**：Ridge／Lasso 各一次 test evaluation，只報 USD 的 MAE、MSE、RMSE、R²，六項約束 | DA derivation B-2／F-1 → acceptor 2026-10-18「選擇 (a) — APPROVED CONTRACT CHANGE」；原文見 `doc/governance/outcome-contract.md` §4 |
+| 2026-10-18 | （`CONTEXT.md`） | Spec Review 後 `CONTEXT.md` 的修訂（commit `dea8fd0`：Feature-selection method 改為 fold-aware、新增 Canonical subset）與 CC-1 的 Test evaluation 詞條修訂 | DA derivation record 確認 `dea8fd0` 的修訂不改變 accepted 語義（F-2 補記）；CC-1 依上列 |
 
 ## 15. 下一步
 

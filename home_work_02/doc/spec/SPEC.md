@@ -2,7 +2,7 @@
 
 - **來源**：已接受的 [Brief](../brief/BRIEF.md)（commit `dff7c55c`；接受紀錄 [`../governance/outcome-contract.md`](../governance/outcome-contract.md)）。本 Spec 由 MATT `/to-spec` 產生，不重新開啟 Grill 的決定；Brief 與本 Spec 不一致時以 Brief 為準並回報。
 - **詞彙**：依 [`../../CONTEXT.md`](../../CONTEXT.md)。
-- **版本**：rev 3（2026-10-18）— 依 acceptor 對 SR-06／SR-09 的決定與 Spec Review SR-10～SR-12 修訂；rev 2 依 SR-01～SR-09 修訂（處理紀錄見 [`SPEC-review-2026-10-18.md`](SPEC-review-2026-10-18.md)）；rev 1 為 `/to-spec` 的初版（commit `3aacb54`）。
+- **版本**：rev 4（2026-10-18）— 依 CC-1（Ridge／Lasso 一次性 test evaluation 的 contract change）補記授權依據與約束，metric_only 契約本身不變；rev 3 依 acceptor 對 SR-06／SR-09 的決定與 Spec Review SR-10～SR-12 修訂；rev 2 依 SR-01～SR-09 修訂（處理紀錄見 [`SPEC-review-2026-10-18.md`](SPEC-review-2026-10-18.md)）；rev 1 為 `/to-spec` 的初版（commit `3aacb54`）。
 - **GitHub Issue**：[yotsubamomo/aiot-classwork#59](https://github.com/yotsubamomo/aiot-classwork/issues/59)（label `ready-for-agent`；2026-10-18 發布）。Issue 本文與本檔於發布時相同；之後若修訂，以本檔為準並同步更新 Issue。
 - **測試 seams**（acceptor 2026-10-18 確認）：主 seam 是 `model_data` 匯出契約（pytest＋Node test）；次 seam 是 Python 套件的公開函式（pytest）；UI 以人工檢查表驗收。
 
@@ -130,7 +130,7 @@
 - 正式比較的對象是**四種有 k 路徑的特徵選擇方法**——Forward SFS、Backward SFS、RFE、Lasso 路徑排序取 top-k——加上**單一的 All-in baseline**（全部 18 group 的 OLS，沒有 k 路徑；SR-06）。每個路徑方法在每個 fold 的訓練列上產生 k = 1…18 的巢狀或排序子集（見上節的邊界），每個 k 以 OLS 在 fold 訓練列上擬合、在驗證列上算 USD 指標，CV 指標為 5 折平均（另存各折值與標準差）。
 - 選擇單位為 feature group：SFS 與 RFE 每一步加入或移除整個 group；Lasso 路徑以 group 的進入順序（group 內任一欄係數首次非零的 alpha）排序，平手依 canonical order。RFE 的 group 重要度彙總規則由實作決定並寫入方法說明。
 - 講義方法對照：p-value backward elimination 以 group 層級的 F 檢定（或等效）、門檻 0.05 執行，**與正式方法同樣採 fold-internal selection**（SR-11）：在每個 fold 的訓練列上消去得到該 fold 的子集、在驗證列上算指標，CV 指標為 5 折平均；另在整個 training set 上執行一次得到 canonical subset 供顯示。它產生**單一子集、沒有 k 路徑**，只列為對照列，不參與 CV winner，也不在 test 上評估。
-- 對照模型：Ridge 與 Lasso 用全部 18 group、標準化後以同一組 fold 的 CV 選 alpha（網格由實作決定並記錄）；只報 CV 與 test 指標，不提供 PI 與即時預測。
+- 對照模型：Ridge 與 Lasso 用全部 18 group、標準化後以同一組 fold 的 CV 選 alpha（網格由實作決定並記錄）；只報 CV 與 test 指標，不提供 PI 與即時預測。**Test 評估的授權依據是 CC-1**（acceptor 2026-10-18 核准的 contract change，`doc/governance/outcome-contract.md` §4）：每個模型只做一次最終 test evaluation，只報 USD 的 MAE、MSE、RMSE、R²；alpha 只以 training CV 選；不參與整體 CV winner 競爭；test 結果不回饋任何選擇；dashboard 互動不得觸發重新測試；dashboard 與報告中 Ridge／Lasso 的 CV 指標與 test 指標分開標示。
 - CV winner：各路徑方法取 CV RMSE 最小的 k（平手取較小的 k）；整體 CV winner 為各方法 CV winner 與 All-in 中 CV RMSE 最小者（平手依方法的固定順序）。被授權在 test 評估的模型集合＝各方法 CV winner ∪ {All-in} ∪ {整體 CV winner}，同一模型只評估一次；Ridge／Lasso 的 test 指標亦各報一次作為對照。
 - 最終模型＝整體 CV winner 在整個 training set 上重新擬合；用於 Deployment 的預測函式、pickle 示範、診斷與報告主要結果。
 - 執行時間：每個方法的路徑計算時間都量測並寫入匯出中繼資料與 README；若任一方法的時間使整體重跑不可接受，停止並回報改善方案，不縮小 k 範圍或方法集合。
@@ -181,7 +181,7 @@
 
 - 靜態頁面，無建置步驟，無後端；Chart.js 打包在單元內；資料以 `.js` 全域變數載入，使 `file://` 可用；頁面不發出任何對外請求。
 - 區塊：方法與 k 控制；KPI 卡（標示「訓練 CV」）；指標 vs k 圖（各方法路徑；All-in、Ridge、Lasso 為參考線；「比較全部」疊圖）；即時預測器；test 區塊（test KPI、實際 vs 預測圖、涵蓋統計，標示所展示的方法與 k）；方法與限制。選配：係數表、test 殘差表、全部結果表。
-- 分層規則與**來源標示**（SR-05）：任意 (方法, k) 的 KPI 來自 `methods[].cv`，標示「訓練 CV（USD）」；係數表（選配）與預測器來自 `methods[].fit`，係數表標示「全訓練集擬合，R²／Adjusted R² 為 log 尺度」；test 區塊從 `test` 取該方法 CV winner（或 All-in／整體 winner）的資料，標示「Test 評估（USD）」與所展示的方法與 k；選取非 winner 時顯示清楚可見的提示說明 test 區塊展示的是哪個模型；`status = invalid` 的 (方法, k) 在圖與表上以明確標示呈現且不可成為 winner。All-in 選取時 k 控制固定且不可改。
+- 分層規則與**來源標示**（SR-05）：任意 (方法, k) 的 KPI 來自 `methods[].cv`，標示「訓練 CV（USD）」；係數表（選配）與預測器來自 `methods[].fit`，係數表標示「全訓練集擬合，R²／Adjusted R² 為 log 尺度」；test 區塊從 `test` 取該方法 CV winner（或 All-in／整體 winner）的資料，標示「Test 評估（USD）」與所展示的方法與 k；選取非 winner 時顯示清楚可見的提示說明 test 區塊展示的是哪個模型；`status = invalid` 的 (方法, k) 在圖與表上以明確標示呈現且不可成為 winner。All-in 選取時 k 控制固定且不可改。 **所有 test 數值只讀自 `model_data`：dashboard 的任何操作（方法／k 切換、比較全部、預測器輸入、縮放）都不觸發新的 test 評估，對 OLS 子集與 Ridge／Lasso 的 `metric_only` 皆然（BR-01；CC-1 第 3 條）。**
 - 即時預測器：依當前模型的 canonical groups 動態產生輸入（日期輸入、數值輸入、zipcode 下拉、整修年或「未整修」），預設為 `inputs` 的中位數，超出範圍顯示警告仍計算；JS 依 `preprocess` 重做日期天數、整修旗標與有效年份、one-hot 後計算點預測與 PI。**未見的 zipcode**（SR-07）：下拉選單只列出當前模型 `fit` 的類別清單加上基準類別（標明為基準）；若輸入值不在清單中（例如由網址參數或手動輸入帶入），以基準類別計算並顯示警告「此 zipcode 不在模型的訓練類別中，已以基準類別計算」；契約中記錄 test 內被編為基準的未見 zipcode 筆數，報告說明。
 - 實際 vs 預測圖：全部 test 樣本；x 預測、y 實際、log 刻度、y=x 線、每筆垂直 PI 線段、依 covered 著色；支援縮放與檢視；渲染方式由實作決定（可用 canvas 自繪或 Chart.js 外掛），但不得抽樣或聚合，且 log 輸入必須大於零（資料中 price 與預測皆為正）。**可觀察的可讀性與反應性**（SR-09；acceptor 2026-10-18 接受並釐清）：在參考環境（acceptor 的電腦、目前版本的 Chrome 或 Edge）以 `file://` 開啟時，
   (a) **首次繪製 ≤ 3 秒**：起點為瀏覽器的 navigation start，終點為實際 vs 預測圖第一次完整繪製完成（頁面在圖繪製完成的回呼記錄時間戳）；

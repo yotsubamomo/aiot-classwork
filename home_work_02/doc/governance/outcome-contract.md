@@ -74,3 +74,47 @@
 - 接受成立後，Bindings §2.5 **SA-1** 涵蓋「在 topic branch 上 commit」；本檔是 `home_work_02/doc/governance/` 內的紀錄檔，屬單元內、record-only path（Bindings §7）。
 - acceptor 原文第 5 點排除 push，所以本檔只做**本機 commit，不 push**，等待下一次指示。
 - 這不是對授權的擴大：SA-1 是既有的常設授權；push 與合併都未執行。
+
+## 4. 契約變更紀錄
+
+### CC-1（2026-10-18）— F-1：Ridge／Lasso 的 Test Evaluation（APPROVED CONTRACT CHANGE）
+
+- **性質**：治理 §5.3 第 1 類（改變 accepted 語義）。來源：Design Authority 在 [`decisions/derivation-SPEC.md`](decisions/derivation-SPEC.md) 的 boundary determination B-2／finding F-1——Spec rev 3 讓 Ridge／Lasso 在 test 上各評分一次（`metric_only`），而已接受的 Brief BR-01 第 3 點與 `CONTEXT.md` 只允許各方法 CV winner、All-in 與整體 CV winner。DA 依治理 §1.2 fail-closed 並 route 給 acceptor。
+- **Acceptor 決定**：選擇 (a)，正式授權。
+- **變更後的 accepted 語義**：Ridge 與 Lasso 各進行**一次**最終 Test Evaluation，只提供 USD 尺度的 MAE、MSE、RMSE、R²，作為描述性模型對照，受下列六項約束（acceptor 原文）：
+  1. Ridge／Lasso 的 alpha 只能使用 Training CV 選擇。
+  2. Ridge／Lasso 不參與四種特徵選擇方法及 All-in 的整體 CV winner 競爭。
+  3. 每個 Ridge／Lasso 模型只允許一次最終 Test Evaluation，不得因 Dashboard 互動而重新測試。
+  4. Test 結果不得回饋模型選擇、超參數調整或特徵選擇。
+  5. Ridge／Lasso 仍為 metric_only，不提供 PI、Coverage 或即時預測功能。
+  6. Dashboard 與報告必須清楚區分 Training CV 指標與 Test 指標，不得混用。
+- **範圍限制**：只涵蓋 F-1；不擴大到其他模型、其他 test 結果或任意 k 的 test evaluation。
+- **受影響文件**：`doc/brief/BRIEF.md` §5、§7（BR-01 第 3、4 點）、§14；`CONTEXT.md`（Test evaluation）；`doc/spec/SPEC.md`（rev 4 註記；metric_only 契約已存在，只補授權依據與約束）；`decisions/derivation-SPEC.md`（B-2／F-1 結案）。對進行中工作沒有影響（沒有 Tickets、實作或 evidence）。
+- **Acceptor 原文（2026-10-18，逐字）**：
+
+> F-1 Acceptor Decision：選擇 (a) — APPROVED CONTRACT CHANGE。
+> 正式授權 Ridge 與 Lasso 各進行一次 Test Evaluation，僅提供 USD 尺度的 MAE、MSE、RMSE、R²，作為描述性模型對照。
+> 約束如下：
+>
+> 1. Ridge／Lasso 的 alpha 只能使用 Training CV 選擇。
+> 2. Ridge／Lasso 不參與四種特徵選擇方法及 All-in 的整體 CV winner 競爭。
+> 3. 每個 Ridge／Lasso 模型只允許一次最終 Test Evaluation，不得因 Dashboard 互動而重新測試。
+> 4. Test 結果不得回饋模型選擇、超參數調整或特徵選擇。
+> 5. Ridge／Lasso 仍為 metric_only，不提供 PI、Coverage 或即時預測功能。
+> 6. Dashboard 與報告必須清楚區分 Training CV 指標與 Test 指標，不得混用。
+>
+> 請依現行 MATT 與 Governance 流程：
+>
+> * 將本決策記錄為 F-1 的明確 contract change。
+> * 修訂 Accepted Brief BR-01 第 3 點及必要的相關文字。
+> * 同步 CONTEXT.md 的 Test Evaluation 定義。
+> * 檢查 Spec rev 3 是否已有完整且一致的 metric_only 契約；只修正必要內容。
+> * 更新 DA derivation／decision record 與需求追溯。
+> * 執行必要的一致性檢查。
+>
+> 此授權只涵蓋 F-1 contract change 及其必要文件修訂。
+> 不得自行擴大到其他模型、其他 Test 結果或任意 k 的 Test Evaluation。
+> 完成後回報變更摘要及一致性檢查結果。
+> 目前仍不授權 Implementation、Push、Merge 或 Deployment。
+
+轉錄者：無角色主 session。變更的效力來自上述 acceptor 原文；本檔檔頭所列的接受內容（Brief @ `dff7c55c`）連同本變更，構成現行 accepted 語義。

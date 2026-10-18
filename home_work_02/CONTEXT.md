@@ -88,9 +88,17 @@ _Avoid_: Best model (ambiguous with the best test result), final model (until fr
 
 **Test evaluation**:
 The one-time scoring on the test set of each method's CV winner, the All-in baseline and the overall
-CV winner (a model shared between these is scored once), reported descriptively. No other model is
-scored on the test set, and nothing a dashboard viewer does triggers a new one.
+CV winner (a model shared between these is scored once), reported descriptively. The Ridge and
+Lasso comparison models are also scored once each, metric-only (USD MAE, MSE, RMSE, R²; no
+interval, no coverage, no live prediction) and never compete for the overall CV winner. No other
+model is scored on the test set, test results feed back into no selection, and nothing a dashboard
+viewer does triggers a new scoring.
 _Avoid_: Validation, benchmark
+
+**Metric-only model**:
+A comparison model (Ridge, Lasso) whose alpha is chosen by training CV and that reports CV and
+one-time test metrics only. It has no prediction interval, no coverage and no live predictor.
+_Avoid_: Candidate (it has no k path), baseline (reserved for All-in)
 
 **Prediction interval**:
 A 95% interval for a single new sale's price, with a stated statistical definition and an assumed

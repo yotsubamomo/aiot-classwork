@@ -32,7 +32,7 @@
 | 項目 | 內容 |
 | --- | --- |
 | 風險 | 這類錯誤不會讓程式失敗，只會讓數字看起來更好：以 `id` 分組的隔離（train／test、CV fold）被破壞；需要 fit 的前處理看到驗證列或 test；fold-internal selection 被改成在整個 training set 上只選一次；用 test 選模或換模型；在授權集合以外評估 test（含 dashboard 操作引發的評估）；PI、coverage 或 Adjusted R² 的計算或秩錯誤；Python 與 JS 不一致；秩不足的語義被改成刪欄、縮小範圍或默默跳過；報告或 README 的數字不是來自匯出結果；選擇偏誤與 PI 假設的陳述超出 Spec 允許的範圍 |
-| 涵蓋 | Spec rev 3 的「分割與交叉驗證」「特徵選擇與模型」「指標與推論」「預測區間」「`model_data` 契約」的不變量、dashboard 的分層規則與來源標示（BR-01）、測試與它們的期望值；F-1 的處理（Ridge／Lasso 在 acceptor 決定前不得在 test 上評分） |
+| 涵蓋 | Spec rev 3 的「分割與交叉驗證」「特徵選擇與模型」「指標與推論」「預測區間」「`model_data` 契約」的不變量、dashboard 的分層規則與來源標示（BR-01）、測試與它們的期望值；CC-1 的六項約束（Ridge／Lasso 各一次 metric_only 的 test 評估；2026-10-18 更新，原文為「在 acceptor 決定前不得評分」；見 `derivation-SPEC.md` 第 11 節） |
 | 觸及的工作 | 分割、前處理、特徵選擇、建模、PI、test 評估、匯出、dashboard 的計算與 test 區塊、對應的測試、notebook 的建模與評估流程、報告的方法與結果章節 |
 
 ### H-4 證據真實性與如實標示

@@ -2,7 +2,8 @@
 
 - **紀錄類型**：Design Authority derivation record（治理 §1.2、§3.4；Bindings b5 §7）
 - **日期**：2026-10-18
-- **Derived contract**：[`../../spec/SPEC.md`](../../spec/SPEC.md) **rev 3**（＝GitHub issue #59）。本紀錄以 HEAD `c4d5c5b2` 的檔案為準。
+- **Derived contract**：[`../../spec/SPEC.md`](../../spec/SPEC.md) **rev 3**（＝GitHub issue #59）。本紀錄以 HEAD `c4d5c5b2` 的檔案為準。**rev 4**（2026-10-18）只補記 CC-1 的授權依據與約束，`metric_only` 契約不變；第 11 節依 HEAD `6f14130` 加上工作樹的 CC-1 修改核對。
+- **現行 accepted 語義**：Brief @ `dff7c55c`，加上 **CC-1**（[`../outcome-contract.md`](../outcome-contract.md) §4，acceptor 2026-10-18 核准的 contract change）。
 - **Outcome Contract**：[`../outcome-contract.md`](../outcome-contract.md)，ACCEPTED 2026-10-18。接受的內容是 `doc/brief/BRIEF.md`、Grill 紀錄 rev 7 與 `CONTEXT.md` 於 commit `dff7c55c` 的版本。
 - **上位契約**：`doc/requirement/` 的 SRC-1 轉寫（sha256 `b01c6fb5…4b89`）、SRC-2T（`670cdf28…08ba`）、SRC-3（Brief §2）。
 - **相關紀錄**：[`decision-20261018-r4-derived-contracts-disposition.md`](decision-20261018-r4-derived-contracts-disposition.md)、[`decision-20261018-lane.md`](decision-20261018-lane.md)、[`decision-20261018-high-risk-categories.md`](decision-20261018-high-risk-categories.md)、[`../../spec/SPEC-review-2026-10-18.md`](../../spec/SPEC-review-2026-10-18.md)、[`../../../design/WIREFRAME-ACCEPTANCE.md`](../../../design/WIREFRAME-ACCEPTANCE.md)
@@ -15,7 +16,7 @@ Spec rev 3 是 MATT `/to-spec` 依它自己的流程產生的（OC §2；accepto
 
 ## 1. 效力
 
-- 在第 3 節的 boundary determination 下，Spec rev 3 自本紀錄起是現行 Outcome Contract 的有效 derived contract。**唯一例外是 F-1 的路徑**（Ridge／Lasso 的 test 評分）：在 acceptor 決定前不在有效範圍內（第 3 節 B-2）。
+- 〔2026-10-18 更新〕CC-1 之後沒有例外：Spec rev 4 全部都是有效的 derived contract（第 11 節）。以下是原判定的文字：在第 3 節的 boundary determination 下，Spec rev 3 自本紀錄起是現行 Outcome Contract 的有效 derived contract。**唯一例外是 F-1 的路徑**（Ridge／Lasso 的 test 評分）：在 acceptor 決定前不在有效範圍內（第 3 節 B-2）。
 - 它的接受與授權來自 Outcome Contract，不需要 acceptor 逐份核准（治理 §1.2）。不過 OC §2 目前**沒有授權** `/to-tickets` 與實作，所以本紀錄不使任何實作可以開始。
 - 只有一份 Spec。
 
@@ -39,12 +40,12 @@ Spec rev 3 是 MATT `/to-spec` 依它自己的流程產生的（OC §2；accepto
 
 ## 3. Boundary determination
 
-**總判定**：Spec rev 3 除了 B-2 以外，都在已接受的 Brief boundary 內，沒有改變 accepted 語義。B-2 我無法確立在 boundary 內，所以該路徑 fail-closed 至 acceptor（治理 §1.2）。
+**總判定**：Spec rev 3 除了 B-2 以外，都在已接受的 Brief boundary 內，沒有改變 accepted 語義。B-2 我無法確立在 boundary 內，所以該路徑 fail-closed 至 acceptor（治理 §1.2）。〔2026-10-18 更新：acceptor 以 CC-1 核准，B-2 已在 boundary 內，見第 11 節。〕
 
 | # | 項目 | 判定 | 依據 |
 | --- | --- | --- | --- |
 | B-1 | Fold-internal selection 與 canonical subset（SR-01、SR-11） | 在 boundary 內。這是「選擇只用 training」的嚴格落實，不是 Brief 延後的 nested 設計。成本增加約 6 倍，屬 Q34 的量測與回報義務 | Q4、Q13(a)、Q33；Brief §5、§10 |
-| B-2 | **Ridge／Lasso 的 test 指標**（Spec「特徵選擇與模型」最後的「Ridge／Lasso 的 test 指標亦各報一次」、`test` 的 `kind = "metric_only"`，以及對應的不變量與測試） | **無法確立在 boundary 內，fail-closed 至 acceptor（F-1）。** Brief §5 與 BR-01 第 3 點寫「Test evaluation **只針對**各方法的 CV winner、All-in baseline 與整體 CV winner」；已接受的 `CONTEXT.md` 寫「No other model is scored on the test set」；Q20、Q31 把 Ridge／Lasso 定位為對照，「只在比較表與圖」。Ridge／Lasso 不是 CONTEXT 定義的 feature-selection method（它們不產生每個 k 的子集），所以不屬於「各方法」。另一種讀法（把 Ridge／Lasso 當成各自的單一模型方法）沒有文字依據。只停止這條路徑：其餘工作照常；Ridge／Lasso 的 CV 對照不受影響 | Brief §5、§7 BR-01；CONTEXT「Test evaluation」；Grill Q20、Q31 |
+| B-2 | **Ridge／Lasso 的 test 指標**（Spec「特徵選擇與模型」最後的「Ridge／Lasso 的 test 指標亦各報一次」、`test` 的 `kind = "metric_only"`，以及對應的不變量與測試） | **〔RESOLVED by CC-1，2026-10-18〕現在在 boundary 內**，限 CC-1 的六項約束與範圍限制（第 11 節）。原判定如下：**無法確立在 boundary 內，fail-closed 至 acceptor（F-1）。** Brief §5 與 BR-01 第 3 點寫「Test evaluation **只針對**各方法的 CV winner、All-in baseline 與整體 CV winner」；已接受的 `CONTEXT.md` 寫「No other model is scored on the test set」；Q20、Q31 把 Ridge／Lasso 定位為對照，「只在比較表與圖」。Ridge／Lasso 不是 CONTEXT 定義的 feature-selection method（它們不產生每個 k 的子集），所以不屬於「各方法」。另一種讀法（把 Ridge／Lasso 當成各自的單一模型方法）沒有文字依據。只停止這條路徑：其餘工作照常；Ridge／Lasso 的 CV 對照不受影響 | Brief §5、§7 BR-01；CONTEXT「Test evaluation」；Grill Q20、Q31 |
 | B-3 | `model_data` 含全部 test 列的原始值與 `actual_price`（`test_inputs`），以及每個 (方法, k) 的 `fit` | 在 boundary 內，附 Ticket 義務：BR-01 禁止的是**顯示**未授權模型的 test 結果，以及**因 dashboard 操作產生**新的 test evaluation，不是讓 test 資料無法取得（ZIP 本來就含完整 CSV 與 seed）。所以 dashboard 的 UI 程式不得用 `test_inputs` 評估任何模型；test 區塊只讀 `test`。報告與 README 不得宣稱其他模型的 test 結果「在結構上無法取得」（Spec US-33 的措辭只限於 dashboard 的行為） | Brief §7 BR-01、§10 Test 暴露檢查；SR-02 |
 | B-4 | 秩不足三類語義、`invalid` 候選、實驗層級失敗時停止並 route（SR-04、SR-10） | 在 boundary 內：不縮小範圍、不臨時刪欄 | Q16、Q34 |
 | B-5 | 實際 vs 預測圖的效能門檻 (a)～(g)（SR-09） | 在 boundary 內：acceptor 2026-10-18 以 ACCEPTED WITH CLARIFICATION 接受 | Q43；Spec Further Notes |
@@ -62,7 +63,7 @@ Spec rev 3 是 MATT `/to-spec` 依它自己的流程產生的（OC §2；accepto
 
 ## 4. Acceptance boundary 的分配
 
-**唯一的一份 Spec（rev 3）分配到 Outcome Contract 的全部 acceptance boundary**（Brief §3、§4–§9、§10、§11 的驗收意圖），**B-2 的路徑除外，該路徑待 acceptor 決定**。Spec Integration Audit 依治理 §4.7 核對全部覆蓋。下表讓覆蓋可以被觀察；標「T-義務」的是 Spec 沒有寫明、Ticket derivation 必須從 Brief 帶入的項目。
+**唯一的一份 Spec（rev 3）分配到 Outcome Contract 的全部 acceptance boundary**（Brief §3、§4–§9、§10、§11 的驗收意圖），〔CC-1 後〕包含 CC-1 的 Ridge／Lasso `metric_only` test 路徑（原文「B-2 的路徑除外」已不適用）。Spec Integration Audit 依治理 §4.7 核對全部覆蓋。下表讓覆蓋可以被觀察；標「T-義務」的是 Spec 沒有寫明、Ticket derivation 必須從 Brief 帶入的項目。
 
 | Brief 的驗收意圖 | Spec 章節 | 驗證方式（Spec Testing Decisions） |
 | --- | --- | --- |
@@ -131,8 +132,8 @@ OV-2～OV-5 是 acceptor 接受的 UI 設計（B-13）的驗證項目，但 Brie
 
 | ID | 嚴重度 | 內容 | 需要的決定 |
 | --- | --- | --- | --- |
-| F-1 | High（boundary） | B-2：Spec 讓 Ridge／Lasso 在 test 上評分（`metric_only`），已接受的 Brief BR-01 與 CONTEXT 只允許 CV winners、All-in 與整體 winner。Wireframe v0.2 的 `mock-data.js` 也有 `TEST.ridge`／`TEST.lasso_ref` | acceptor 二選一：(a) 授權 Ridge／Lasso 各報一次 test 指標作為描述性對照。這會改變 BR-01 第 3 點與 CONTEXT 的 accepted 語義，屬 contract change（治理 §5.3），需要以紀錄寫明。(b) 不授權：Ridge／Lasso 只報 CV。Spec 的 `metric_only`、不變量與測試項需要經 MATT 流程修正，或由 Tickets 依「以 Brief 為準」略過並記錄。在決定前，Tickets 不得實作 Ridge／Lasso 的 test 評分 |
-| F-2 | Low | `CONTEXT.md` 的接受後修改（`dea8fd0`）沒有記入 Brief §14 的修訂表；另外 CONTEXT「CV winner」寫「the feature subset with the lowest CV RMSE」，在 fold-internal 下，CV RMSE 屬於 (方法, k) 這個程序，評估與部署的是 canonical subset（Spec 已說明）。語義不受影響 | 補記修訂表；是否調整措辭由 acceptor 決定 |
+| F-1 | High（boundary）— **RESOLVED**（acceptor 選 (a)，CC-1，OC §4；第 11 節） | B-2：Spec 讓 Ridge／Lasso 在 test 上評分（`metric_only`），已接受的 Brief BR-01 與 CONTEXT 只允許 CV winners、All-in 與整體 winner。Wireframe v0.2 的 `mock-data.js` 也有 `TEST.ridge`／`TEST.lasso_ref` | acceptor 二選一：(a) 授權 Ridge／Lasso 各報一次 test 指標作為描述性對照。這會改變 BR-01 第 3 點與 CONTEXT 的 accepted 語義，屬 contract change（治理 §5.3），需要以紀錄寫明。(b) 不授權：Ridge／Lasso 只報 CV。Spec 的 `metric_only`、不變量與測試項需要經 MATT 流程修正，或由 Tickets 依「以 Brief 為準」略過並記錄。在決定前，Tickets 不得實作 Ridge／Lasso 的 test 評分 |
+| F-2 | Low — 修訂表部分 **RESOLVED**（Brief §14 已補記 `dea8fd0` 與 CC-1 的 CONTEXT 修訂）；措辭部分仍開放；另有新的編輯性瑕疵，見第 11 節 G-5 | `CONTEXT.md` 的接受後修改（`dea8fd0`）沒有記入 Brief §14 的修訂表；另外 CONTEXT「CV winner」寫「the feature subset with the lowest CV RMSE」，在 fold-internal 下，CV RMSE 屬於 (方法, k) 這個程序，評估與部署的是 canonical subset（Spec 已說明）。語義不受影響 | 補記修訂表；是否調整措辭由 acceptor 決定 |
 | F-3 | Low | Spec Testing 的「本單元另設自己的 CI 路徑過濾」已被 N-10 取代，但 Spec 文字仍在 | 是否經 MATT 流程更新 Spec 文字（不影響 Tickets，Tickets 依第 6 節） |
 | F-4 | Low | Spec 沒有帶入 Brief Q38（報告說明 Kaggle 名次不適用、改以預測結果評估）、notebook 六章的檢查、README 內容的檢查，以及未追蹤學號設定的路徑 | 不需要 acceptor 決定：依「以 Brief 為準」由 Ticket derivation 帶入（第 4 節 T-義務）。列出來是為了讓 acceptor 知道 |
 | F-5 | Medium | OV-2～OV-5 沒有已接受的 PASS／FAIL 門檻（第 5 節） | phase acceptance 前，決定它們是不是完成 gate，以及門檻（例如對比值） |
@@ -142,14 +143,32 @@ OV-2～OV-5 是 acceptor 接受的 UI 設計（B-13）的驗證項目，但 Brie
 - #59：內容不變；本紀錄是它的 derivation。
 - 舊的 r4 衍生工作：已依處置紀錄關閉（#50–#56），不受本紀錄影響。
 - Ticket derivation：依第 3～6 節與 `decision-20261018-high-risk-categories.md`；前置條件見 `decision-20261018-lane.md` 第 4 節。
-- Wireframe v0.2：仍是 UI 參考；F-1 的結果可能影響它的 test 區塊比較表。
+- Wireframe v0.2：仍是 UI 參考。CC-1 之後，它的 `TEST.ridge`／`TEST.lasso_ref`（metric_only）與現行語義一致；這些仍是 mock 數值。
 
 ## 9. Tickets
 
-（待 Ticket derivation 時填寫：Ticket 清單、AC 分配與覆蓋、依賴、各票的高風險類別、boundary determination、第 4 節 T-義務與第 5 節 OV 項目的落點、F-1 的處理。`/to-tickets` 是 MATT skill，產出的是 ticket 草稿；它們的 authority 來自本節的 DA derivation，不來自 skill。）
+（待 Ticket derivation 時填寫：Ticket 清單、AC 分配與覆蓋、依賴、各票的高風險類別、boundary determination、第 4 節 T-義務與第 5 節 OV 項目的落點、第 11 節 CC-1 的 G-1～G-4。`/to-tickets` 是 MATT skill，產出的是 ticket 草稿；它們的 authority 來自本節的 DA derivation，不來自 skill。）
 
 ## 10. Evidence
 
 - 讀取：Bindings b5；治理 v2.2 §1.2、§2.4、§2.5、§3.3–§3.6、§4.7、§5.1–§5.3；`outcome-contract.md`；`BRIEF.md`（HEAD 與 `dff7c55c`）；`dff7c55c` 的 Grill 紀錄（Q9、Q11、Q20、Q31 等）；`CONTEXT.md`；`SPEC.md` rev 3；`SPEC-review-2026-10-18.md`；`design/WIREFRAME-ACCEPTANCE.md`、`UI-DESIGN-NOTES.md`、`WIREFRAME-REVIEW-CHECKLIST.md`；`design/wireframe/mock-data.js`（第 188–189 行）；SRC-1 轉寫。
 - `git diff dff7c55c HEAD -- home_work_02/doc/brief/BRIEF.md home_work_02/CONTEXT.md`；`git log -- home_work_02/CONTEXT.md`（`dea8fd0`）；`sha256sum doc/requirement/*.txt`。
 - 寫入的檔案只有本紀錄與兩份同日 decision records；沒有修改 Spec、Brief、CONTEXT、GitHub 或其他檔案；沒有 commit。
+- 第 11 節：`outcome-contract.md` §4 CC-1（acceptor 原文）；工作樹對 HEAD `6f14130` 的 `git diff`（BRIEF.md §5、§7 BR-01 第 3–4 點、§14；CONTEXT.md 的 Test evaluation 與 Metric-only model；SPEC.md rev 4）。
+
+## 11. CC-1 的處理（2026-10-18 更新）
+
+- **Binding**：`gov-design-authority`，`claude-opus-5-5`／`high`（預設 mapping，沒有 escalation，沒有替代；由派工者依 Bindings §3.6 核對）。
+- **Boundary determination（重述 B-2）**：Ridge 與 Lasso 各做一次最終 test evaluation、只報 USD 的 MAE、MSE、RMSE、R²（`kind = "metric_only"`），**在現行 accepted boundary 內**，條件是同時符合 CC-1 的六項約束：(1) alpha 只用 training CV 選；(2) 不參與整體 CV winner；(3) 每個模型只做一次 test evaluation，dashboard 互動不得重新測試；(4) test 結果不回饋任何選擇；(5) 仍為 metric_only，沒有 PI、coverage 或即時預測；(6) dashboard 與報告清楚區分訓練 CV 指標與 test 指標。範圍只到 F-1：其他模型（含 p-value 對照）、其他 test 結果、任意 k 的 test evaluation 都仍在 boundary 外。CC-1 是 acceptor 核准的 contract change，本紀錄只是承接它，不由 DA 授權。
+- **Spec rev 4 與 CC-1 的一致性核對**：契約的形狀是完整的。`test` 的 `metric_only` 只允許 Ridge／Lasso，不含 PI、coverage 或逐筆欄位；`baselines` 中的 Ridge／Lasso 只有 `cv` 與 alpha，沒有 `fit`，所以 dashboard 無法自行重算它們的 test；pytest 會檢查 kind 與欄位一致；Node test 會檢查 `metric_only` 沒有 PI 也不提供預測；Out of Scope 排除「全部 (方法, k) 的 test 評估」。下列是精確的缺口，都不必修改 Spec，由 Ticket derivation 依「以 Brief 為準」補成 AC 或測試：
+
+| # | CC-1 約束 | Spec rev 4 的缺口 | Ticket 義務 |
+| --- | --- | --- | --- |
+| G-1 | (1) | 沒有測試證明 Ridge／Lasso 的 alpha 搜尋只看到 training 的列 | 次 seam 加一項：改動 test 列的值，選出的 alpha 與 CV 指標都不變 |
+| G-2 | (2) | `winners` 不含 Ridge／Lasso 只是由定義推得，沒有明確的測試 | pytest：`winners` 的各方法 winner 與整體 winner 都不含 Ridge／Lasso |
+| G-3 | (3)(4) | 「test 評估函式第二次呼叫時報錯」沒有寫明涵蓋 `metric_only`；也沒有寫 test 評估必須在全部 alpha 與 winner 固定之後才執行 | 這個守門條件同樣適用於 Ridge／Lasso；pytest 驗證 test 評估在 alpha 與 winner 固定之後才發生，且每個模型只發生一次；dashboard 不含任何計算 test 指標的程式碼（人工檢查加靜態檢查） |
+| G-4 | (6) | Dashboard 一節與人工檢查表的「來源標示」只列 KPI、係數表與 test 區塊，沒有涵蓋放 Ridge／Lasso test 指標的**比較表**；也沒有寫明報告中的標示 | 人工檢查表加一項：比較表的「訓練 CV（USD）」與「Test 評估（USD）」分欄標示；Ridge／Lasso 的 test 指標只出現在比較表（BR-01 第 4 點），不進 test 區塊、KPI 或實際 vs 預測圖。報告的結果表也照同樣方式分開 |
+| G-5 | — | `CONTEXT.md` 工作樹中 Test evaluation 詞條的 `_Avoid_: Validation, benchmark` 出現在 Metric-only model 詞條的前後各一次，等於 Metric-only model 底下有兩行 `_Avoid_`（第二行是 Test evaluation 原本的那行沒有刪掉）。這是編輯性瑕疵，不影響語義 | 請派工者或 acceptor 修正；DA 不修改 CONTEXT.md |
+
+- **對 Tickets 的約束**：負責 test 評估的票要把 Ridge／Lasso 的一次性評估納入同一個守門條件（G-3）；負責匯出的票要涵蓋 G-1、G-2；負責 dashboard 與報告的票要涵蓋 G-4，以及「互動不得重新測試」。這些都屬 H-3（高風險紀錄 A-2、A-3）。
+- **F-2**：Brief §14 已補記 `dea8fd0` 與 CC-1 對 CONTEXT 的修訂，修訂表部分結案。CONTEXT「CV winner」的措辭建議仍開放（Low，由 acceptor 決定）。
