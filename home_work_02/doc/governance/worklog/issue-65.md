@@ -1,8 +1,8 @@
 # Worklog — issue #65（HW2 T6 報告 draft、單元 README 與 ACCEPTANCE.md）
 
 - **Work item**：GitHub issue [#65](https://github.com/yotsubamomo/aiot-classwork/issues/65)，run `run-20261018-hw2-formal`（Formal，並行度 1）。
-- **狀態**：實作與 self-verification 完成，待 Orchestrator 核對 binding 並派 R1。本檔不代表 audit 或 closure。
-- **Subject**：branch `home_work_02-regrill`，base `bc56c064571d19b6d047ac4380540ebd3fac8a19`；**implementation commit `741a21ba29dfb5ad7a2c2d1ac2f02d5eeb20035d`**（本機，未 push）。本檔以其後的 record-only commit 加入（Bindings §7）。工作樹中 `doc/governance/run/run-20261018-hw2-formal.md` 的修改不是本票所做，沒有被 commit。
+- **狀態**：實作、self-verification 與 DA C-2 (b) 的 targeted correction（§9）完成，待 Orchestrator 核對 binding 並派 R1。本檔不代表 audit 或 closure。
+- **Subject**：branch `home_work_02-regrill`，base `bc56c064571d19b6d047ac4380540ebd3fac8a19`；第一次 implementation commit `741a21ba29dfb5ad7a2c2d1ac2f02d5eeb20035d`；**修正後的 implementation commit `0b57c0265f01e7732fdd1250e58101819a1b416f`**（§9；本機，未 push）。本檔以其後的 record-only commit 加入（Bindings §7）。工作樹中 `doc/governance/run/run-20261018-hw2-formal.md` 的修改不是本票所做，沒有被 commit。
 
 ## 1. Contract reference
 
@@ -98,8 +98,8 @@ Required（Formal；H-2：報告章節與老師要求的標示、README、預測
 
 | ID | 內容 | Required authority |
 | --- | --- | --- |
-| C-1 | **Dashboard 的標示**：三種標示中沒有「課堂口頭要求」。本票標為「老師要求（課堂口頭；作業頁正文沒有）」，並在報告的標示說明寫明它是唯一的例外、逐處註明「課堂口頭」（Brief §2、H-2「不得寫成老師的書面要求」）。Dashboard 頁面自己的圖例把「老師要求」定義為「作業頁正文的要求」，兩者的定義略有不同。另一種讀法（標「專案延伸」）與 Brief §3.2「必要（課堂口頭要求）」不符，所以沒有採用 | Design Authority（若認為應有不同標示） |
-| C-2 | **TK-2 的缺口**：`results/figures/` 沒有 (a) 各方法 k 路徑的 CV RMSE 圖、(b) 實際 vs 預測＋逐筆 PI 的預測圖、(c) Ridge／Lasso 的 alpha CV 曲線。notebook 4.2、4.3 有 (a)(c) 的內嵌圖但沒有存檔；notebook 第 5 章沒有 (b)。報告以 CSV 注入的表呈現 (a)(c)，以建置時擷取的 dashboard 截圖呈現 (a)(b)。依票 AC「缺少者視為 #63／#64 的缺口回報」，這裡回報而不自行補做（補做需要修改 notebook 與 `results/`，屬 #63 的評估／匯出範圍，且受 N-4 限制）。H-2 的「附預測區間的預測圖」目前由 dashboard 與報告截圖滿足；主程式 notebook 本身沒有這張圖 | Design Authority（是否需要 #63 補存 PNG／在 notebook 加預測圖，或接受現況） |
+| C-1 | **〔已裁決：`decisions/decision-20261019-issue65-labels-figures.md` L-1、L-2，維持現況、不修改〕** **Dashboard 的標示**：三種標示中沒有「課堂口頭要求」。本票標為「老師要求（課堂口頭；作業頁正文沒有）」，並在報告的標示說明寫明它是唯一的例外、逐處註明「課堂口頭」（Brief §2、H-2「不得寫成老師的書面要求」）。Dashboard 頁面自己的圖例把「老師要求」定義為「作業頁正文的要求」，兩者的定義略有不同。另一種讀法（標「專案延伸」）與 Brief §3.2「必要（課堂口頭要求）」不符，所以沒有採用 | Design Authority（若認為應有不同標示） |
+| C-2 | **〔已裁決：同一紀錄 F-1～F-5。(b) 是 TK-2 分配的缺口，由 #65 修正（§9）；(a)(c) 不是缺口、不補做。DA 更正：不是 #63 的缺陷〕** **TK-2 的缺口**：`results/figures/` 沒有 (a) 各方法 k 路徑的 CV RMSE 圖、(b) 實際 vs 預測＋逐筆 PI 的預測圖、(c) Ridge／Lasso 的 alpha CV 曲線。notebook 4.2、4.3 有 (a)(c) 的內嵌圖但沒有存檔；notebook 第 5 章沒有 (b)。報告以 CSV 注入的表呈現 (a)(c)，以建置時擷取的 dashboard 截圖呈現 (a)(b)。依票 AC「缺少者視為 #63／#64 的缺口回報」，這裡回報而不自行補做（補做需要修改 notebook 與 `results/`，屬 #63 的評估／匯出範圍，且受 N-4 限制）。H-2 的「附預測區間的預測圖」目前由 dashboard 與報告截圖滿足；主程式 notebook 本身沒有這張圖 | Design Authority（是否需要 #63 補存 PNG／在 notebook 加預測圖，或接受現況） |
 | C-3 | GitHub Pages URL 目前回應 404（尚未合併進 `main`）。報告與 README 列出 Brief 固定的網址；ACCEPTANCE D-12 記 NOT TESTED（pending merge）（AD-3） | 無（合併後的 Lightweight work item） |
 | C-4 | 觀察（不在本票範圍、沒有修改）：dashboard「指標 vs k」圖在 1280 px 的截圖中，x 軸沒有顯示 k 的刻度數字（`ex65/build2/shots/compare.png`）。#67 的 dashboard 人工檢查（D-1、D-4）可一併確認 | 無（告知 #67／Reviewer） |
 | C-5 | 報告 PDF 的建置需要 Node.js 與 Chrome 或 Edge（README 已寫明，可用 `HW2_BROWSER` 指定）；報告 PDF 與截圖只在 `dist/report/`，不進 git | 無 |
@@ -116,3 +116,63 @@ Required（Formal；H-2：報告章節與老師要求的標示、README、預測
 
 - 工作時間：2026-10-18 約 23:40 至 2026-10-19 00:35 +0800。
 - 報告建置（含 5 張截圖與 PDF）約 11.4 s；只產生 Markdown／HTML 約 1 s。完整 pytest 49.7 s。Mutation probes 12 個約 1 分鐘。來源查證（4 個採用、5 個未採用）是本票最耗時的部分。
+
+## 9. Targeted correction：C-2 (b)（DA `decisions/decision-20261019-issue65-labels-figures.md`，`e03fcb0`）
+
+- **依據**：DA 紀錄 §4.1 L-1～L-3（C-1：不修改）、§4.2 F-1～F-5（C-2：(b) 由 #65 修正；(a)(c) 不補做）；Orchestrator 2026-10-19 的續派（同一 worklog identity）。約束：不改 cell 0–45、§9.3 條件 7(b) 的模組與 `requirements.txt`；不執行 `hw2.run_notebook` 或 cell 41；不開守門、不載入 test 列、不擬合也不評分；N-4 部分執行；cell 28 的缺字觀察（DA O-1）不處理，交 R1 與 #67。
+- **Binding**：同一 subagent（agentId `a4779b376d79e3353`，`gov-executor`）續派；修正 commit 之後觀測 `('claude-opus-5-5', 'high')` 273 則，單一元素。全程核對由 Orchestrator 執行。
+- **修正 commit**：`0b57c0265f01e7732fdd1250e58101819a1b416f`（parent `e03fcb0`）。Delta 9 個檔案，全部在 `home_work_02/` 內：
+
+| 路徑 | 內容 |
+| --- | --- |
+| `hw2/prediction_plot.py`（新增；不在條件 7(b) 的模組內） | `prediction_figure(model_data)`：輸入只有 `model_data`，即 `test[key]` 的 `predicted`、`lower`、`upper`、`covered`、`coverage`、`n_covered`、`n_test`、`pi_level` 與 `test_inputs` 的 `actual_price`；不重算任何指標。Q43 編碼：x＝預測、y＝實際、log 刻度、y＝x、每筆一條垂直 PI 線段、依 `covered` 著色、全部 `n_test` 筆。每個 `winners.authorized_test_models` 一個面板（`allin`、`forward_sfs_k17`），標題列出共用同一模型的 CV winner 與整體 CV winner（D-2）。英文標籤（不依賴 CJK 字型）。`save_prediction_figure`：`metadata={"Software": None}`；寫入單元內時要求 `is_formal`（非 fixture，且 `export.result_digest`＝`b53ff286…`），否則拒絕 |
+| `hw2.ipynb` | 在 cell 45 之後、5.6 標題之前插入兩個 cell：`#### 5.5.1` 說明（markdown，index 46）與繪圖 code（index 47：使用 kernel 中的 `model_data`，與 cell 44、45 相同；顯示、印出每個面板的線段數與點數，`is_formal` 時存檔）。Cell 0–45 的位置、source 與輸出不變；原本 cell 46 之後的 #64 cell 往後移兩格，內容不變 |
+| `results/figures/eval_actual_vs_predicted_pi.png`（新增） | sha256 `8afdb90b6aa9f1fce55fc7cf565db6a8ecefa71c136541f49b55dc1a54bc4a39`（158,031 bytes；`.gitattributes` 已把 `results/figures/*.png` 標為 binary，committed blob 的 sha256 相同） |
+| `report/report.md`、`hw2/report.py` | §6.3 直接引用新的 PNG，取代「預測圖見第九章的 dashboard 截圖」；第九章截圖保留；標示不變；`FIGURES` 納入新檔 |
+| `doc/acceptance/ACCEPTANCE.md` | A-3 的檢查與證據改為 notebook 5.5.1、新 PNG、`tests/test_prediction_plot.py`、報告 §6.3、dashboard 與第九章截圖；狀態仍 PENDING |
+| `README.md`、`hw2/__init__.py` | 檔案配置與模組清單加上預測圖 |
+| `tests/test_prediction_plot.py`（新增） | 8 項：正式結果的每個面板線段數＝點數＝`n_test`、顏色與 `covered` 一致、涵蓋筆數＝`n_covered`；線段端點就是匯出的 `predicted`、`lower`、`upper`；標題列出共用者與整體 winner；fixture 可以畫但不得寫入單元內（`results/figures/` 與單元內其他路徑都拒絕），可寫到單元外；被竄改的正式結果不得寫入；把 `hw2.data` 與 `hw2.testgate` 的全部函式 monkeypatch 為拒絕後仍可繪圖、`_official_test_rows_loaded` 仍是 False，且模組不 import 任何資料、守門、建模、評估模組，沒有 fit／evaluate／predict／score 等呼叫；追蹤的 PNG 可由追蹤的 `model_data` byte-identical 重現；notebook 新 cell 位於 5.5 與 5.6 之間、有 PNG 輸出、無錯誤、不含 `gate.`／`evaluate` |
+
+### 9.1 部分執行（N-4；DA F-4 第 3 點）
+
+- 腳本 scratchpad `ex65/run_partial65.py`，紀錄 `ex65/run_partial65.log`（2026-10-19 約 00:40～00:55 +0800；kernel 時間 3.3 s）。單一 kernel（cwd `home_work_02/`）：
+  1. 前置（`store_history=False`）：`hw2.testgate.OFFICIAL_TEST_GATE_ENABLED = False`；`import matplotlib.pyplot` 加 `%matplotlib inline`（完整執行時由 cell 18 啟用 inline PNG formatter）。前兩次執行沒有這一步或沒有生效，`display` 只存了 `text/plain`，所以以 `git checkout -- hw2.ipynb` 還原後整段重做；三次寫出的 PNG 檔都相同。
+  2. Cell 1（import 與 `rel()`）在副本上執行，notebook 中它的 #63 輸出不變。
+  3. 以追蹤的 `results/model_data.json` 綁定 `model_data`，先斷言 `result_digest`＝`b53ff286…c3cfc6` 與 manifest `selection_digest`＝`44f7723e…4b28`（run_id `fe76019b9af84b1e8ff46095d5ac0fb2`）。
+  4. 只執行新的 code cell（index 47），把它的輸出寫回。輸出：兩個面板各 4,323 條 PI 線段與 4,323 個點（`allin` 在區間內 4,082、外 241；`forward_sfs_k17` 4,083、240），`written: results/figures/eval_actual_vs_predicted_pi.png`；stderr 沒有任何輸出（沒有 matplotlib 缺字警告）。
+  5. 檢查：`_official_test_rows_loaded` False、守門旗標 False、kernel 中沒有 `gate`、`evaluation`、`prepared`、`winners`。
+- **沒有執行**：`hw2.run_notebook`；cell 41、42、44、45；除了 cell 1 與新 cell 之外的任何 cell；任何以開啟的守門執行的 process。
+- 新 cell 的執行序號是 2（這個 kernel 的實際序號），notebook 的執行序號現在是 `1…28, 2, 25…35`。依 N-2 這屬過渡狀態，由 #67 的單一次完整執行取代（N-3）。
+
+### 9.2 F-5 的證據
+
+| 條件 | 結果 |
+| --- | --- |
+| 正式產物與 `741a21b` 相同 | `results/model_data.json` `fa86d76c…`、`assets/model_data.js` `37626bf9…`、`results/tables/` 8 個 CSV、既有 7 張 PNG（`diag_*`、`explain_*`）：sha256 與 `git show 741a21b:…` 逐一相同（17 個檔案全部相同） |
+| `export.result_digest` | `b53ff286ae0734add8b272089aba904a1cb7f5aca444a62d356420b25dc3cfc6` |
+| 凍結的模組 | `git diff --stat 052984b -- hw2/{data,split,preprocess,selection,models,comparison,ols,metrics,contract,testgate,export}.py requirements.txt`：沒有差異 |
+| Notebook cell 0–45 | source 與 `git show 052984b:home_work_02/hw2.ipynb` 的 cell 0–45 逐一相同（True）；部分執行腳本另外斷言 cell 0–45 與 #64 cell 的完整 JSON（含輸出）在寫回前後相同；`git diff` 只有插入 |
+| 沒有執行的項目 | `hw2.run_notebook`、cell 41、42、44、45 都沒有執行；沒有任何 process 開啟守門；`_official_test_rows_loaded` 在 kernel 與兩個獨立 process 中都是 False |
+| 決定性 | 兩個獨立 process（`python -W error`，沒有警告）各以追蹤的 `model_data.json` 產生一次 PNG（`ex65/det1/`、`ex65/det2/`），與 kernel 寫入的追蹤檔三者 sha256 都是 `8afdb90b6aa9f1fce55fc7cf565db6a8ecefa71c136541f49b55dc1a54bc4a39`；pytest `test_the_tracked_png_is_regenerated_byte_identically` 每次執行再核對一次 |
+
+### 9.3 Verification（工作樹＝`0b57c02`）
+
+| # | 方法 | 結果 |
+| --- | --- | --- |
+| VC-1 | 完整 pytest `.venv/Scripts/python -m pytest -q -rs -p no:cacheprovider` | **338 passed、1 skipped**（skip＝學號設定未提供），70.0 s。之後只強化了 `test_prediction_plot.py` 的 import 檢查（見 VC-4），受影響的四個測試檔（`test_prediction_plot`、`test_report`、`test_notebook_structure`、`test_diagnostics`）再跑：49 passed |
+| VC-2 | Node `node --test tests/js/core.test.js` | 9 pass、0 fail、3 skip |
+| VC-3 | `python -m hw2.offline_scan` | PASS（0 findings） |
+| VC-4 | Mutation probes（`ex65/mutants65c2.py`，scratch 複本 `ex65/mut_c2/`，輸出 `ex65/mutants65c2.out`） | baseline 通過；6 個 mutant 全部 DETECTED：點只畫一半、線段只畫一半、顏色不依 `covered`、寫入單元內不檢查正式性、上界換成點預測、模組 import 守門。第一輪有兩個存活：一個是等價 mutant（換成「點只畫一半」）；另一個（`from . import testgate`）讓測試的 import 檢查補上相對 import 的名稱 |
+| VC-5 | 報告建置 `python -m hw2.report` | 成功；§6.3 引用 `fig:eval_actual_vs_predicted_pi.png`；PDF 25 頁；`external_requests: []`；`tests/test_report.py` 的「`results/figures/` 每張 PNG 都被引用」包含新檔 |
+| VC-6 | 人工檢視 PNG（`ex65/fig_try/`） | 兩個面板、log 刻度、y＝x、逐筆線段與著色；標題列出 `All-in baseline = RFE k=18` 與 `Forward SFS k=17 = Backward SFS k=17 = Lasso path ranking k=17` 及整體 CV winner；涵蓋率與筆數；沒有缺字 |
+
+- **A-4（S-1）**：新增內容中沒有「學號」；7 位以上的數字串只有 sha256／digest 片段；PNG 是 binary。沒有建立 `.local/packaging.json`。實際學號比對 NOT VERIFIED（依 S-1）。
+- **Shell 寫入**：本次修正沒有以 shell 寫入單元交付物（以 Edit／Write 工具或 Python 腳本修改檔案；notebook 由部分執行腳本以 nbformat 寫回）。worklog 本節先以 Write 寫在 scratchpad `ex65/worklog_s9.txt` 再以 shell 附加，因為一次 shell heredoc 的引號解析失敗（沒有寫入任何內容）。第一次實作（§3.2）的 shell 寫入依 run record §15 已取得 acceptor 同意。
+- **Git**：commit message 依規則、沒有 Claude 標記；未 push、rebase、merge、force push。
+
+### 9.4 Concerns（本次修正）
+
+| ID | 內容 | Required authority |
+| --- | --- | --- |
+| C-6 | 部分執行時為了讓 `display(Figure)` 存下 PNG，前置步驟以 `%matplotlib inline` 啟用 inline formatter。完整執行時由 cell 18 的 `import matplotlib.pyplot` 啟用，所以 #67 的完整重跑會得到同樣的輸出型態。這只影響 notebook 中的顯示，不影響 PNG 檔（三次相同） | 無（告知 R1／#67） |
+| C-7 | DA O-1（cell 28 圖例的缺字）依指示沒有處理；新 cell 沒有缺字警告 | 無（R1、#67） |
