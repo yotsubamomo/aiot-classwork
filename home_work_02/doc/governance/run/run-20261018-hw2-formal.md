@@ -53,9 +53,9 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
 | #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
-| #65 T6 | #63、#64 | DA routing（C-1、C-2） | `worklog/issue-65.md` | — |
-| #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
-| #67 T8 | #66；學號；RB-5 | 待執行 | — | — |
+| #65 T6 | #63、#64 | **已結案** | `worklog/issue-65.md` | `audit/issue-65-c1-r1.md` BLOCKING → `issue-65-c1-r2.md` CLOSURE |
+| #66 T7 | #65；acceptor 輸入 | **BLOCKED**（stop report §16） | — | — |
+| #67 T8 | #66；學號；RB-5 | 待 #66（另缺學號設定） | — | — |
 
 Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 結案後派。DA phase acceptance：其 closure 之後。
 
@@ -193,3 +193,17 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **R1**（agentId `a3ff011d2766ef922`）：`gov-primary-reviewer`；Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: **BLOCKING**（F-1 Medium／H-4：第 6、7 章把補充建議標成老師要求）；F-2、F-3 Low（可併入 F-1 修正）；F-4 Low（cell 28 缺字，owner #67，修正前須 DA 裁決）。
 - **Routing**：F-1 → 同一 Executor targeted correction（同一 worklog identity），之後 R2。F-4 的 DA 裁決在 #67 派工前派出（Orchestrator 記為 #67 前置事項；現在不派，以免與進行中的 Executor commit 交錯）。
 - **DA F-4**（agentId `aa476439fae02923e`；Opus 5.5／`high` 單一元素）：record `decisions/decision-20261019-cell28-glyphs.md`：缺字須修，由 #67 以獨立 commit 只改 cell 28 的一行（G-3），在條件 7 核對與完整重跑之前；條件 7(b)／N-3 依 G-5 調整；不改 accepted 語義，不需 acceptor。列入 #67 bounded pack。
+- **R2**（同一 reviewer，SendMessage 續派 R1 context）：Opus 5.5／`xhigh` 單一元素；record `audit/issue-65-c1-r2.md` 自寫。VERDICT: CLOSURE；F-1 resolved；F-2、F-3 已處理；F-4 open（owner #67，已有 DA `decision-20261019-cell28-glyphs.md`）。
+- **Completion predicates**：P1 #63、#64 已結案；P2 引用鏈存在；P3 evidence 在 worklog §4、§9、§10；P4 R2 CLOSURE；P5 無未處置 blocking；P6 C-1、C-2 有 DA record；P7 closed subject＝`99303c3`＝R2 subject，之後只有 record-only delta；P8 worklog 已更新（`743441e`）。→ **#65 結案**。
+
+## 16. Stop report — #66 與 #67（2026-10-19）
+
+| 項目 | 內容 |
+| --- | --- |
+| 受影響 work item | #66 T7（Acceptor 證據整合與 final 報告）；#67 T8 因依賴 #66 而一併等待 |
+| 現況 | #60～#65 已結案（本機 commit，未 push）。#66 的依賴 #65 已滿足；`home_work_02/acceptor_materials/` 不存在。#67 另需的 `home_work_02/.local/packaging.json` 也不存在 |
+| 缺少事項 | (1) ChatGPT 對話 PDF；(2) NotebookLM 原始輸出與來源清單（Brief §9；README 所列 `acceptor_materials/`）；(3) #67 的學號設定 `.local/packaging.json`；(4) #67 修改 root `README.md`／`CONTEXT-MAP.md` 前的 RB-5 逐次授權（將先提交預計 diff） |
+| 已嘗試 | Re-ground：從 run record、Brief §9、#66／#67 票文與 `.gitignore` 確認輸入位置；檢查目錄不存在。Replacement：不適用——acceptor 2026-10-18 §14 第 5 點明示不得自行生成或替代這些證據。Routing：屬 acceptor 輸入，不是 DA／FA 可裁決的語義問題 |
+| 所需 authority | Acceptor（治理 §1.5 第 1 項；Bindings §2.6 RB-3／RB-5 不涉及；輸入屬 Brief §9 acceptor 專屬） |
+| Blocker 與恢復條件 | **Blocker**：上列 (1)(2) 不存在。**恢復條件**：acceptor 把 ChatGPT PDF 與 NotebookLM 材料放進 `home_work_02/acceptor_materials/`（未追蹤），並在對話中告知 → Orchestrator 核對檔案存在後派 #66。#67：#66 結案、`.local/packaging.json` 已由 acceptor 放入，且 root 兩列取得 RB-5 授權後派工；F-4（cell 28）依 DA record 在 #67 內處理 |
+| 其他路徑 | 沒有其他可執行的票。Spec Integration Audit 與 DA phase acceptance 依 orch-default §6 在全部票結案後才派，不提前 |
