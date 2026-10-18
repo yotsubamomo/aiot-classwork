@@ -22,7 +22,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 > 7. 請先完成 Orchestrator Contract §3 的前提核對與自身 binding 核對、建立 run record，再派第一張票 #60。
 
 - Designation 不構成 Outcome Contract 的接受或授權（orch-default §3）；第 2 點的 Implementation 授權是 acceptor 的授權行為，其持久紀錄就是上方原文（本節）；Orchestrator 不修改 Outcome Contract（orch-default §2），所以不另在 `outcome-contract.md` 加條目。
-- **第 3 點的 push 選項未選定**：原文保留「二選一」的兩個選項。在 acceptor 選定前，本 run 依較保守的 (a) 處理——每張票 audit closure 後只做本機 commit，向 acceptor 逐次取得 push 授權；不推定 (b)（orch-default §10：不得推定未宣告的預授權）。
+- **第 3 點的 push 選項**：designation 原文保留「二選一」，activation 時未選定，暫依較保守的 (a) 處理。Acceptor 2026-10-18 於同一 session 選定，原文逐字：「Push 選項採 (a)：每張票 audit closure 後向我逐次取得授權。」本 run 因此在每張票 audit closure 後只做本機 commit，再向 acceptor 逐次取得一般 fast-forward push 的授權。
 
 ## 2. Activation 前提（orch-default §3；Bindings §8.2）
 
@@ -48,7 +48,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 
 | 票 | Blocked by | 狀態 | Worklog | Audit |
 | --- | --- | --- | --- | --- |
-| #60 T1 | — | READY → 派工 | `worklog/issue-60.md` | — |
+| #60 T1 | — | audit 中（R1） | `worklog/issue-60.md` | 待 `audit/issue-60-c1-r1.md` |
 | #61 T2 | #60 | 待執行 | — | — |
 | #62 T3 | #61 | 待執行 | — | — |
 | #63 T4 | #62 | 待執行 | — | — |
@@ -64,7 +64,19 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | 時間 | 事件 | 依據 | 結果 |
 | --- | --- | --- | --- |
 | 2026-10-18 | Activation | 第 1–3 節 | run 啟動 |
+| 2026-10-18 | #60 派 Executor | orch-default §4 步驟 3；`gov-executor`（Opus 5.5／`high`），subject base `e2d3e0b` | 完成 |
+| 2026-10-18 | Acceptor 選定 push 選項 (a) | 第 1 節原文 | 每張票 closure 後逐次取得 push 授權 |
+| 2026-10-18 | Acceptor 指示「這邊我不介入 請直接做到結束」 | 治理 §1.4 | 依 run-to-completion 繼續；此指示未改變 push 選項 (a)，故不推定 push 授權：各票 closure 後只做本機 commit，push 授權請求累積於 completion report；#66／#67 的 acceptor 輸入與 RB-5 仍是 §1.5 boundary |
 
 ## 6. Checkpoints
 
 （尚無）
+
+## 7. #60
+
+- **Executor return**：`DONE_WITH_CONCERNS`（agentId `a447664b1c57e651b`）。Return 是待驗證主張，不作 completion evidence。
+- **Binding**（Bindings §3.6）：`agentType` `gov-executor`；`('claude-opus-5-5', 'high')` 167 則，單一元素，符合 O-1 mapping。
+- **Subject**：implementation commit `f20d70ebdc76ba7e1fd244769fa141fa23bf0641`（parent `e2d3e0b`）；之後 `786d46b` 只改 `doc/governance/worklog/issue-60.md`（record-only path，Bindings §7）。
+- **Machine gates／evidence presence**（orch-default §4 步驟 6；不判斷充分性）：`git diff --name-only e2d3e0b f20d70e` 全部在 `home_work_02/` 內、無 `doc/requirement/` 路徑；worklog 存在且已更新；追蹤的 PDF 只有老師文件，無 `.zip`／`.env`／`kaggle`。
+- **Concerns**：(1) A-4 學號 `git grep` 因 acceptor 尚未提供 `.local/packaging.json` 而 skip；(2) OV-1 斷網實測屬 #67。兩者未指明所需 authority，屬 R1 Reviewer 的 finding／evidence sufficiency 範圍（治理 §2.4），交 R1，Orchestrator 不判斷。
+- **R1**：派 `gov-primary-reviewer`（Opus 5.5／`xhigh`），fresh context，record `audit/issue-60-c1-r1.md`。
