@@ -320,7 +320,7 @@ home_workNN/doc/
 | --- | --- | --- |
 | 1 | b4（本檔、`PKG/`、更新後的 `gov-*` definitions）合併進 `main` | 完成（PR #47，`main` `6a75345`） |
 | 2 | 重開 Claude Code session，確認更新後的 `gov-*` definitions 已載入 | 完成（2026-10-14，新 CLI session `71b409f6`） |
-| 3 | Binding dry-run：對九個 `gov-*` definition 各派一次不做事的任務；另以 per-dispatch 參數各派一次，核對 alias 的實際 model：`model: fable`（escalation／fallback 路徑）、`gov-investigator`＋`model: opus`（E-IN）、`gov-bounded-worker`＋`model: haiku`（Haiku qualification probe，預期 `claude-haiku-5-5`／`high`，第 3.4 節）。以第 3.6 節指令核對，結果記在 [`binding-verification.md`](binding-verification.md) b4 節 | 11／12 PASS（2026-10-14）；`model: fable` 因 Fable 用量上限（HTTP 429）未完成，待額度恢復後重跑（見 `binding-verification.md` b4 節） |
+| 3 | Binding dry-run：對九個 `gov-*` definition 各派一次不做事的任務；另以 per-dispatch 參數各派一次，核對 alias 的實際 model：`model: fable`（escalation／fallback 路徑）、`gov-investigator`＋`model: opus`（E-IN）、`gov-bounded-worker`＋`model: haiku`（Haiku qualification probe，預期 `claude-haiku-5-5`／`high`，第 3.4 節）。以第 3.6 節指令核對，結果記在 [`binding-verification.md`](binding-verification.md) b4 節 | 12／12 PASS（11 項 2026-10-14；`model: fable` 2026-10-18 補跑通過，agentId `a5207ac4b668a6a25`，見 `binding-verification.md` b4 節） |
 | 4 | 每份作業的高風險類別由 Design Authority 確認（第 5 節） | 每份作業各自處理（`home_work_01/` 已完成） |
 | 5 | 該作業的 Outcome Contract 有 acceptor 接受紀錄（第 2.3 節） | 每份作業各自處理 |
 

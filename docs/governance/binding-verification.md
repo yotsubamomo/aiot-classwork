@@ -105,7 +105,7 @@ agent-aa2541de1289c9e44 gov-executor [('claude-opus-4-8', 'high')]
 | 11 | `investigator`（E-IN） | `gov-investigator` | `model: opus` | `claude-opus-5-5` ／ `high` | `a501693770510067e` | `claude-opus-5-5` ／ `high`（2） | 0 | **PASS** |
 | 12 | `bounded_worker`（`mechanical`，文件化派工方式） | `gov-bounded-worker` | `model: haiku` | `claude-haiku-5-5` ／ `high` | `a65084a1a47b1fcbd` | `claude-haiku-5-5` ／ `high`（1） | 0 | **PASS** |
 
-**總判定：11／12 PASS；#10 未完成**（不是 binding 不符，是當次不可用）。無 replacement。
+**總判定：11／12 PASS；#10 未完成**（不是 binding 不符，是當次不可用）。無 replacement。**2026-10-18 更新：#10 補跑 PASS，b4 dry-run 12／12 PASS**（見下方「Fable 路徑 probe 重跑」）。
 
 核對指令輸出（原樣，Bindings §3.6 指令加上 tool-use 與 error 計數）：
 
@@ -131,6 +131,27 @@ agent-a65084a1a47b1fcbd gov-bounded-worker {('claude-haiku-5-5', 'high'): 1} too
 2. **#10 Fable**：派工回傳 `Agent terminated early due to an API error: You've reached your Fable limit. ... (error type rate_limit, HTTP 429, request id req_011Cg1HaLGkRbuP6wYiaZFoW, model sent to the API: claude-fable-5-1)`。錯誤顯示 `model: fable` 送出的是 `claude-fable-5-1`，但沒有完成的 assistant 回覆，不構成 binding 證據。這是當次的可用性證據（Profile v2.4 §3 rule 1）：日後實際派 Fable 時若仍不可用，依 Bindings §3.1 的 fallback 列替代（例如 F-AR\*、F-DA\*、F-FA\* → Opus 5.5／`xhigh`）。Fable 額度恢復後重跑本列。
 3. **#12** 是 Haiku 以 Bindings §3.4 文件化的派工方式（只帶 `model: haiku`，effort 取自 frontmatter）再測一次；前一次的 qualification probe（per-dispatch `effort: high`）見下方註記。
 4. 12 個派工的 tool uses 皆為 0。
+
+## Fable 路徑 probe 重跑（2026-10-18，#10 補跑）
+
+| # | Identifier | Definition（`agentType`） | 派工參數 | 預期 model／effort | agentId | 觀測（則數） | Tool uses | 結果 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 10 | Fable 路徑（E-DA／E-AR／E-FA、F-DA／R-PR／F-FA） | `gov-alternate-reviewer` | `model: fable` | `claude-fable-5-1` ／ `xhigh` | `a5207ac4b668a6a25` | `claude-fable-5-1` ／ `xhigh`（1） | 0（見備註 5） | **PASS** |
+
+- **Session**：`f3181737-e591-43a2-a950-13025e468c8f`（主 session，無角色，model `claude-fable-5-1`；只派工與記錄）。依 acceptor 2026-10-18 指示「重跑 Bindings §8.2 #3 的 Fable binding probe（失敗保留證據回報）」執行；記錄依 acceptor 同日 RB-5 授權寫入。
+- **Definitions 版本**：`main` `6a75345` 之後未變更的 `.claude/agents/gov-alternate-reviewer.md`（frontmatter `claude-opus-5-5`／`xhigh`）；只帶 per-dispatch `model: fable`，effort 取自 frontmatter。
+- **回覆**：`binding dry-run ack: alternate_reviewer fable`。
+- **全程核對**：(model, effort) 集合只有一個元素。`agent-a5207ac4b668a6a25.meta.json` 記錄 `"model":"fable"`，transcript 的 `message.model` 為 `claude-fable-5-1`，確認 alias `fable` 解析到 Fable 5.1。
+- **核對指令輸出**（Bindings §3.6 指令加 tool-use 與 error 計數）：
+
+```text
+agent-a5207ac4b668a6a25 gov-alternate-reviewer {('claude-fable-5-1', 'xhigh'): 1} tools= 1 []
+  content: tool_use SubagentHandback
+```
+
+5. transcript 中唯一的 `tool_use` 是 harness 的 `SubagentHandback`（本版 Claude Code 把 subagent 的最終回覆以此交回主 session），不是 Read／Bash／Write 等工作工具；`git status` 於 probe 前後無變化。依 b4 表的計法（工作工具呼叫）記 0。
+
+**b4 總判定更新：12／12 PASS**（#10 於 2026-10-18 補跑通過）。
 
 ## Haiku qualification probe（2026-10-14，b4 合併前）
 
