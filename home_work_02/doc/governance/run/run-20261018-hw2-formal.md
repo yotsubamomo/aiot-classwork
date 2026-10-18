@@ -49,7 +49,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | 票 | Blocked by | 狀態 | Worklog | Audit |
 | --- | --- | --- | --- | --- |
 | #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
-| #61 T2 | #60 | READY → 派工 | `worklog/issue-61.md` | — |
+| #61 T2 | #60 | audit 中（R1） | `worklog/issue-61.md` | 待 `audit/issue-61-c1-r1.md` |
 | #62 T3 | #61 | 待執行 | — | — |
 | #63 T4 | #62 | 待執行 | — | — |
 | #64 T5 | #62 | 待執行 | — | — |
@@ -100,3 +100,11 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | 票 | 本機 HEAD（結案時） | 狀態 |
 | --- | --- | --- |
 | #60 | 本次 commit | 待 acceptor 授權；前置：學號設定＋S-2 無命中 |
+
+## 10. #61
+
+- **Executor**（agentId `af27ea1586955f943`）：`DONE`；`gov-executor`；`('claude-opus-5-5', 'high')` 234 則，單一元素，符合 O-1。
+- **Subject**：implementation commit `c9b106cbc0a8e19bc42d5d6fd4b20d0150e1a8f1`（base `bbf0ed5`）；之後 `ed4d32a` 只改 `doc/governance/worklog/issue-61.md`（record-only）。
+- **Machine gates／evidence presence**：變更全部在 `home_work_02/`、無 `doc/requirement/`；worklog 存在且已更新；追蹤樹無 `.zip`／`.env`／`kaggle`、PDF 只有老師文件。
+- **Concerns**（未指明 authority 或屬 Reviewer 範圍）：(1) A-4 學號比對依 DA S-1 記 NOT VERIFIED；(2) dashboard 部分先於 #62 建置（Executor 自認 HOW）；(3) OV-6 只在 headless 量測。交 R1，Orchestrator 不判斷。
+- **R1**：派 `gov-primary-reviewer`（Opus 5.5／`xhigh`），fresh context，record `audit/issue-61-c1-r1.md`。
