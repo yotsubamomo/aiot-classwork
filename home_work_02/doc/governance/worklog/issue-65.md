@@ -1,8 +1,8 @@
 # Worklog — issue #65（HW2 T6 報告 draft、單元 README 與 ACCEPTANCE.md）
 
 - **Work item**：GitHub issue [#65](https://github.com/yotsubamomo/aiot-classwork/issues/65)，run `run-20261018-hw2-formal`（Formal，並行度 1）。
-- **狀態**：實作、self-verification 與 DA C-2 (b) 的 targeted correction（§9）完成，待 Orchestrator 核對 binding 並派 R1。本檔不代表 audit 或 closure。
-- **Subject**：branch `home_work_02-regrill`，base `bc56c064571d19b6d047ac4380540ebd3fac8a19`；第一次 implementation commit `741a21ba29dfb5ad7a2c2d1ac2f02d5eeb20035d`；**修正後的 implementation commit `0b57c0265f01e7732fdd1250e58101819a1b416f`**（§9；本機，未 push）。本檔以其後的 record-only commit 加入（Bindings §7）。工作樹中 `doc/governance/run/run-20261018-hw2-formal.md` 的修改不是本票所做，沒有被 commit。
+- **狀態**：實作、self-verification、DA C-2 (b) 的 targeted correction（§9）與 R1 F-1～F-3 的 targeted correction（§10）完成，待 Orchestrator 核對 binding 並派 R2。本檔不代表 audit 或 closure。
+- **Subject**：branch `home_work_02-regrill`，base `bc56c064571d19b6d047ac4380540ebd3fac8a19`；第一次 implementation commit `741a21ba29dfb5ad7a2c2d1ac2f02d5eeb20035d`；C-2 (b) 修正 commit `0b57c0265f01e7732fdd1250e58101819a1b416f`（§9）；**R1 F-1～F-3 修正後的 implementation commit `99303c31ef5f19f9c34c562a2c2233bcfddec064`**（§10；本機，未 push）。本檔以其後的 record-only commit 加入（Bindings §7）。工作樹中 `doc/governance/run/run-20261018-hw2-formal.md` 的修改不是本票所做，沒有被 commit。
 
 ## 1. Contract reference
 
@@ -176,3 +176,40 @@ Required（Formal；H-2：報告章節與老師要求的標示、README、預測
 | --- | --- | --- |
 | C-6 | 部分執行時為了讓 `display(Figure)` 存下 PNG，前置步驟以 `%matplotlib inline` 啟用 inline formatter。完整執行時由 cell 18 的 `import matplotlib.pyplot` 啟用，所以 #67 的完整重跑會得到同樣的輸出型態。這只影響 notebook 中的顯示，不影響 PNG 檔（三次相同） | 無（告知 R1／#67） |
 | C-7 | DA O-1（cell 28 圖例的缺字）依指示沒有處理；新 cell 沒有缺字警告 | 無（R1、#67） |
+
+## 10. Targeted correction：R1 F-1（blocking）、F-2、F-3（`audit/issue-65-c1-r1.md`，`6025c32`）
+
+- **依據**：R1 record §6 F-1（需要的修正 1–3、R2 closure 條件 (a)～(d)）、F-2、F-3 的 disposition（併入本次修正）；F-4（notebook cell 28 缺字）依 Orchestrator 指示**沒有處理**（凍結的 cell，修正前須 route Design Authority，owner #67）。我不爭議 F-1：報告自己定義〔老師要求〕＝作業頁正文，而第六、七章開頭直接放了補充段的句子，§6.2 的 Adjusted R² 也沒有標示，兩者都可在模板中直接核對。
+- **約束**：只改 `home_work_02/`；不改 `results/`、notebook、凍結的模組、`requirements.txt`；不重新評估、不執行 `hw2.run_notebook`。沒有使用 shell 寫入單元交付物（以 Python 腳本對既有檔案做字串替換，測試以 shell heredoc 附加到既有的測試檔）；worklog 本節先以 Write 寫到 scratchpad `ex65/worklog_s10.txt` 再附加。
+- **Binding**：同一 subagent（agentId `a4779b376d79e3353`，`gov-executor`）續派；修正 commit 之後觀測 `('claude-opus-5-5', 'high')` 299 則，單一元素。
+- **修正 commit**：`99303c31ef5f19f9c34c562a2c2233bcfddec064`（parent `6025c32`）。`git diff --name-only 0b57c02 99303c3 -- home_work_02 ':!home_work_02/doc/governance'` 只有 `README.md`、`report/report.md`、`tests/test_report.py`。
+
+| Finding | 修改 |
+| --- | --- |
+| F-1 (1) | `report/report.md` 第六、七章：補充段引文之前加上出處說明——第六章「作業頁正文要求模型評估與加上區間的預測圖（見前面的標示對照表與第 6.3 節）。下面這句出自作業頁的「補充」段，是對這一階段的**建議**，不是作業頁正文的要求；本專案採用的部分是第 6.2 節的 Adjusted R² 與第 6.4 節的五大回歸假設診斷，都標〔依老師補充建議〕：」；第七章同型，指向第 7.2、7.3 節 |
+| F-1 (2) | §6.2 標題改為「訓練 CV 與 Test 的比較 〔老師要求；Adjusted R² 為依老師補充建議〕」；該節兩處 Adjusted R² 的陳述各加段落層級〔依老師補充建議〕 |
+| F-2 | `tests/test_report.py` 新增 10 項：§5.2、§6.4、§7.2、§7.3 的標題帶〔依老師補充建議〕且不帶〔老師要求〕；§6.2 標題與每一行 Adjusted R² 的陳述帶補充建議的標示；§7.1、§9 的標題帶「課堂口頭」；每一段 `quote:src2t` 引文都在〔依老師補充建議〕標題之下，或緊接在指明「補充」段為出處的句子之後；`quote:src1`（正文）引文前不得以「補充」為出處；README 目的段不把方法比較寫成作業要求 |
+| F-3 | `README.md` 目的段：「依作業要求執行特徵選擇：比較四種……（方法取自作業頁「補充」段建議清單的一部分）與單一的 All-in baseline……」 |
+
+### 10.1 回歸證據
+
+| # | 方法 | 結果 |
+| --- | --- | --- |
+| VR-1 | 完整 pytest（工作樹＝`99303c3` 之前的最後一次全量；之後只改了第六章引言的一句措辭，受影響的 `test_report.py`、`test_prediction_plot.py` 再跑 34 passed） | **348 passed、1 skipped**（skip＝學號設定未提供），48.5 s |
+| VR-2 | `tests/test_report.py` | 26 passed（原 16＋新 10） |
+| VR-3 | Node `node --test tests/js/core.test.js` | 9 pass、0 fail |
+| VR-4 | `python -m hw2.offline_scan` | PASS（0 findings） |
+| VR-5 | 報告建置 `python -m hw2.report` | 成功；仍核對正式評估的 digest（建置會先執行 `check_formal_evaluation`）；PDF 26 頁（多了兩段文字）；`external_requests: []`。渲染後 `dist/report/hw2_report.md`：第六章（第 191 行起）與第七章（第 313 行起）的補充段引文之前都有出處說明；§6.2 標題與兩處 Adjusted R² 帶〔依老師補充建議〕。模板的「沒有手抄數字」測試通過（新文字只有章節編號） |
+| VR-6 | Mutation probes（`ex65/mutants65f.py`，scratch 複本 `ex65/mut_f/`，輸出 `ex65/mutants65f.out`） | baseline 通過；11 個 mutant **全部 DETECTED**：R1 的 L1～L6（先前存活的 6 個）、第六章出處說明被刪（F1a）、第七章出處說明被刪（F1b）、§6.2 標題標示被刪（F1c）、§6.2 條列的標示被刪（F1d）、README 措辭還原（F3） |
+| VR-7 | 不變的產物 | `results/model_data.json`、`assets/model_data.js`、`results/figures/eval_actual_vs_predicted_pi.png` 與 `0b57c02` 相同（`git diff --quiet`）；`results/`、`assets/`、`hw2.ipynb`、`hw2/` 都不在 delta 中 |
+
+- **R2 closure 條件**（R1 record F-1）：(a) 渲染後第六、七章與其他〔老師要求〕章節沒有未註明出處的補充段引文（VR-5；測試 `test_every_supplement_quote_is_attributed_to_the_supplement`）；(b) §6.2 的 Adjusted R² 帶〔依老師補充建議〕（VR-5；`test_adjusted_r2_in_6_2_is_labelled_as_a_supplement`）；(c) delta 只有報告來源、測試與 F-3 的 README 一句（VR-7）；(d) 完整 pytest 通過、報告可建置（VR-1、VR-5）。是否成立由 R2 判定。
+- **A-4（S-1）**：新增內容沒有「學號」相關數字；7 位以上數字串只有 commit SHA。實際學號比對 NOT VERIFIED（依 S-1）。
+- **Git**：commit message 依規則、沒有 Claude 標記；未 push、rebase、merge、force push。
+
+### 10.2 Concerns
+
+| ID | 內容 | Required authority |
+| --- | --- | --- |
+| C-8 | R1 F-4（cell 28 缺字）依指示未處理；owner #67，修正前須 route Design Authority | Design Authority（#67 之前） |
+| C-9 | README 的修改（F-3）不是 R2 的 closure 條件之一，但在 delta 中；R1 record 建議併入本次修正 | 無（告知 R2） |
