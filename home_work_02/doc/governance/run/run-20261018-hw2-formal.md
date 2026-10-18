@@ -53,7 +53,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
 | #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
-| #65 T6 | #63、#64 | READY → 派工 | `worklog/issue-65.md` | — |
+| #65 T6 | #63、#64 | DA routing（C-1、C-2） | `worklog/issue-65.md` | — |
 | #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
 | #67 T8 | #66；學號；RB-5 | 待執行 | — | — |
 
@@ -103,7 +103,7 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | #61 | `6f18d8f` | 同上 |
 | #62 | `b686b3a` | 同上 |
 | #63 | `b34cc50` | 同上 |
-| #64 | #64 結案 commit | 同上 |
+| #64 | `d6ca60e` | 同上 |
 
 ## 10. #61
 
@@ -152,3 +152,35 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Completion predicates**：P1 #62 已結案；P2 引用鏈存在；P3 evidence 在 worklog §5；P4 R1 CLOSURE；P5 無 blocking；P6 C-1、C-3（`decision-20261018-issue64-notebook-rerun.md`）、R-1（本 record）皆有 DA record；P7 closed subject＝`003b825`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`20c7210`）。→ **#64 結案**。
 - **註**：DA R-1 return 抵達後，本 session 有一段未推進（未派工、未改紀錄），於 acceptor 詢問狀況時恢復；期間無任何工作或副作用。
 - **Orchestrator binding 核對（#64 結案時）**：session transcript 觀測 `('claude-opus-5-5','medium')` 167 則，另有 1 則 `('<synthetic>', None)`——即上述停滯時由 harness 產生的佔位訊息（內容「No response requested.」），沒有任何工具呼叫、routing、gate 或紀錄。它不是 model 或 effort 的改變點，沒有任何工作以之為依據；其後的工作仍為 Opus 5.5／`medium`。
+
+## 14. Acceptor 回覆（2026-10-18，逐字）
+
+> HW02 Implementation Progress — Acceptor Response
+> 確認收到 #60～#64 結案及 #65 執行中的進度回報。
+>
+> 1. 同意 DA 對 #67 的解讀：全新乾淨環境的完整重跑屬於 reproducibility verification，不視為 CC-1 所禁止的第二次 Test Evaluation。
+> 2. 前提是每次完整執行內仍只對授權集合評估一次，不得依 Test 結果重新選模或調參。
+> 3. #67 應使用 digest／manifest 比對資料、split/fold、winner、alpha、授權模型集合、Test 預測與指標。若重現結果不一致，停止並回報 DA；非決定性 metadata 另行記錄。
+> 4. #65 繼續依既有授權執行，無須等待我提供 #66／#67 的材料。
+> 5. #66 的 ChatGPT PDF 與 NotebookLM 材料，以及 #67 的本機學號設定，將由我在需要時提供；不可自行生成或替代這些證據。
+> 6. Root README.md 與 CONTEXT-MAP.md 原則同意各加一列，但實際修改前仍依 RB-5 提供預計差異並取得明確授權。
+> 7. 目前不授權 Push、Merge 或 Deployment。
+> 8. 已記錄的 Orchestrator 停頓無需另開問題；後續若執行被治理裁決或工具限制阻擋，請明確回報 blocker 與恢復條件。
+>
+> 請繼續既有 Implementation 流程，不新增功能、不重開設計決策。
+
+**Orchestrator 的處理**（控制面，不作語義判斷）：
+- 第 1、2 點：acceptor 確認 DA `decision-20261018-issue64-notebook-rerun.md` N-1 的解讀，記錄於此；DA record 本身不修改。
+- 第 3 點：列入 #67 的 bounded pack（原文引用），與 DA §9.3 條件 7、8、N-3 一併適用。
+- 第 4 點：#65 照常執行。
+- 第 5 點：#66、#67 輪到時若缺 acceptor 材料，該路徑依治理 §1.5 第 1／4 項停止並寫 stop report（含 blocker 與恢復條件），不以任何替代物補足。
+- 第 6 點：#67 動到 root 兩列前，先向 acceptor 提交預計 diff 並取得逐次授權（RB-5）。
+- 第 7 點：第 9 節的 push 授權請求維持 pending；不 push、不 merge、不 deploy。
+- 第 8 點：之後的停止回報一律寫明 blocker 與恢復條件。
+
+## 15. #65
+
+- **Executor**（agentId `a4779b376d79e3353`）：`DONE_WITH_CONCERNS`；`gov-executor`；`('claude-opus-5-5','high')` 210 則，單一元素。
+- **Subject**：implementation commit `741a21ba29dfb5ad7a2c2d1ac2f02d5eeb20035d`（base `bc56c06`）；之後 `6910b87` 只改 worklog。Machine gates：變更全在 `home_work_02/`、無 `doc/requirement/`；`results/` 與 `assets/model_data.js` 與 `bc56c06` 相同；追蹤樹沒有新增 PDF／ZIP。
+- **Process note（Executor 自述，原樣轉記，不作判斷）**：Executor 的檔案寫入工具拒絕寫入 `report/report.md`，Executor 改在 scratchpad 撰寫後以 shell 複製進單元。交 R1 核對內容；是否構成問題不由 Orchestrator 判斷。
+- **Routing**：C-1（dashboard 的三種標示）與 C-2（`results/figures/` 缺 k 路徑 CV 圖、實際 vs 預測＋PI 圖、alpha CV 曲線；Executor 指為 #63 缺口）皆指明 Design Authority → 直接派 DA。C-3、C-4 不需決定，交 R1／#67。
