@@ -52,7 +52,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
 | #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
 | #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
-| #64 T5 | #62 | READY → 派工 | `worklog/issue-64.md` | — |
+| #64 T5 | #62 | audit 中（R1） | `worklog/issue-64.md` | 待 `audit/issue-64-c1-r1.md` |
 | #65 T6 | #63、#64 | 待執行 | — | — |
 | #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
 | #67 T8 | #66；學號；RB-5 | 待執行 | — | — |
@@ -138,3 +138,11 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **R1**（agentId `a45d7b2a500512ef3`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: CLOSURE；F-1、F-2（Low，owner #64）non-blocking；#61 F-4、#62 F-1～F-3 resolved；單次正式評估經 reviewer 獨立核對。Reviewer 對「report draft 的欄群區分」的解讀（屬 #65，DA §9.1 G-4）未 route；無人提出異議，不構成 routing 事件。
 - **Completion predicates**：P1 #62 已結案；P2 引用鏈存在；P3 evidence 在 worklog §4–§6、§9；required gate（Node 逐筆重算）依 DA §3.6-A clarification 重跑後通過；P4 R1 CLOSURE；P5 無 blocking；P6 C-1 有 DA record；P7 closed subject＝`1f8e7c4`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`3312006`）。→ **#63 結案**。
 - **Follow-up owners**：F-1、F-2 → #64；C-2、C-3（Ridge／Lasso 取最小 alpha；Test RMSE 高於 CV）→ #65 報告（Executor concerns，交 #65 pack 引用）。
+
+## 13. #64
+
+- **Executor**（agentId `a2b1c8f4cc400f3be`）：`DONE_WITH_CONCERNS`；`gov-executor`；`('claude-opus-5-5','high')` 220 則，單一元素。
+- **Subject**：implementation commit `003b825426a500fa2d11ebea584d48c93cd4635d`（base `b34cc50`）；之後 `20c7210` 只改 worklog。Machine gates：變更全在 `home_work_02/`、無 `doc/requirement/`；`results/model_data.json`、`assets/model_data.js` 與 `b34cc50` 相同。
+- **Routing**：C-1（notebook 全量重跑與單次評估）Executor 指明 DA → 直接派 DA（agentId `a01ab70cca718e6e7`；Opus 5.5／`high` 單一元素）。Record `decisions/decision-20261018-issue64-notebook-rerun.md`：N-1～N-6、§9.3 條件 7、8、I-4（C-3）；§5.3 第 2 類，不改 accepted 語義，不需 acceptor；#64 不需修改。C-2 屬 Reviewer 範圍，交 R1。
+- **N-6（對本 Orchestrator 的指示）**：#64 派工的「不得重跑 notebook」限制不帶入 #67；#65～#67 的 pack 納入本 record。
+- **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-64-c1-r1.md`。
