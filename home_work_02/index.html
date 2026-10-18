@@ -29,6 +29,7 @@
       <a href="#model">模型與訓練 CV</a>
       <a href="#predictor">即時預測</a>
       <a href="#test">Test 評估</a>
+      <a href="#methods">方法與限制</a>
     </nav>
   </div>
 </header>
@@ -140,6 +141,18 @@
         <div class="card card--flat" id="fit-card">
           <h3>全訓練集擬合 <span class="tag tag--fit">全訓練集擬合，R²／Adjusted R² 為 log 尺度</span></h3>
           <dl class="facts facts--inline small" id="fit-facts"></dl>
+          <!-- 選配 (4) 係數表：預設收合（UI 決策 5）；來源是所選模型的 fit -->
+          <details class="coef" id="coef-details">
+            <summary>
+              <span class="coef__title">係數表（選配）</span>
+              <span class="tag tag--fit">全訓練集擬合，R²／Adjusted R² 為 log 尺度</span>
+            </summary>
+            <div class="coef__body">
+              <p class="small muted" id="coef-intro"></p>
+              <div class="tablewrap"><table class="table" id="coef-table"></table></div>
+              <p class="small muted">讀法：模型以 ln(price) 為目標、特徵為原始尺度，係數 b 表示其他欄位固定時，該欄增加 1 個單位，預測價格（exp(log 預測)，條件中位數的估計）約變動 100·(exp(b) − 1)%；zipcode 欄是相對於基準 zipcode 的差異；不同單位的特徵不能直接比較係數大小（notebook 第 6 章另列每 1 個 training 標準差的讀法）。標準誤是古典 OLS 標準誤，假設殘差同質變異與獨立，且沒有考慮特徵選擇。係數描述的是關聯，不是因果效果。</p>
+            </div>
+          </details>
         </div>
         <p class="small muted" id="status-box" role="status"></p>
       </div>
@@ -222,6 +235,38 @@
         <p class="small muted" id="coverage-note">涵蓋率的不確定性是假設各筆涵蓋事件獨立的二項近似（1.96·√(p(1−p)/n_test)）。Test set 含同一房屋的重複交易，涵蓋事件不保證獨立，這個近似的準確度未經估計，本頁不陳述偏差的方向或幅度。</p>
         <p class="small muted">預測區間假設殘差常態、同質變異、獨立；特徵選擇後的推論與模型誤設都會影響名目涵蓋率，<strong>不宣稱保證 95% 的經驗涵蓋率</strong>。經驗涵蓋率偏離 95% 時需要分析原因，不自動判定失敗。</p>
       </div>
+    </div>
+  </section>
+
+  <!-- F. 方法與限制（必要區塊 (9)；四段，各標三種標示之一） -->
+  <section class="section" id="methods" aria-labelledby="h-methods">
+    <div class="section__head">
+      <span class="eyebrow">F · 方法與限制</span>
+      <h2 id="h-methods">方法與限制</h2>
+    </div>
+    <p class="small muted labels-legend">標示：<span class="tag tag--teacher">老師要求</span> 作業頁正文的要求；<span class="tag tag--suggest">依老師補充建議</span> 作業頁「補充」段的建議，本專案採用；<span class="tag tag--project">專案延伸</span> 本專案自行加入的設計，不是老師的要求。</p>
+    <div class="methods">
+      <article class="card prose" id="methods-selection" aria-labelledby="h-m-selection">
+        <h3 id="h-m-selection">特徵選擇方法 <span class="tag tag--teacher">老師要求</span></h3>
+        <p class="small">作業要求必做特徵選擇。本專案以 feature group 為選擇單位（同一個 source feature 的 encoded 欄位同進同出，例如 zipcode 的全部 one-hot 欄），比較四種有 k = 1…18 路徑的方法：Forward SFS、Backward SFS、RFE、Lasso 路徑排序取前 k 個；另以單一的 All-in baseline（全部 18 個 group 的 OLS，等於路徑在 k = 18 的端點）作為基準。每個方法的子集在每個 CV fold 的訓練列上重新計算（fold-internal selection），驗證列不參與選擇；另在整個 training set 上計算一次 canonical subset，作為本頁顯示的 groups、即時預測與 Test 評估的模型。</p>
+        <p class="small">Ridge／Lasso 是依老師補充建議加入的 metric-only 對照（alpha 只以訓練 CV 選，不參與 CV winner，不提供預測與區間）；講義的 p-value backward elimination 只列為對照，不參與 CV winner，也不在 Test 上評估。</p>
+      </article>
+      <article class="card prose" id="methods-protocol" aria-labelledby="h-m-protocol">
+        <h3 id="h-m-protocol">訓練 CV／Test 協定 <span class="tag tag--project">專案延伸</span></h3>
+        <p class="small">模型評估是老師的要求；下面的評估協定是本專案的設計。資料以房屋 <code>id</code> 分組切成 80／20 的 training 與 Test，training 內再以 <code>id</code> 分組成 5 個 fold，所有方法與 k 共用同一組 fold。每個方法取 CV RMSE（USD）最小的 k 為該方法的 CV winner，再從各方法 CV winner 與 All-in 中取最小者為整體 CV winner。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤。</p>
+        <p class="small">全部選擇固定之後，Test 只對各方法 CV winner、All-in 與整體 CV winner（同一模型只評估一次）以及 Ridge／Lasso 各評估一次；Test 排名與 CV 排名不同時也不換模型。本頁的 KPI 與「指標 vs k」圖是訓練 CV，Test 區塊與比較表的 Test 欄只讀取匯出的結果，任何操作都不會觸發新的 Test 評估。</p>
+      </article>
+      <article class="card prose" id="methods-interval" aria-labelledby="h-m-interval">
+        <h3 id="h-m-interval">預測區間的統計假設 <span class="tag tag--teacher">老師要求</span></h3>
+        <p class="small">作業要求預測圖加上信賴區間或預測區間。本專案對 OLS 子集模型在 ln(price) 尺度計算參數式 95% 預測區間 ŷ ± t·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))，再以 exp 轉回 USD，所以區間不對稱；點預測 exp(log 預測) 估計的是條件中位數，不是條件平均。</p>
+        <p class="small">區間假設殘差常態、同質變異、彼此獨立，而且沒有把特徵選擇的不確定性與可能的模型誤設算進去，所以<strong>不宣稱保證 95% 的經驗涵蓋率</strong>；Test 上的經驗涵蓋率是對它的檢驗，偏離 95% 時分析原因，不自動判定失敗。涵蓋率的不確定性是假設各筆獨立的二項近似，Test 含同一房屋的重複交易，這個近似的準確度未經估計。</p>
+      </article>
+      <article class="card prose" id="methods-limits" aria-labelledby="h-m-limits">
+        <h3 id="h-m-limits">限制與非因果解讀 <span class="tag tag--suggest">依老師補充建議</span></h3>
+        <p class="small">五大回歸假設的診斷與模型解釋是依老師補充建議加入（見主程式 notebook 5.6 與第 6 章，只用 training set）。古典回歸假設的診斷與預測區間的假設分開看：training 殘差的診斷不能證明或否定區間的 95% 涵蓋。</p>
+        <p class="small" id="methods-limits-scope">適用範圍：King County 的房屋交易；超出 training 範圍的輸入仍會計算但屬於外推，未見過的 zipcode 以基準類別計算。同一房屋重複交易的誤差可能相關（notebook 5.6.2），誤差獨立的假設對這些交易不一定成立。</p>
+        <p class="small">係數、係數表與重要性描述的是資料中的<strong>關聯，不是因果效果</strong>：不能用來推論「改變某個特徵會讓價格改變多少」。Ridge／Lasso 只是 metric-only 對照，不提供預測。</p>
+      </article>
     </div>
   </section>
 </main>

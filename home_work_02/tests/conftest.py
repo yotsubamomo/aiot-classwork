@@ -1,9 +1,12 @@
 """Shared fixtures. Synthetic rows only: no test uses the features or price of an official test row
 (DA TR-01). Tests on the real CSV read it for structural checks, ids (split) or training rows.
 
-The official test evaluation runs once, in the notebook (#63). :func:`official_gate_stays_closed`
-keeps the official gate closed in every test, so no test can open it or load an official test row
-(tests that exercise the open official gate do so on synthetic data identified as official)."""
+The official test evaluation runs once, in the notebook (#63). The official gate is closed for the
+whole test process: :func:`pytest_configure` closes it before any fixture or test runs, so session-
+and module-scoped fixtures see it closed too (#63 R1 F-2), and :func:`official_gate_stays_closed`
+restores the closed state and the per-process load flag around every test. No test can open it or
+load an official test row (tests that exercise the open official gate do so on synthetic data
+identified as official, with the flag set inside the test)."""
 from datetime import date, timedelta
 
 import numpy as np
@@ -13,6 +16,21 @@ import pytest
 from hw2 import data
 
 ZIPCODES = ("98001", "98004", "98052", "98103", "98178")
+
+
+def pytest_configure(config):
+    """Close the official test gate for the whole test process, before any fixture of any scope
+    is set up (#63 R1 F-2: a function-scoped guard alone does not cover session or module
+    fixtures)."""
+    from hw2 import testgate
+    testgate.OFFICIAL_TEST_GATE_ENABLED = False
+
+
+@pytest.fixture(scope="session")
+def official_gate_flag_at_session_start():
+    """The flag as a session-scoped fixture sees it (checked in test_testgate.py)."""
+    from hw2 import testgate
+    return testgate.OFFICIAL_TEST_GATE_ENABLED
 
 
 @pytest.fixture(autouse=True)

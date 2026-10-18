@@ -60,6 +60,18 @@ def test_the_official_gate_is_open_in_the_program_and_closed_in_every_test():
     assert testgate.OFFICIAL_TEST_GATE_ENABLED is False
 
 
+@pytest.fixture(scope="module")
+def official_gate_flag_in_a_module_fixture():
+    return testgate.OFFICIAL_TEST_GATE_ENABLED
+
+
+def test_the_official_gate_is_closed_for_session_and_module_fixtures_too(
+        official_gate_flag_at_session_start, official_gate_flag_in_a_module_fixture):
+    """#63 R1 F-2: fixtures of every scope run with the official gate closed."""
+    assert official_gate_flag_at_session_start is False
+    assert official_gate_flag_in_a_module_fixture is False
+
+
 def test_official_test_rows_cannot_be_loaded_while_the_gate_is_closed(prepared_real, small_run):
     gate = testgate.TestGate(prepared_real)
     assert gate.official and gate.state == testgate.CLOSED

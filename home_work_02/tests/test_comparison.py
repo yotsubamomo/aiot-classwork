@@ -85,15 +85,28 @@ def test_the_alpha_search_sees_only_the_training_rows_and_the_shared_folds(synth
 
 # --- alpha rule, the fits, metric-only -----------------------------------------------------------
 
-def test_alpha_is_the_lowest_cv_rmse_and_ties_go_to_the_larger_alpha(synth):
+def test_alpha_is_the_lowest_cv_rmse(synth):
     _, _, prepared = synth
     sel = comparison.select_alpha(prepared.training, "ridge", GRID_R)
-    best = min(sel.cv_by_alpha, key=lambda r: (r["rmse"], -r["alpha"]))
-    assert sel.alpha == best["alpha"]
-    sel.cv_by_alpha = [dict(r, rmse=1.0) for r in sel.cv_by_alpha]           # all tied
-    assert min(sel.cv_by_alpha, key=lambda r: (r["rmse"], -r["alpha"]))["alpha"] == max(GRID_R)
+    assert sel.alpha == min(sel.cv_by_alpha, key=lambda r: r["rmse"])["alpha"]
     entry = comparison.select_alpha(prepared.training, "lasso", GRID_L).to_entry()
     contract.validate_metric_only_entry(entry, "lasso", prepared.n_folds)
+
+
+def test_select_alpha_breaks_a_real_tie_toward_the_larger_alpha(synth, monkeypatch):
+    """#63 R1 F-1 (1): a real tie on the CV curve, resolved by select_alpha itself. Every alpha
+    gets the same fit (the training mean, no slope), so every grid point has the same CV
+    metrics; the rule picks the largest alpha."""
+    _, _, prepared = synth
+
+    def same_fit_for_every_alpha(name, X, y, alphas):
+        return [(float(y.mean()), np.zeros(X.shape[1])) for _ in alphas]
+
+    monkeypatch.setattr(comparison, "_fit_coefs", same_fit_for_every_alpha)
+    for name, grid in (("ridge", GRID_R), ("lasso", GRID_L)):
+        sel = comparison.select_alpha(prepared.training, name, grid)
+        assert len({r["rmse"] for r in sel.cv_by_alpha}) == 1            # the tie is real
+        assert sel.alpha == max(grid)
 
 
 def test_cv_metrics_at_the_alpha_equal_a_direct_fold_by_fold_fit(synth):
@@ -140,6 +153,21 @@ def test_metric_only_models_never_compete_for_the_cv_winners(synth):
     allin = models.fit_allin(prepared.training)
     with pytest.raises(ValueError, match="unknown path methods"):
         models.determine_winners(allin, {"ridge": []})
+
+
+def test_an_alpha_that_is_not_the_cv_argmin_is_rejected(synth):
+    """#63 R1 F-1 (2): an entry that is consistent in every other respect (its `cv` is the curve at
+    that alpha, the grid-edge flag matches) but whose alpha is not the CV argmin."""
+    import dataclasses
+    _, _, prepared = synth
+    sel = comparison.select_alpha(prepared.training, "ridge", GRID_R)
+    interior = [a for a in GRID_R[1:-1] if a != sel.alpha]
+    tampered = dataclasses.replace(sel, alpha=interior[0]).to_entry()
+    assert tampered["alpha_at_grid_edge"] is None
+    assert tampered["cv"]["mean"]["rmse"] == tampered["cv_by_alpha"][GRID_R.index(interior[0])]["rmse"]
+    contract.validate_metric_only_entry(sel.to_entry(), "ridge", prepared.n_folds)
+    with pytest.raises(contract.ContractError, match="not the lowest training-CV RMSE"):
+        contract.validate_metric_only_entry(tampered, "ridge", prepared.n_folds)
 
 
 @pytest.mark.parametrize("name, field", [("ridge", "alpha"), ("lasso", "cv_by_alpha"),

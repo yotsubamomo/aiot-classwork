@@ -251,6 +251,26 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
 .covstats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-3); }
 .kpi--test { border-color: #CBD5E1; }
 
+/* --- C optional coefficient table (collapsed by default; UI decision 5) -------------------- */
+.coef { margin-top: var(--space-3); border-top: 1px solid var(--c-border); padding-top: var(--space-2); }
+.coef > summary { cursor: pointer; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; }
+.coef > summary:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.coef__body { display: grid; gap: var(--space-2); }
+.coef__body p { margin: 0; }
+#coef-table { font-size: 0.8125rem; }
+#coef-table td:last-child { min-width: 0; }
+.coef .tablewrap { max-height: 480px; overflow: auto; }
+
+/* --- F methods and limitations: four paragraphs with the three report labels -------------- */
+.tag--teacher { background: #EEF2FF; color: #3730A3; border-color: #C7D2FE; }
+.tag--suggest { background: #FFF7ED; color: #9A3412; border-color: #FED7AA; }
+.tag--project { background: #F1F5F9; color: #334155; border-color: #CBD5E1; }
+.labels-legend { margin: 0 0 var(--space-3); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.methods h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.prose p { margin: 0 0 var(--space-2); }
+.prose p:last-child { margin-bottom: 0; }
+
 .nav-toggle { display: none; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 6px 10px; border: 1px solid var(--c-border); border-radius: var(--radius); background: var(--c-surface); cursor: pointer; }
 .nav-toggle[aria-expanded="true"] { background: var(--c-primary-soft); border-color: var(--c-primary); color: var(--c-primary); }
 
@@ -264,6 +284,7 @@ h3 { font-size: 1rem; margin: 0 0 var(--space-2); }
   .layout-2col, .predictor { grid-template-columns: 1fr; }
   .grid--kpi, .grid--kpi4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kgrid { grid-template-columns: repeat(9, 1fr); }
+  .methods { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
   .grid--3 { grid-template-columns: 1fr; }

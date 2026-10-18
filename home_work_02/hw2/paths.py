@@ -18,6 +18,13 @@ MODEL_DATA_JS_GLOBAL = "MODEL_DATA"
 # Per-row split record (identifiers and fold numbers only; no features, no price).
 SPLIT_ASSIGNMENT_CSV = RESULTS_DIR / "split" / "split_assignment.csv"
 
+# Diagnostics and model explanation of the final model (training rows only; DA TK-2): figures (PNG)
+# and tables (CSV). The Deployment demonstration pickle is not part of the dashboard contract.
+FIGURES_DIR = RESULTS_DIR / "figures"
+TABLES_DIR = RESULTS_DIR / "tables"
+DEPLOYMENT_DIR = RESULTS_DIR / "deployment"
+FINAL_MODEL_PICKLE = DEPLOYMENT_DIR / "final_model.pkl"
+
 # Untracked local locations (all listed in home_work_02/.gitignore; BR-03, H-1):
 LOCAL_DIR = UNIT_DIR / ".local"
 # Packaging configuration holding the real student id: {"student_id": "<學號>"}.

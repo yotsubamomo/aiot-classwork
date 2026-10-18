@@ -50,10 +50,13 @@ macOS／Linux 把 `.venv/Scripts/python` 換成 `.venv/bin/python`。Dashboard �
 | 路徑 | 說明 |
 | --- | --- |
 | `hw2.ipynb` | 主程式（CRISP-DM 六章；唯一的數字來源） |
-| `hw2/` | 分析套件：資料、前處理、分割、四種特徵選擇方法的 k 路徑（`selection`）、OLS 與預測區間、模型候選與 CV winner、Ridge／Lasso 對照與講義的 p-value backward（`comparison`）、Test 評估守門、`model_data` 契約與匯出、synthetic fixture、離線掃描 |
+| `hw2/` | 分析套件：資料、前處理、分割、四種特徵選擇方法的 k 路徑（`selection`）、OLS 與預測區間、模型候選與 CV winner、Ridge／Lasso 對照與講義的 p-value backward（`comparison`）、Test 評估守門、`model_data` 契約與匯出、最終模型與 `predict_price()`（`deployment`）、五大假設診斷（`diagnostics`）、模型解釋（`explain`）、synthetic fixture、離線掃描 |
 | `tests/` | pytest；`tests/js/` 是 dashboard 計算的 Node 測試 |
 | `data/kc_house_data.csv` | 資料檔 |
 | `results/model_data.json`、`assets/model_data.js` | 匯出的 `model_data`（同一物件；`.js` 供 `file://` 載入） |
 | `results/split/split_assignment.csv` | 每筆交易屬於 training 或 Test 與其 fold（只有識別，沒有特徵或價格） |
 | `results/tables/` | 結果表 CSV（由 `model_data` 產生）：`cv_by_method_k.csv`（各方法各 k 的訓練 CV）、`comparison.csv`（各方法 CV winner、All-in、Ridge、Lasso 與 p-value 對照；`cv_*` 為訓練 CV、`test_*` 為 Test 評估，分欄）、`alpha_cv.csv`（Ridge／Lasso 的 alpha 交叉驗證曲線） |
+| `results/tables/`（最終模型，只用 training set） | `diagnostics_summary.csv`、`diagnostics_vif_by_group.csv`、`diagnostics_vif_by_column.csv`（五大假設診斷的統計量）；`final_model_coefficients.csv`（係數與百分比解讀）；`permutation_importance_training.csv`（permutation importance，只用於解釋） |
+| `results/figures/` | 診斷圖與解釋圖 PNG（notebook 5.6 與第 6 章；供報告引用） |
+| `results/deployment/final_model.pkl` | 最終模型的 pipeline（Deployment 的 pickle 示範；dashboard 不讀取它）。pickle 載入時會執行程式碼，只載入本專案 notebook 產生的檔案 |
 | `index.html`、`assets/` | Dashboard；`assets/hw2core.js` 是 dashboard 自己的前處理與預測計算，`assets/app.js` 是頁面；Chart.js 4.4.1 打包在 `assets/vendor/`（MIT，授權檔同目錄） |

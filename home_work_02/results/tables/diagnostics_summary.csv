@@ -1,0 +1,19 @@
+assumption,statistic,value,p_value,detail,assumption_violated
+linearity,"RESET F (z^2, z^3)",166.41593612355143,2.6110602621755017e-72,"df = 2, 17201",True
+linearity,max |binned mean residual| (20 equal-count bins of fitted),0.03659677210350773,,log scale,True
+independence,Durbin-Watson (sale-date order),1.966374292947628,,,True
+independence,repeat sales in the training set (rows - unique id),141,,"17290 rows, 17149 houses",True
+independence,houses with repeat sales in the training set,140,,281 rows,True
+independence,residual correlation of consecutive sales of the same house,0.3353157665219128,4.813091264956168e-05,141 pairs,True
+independence,mean residual change from a sale to the next sale of the same house,0.35510565776541897,,log scale,True
+independence,repeat sales in the full data set (background; full-data level),177,,21613 rows - 21436 unique id,True
+homoscedasticity,Breusch-Pagan (Koenker) LM on all model columns,1297.8409250788372,1.4818278648337668e-215,df = 86,True
+homoscedasticity,Breusch-Pagan (Koenker) LM on the fitted value,4.004417005513861,0.04538118912209094,df = 1,True
+normality,Jarque-Bera,6897.777100416404,0.0,,True
+normality,skewness,-0.403713277255592,,,True
+normality,excess kurtosis,2.9871001681552727,,,True
+normality,share |studentized residual| > 1.96,0.05760555234239445,,about 0.05 under normality,True
+normality,share |studentized residual| > 2.576,0.02296124927703875,,about 0.01 under normality,True
+multicollinearity,max column VIF,64.43178812639218,,lat,True
+multicollinearity,condition number of the correlation matrix,47.13718667569416,,reference 30,True
+multicollinearity,"condition number, unit-length design with intercept (Belsley)",27785.384553418076,,,True

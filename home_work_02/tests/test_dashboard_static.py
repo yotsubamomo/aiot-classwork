@@ -180,3 +180,52 @@ def test_dashboard_core_has_no_metric_coverage_or_selection_code():
     core = _code(ASSETS_DIR / "hw2core.js")
     for name in ("rmse", "mse", "mae", "coverage", "covered", "r2", "winner", "test_inputs.rows"):
         assert not re.search(rf"\b{name}\b", core, re.I), name
+
+
+# --- #64: methods and limitations (block 9) and the optional coefficient table ---------------
+
+def test_methods_and_limitations_has_four_paragraphs_with_the_three_labels():
+    """Spec Dashboard block (9); UI checklist F: four paragraphs (feature selection methods, the
+    training-CV / Test protocol, the PI's statistical assumptions, limits and non-causal reading),
+    each with one of the three labels, all three labels used."""
+    html = DASHBOARD_HTML.read_text(encoding="utf-8")
+    section = html[html.index('<section class="section" id="methods"'):html.index("</main>")]
+    articles = re.findall(r"<article.*?</article>", section, flags=re.S)
+    assert len(articles) == 4
+    titles = ["特徵選擇方法", "訓練 CV／Test 協定", "預測區間的統計假設", "限制與非因果解讀"]
+    labels = {"tag--teacher": "老師要求", "tag--suggest": "依老師補充建議", "tag--project": "專案延伸"}
+    used = set()
+    for title, article in zip(titles, articles):
+        heading = re.search(r"<h3[^>]*>(.*?)</h3>", article, flags=re.S).group(1)
+        assert title in heading
+        tags = re.findall(r'<span class="tag (tag--teacher|tag--suggest|tag--project)">([^<]+)</span>',
+                          heading)
+        assert len(tags) == 1, heading
+        assert tags[0][1] == labels[tags[0][0]]
+        used.add(tags[0][0])
+    assert used == set(labels)
+    for phrase in ("fold-internal selection", "不宣稱保證 95% 的經驗涵蓋率", "條件中位數",
+                   "不是因果效果", "外推", "樂觀的選擇偏誤", "任何操作都不會觸發新的 Test 評估",
+                   "不能證明或否定區間的 95% 涵蓋"):
+        assert phrase in section, phrase
+    assert '<a href="#methods">方法與限制</a>' in html
+    assert "http" not in section                            # no URL of any kind in the block
+
+
+def test_coefficient_table_is_optional_collapsed_and_labelled():
+    """UI decision 5: the coefficient table is collapsed by default and labelled
+    「全訓練集擬合，R²／Adjusted R² 為 log 尺度」; it reads only the selected model's fit."""
+    html = DASHBOARD_HTML.read_text(encoding="utf-8")
+    m = re.search(r'<details class="coef" id="coef-details"( open)?>(.*?)</details>', html, flags=re.S)
+    assert m and m.group(1) is None                         # no `open` attribute: collapsed
+    summary = re.search(r"<summary>(.*?)</summary>", m.group(2), flags=re.S).group(1)
+    assert "係數表（選配）" in summary
+    assert "全訓練集擬合，R²／Adjusted R² 為 log 尺度" in summary
+    app = _code(ASSETS_DIR / "app.js")
+    block = _function(app, "renderCoef", "renderMethods")
+    assert "entry && entry.fit" in block and "f.xtx_inv[j][j]" in block
+    for forbidden in ("MD.test", "test_inputs", "testResult(", "Core.predict("):
+        assert forbidden not in block, forbidden
+    assert "renderCoef(entry);" in _function(app, "update", "init")
+    methods = _function(app, "renderMethods", "renderKChart")
+    assert "MD.inputs" in methods and "MD.test" not in methods

@@ -2,8 +2,9 @@
  *   A overview (meta), B/C model selection, training-CV KPI, the metric-vs-k chart (cv only; All-in,
  *   Ridge and Lasso as reference lines) and the comparison table (separate "訓練 CV（USD）" and
  *   "Test 評估（USD）" column groups; G-4),
+ *   the coefficient table of the selected model's fit (optional; collapsed by default),
  *   D live predictor (fit; OLS subset models only), E Test block (test[kind=ols_subset] only;
- *   "Test 評估（USD）").
+ *   "Test 評估（USD）"), F methods and limitations (static text; training date range from inputs).
  *
  * Layering (BR-01): every KPI comes from the selected model's `cv`, the predictor from its `fit`,
  * and every Test number from model_data.test. Ridge/Lasso Test metrics (metric_only) appear only in
@@ -264,6 +265,58 @@
       ['n_train', nf.format(f.n_train)], ['design matrix 欄數／rank', f.n_columns + '／' + f.rank],
       ['df_resid', nf.format(f.df_resid)], ['s²（log 尺度）', fixed(f.s2, 6)], ['t(0.975, df)', fixed(f.t_crit, 4)]
     ].forEach(function (p) { dl.appendChild(el('dt', { text: p[0] })); dl.appendChild(el('dd', { class: 'num', text: p[1] })); });
+  }
+
+  /* ---- C (optional 4). coefficient table of the selected model's fit; collapsed by default (UI
+   * decision 5). Everything comes from entry.fit (whole-training-set fit, log scale): the standard
+   * error is sqrt(s2 * [(X'X)^-1]_jj) and the percent reading 100 * (exp(b) - 1). ------------- */
+  function groupOf(column) {
+    if (column.indexOf('zipcode_') === 0) return 'zipcode';
+    var fixedCols = (MD.preprocess && MD.preprocess.group_columns_fixed) || {};
+    var owner = null;
+    Object.keys(fixedCols).forEach(function (g) { if (fixedCols[g].indexOf(column) >= 0) owner = g; });
+    return owner || column;
+  }
+  function renderCoef(entry) {
+    var table = byId('coef-table');
+    table.textContent = '';
+    var f = entry && entry.fit;
+    if (!f || !f.coef || !f.xtx_inv) {
+      setText('coef-intro', entry ? 'invalid 候選（' + entry.status.reason + '）：沒有全訓練集擬合，因此沒有係數。' : '—');
+      return;
+    }
+    setText('coef-intro', modelName(entry) + '：' + f.coef.length + ' 個係數（含截距），在整個 training set（n = ' +
+      nf.format(f.n_train) + '）上以 ln(price) 擬合；R²（log 尺度）' + fixed(f.r2_log, 4) + '，Adjusted R²（log 尺度，以實際 rank）' +
+      fixed(f.adj_r2_log, 4) + '。zipcode 欄相對於基準類別 ' + (f.zipcode_baseline || '—') + '。');
+    table.appendChild(el('caption', { class: 'small muted', text: '來源：所選模型的 fit（全訓練集擬合），不含任何 Test 資料。' }));
+    table.appendChild(el('thead', {}, [el('tr', {}, ['欄位', 'feature group', '係數（log 尺度）', '標準誤', '每單位的預測價格變動'].map(function (h, i) {
+      return el('th', { scope: 'col', class: i >= 2 ? 'num' : null, text: h });
+    }))]));
+    var body = el('tbody');
+    f.coef_names.forEach(function (name, j) {
+      var b = f.coef[j];
+      var se = Math.sqrt(f.s2 * f.xtx_inv[j][j]);
+      var isIntercept = j === 0;
+      var pctText = isIntercept ? '—' : ((Math.exp(b) - 1) * 100).toPrecision(3) + '%' +
+        (name.indexOf('zipcode_') === 0 ? '（相對基準 zipcode）' : '');
+      body.appendChild(el('tr', {}, [
+        el('th', { scope: 'row', text: isIntercept ? '截距' : name }),
+        el('td', { text: isIntercept ? '—' : groupOf(name) }),
+        el('td', { class: 'num', text: b.toPrecision(6) }),
+        el('td', { class: 'num', text: se.toPrecision(3) }),
+        el('td', { class: 'num', text: pctText })]));
+    });
+    table.appendChild(body);
+  }
+
+  /* ---- F. methods and limitations: the training date range from model_data.inputs ---------- */
+  function renderMethods() {
+    var range = MD.inputs && MD.inputs.date_range;
+    var box = byId('methods-limits-scope');
+    if (!box || !range) return;
+    box.textContent = '適用範圍：King County 的房屋交易，training set 的交易日期 ' + range.min + ' 至 ' + range.max +
+      '；其他地區或時期不適用。超出 training 範圍的輸入仍會計算但屬於外推，未見過的 zipcode 以基準類別計算。' +
+      '同一房屋重複交易的誤差可能相關（notebook 5.6.2），誤差獨立的假設對這些交易不一定成立。';
   }
 
   /* ---- C. metric vs k chart (cv only) and the comparison table ------------------------------ */
@@ -949,6 +1002,7 @@
     renderKChart(entry);
     renderCompare();
     renderFit(entry);
+    renderCoef(entry);
     renderPredictor(entry);
     renderTest(entry);
   }
@@ -960,6 +1014,7 @@
     if (!Core) { showError('找不到 assets/hw2core.js。'); return; }
     if (MD.meta.fixture) showError('目前載入的是測試用 synthetic fixture 資料，不是正式結果。');
     renderOverview(MD.meta, MD.preprocess);
+    renderMethods();
     CAT = catalogue();
     if (!CAT.allin) { showError('model_data 尚未包含 All-in baseline（baselines.allin）。'); return; }
     state.method = 'allin';

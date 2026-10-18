@@ -18,6 +18,10 @@ The notebook ``hw2.ipynb`` is the main program; it calls the public functions of
 - ``contract``: the ``model_data`` section schemas and their invariants.
 - ``export``: building and writing ``model_data`` (``.json`` and ``.js``).
 - ``fixture``: synthetic fixtures run through the same code path (never written inside the unit).
+- ``deployment``: the final model (the overall CV winner refitted on the training set),
+  ``predict_price()`` for raw-schema rows and the pickle demonstration.
+- ``diagnostics``: the five regression-assumption diagnostics on the training residuals.
+- ``explain``: coefficient readings and the permutation importance (training rows only).
 - ``offline_scan``: the static scan for external resource references in the dashboard.
 - ``local_config``: reading the untracked packaging configuration (student id).
 """
