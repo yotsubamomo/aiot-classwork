@@ -50,8 +50,8 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | --- | --- | --- | --- | --- |
 | #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
 | #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
-| #62 T3 | #61 | audit 中（R1） | `worklog/issue-62.md` | 待 `audit/issue-62-c1-r1.md` |
-| #63 T4 | #62 | 待執行 | — | — |
+| #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
+| #63 T4 | #62 | READY → 派工 | `worklog/issue-63.md` | — |
 | #64 T5 | #62 | 待執行 | — | — |
 | #65 T6 | #63、#64 | 待執行 | — | — |
 | #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
@@ -100,7 +100,8 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | 票 | 本機 HEAD（結案時） | 狀態 |
 | --- | --- | --- |
 | #60 | `bbf0ed5` | 待 acceptor 授權；前置：學號設定＋S-2 無命中 |
-| #61 | #61 結案 commit | 同上 |
+| #61 | `6f18d8f` | 同上 |
+| #62 | #62 結案 commit | 同上 |
 
 ## 10. #61
 
@@ -121,3 +122,5 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Subject**：implementation commit `a2811e9f7191a5729d15f3a20e6eac305f85fad9`（base `6f18d8f`）；之後 `f6298e9` 只改 worklog。Machine gates：變更全在 `home_work_02/`、無 `doc/requirement/`；無 `.zip`／`.env`／`kaggle`。
 - **Routing**：C-1（共享 canonical subset 的 winners 與 test 授權集合）Executor 指明 Design Authority，與治理 §2.4 一致 → 直接派 DA（agentId `a915f490f10d42aad`；`gov-design-authority`，Orchestrator 觀測 Opus 5.5／`high` 單一元素）。Record `decisions/decision-20261018-issue62-shared-subset-test-key.md`：D-1～D-4，維持 Executor 的解讀、不需改碼、不改變 accepted 語義、不需 acceptor。C-2～C-4 屬 Reviewer 範圍，交 R1。
 - **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-62-c1-r1.md`。
+- **R1**（agentId `afae922d84d46d6dc`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: CLOSURE；F-1（Low，D-2 共享標示）、F-2（Medium，375 px 溢出，影響 OV-2）、F-3（Low，缺測試）皆 non-blocking，owner #63（F-2 另 #67 量測 OV-2 時須 Test 區塊有資料）。#60 F-2、#61 F-2／F-3 resolved。
+- **Completion predicates**：P1 #61 已結案；P2 引用鏈存在；P3 evidence 在 worklog；P4 R1 CLOSURE；P5 無 blocking；P6 C-1 有 DA record；P7 closed subject＝`a2811e9`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`f6298e9`）。→ **#62 結案**。
