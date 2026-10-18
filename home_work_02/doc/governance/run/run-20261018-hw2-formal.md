@@ -50,7 +50,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | --- | --- | --- | --- | --- |
 | #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
 | #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
-| #62 T3 | #61 | READY → 派工 | `worklog/issue-62.md` | — |
+| #62 T3 | #61 | audit 中（R1） | `worklog/issue-62.md` | 待 `audit/issue-62-c1-r1.md` |
 | #63 T4 | #62 | 待執行 | — | — |
 | #64 T5 | #62 | 待執行 | — | — |
 | #65 T6 | #63、#64 | 待執行 | — | — |
@@ -114,3 +114,10 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **R2**：SendMessage 續派同一 reviewer（R1 context，Bindings §3.7 第 1 項）；Orchestrator 觀測 `('claude-opus-5-5','xhigh')` 222 則（R1＋R2 全程）（全程，單一元素）；record `audit/issue-61-c1-r2.md` 自寫。VERDICT: CLOSURE；F-1 resolved；F-2～F-4 non-blocking，owner 不變。
 - **Completion predicates**：P1 #60 已結案；P2 引用鏈存在；P3 evidence 在 worklog §4、§8；P4 R2 CLOSURE；P5 無未處置 blocking；P6 無 routed design question；P7 closed subject＝`77b79f4`＝R2 subject，之後只有 record-only delta；P8 worklog 已更新（`61387af`）。A-4 依 DA S-1 記 NOT VERIFIED。→ **#61 結案**。
 - **Follow-up owners**：F-2、F-3 → #62 Executor pack；F-4 → #63。
+
+## 11. #62
+
+- **Executor**（agentId `a04e1bc646c4d6912`）：`DONE_WITH_CONCERNS`；`gov-executor`；`('claude-opus-5-5','high')` 257 則，單一元素。
+- **Subject**：implementation commit `a2811e9f7191a5729d15f3a20e6eac305f85fad9`（base `6f18d8f`）；之後 `f6298e9` 只改 worklog。Machine gates：變更全在 `home_work_02/`、無 `doc/requirement/`；無 `.zip`／`.env`／`kaggle`。
+- **Routing**：C-1（共享 canonical subset 的 winners 與 test 授權集合）Executor 指明 Design Authority，與治理 §2.4 一致 → 直接派 DA（agentId `a915f490f10d42aad`；`gov-design-authority`，Orchestrator 觀測 Opus 5.5／`high` 單一元素）。Record `decisions/decision-20261018-issue62-shared-subset-test-key.md`：D-1～D-4，維持 Executor 的解讀、不需改碼、不改變 accepted 語義、不需 acceptor。C-2～C-4 屬 Reviewer 範圍，交 R1。
+- **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-62-c1-r1.md`。
