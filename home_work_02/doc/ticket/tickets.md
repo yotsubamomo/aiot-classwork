@@ -8,13 +8,13 @@
 
 | # | 票 | Blocked by | 高風險 | 狀態 | 連結 |
 | --- | --- | --- | --- | --- | --- |
-| #60 | T1 資料基線、分組切分與 model_data 契約骨架（`test_inputs` 只建 schema 與 fixture；分割只提供 test 列識別與 n_test） | — | H-1、H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/60> |
+| #60 | T1 資料基線、分組切分與 model_data 契約骨架（`test_inputs` 只建 schema 與 fixture；分割只提供 test 列識別與 n_test） | — | H-1、H-2、H-3 | 已結案（`../governance/audit/issue-60-c1-r1.md` CLOSURE；DA `decision-20261018-issue60-a4-student-id.md` S-1） | <https://github.com/yotsubamomo/aiot-classwork/issues/60> |
 | #61 | T2 All-in baseline 端到端：fit、PI、test 守門、dashboard 垂直切片（fixture 驗證 test 流程，不評估正式 test） | #60 | H-2、H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/61> |
-| #62 | T3 四種特徵選擇方法 k=1…18、canonical subsets 與 CV winners（不評估正式 test） | #61 | H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/62> |
-| #63 | T4 Ridge／Lasso 對照、p-value backward、Adjusted R² 與**一次性正式 Test 評估**（G-3 守門在此開啟；正式 `test_inputs` 列與 `test` 在此寫出） | #62 | H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/63> |
-| #64 | T5 五大假設診斷、模型解釋與 Deployment | #62 | H-3、H-4 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/64> |
+| #62 | T3 四種特徵選擇方法 k=1…18、canonical subsets 與 CV winners（不評估正式 test） | #61 | H-2、H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/62> |
+| #63 | T4 Ridge／Lasso 對照、p-value backward、Adjusted R² 與**一次性正式 Test 評估**（G-3 守門在此開啟；正式 `test_inputs` 列與 `test` 在此寫出） | #62 | H-2、H-3 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/63> |
+| #64 | T5 五大假設診斷、模型解釋與 Deployment | #62 | H-2、H-3、H-4 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/64> |
 | #65 | T6 報告 draft、單元 README 與 ACCEPTANCE.md | #63、#64 | H-2、H-4 | 待執行 | <https://github.com/yotsubamomo/aiot-classwork/issues/65> |
-| #66 | T7 Acceptor 證據整合與 final 報告 | #65；acceptor 輸入（ChatGPT PDF、NotebookLM 材料） | H-1、H-4 | 待執行（等待 acceptor 輸入） | <https://github.com/yotsubamomo/aiot-classwork/issues/66> |
+| #66 | T7 Acceptor 證據整合與 final 報告 | #65；acceptor 輸入（ChatGPT PDF、NotebookLM 材料） | H-1、H-2、H-4 | 待執行（等待 acceptor 輸入） | <https://github.com/yotsubamomo/aiot-classwork/issues/66> |
 | #67 | T8 打包、離線驗收（OV-1～OV-6）、乾淨環境重跑與整合 | #66；acceptor 輸入（學號）；root 檔案一列另需 RB-5 授權 | H-1～H-4 | 待執行（等待 acceptor 輸入） | <https://github.com/yotsubamomo/aiot-classwork/issues/67> |
 
 狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。

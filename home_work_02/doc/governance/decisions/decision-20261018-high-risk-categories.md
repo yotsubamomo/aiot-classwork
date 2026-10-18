@@ -66,6 +66,8 @@
 | A-7 | Deferral：H-1～H-4 的 blocking finding 由 Final Adjudicator defer 時，必須有 DA 確認並記入 disposition | 全部 |
 | A-8 | Model diversity：維持 Bindings §5，不宣告 diversity 關係；不以類別作為 escalation trigger | 全部 |
 
+〔2026-10-18 註記〕學號設定尚未存在時，A-4 實際學號比對的時點與範圍（票結案的替代證據、push 前的 backlog 比對、Reviewer 覆核、最終 gate）以 [`decision-20261018-issue60-a4-student-id.md`](decision-20261018-issue60-a4-student-id.md) 第 1 節 S-1～S-6 為準；各票的 H-2 標示規則見同一紀錄第 2.2 節。本表原文不改。
+
 ## 4. 哪些 Lightweight work items 會觸發 independent audit（Bindings §5）
 
 觸發條件：acceptor 要求、DA 裁決要求，或觸及下列任一項。本單元沒有 SA-3 opt-in，所以「依 SA-3 自主合併」不適用。

@@ -48,8 +48,8 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 
 | 票 | Blocked by | 狀態 | Worklog | Audit |
 | --- | --- | --- | --- | --- |
-| #60 T1 | — | audit 中（R1） | `worklog/issue-60.md` | 待 `audit/issue-60-c1-r1.md` |
-| #61 T2 | #60 | 待執行 | — | — |
+| #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
+| #61 T2 | #60 | READY → 派工 | `worklog/issue-61.md` | — |
 | #62 T3 | #61 | 待執行 | — | — |
 | #63 T4 | #62 | 待執行 | — | — |
 | #64 T5 | #62 | 待執行 | — | — |
@@ -80,3 +80,23 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Machine gates／evidence presence**（orch-default §4 步驟 6；不判斷充分性）：`git diff --name-only e2d3e0b f20d70e` 全部在 `home_work_02/` 內、無 `doc/requirement/` 路徑；worklog 存在且已更新；追蹤的 PDF 只有老師文件，無 `.zip`／`.env`／`kaggle`。
 - **Concerns**：(1) A-4 學號 `git grep` 因 acceptor 尚未提供 `.local/packaging.json` 而 skip；(2) OV-1 斷網實測屬 #67。兩者未指明所需 authority，屬 R1 Reviewer 的 finding／evidence sufficiency 範圍（治理 §2.4），交 R1，Orchestrator 不判斷。
 - **R1**：派 `gov-primary-reviewer`（Opus 5.5／`xhigh`），fresh context，record `audit/issue-60-c1-r1.md`。
+- **R1 return**（agentId `aa7add40010df5f41`）：`gov-primary-reviewer`；`('claude-opus-5-5', 'xhigh')` 129 則，單一元素；record 由 reviewer 自寫（transcript 內 Write 呼叫），原樣 commit 於 `3bb88ad`。VERDICT: CLOSURE；F-1～F-5 Low、non-blocking；routing R-1、F-5 → Design Authority（reviewer 指明，與治理 §2.4 一致 → 直接派工）。
+- **DA return**（agentId `aa05295bddad67954`）：`gov-design-authority`；`('claude-opus-5-5', 'high')` 40 則，單一元素。Record `decisions/decision-20261018-issue60-a4-student-id.md`：R-1 → S-1～S-6（#60 依 S-1 結案；學號比對綁在 push）；F-5 → #60、#62、#63、#64、#66 加標 H-2。不改變 accepted 語義，不需 acceptor 授權。
+- **DA §3 文字的逐字套用**（控制面轉錄）：Issue #60、#62、#63、#64、#66 本文的高風險行（`gh issue edit`，各一處精確比對）；`doc/ticket/tickets.md` 高風險欄。
+- **Completion predicates**（orch-default §7；只核對存在與一致）：P1 無依賴；P2 OC／Spec／derivation 引用鏈存在；P3 self-verification 引用在 worklog §4–§5；P4 R1 CLOSURE（separately bound reviewer 自寫）；P5 無 blocking；P6 R-1、F-5 皆有 DA decision record；P7 closed subject＝`f20d70e`，之後 `786d46b`、`7fe5ac2`、`3bb88ad` 與本次 commit 只改 `doc/governance/**`／`doc/ticket/**` 中的紀錄（record-only，Bindings §7；`doc/ticket/tickets.md` 為索引，不屬受審實作）；P8 worklog 已更新（`786d46b`）。→ **#60 結案**。
+- **Non-blocking findings 的 follow-up owner**（依 audit record，Orchestrator 只轉交引用）：F-1、F-3 → #61 Executor pack；F-2 → #62；F-4 → #67。
+
+## 8. Open gates／義務（DA `decision-20261018-issue60-a4-student-id.md`）
+
+| ID | 內容 | 狀態 |
+| --- | --- | --- |
+| S-2 | 學號設定第一次存在時，一次補齊比對（`origin/main..HEAD` 每個 commit 內容、commit messages、追蹤檔案、#59–#67 Issue 與 PR 文字） | open（`.local/packaging.json` 不存在） |
+| S-3 | 任何 push 前 S-2 完成且無命中；Orchestrator 機械檢查並記錄；push 授權請求須寫明學號設定需求 | open |
+| S-4 | 設定存在後的第一個 R1（或 Spec Integration Audit）自行重做比對 | open |
+| S-5 | #67 結案、Spec Integration Audit、phase acceptance、合併前已比對 | open |
+
+## 9. Push 授權待請求（push 選項 (a)；S-3）
+
+| 票 | 本機 HEAD（結案時） | 狀態 |
+| --- | --- | --- |
+| #60 | 本次 commit | 待 acceptor 授權；前置：學號設定＋S-2 無命中 |

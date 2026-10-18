@@ -164,6 +164,8 @@ OV-2～OV-5 是 acceptor 接受的 UI 設計（B-13）的驗證項目，但 Brie
 | #66 T7 | Acceptor 輸入與等待；報告 AI 章節 | §3.1 T-AI、§9 | B-15（以漢字計 ≥100） | H-1、H-4；A-4、A-5 |
 | #67 T8 | 報告與打包的打包條款；乾淨環境重跑；人工檢查表的全部項目；root 兩列（RB-5） | §3.1 T-繳交、§7 BR-04、§10 全部、§11 BR-03 | OV-1～OV-6（依 AD-1）；B-11（RB-5 逐次授權） | H-1～H-4；A-4、A-6；Spec Integration Audit 的 subject |
 
+〔2026-10-18 註記〕本表「高風險／assurance」欄的 H-2 標示已由 [`decision-20261018-issue60-a4-student-id.md`](decision-20261018-issue60-a4-student-id.md) 第 2 節更正（#60、#62、#63、#64、#66 加 H-2）；A-4 實際學號比對的時點見同一紀錄第 1 節 S-1～S-6。本表原文不改。
+
 A-7（deferral 需要 DA 確認）與 A-8（不宣告 model diversity）適用於全部票。Spec Integration Audit 另外派工（有多張票，不適用 fast path），subject 是 #67 結案時的整合狀態，依 A-2、A-3、A-5、A-6 必核。
 
 ### 9.2 依賴
