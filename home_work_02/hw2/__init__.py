@@ -23,5 +23,7 @@ The notebook ``hw2.ipynb`` is the main program; it calls the public functions of
 - ``diagnostics``: the five regression-assumption diagnostics on the training residuals.
 - ``explain``: coefficient readings and the permutation importance (training rows only).
 - ``offline_scan``: the static scan for external resource references in the dashboard.
+- ``report``: the report build (``report/report.md`` -> Markdown, HTML, PDF) with every number
+  injected from the exported results.
 - ``local_config``: reading the untracked packaging configuration (student id).
 """

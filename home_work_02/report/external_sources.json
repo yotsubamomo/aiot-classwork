@@ -1,0 +1,135 @@
+{
+  "_comment": "Public King County solutions compared in the report (Brief Q37). Every figure here is a value REPORTED BY THE SOURCE, quoted with its locator; none is a result of this project. Links were opened and the values read from the source itself on the accessed date. The report renders this file; it adds no claim that is not here.",
+  "accessed": "2026-10-19",
+  "sources": [
+    {
+      "id": "bronner",
+      "title": "House Sales in King County（Jupyter notebook，house_prices_deliver.ipynb）",
+      "authors": "Christopher Bronner",
+      "venue": "GitHub repository christopherbronner/house-prices（commit 3e3a260，2018-12-04）",
+      "url": "https://github.com/christopherbronner/house-prices/blob/3e3a260006cbc40f5daf3a8a327463d0d32f871d/house_prices_deliver.ipynb",
+      "kind": "公開 notebook",
+      "data": "Kaggle harlfoxem/housesalesprediction（同一份 21,613 筆資料）",
+      "target": "price（USD，不取 log）",
+      "split": "train_test_split(test_size=0.2, random_state=0)：隨機 80/20，沒有以房屋 id 分組",
+      "method": "OLS（全部欄位，含 id 與數值型 zipcode）；依相關係數逐步加特徵、RFE；Ridge、Lasso、SVR、Random Forest；二次多項式特徵",
+      "reported": [
+        {
+          "metric": "R²（OLS，10-fold CV，training set）",
+          "value": "0.699 ± 0.017",
+          "locator": "2.1 Simple Model: Linear Regression 的輸出「CV score: 0.699 ± 0.017」"
+        },
+        {
+          "metric": "R²（Ridge／Lasso，CV）",
+          "value": "0.699 ± 0.017",
+          "locator": "2.3.1 Ridge、2.3.2 Lasso 的輸出"
+        },
+        {
+          "metric": "R²（Random Forest，CV）",
+          "value": "0.721 ± 0.020",
+          "locator": "2.3.4 Random Forest Regressor 的輸出"
+        },
+        {
+          "metric": "R²（二次多項式＋標準化＋OLS，CV）",
+          "value": "0.815 ± 0.019",
+          "locator": "2.4.1 Add polynomial features 的輸出；摘要稱最佳模型 R² 0.82"
+        }
+      ],
+      "not_comparable": "以 USD 價格建模；R² 是 training set 內 10-fold CV 的 R²（沒有回報 Test set）；切分與 CV 沒有以房屋 id 分組，重複交易可能同時出現在兩邊；特徵含 id，zipcode 當連續數值；標準化在 CV 之前對整個 training set fit。",
+      "takeaway": "Ridge／Lasso 對 OLS 沒有改善；加入二次項（非線性）可明顯提高 R²。"
+    },
+    {
+      "id": "mao_yao_2020",
+      "title": "A geographic feature integrated multivariate linear regression method for house price prediction",
+      "authors": "Yuhang Mao, Ruili Yao",
+      "venue": "Proceedings of ICHESS 2020, Advances in Social Science, Education and Humanities Research vol. 496, Atlantis Press, pp. 347–351",
+      "url": "https://www.atlantis-press.com/article/125948987.pdf",
+      "kind": "研討會論文（開放取用）",
+      "data": "King County House Sales，21,613 筆（2014-05～2015-05）",
+      "target": "ln(price)",
+      "split": "隨機 7:3 train/test，另報 10-fold CV；沒有說明以房屋 id 分組",
+      "method": "OLS 全部特徵；OLS＋zipcode dummy；依 zipcode 分區各自回歸；分區內以 adjusted R² 做 forward stepwise",
+      "reported": [
+        {
+          "metric": "R²（OLS，全部特徵；training／test／CV）",
+          "value": "77.1% ／ 77.0% ／ 76.6%",
+          "locator": "Table 2"
+        },
+        {
+          "metric": "R²（OLS＋zipcode dummy；training／test／CV）",
+          "value": "87.7% ／ 87.3% ／ 87.4%",
+          "locator": "Table 2"
+        },
+        {
+          "metric": "R²（zipcode 分區回歸，全部特徵；training／test／CV）",
+          "value": "89.1% ／ 90.4% ／ 88.2%",
+          "locator": "Table 2"
+        },
+        {
+          "metric": "R²（zipcode 分區 forward stepwise；training／test／CV）",
+          "value": "89.2% ／ 89.4% ／ 88.5%",
+          "locator": "Table 2"
+        }
+      ],
+      "not_comparable": "R² 在 ln(price) 尺度，本專案的 Test R² 在 USD 尺度（本專案 log 尺度的 R² 只對整個 training set 的擬合計算）；隨機 7:3 切分，沒有說明以房屋 id 分組；沒有回報 USD 誤差或預測區間。",
+      "takeaway": "把 zipcode 當類別（dummy）加入模型，是這份研究中線性回歸最大的改善；讓係數依地區不同（分區回歸）再進一步提高 R²。"
+    },
+    {
+      "id": "chen_2024",
+      "title": "The Study on the Influencing Factors of Housing Price",
+      "authors": "Zhiyi Chen",
+      "venue": "Proceedings of IAMPA 2024, SCITEPRESS, pp. 258–263",
+      "url": "https://doi.org/10.5220/0013055900004601",
+      "kind": "研討會論文",
+      "data": "Kaggle「House Sales in King County, USA」，21,613 筆",
+      "target": "price（USD，不取 log）",
+      "split": "沒有切分：以全部資料擬合與評估",
+      "method": "OLS；以散佈圖與相關係數人工刪除特徵（含 zipcode、lat、long），以 VIF 確認共線性，報告各係數的 t 檢定與 p-value",
+      "reported": [
+        {
+          "metric": "R²／Adjusted R²（全部資料）",
+          "value": "0.613 ／ 0.613",
+          "locator": "Table 4（模型摘要）"
+        },
+        {
+          "metric": "Durbin–Watson",
+          "value": "1.983",
+          "locator": "Table 4（模型摘要）"
+        }
+      ],
+      "not_comparable": "沒有保留的 Test set，R² 是擬合資料上的值；USD 尺度、刪除了位置相關的特徵；特徵選擇以人工檢視決定，沒有交叉驗證。",
+      "takeaway": "代表講義式的做法：以 p-value 與 VIF 檢視並刪除特徵，沒有保留的 Test set。"
+    },
+    {
+      "id": "hartono_2024",
+      "title": "Improving the Accuracy of House Price Prediction using Catboost Regression with Random Search Hyperparameter Tuning: A Comparative Analysis",
+      "authors": "Faezal Wahyu Hartono, Muljono, Ahmad Zainul Fanani",
+      "venue": "Advance Sustainable Science, Engineering and Technology (ASSET) vol. 6 no. 3, 2024, pp. 02403014-01～020",
+      "url": "https://doi.org/10.26877/asset.v6i3.602",
+      "kind": "期刊論文（開放取用）",
+      "data": "Kaggle harlfoxem/housesalesprediction，21,613 筆",
+      "target": "price（USD）",
+      "split": "隨機 80:20、70:30、60:40 三種切分；Random Search 調參",
+      "method": "CatBoost、Decision Tree、XGBoost（梯度提升與樹模型，非線性）",
+      "reported": [
+        {
+          "metric": "CatBoost，80:20 Test：RMSE ／ MAE ／ R²",
+          "value": "126836.87 ／ 66156.36 ／ 0.894",
+          "locator": "Table 13"
+        },
+        {
+          "metric": "XGBoost，80:20 Test：RMSE ／ MAE ／ R²",
+          "value": "136841.76 ／ 66983.77 ／ 0.876",
+          "locator": "Table 17"
+        },
+        {
+          "metric": "Decision Tree，80:20 Test：RMSE ／ MAE ／ R²",
+          "value": "176777.96 ／ 90010.28 ／ 0.793",
+          "locator": "Table 15"
+        }
+      ],
+      "not_comparable": "非線性模型；隨機切分，論文沒有說明以房屋 id 分組，同一房屋的重複交易可能同時在 training 與 Test；在三種切分比例之間比較並挑選最佳結果（Table 18）；沒有預測區間。摘要提到以線性回歸為 baseline，但正文沒有列出線性回歸的數字。",
+      "takeaway": "「更優解法」的代表：梯度提升模型在 USD 尺度的 Test 誤差小於這份研究中的其他模型。"
+    }
+  ]
+}
