@@ -15,7 +15,7 @@ import pytest
 
 from hw2 import contract
 
-TOL = 1e-6          # USD, on every row (Spec: 容差 1e-6)
+TOL = 1e-6          # relative, on every row (Spec: 容差 1e-6; DA decision-20261018-issue63-js-tolerance.md T-1)
 
 
 def _days(text: str, base_iso: str) -> int:
@@ -141,9 +141,9 @@ def test_independent_recomputation_of_every_test_row(fixture_model_data):
         lev = np.einsum("ij,jk,ik->i", D, np.array(fit["xtx_inv"]), D)
         half = fit["t_crit"] * np.sqrt(fit["s2"] * (1.0 + lev))
         point, lower, upper = np.exp(yhat), np.exp(yhat - half), np.exp(yhat + half)
-        np.testing.assert_allclose(entry["predicted"], point, rtol=0, atol=TOL)
-        np.testing.assert_allclose(entry["lower"], lower, rtol=0, atol=TOL)
-        np.testing.assert_allclose(entry["upper"], upper, rtol=0, atol=TOL)
+        np.testing.assert_allclose(entry["predicted"], point, rtol=TOL, atol=0)
+        np.testing.assert_allclose(entry["lower"], lower, rtol=TOL, atol=0)
+        np.testing.assert_allclose(entry["upper"], upper, rtol=TOL, atol=0)
         covered = (lower <= actual) & (actual <= upper)
         assert entry["covered"] == covered.tolist()
         assert entry["n_covered"] == int(covered.sum()) and entry["n_test"] == actual.size

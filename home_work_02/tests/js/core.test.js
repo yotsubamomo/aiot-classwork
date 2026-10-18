@@ -6,7 +6,8 @@
 // For the official model_data (one-time Test evaluation of #63) and, with HW2_FIXTURE_MODEL_DATA, for
 // a synthetic fixture written by hw2.fixture (DA TR-01), every ols_subset model's prediction, lower,
 // upper and covered are recomputed for every test_inputs row from the raw values through the
-// dashboard's own code and compared with the contract (tolerance 1e-6, SR-02); metric_only models
+// dashboard's own code and compared with the contract (relative tolerance 1e-6: |js - contract| <=
+// 1e-6 * |contract|, DA decision-20261018-issue63-js-tolerance.md T-1; covered exactly equal, T-2; SR-02); metric_only models
 // (Ridge, Lasso) have no fit, no PI and no prediction. tests/test_node_core.py runs the fixture part
 // from pytest.
 'use strict';
@@ -17,7 +18,7 @@ const path = require('node:path');
 const Core = require('../../assets/hw2core.js');
 
 const UNIT = path.join(__dirname, '..', '..');
-const TOL = 1e-6;
+const TOL = 1e-6;          // relative (DA decision-20261018-issue63-js-tolerance.md T-1)
 
 function loadJs(file) {
   const text = fs.readFileSync(file, 'utf8');
@@ -29,6 +30,11 @@ const FIXTURE_PATH = process.env.HW2_FIXTURE_MODEL_DATA;
 const FIXTURE = FIXTURE_PATH ? JSON.parse(fs.readFileSync(FIXTURE_PATH, 'utf8')) : null;
 const needFixture = { skip: FIXTURE ? false : 'set HW2_FIXTURE_MODEL_DATA to a fixture model_data.json' };
 
+const closeRel = (a, b, tol, what) => {
+  assert.ok(Number.isFinite(b) && b > 0, `${what}: contract value ${b} must be finite and > 0`);
+  const abs = Math.abs(a - b);
+  assert.ok(abs <= tol * Math.abs(b), `${what}: ${a} vs ${b} (abs diff ${abs}, rel diff ${abs / Math.abs(b)}, rel tol ${tol})`);
+};
 const close = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b} (tol ${tol})`);
 
 function entries(md) {
@@ -183,9 +189,9 @@ function recomputeAll(md) {
     for (let i = 0; i < md.test_inputs.rows.length; i++) {
       const raw = Core.rowObject(md.test_inputs, i);
       const out = Core.predict(fit, raw, md.preprocess);
-      close(out.prediction, t.predicted[i], TOL, `${key} row ${i} predicted`);
-      close(out.lower, t.lower[i], TOL, `${key} row ${i} lower`);
-      close(out.upper, t.upper[i], TOL, `${key} row ${i} upper`);
+      closeRel(out.prediction, t.predicted[i], TOL, `${key} row ${i} predicted`);
+      closeRel(out.lower, t.lower[i], TOL, `${key} row ${i} lower`);
+      closeRel(out.upper, t.upper[i], TOL, `${key} row ${i} upper`);
       const actual = md.test_inputs.rows[i][iActual];
       assert.equal(out.lower <= actual && actual <= out.upper, t.covered[i], `${key} row ${i} covered`);
       checked++;

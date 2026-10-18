@@ -18,7 +18,7 @@ from hw2 import comparison, contract, data, export, preprocess, testgate
 from hw2.paths import MODEL_DATA_JS, MODEL_DATA_JSON, SPLIT_ASSIGNMENT_CSV
 from test_test_section import _design
 
-TOL = 1e-6
+TOL = 1e-6          # relative: |recomputed - contract| <= 1e-6 * |contract| (DA decision-20261018-issue63-js-tolerance.md T-1)
 
 
 @pytest.fixture(scope="module")
@@ -101,7 +101,7 @@ def test_test_inputs_are_the_split_test_rows(official, prepared_real):
 
 def test_independent_recomputation_of_every_official_test_row(official):
     """SR-02 (Spec 主 seam): numpy from the raw test_inputs values, the preprocess rules and each
-    model's fit reproduces every point prediction and PI (1e-6 USD) and every covered flag; the
+    model's fit reproduces every point prediction and PI (relative 1e-6, DA T-1) and every covered flag; the
     coverage statistics follow. This path calls no hw2 prediction function."""
     md = official[0]
     entries = contract.model_entries(md)
@@ -116,9 +116,9 @@ def test_independent_recomputation_of_every_official_test_row(official):
         lev = np.einsum("ij,jk,ik->i", D, np.array(fit["xtx_inv"]), D)
         half = fit["t_crit"] * np.sqrt(fit["s2"] * (1.0 + lev))
         point, lower, upper = np.exp(yhat), np.exp(yhat - half), np.exp(yhat + half)
-        np.testing.assert_allclose(t["predicted"], point, rtol=0, atol=TOL)
-        np.testing.assert_allclose(t["lower"], lower, rtol=0, atol=TOL)
-        np.testing.assert_allclose(t["upper"], upper, rtol=0, atol=TOL)
+        np.testing.assert_allclose(t["predicted"], point, rtol=TOL, atol=0)
+        np.testing.assert_allclose(t["lower"], lower, rtol=TOL, atol=0)
+        np.testing.assert_allclose(t["upper"], upper, rtol=TOL, atol=0)
         covered = (lower <= actual) & (actual <= upper)
         assert t["covered"] == covered.tolist()
         assert t["n_covered"] == int(covered.sum()) and t["n_test"] == actual.size
