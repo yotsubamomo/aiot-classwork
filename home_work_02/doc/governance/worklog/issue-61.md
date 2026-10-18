@@ -1,8 +1,8 @@
 # Worklog — issue #61（HW2 T2 All-in baseline 端到端：fit、PI、test 守門、dashboard 垂直切片）
 
 - **Work item**：GitHub issue [#61](https://github.com/yotsubamomo/aiot-classwork/issues/61)，run `run-20261018-hw2-formal`（Formal，並行度 1）。
-- **狀態**：Executor 工作完成，待 Orchestrator 核對 binding 並派 R1 audit（本檔不代表 audit 或 closure）。
-- **Subject**：branch `home_work_02-regrill`，base `bbf0ed5`；實作 commit `c9b106cbc0a8e19bc42d5d6fd4b20d0150e1a8f1`（本機，未 push）。本檔另以 record-only commit 加在其後（Bindings §7）。
+- **狀態**：cycle 1 的 targeted correction（R1 F-1）完成，待 Orchestrator 核對 binding 並派 R2（本檔不代表 audit 或 closure）。修正紀錄見第 8 節。
+- **Subject**：branch `home_work_02-regrill`，base `bbf0ed5`；R1 受審的實作 commit `c9b106cbc0a8e19bc42d5d6fd4b20d0150e1a8f1`；**修正後的實作 commit `77b79f4e2b775d331bc7f4be3da42354033b1c0c`**（parent `9b47896`；本機，未 push）。本檔另以 record-only commit 加在其後（Bindings §7）。
 
 ## 1. Contract reference
 
@@ -61,7 +61,7 @@
 
 ### 3.3 Test 資料隔離（TR-01、H-3）、G-3 與 #60 R1 follow-up
 
-- **守門（`hw2/testgate.py`）**：每次執行一個 `TestGate`，初始 `closed`。`open(winners, alphas)` 只接受完整的 winners（四個方法的 CV winner 與整體 winner 都已決定）與全部 metric-only 模型（只允許 `ridge`、`lasso`）已固定的 alpha，並凍結一份副本；`evaluate()` 只對凍結的授權清單（`ols_subset`）與凍結 alpha 的 metric-only 模型各評估一次，回傳同一次執行的 `test_inputs` 與 `test`；第二次呼叫報錯，評估中途出錯也結束本次執行；`load_test_rows()` 只在 `evaluate()` 內部可用，其他任何時候拋 `TestGateClosed`。正式資料（以 sha256 識別）在 `OFFICIAL_TEST_GATE_ENABLED = False` 時連 `open()` 都拒絕；另外正式 test 列在同一個 Python process 中最多載入一次。旗標只在 #63 開啟。
+- **守門（`hw2/testgate.py`）**：每次執行一個 `TestGate`，初始 `closed`。`open(winners, alphas)` 只接受完整的 winners（四個方法的 CV winner 與整體 winner 都已決定）與全部 metric-only 模型（只允許 `ridge`、`lasso`）已固定的 alpha，並凍結一份副本〔更正（第 8 節）：`c9b106c` 實際只檢查**有傳入**的 alpha，省略 Ridge 或 Lasso 仍可開啟——R1 F-1；這句陳述在 `77b79f4` 才成立〕；`evaluate()` 只對凍結的授權清單（`ols_subset`）與凍結 alpha 的 metric-only 模型各評估一次，回傳同一次執行的 `test_inputs` 與 `test`；第二次呼叫報錯，評估中途出錯也結束本次執行；`load_test_rows()` 只在 `evaluate()` 內部可用，其他任何時候拋 `TestGateClosed`。正式資料（以 sha256 識別）在 `OFFICIAL_TEST_GATE_ENABLED = False` 時連 `open()` 都拒絕；另外正式 test 列在同一個 Python process 中最多載入一次。旗標只在 #63 開啟。
 - **F-3**：`hw2.data.read_csv` 改為私有 `_read_csv`，模組內沒有任何公開函式回傳完整資料框；正式 test 列的特徵與 `price` 唯一的程式路徑是守門（`test_no_public_function_returns_the_parsed_file`）。
 - **F-1**：寫入守門的測試改以 monkeypatch `export.OFFICIAL_PATHS` 指向暫存檔，並在 fixture 結束時核對追蹤的 `model_data` 兩檔 sha256 不變；守門退化也碰不到追蹤檔。
 - **本票沒有載入任何正式 test 列**：正式資料只做到守門關閉的斷言（`load_test_rows`、`open`、`evaluate` 都拒絕）；notebook 5.3 示範兩個拒絕；pytest、Node test 與 OV-6 量測只用 synthetic fixture。測試中唯一讀到全部列的是既有的結構測試（#60 AC-4 允許）。`test_official_winners_are_not_complete...` 與 `test_allin_baseline_is_reproduced...` 只用 training 列。
@@ -118,6 +118,7 @@
 
 ## 6. Audit status
 
+- **R1（cycle 1）**：`audit/issue-61-c1-r1.md`，VERDICT: BLOCKING (F-1)。Blocking：F-1（Medium，H-3）；non-blocking：F-2、F-3（owner #62）、F-4（owner #63），本票不處理。F-1 以第 8 節的 targeted correction 處理，待 R2。
 - **Required**（Formal：每張票都要 independent audit；Bindings §5）。觸及 H-2（dashboard 的資源載入、Test 區塊與預測圖、notebook 的 Modeling／Evaluation 章節）與 H-3（PI、守門、隔離、重算、Python／JS 一致性）：依 A-1 需要 R1 record 的類別核對節，依 A-2 Reviewer 自行執行重算與測試，依 A-3 核對 `methods`／`baselines` 沒有 test 欄位、`test` 鍵集合與 UI 不以 `test_inputs` 評估。
 - 進度：尚未派工（由 Orchestrator 依 Bindings §3.7 派 `gov-primary-reviewer`）。本檔的 self-verification（含 mutation probes）不是 audit。
 
@@ -128,3 +129,41 @@
 - **#67**：OV-6 正式量測（參考環境、有畫面的瀏覽器、無回應提示的觀察、ACCEPTANCE.md 記錄）；可直接使用 `window.HW2_PERF` 與 `#scatter-perf`。
 - **學號比對**：依 S-2～S-5，學號設定提供後執行（required authority：acceptor 提供輸入；不是本票結案條件）。
 - 未 push（designation 第 3 點）。
+
+## 8. Targeted correction — cycle 1（R1 F-1）
+
+- **依據**：`audit/issue-61-c1-r1.md` §5 F-1 與其 R2 closure 條件 (a)～(e)（以 record 為準）；Orchestrator 2026-10-18 的修正派工（同一 worklog identity、同樣的約束）。F-2、F-3（#62）、F-4（#63）依 record 的 disposition 不在本次修正範圍，沒有修改。
+- **是否有爭議**：沒有。F-1 屬本票 AC-2（「alpha 與 winner **全部**固定」「守門同樣適用於 metric_only」），也是 notebook §5.3、commit message 與本 worklog §3.3 已陳述的行為；我接受它是 #61 的 implementation 缺陷，不需要 Design Authority。
+- **Binding**：同一個 `gov-executor` subagent（agentId `af27ea1586955f943`）以 SendMessage 續派；修正 commit 之後觀測 `('claude-opus-5-5', 'high')` 275 則，單一元素。沒有 escalation、替代或 bounded assignment。
+- **修正 commit**：`77b79f4e2b775d331bc7f4be3da42354033b1c0c`（parent `9b47896`），8 個檔案，全部在 `home_work_02/` 內：
+
+| 檔案 | 修改 |
+| --- | --- |
+| `hw2/testgate.py` | `open()` 對 `ridge` 與 `lasso` **兩者**都要求有限且大於 0 的 alpha；省略任一個或兩個都拋 `TestGateError`（「alpha of … is not fixed」），守門維持 `closed`；凍結的 alpha 集合因此必為 {ridge, lasso}，`evaluate()` 既有的「metric-only 模型集合＝凍結 alpha 集合」檢查就要求兩個模型都提供（閉合條件 (b)）。模組說明同步 |
+| `hw2/contract.py` | `validate_test`：`metric_only` 項目必須恰好是 ridge 與 lasso（R1 探測 C3；record 說可在此一併處理） |
+| `hw2/fixture.py` | 新增 `StandInMetricOnly`（固定 alpha、以 training 列 mean ln(price) 的 exp 為常數預測；明確標為 stand-in，不是 Ridge／Lasso 擬合）與 `FIXTURE_ALPHAS`；`run_fixture` 預設以兩個 stand-in 開啟守門並評估；`fixture_note` 註明 stand-in。輸出仍只在單元以外 |
+| `tests/test_testgate.py` | 既有測試改以兩個 alpha 與兩個 stub 開啟與評估；新增 `test_gate_refuses_to_open_unless_both_metric_only_alphas_are_fixed`（6 種：兩個都省略、只給 ridge、只給 lasso、lasso 為 None、ridge 為 NaN、ridge 為 0；每種都拒絕、狀態仍為 closed、`evaluate` 仍被拒、拒絕不消耗本次執行）；metric-only 測試加「兩個都沒提供」的評估拒絕；`test_fixture_run_scores_both_metric_only_stand_ins_once` |
+| `tests/test_test_section.py` | fixture 的 `test` 現在含兩個 `metric_only`：斷言恰好 ridge 與 lasso、欄位只有指標；獨立重算只走 `ols_subset`；新增兩種竄改（少 lasso、兩個都移除）被拒 |
+| `hw2.ipynb` | §5.3 改為「兩個 metric-only 模型（Ridge 與 Lasso）的 alpha 都已以 training CV 固定之後才能開啟（省略其中任何一個，或兩個都省略，守門都拒絕開啟）」與「只評估授權清單中的 OLS 子集模型與這兩個 metric-only 模型（各一次）」；重新執行（2.8 s） |
+| `results/model_data.json`、`assets/model_data.js` | notebook 重跑的結果：與 `c9b106c` 逐鍵比較，只有 `meta.timing_s` 四個值與 `meta.generated_at` 不同；仍沒有 `test`，`test_inputs` 0 列 |
+
+- **閉合條件的對應與證據**：
+
+| R2 條件 | 證據 |
+| --- | --- |
+| (a) Ridge 或 Lasso 任一個 alpha 未固定（含兩個都沒傳與只傳一個）就拒絕開啟 | `hw2/testgate.py` `open()`；`test_gate_refuses_to_open_unless_both_metric_only_alphas_are_fixed`（6 個參數化案例）全過 |
+| (b) `evaluate` 只在兩個 metric-only 模型都提供時執行 | 凍結集合恆為 {ridge, lasso}＋既有等式檢查；`test_metric_only_models_go_through_the_same_gate_once` 斷言只給 ridge、兩個都不給時都拒絕 |
+| (c) pytest 以 fixture 驗證兩種省略都被拒絕 | 同 (a)；fixture 為 `tests/test_testgate.py::small_run`（synthetic） |
+| (d) notebook §5.3 與程式一致 | §5.3 文字見上；cell 輸出：正式資料 `open refused: the official test gate stays closed …`（旗標先擋）、`load_test_rows refused` |
+| (e) 沒有回歸 | 見下方回歸證據 |
+
+- **回歸證據**（修正後的工作樹＝`77b79f4`）：
+  - `.venv/Scripts/python -m pytest -q -rs -p no:cacheprovider` → **183 passed, 1 skipped**（skip 仍是學號設定未提供）；修正前 174 passed（新增 9 項）。
+  - `node --test tests/js/core.test.js` → 7 pass、0 fail、2 skip（fixture 項目）；pytest 內以 fixture 執行同一檔（`test_node_core.py`）→ 9／9、0 skip（含兩個 `metric_only` 項目被略過的 fixture）。
+  - `python -m hw2.offline_scan` → `scanned 6 files: PASS (0 findings)`。
+  - `testgate.OFFICIAL_TEST_GATE_ENABLED` 仍為 False；追蹤的 `model_data` 區段＝{baselines, inputs, meta, preprocess, test_inputs, winners}，沒有 `test`，`test_inputs.written` false、0 列；本次修正沒有載入任何正式 test 列（守門測試的正式資料部分只斷言拒絕）。
+  - fixture dashboard（`python -m hw2.fixture`，n_test 4,291，test 鍵含 ridge／lasso stand-in）以 `file://` 在 headless Chrome 155 於 1440／375 px 載入：沒有例外、沒有 console error、Test 區塊顯示「All-in baseline · k = 18」、沒有水平溢出（`page_check.js`，scratchpad）。Dashboard 不顯示 metric_only（依 BR-01 第 4 點，比較表屬 #63）。
+  - **F-1 回歸 mutants**（scratchpad `mutants_f1.py`，單元複本，完整 suite）：恢復原本「只檢查有傳入的 alpha」→ DETECTED（3 failed）；只不要求 lasso → DETECTED（1 failed）；契約接受 metric_only 子集 → DETECTED（2 failed）。
+  - `tests/test_repo_hygiene.py`（commit 後）：15 passed、1 skipped。新增內容沒有 7 位以上數字串；「學號」沒有出現；實際學號比對仍 NOT VERIFIED（S-1）。
+- **時間**：2026-10-18 18:25 至 18:45 +0800。
+- **Remaining**：R2（Orchestrator 派工）。#63 開啟正式守門時須提供真正的 Ridge／Lasso 模型與 training CV 選出的 alpha，守門會要求兩者都在；F-4 仍屬 #63。
