@@ -49,8 +49,8 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | 票 | Blocked by | 狀態 | Worklog | Audit |
 | --- | --- | --- | --- | --- |
 | #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
-| #61 T2 | #60 | audit 中（R1） | `worklog/issue-61.md` | 待 `audit/issue-61-c1-r1.md` |
-| #62 T3 | #61 | 待執行 | — | — |
+| #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
+| #62 T3 | #61 | READY → 派工 | `worklog/issue-62.md` | — |
 | #63 T4 | #62 | 待執行 | — | — |
 | #64 T5 | #62 | 待執行 | — | — |
 | #65 T6 | #63、#64 | 待執行 | — | — |
@@ -99,7 +99,8 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 
 | 票 | 本機 HEAD（結案時） | 狀態 |
 | --- | --- | --- |
-| #60 | 本次 commit | 待 acceptor 授權；前置：學號設定＋S-2 無命中 |
+| #60 | `bbf0ed5` | 待 acceptor 授權；前置：學號設定＋S-2 無命中 |
+| #61 | #61 結案 commit | 同上 |
 
 ## 10. #61
 
@@ -108,3 +109,8 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Machine gates／evidence presence**：變更全部在 `home_work_02/`、無 `doc/requirement/`；worklog 存在且已更新；追蹤樹無 `.zip`／`.env`／`kaggle`、PDF 只有老師文件。
 - **Concerns**（未指明 authority 或屬 Reviewer 範圍）：(1) A-4 學號比對依 DA S-1 記 NOT VERIFIED；(2) dashboard 部分先於 #62 建置（Executor 自認 HOW）；(3) OV-6 只在 headless 量測。交 R1，Orchestrator 不判斷。
 - **R1**：派 `gov-primary-reviewer`（Opus 5.5／`xhigh`），fresh context，record `audit/issue-61-c1-r1.md`。
+- **R1**（agentId `a68ac8fd770753723`）：`gov-primary-reviewer`；`('claude-opus-5-5','xhigh')` 173 則；record 自寫，原樣 commit `9b47896`。VERDICT: BLOCKING（F-1 Medium／H-3）；F-2、F-3 → #62，F-4 → #63（non-blocking）。
+- **Targeted correction**：以 SendMessage 續派同一 Executor（同一 worklog identity）；`('claude-opus-5-5','high')` 285 則（全程，單一元素）。Corrected subject `77b79f4e2b775d331bc7f4be3da42354033b1c0c`（parent `9b47896`）；之後 `61387af` 只改 worklog。Machine gates：delta 全在 `home_work_02/`、無 `doc/requirement/`。
+- **R2**：SendMessage 續派同一 reviewer（R1 context，Bindings §3.7 第 1 項）；Orchestrator 觀測 `('claude-opus-5-5','xhigh')` 222 則（R1＋R2 全程）（全程，單一元素）；record `audit/issue-61-c1-r2.md` 自寫。VERDICT: CLOSURE；F-1 resolved；F-2～F-4 non-blocking，owner 不變。
+- **Completion predicates**：P1 #60 已結案；P2 引用鏈存在；P3 evidence 在 worklog §4、§8；P4 R2 CLOSURE；P5 無未處置 blocking；P6 無 routed design question；P7 closed subject＝`77b79f4`＝R2 subject，之後只有 record-only delta；P8 worklog 已更新（`61387af`）。A-4 依 DA S-1 記 NOT VERIFIED。→ **#61 結案**。
+- **Follow-up owners**：F-2、F-3 → #62 Executor pack；F-4 → #63。
