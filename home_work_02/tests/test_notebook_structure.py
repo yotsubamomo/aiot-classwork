@@ -1,0 +1,65 @@
+"""The main program's CRISP-DM structure (T-CRISP-DM; DA T-義務: six chapters, filled per ticket)."""
+import json
+import re
+
+from hw2.paths import UNIT_DIR
+
+NOTEBOOK = UNIT_DIR / "hw2.ipynb"
+PHASES = ["Business Understanding", "Data Understanding", "Data Preparation",
+          "Modeling", "Evaluation", "Deployment"]
+FILLED = PHASES[:3]          # chapters with content at this stage
+
+
+def _cells():
+    return json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"]
+
+
+def _chapters():
+    """{phase: cells after its '## n. Phase' heading cell, up to the next chapter}."""
+    chapters, current = {}, None
+    for cell in _cells():
+        source = "".join(cell["source"])
+        heading = re.match(r"^## (\d)\. (.+)$", source.splitlines()[0]) if source else None
+        if cell["cell_type"] == "markdown" and heading:
+            current = heading.group(2).strip()
+            chapters[current] = [source[len(source.splitlines()[0]):].strip()]
+        elif current:
+            chapters[current].append(source.strip())
+    return chapters
+
+
+def test_six_crisp_dm_chapters_in_order():
+    headings = []
+    for cell in _cells():
+        first = "".join(cell["source"]).splitlines()[:1]
+        if cell["cell_type"] == "markdown" and first and re.match(r"^## \d\. ", first[0]):
+            headings.append(first[0])
+    assert headings == [f"## {i}. {p}" for i, p in enumerate(PHASES, 1)]
+
+
+def test_first_three_chapters_have_content_and_code():
+    chapters = _chapters()
+    for phase in FILLED:
+        body = [c for c in chapters[phase] if c]
+        assert len(body) >= 2, phase
+    code_cells = {phase: 0 for phase in FILLED}
+    current = None
+    for cell in _cells():
+        source = "".join(cell["source"])
+        first = source.splitlines()[0] if source else ""
+        match = re.match(r"^## \d\. (.+)$", first)
+        if cell["cell_type"] == "markdown" and match:
+            current = match.group(1)
+        elif cell["cell_type"] == "code" and current in code_cells:
+            code_cells[current] += 1
+    assert all(n >= 1 for n in code_cells.values()), code_cells
+
+
+def test_notebook_has_no_student_id_and_is_executed_without_errors():
+    cells = _cells()
+    text = NOTEBOOK.read_text(encoding="utf-8")
+    assert "<學號>" in text                       # placeholder only (BR-03)
+    for cell in cells:
+        if cell["cell_type"] == "code":
+            assert cell.get("execution_count") is not None
+            assert all(o.get("output_type") != "error" for o in cell.get("outputs", []))
