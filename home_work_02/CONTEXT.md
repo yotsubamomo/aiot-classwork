@@ -71,9 +71,15 @@ row, and competes for overall CV winner as itself.
 _Avoid_: Full model (ambiguous with "the final model"), k = 18 method
 
 **Feature-selection method**:
-A procedure that ranks or chooses source features using only the training set, yielding one feature
-subset per feature count k.
+A procedure that ranks or chooses feature groups using only the rows it is given, yielding one
+subset per feature count k. Run inside each cross-validation fold it yields that fold's subsets; run
+on the whole training set it yields the canonical subsets.
 _Avoid_: Model (a method yields subsets; a model is fitted on one subset)
+
+**Canonical subset**:
+For one method and one k, the subset computed on the whole training set. It is what the dashboard
+shows, what the live predictor uses, and what is evaluated on the test set when it is a CV winner.
+_Avoid_: The CV subset (fold subsets may differ), the selected features (ambiguous)
 
 **CV winner**:
 The feature subset (and, overall, the method) with the lowest cross-validated RMSE on the training
