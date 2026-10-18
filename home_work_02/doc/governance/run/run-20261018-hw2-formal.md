@@ -188,3 +188,5 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Acceptor 2026-10-19 回覆（逐字）**：「可以，為什麼不能寫檔？ 如果要授權我這邊都先同意。」據此：以 shell 寫入單元內交付物的作法經 acceptor 同意；之後的 Executor（#66、#67）遇到同一誤判時可沿用，並在 worklog 記錄。內容仍由 R1 依 A-5 審查。此同意不擴及單元外檔案（RB-5）或任何 push／merge。
 - **DA C-1／C-2**（agentId `ad8271e0a223720ff`；Opus 5.5／`high` 單一元素）：record `decisions/decision-20261019-issue65-labels-figures.md`。C-1：維持現行標示，不需修改（L-1～L-3）。C-2：(b) 實際 vs 預測＋PI 圖為 derivation TK-2 的分配缺口（F-1），owner #65（F-3），依 F-4 以 targeted correction 補上，F-5 說明不構成第二次評估；(a)(c) 不是缺口（F-2）。不改 accepted 語義，不需 acceptor。觀察事項（cell 28 圖例缺字）交 #65 R1 與 #67。
 - **Targeted correction**：以 SendMessage 續派同一 Executor（同一 worklog identity），依 DA record F-4／F-5。
+- **Correction return**：`DONE`；同一 Executor 全程 `('claude-opus-5-5','high')` 單一元素。Corrected subject `0b57c0265f01e7732fdd1250e58101819a1b416f`（parent `e03fcb0`）；之後 `a0a1b70` 只改 worklog。Machine gates：delta 全在 `home_work_02/`、無 `doc/requirement/`；`results/model_data.json`、`assets/model_data.js`、`results/tables/` 與 `741a21b` 相同（Orchestrator 機械核對）。
+- **R1**：派 `gov-primary-reviewer`（fresh context），subject＝`0b57c02`，record `audit/issue-65-c1-r1.md`。
