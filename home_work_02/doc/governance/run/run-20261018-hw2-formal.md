@@ -51,8 +51,8 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #60 T1 | — | **已結案** | `worklog/issue-60.md` | `audit/issue-60-c1-r1.md` CLOSURE |
 | #61 T2 | #60 | **已結案** | `worklog/issue-61.md` | `audit/issue-61-c1-r1.md` BLOCKING → `issue-61-c1-r2.md` CLOSURE |
 | #62 T3 | #61 | **已結案** | `worklog/issue-62.md` | `audit/issue-62-c1-r1.md` CLOSURE |
-| #63 T4 | #62 | audit 中（R1） | `worklog/issue-63.md` | 待 `audit/issue-63-c1-r1.md` |
-| #64 T5 | #62 | 待執行 | — | — |
+| #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
+| #64 T5 | #62 | READY → 派工 | `worklog/issue-64.md` | — |
 | #65 T6 | #63、#64 | 待執行 | — | — |
 | #66 T7 | #65；acceptor 輸入 | 待執行 | — | — |
 | #67 T8 | #66；學號；RB-5 | 待執行 | — | — |
@@ -101,7 +101,8 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | --- | --- | --- |
 | #60 | `bbf0ed5` | 待 acceptor 授權；前置：學號設定＋S-2 無命中 |
 | #61 | `6f18d8f` | 同上 |
-| #62 | #62 結案 commit | 同上 |
+| #62 | `b686b3a` | 同上 |
+| #63 | #63 結案 commit | 同上 |
 
 ## 10. #61
 
@@ -134,3 +135,6 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Targeted correction**：依 DA record §7，以 SendMessage 續派同一 Executor（同一 worklog identity）。
 - **Correction return**：`DONE`；同一 Executor 全程 `('claude-opus-5-5','high')` 單一元素。Commit `1f8e7c4408dfbd22bc3c11f4d9590dae5cb4431a`（parent `7f0339e`）只改三個測試檔；`git diff 052984b 1f8e7c4` 在 `hw2/`、`assets/`、`results/`、notebook、`index.html` 無差異（Orchestrator 機械核對）；之後 `3312006` 只改 worklog。
 - **R1**：派 `gov-primary-reviewer`（fresh context），subject＝`1f8e7c4`（含正式評估產出 `052984b` 與測試修正），record `audit/issue-63-c1-r1.md`。
+- **R1**（agentId `a45d7b2a500512ef3`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: CLOSURE；F-1、F-2（Low，owner #64）non-blocking；#61 F-4、#62 F-1～F-3 resolved；單次正式評估經 reviewer 獨立核對。Reviewer 對「report draft 的欄群區分」的解讀（屬 #65，DA §9.1 G-4）未 route；無人提出異議，不構成 routing 事件。
+- **Completion predicates**：P1 #62 已結案；P2 引用鏈存在；P3 evidence 在 worklog §4–§6、§9；required gate（Node 逐筆重算）依 DA §3.6-A clarification 重跑後通過；P4 R1 CLOSURE；P5 無 blocking；P6 C-1 有 DA record；P7 closed subject＝`1f8e7c4`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`3312006`）。→ **#63 結案**。
+- **Follow-up owners**：F-1、F-2 → #64；C-2、C-3（Ridge／Lasso 取最小 alpha；Test RMSE 高於 CV）→ #65 報告（Executor concerns，交 #65 pack 引用）。
