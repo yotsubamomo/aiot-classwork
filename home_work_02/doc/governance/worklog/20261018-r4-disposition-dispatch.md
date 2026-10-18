@@ -35,3 +35,12 @@
 - **TK-2～TK-5 同步到票**：本 session 以追加 AC 的方式同步到 #61、#62、#63、#64、#65、#67（結果 CSV／PNG 的產出與引用、兩句報告陳述、`methods`／`baselines` 無 test 欄位的斷言、「Fit」＝training set 與標示依據的措辭）。
 - **TK-1 待 acceptor**：GitHub Pages URL 的檢查無票可做（Pages 只發布 `main`，合併屬 RB-1）；#67 記為 NOT TESTED（pending merge）。
 - **未做**：push、實作、Orchestrator、Fable probe（Orchestrator 啟動前完成）。
+
+## Tickets Review（acceptor 2026-10-18）：TR-01、TR-02
+
+- **Acceptor**：「APPROVED WITH ONE REQUIRED CLARIFICATION」；TR-01 [High] test_inputs 隔離；TR-02 [Low] 177 筆措辭；「若無新的 Blocking／High finding，將 Tickets Verdict 記錄為 ACCEPTED」。
+- **DA 判定**（同一 agent，`derivation-SPEC.md` §9.6）：TR-01 為票的文字澄清（§5.3 第 2 類；缺陷來自 DA §9.1 把 `test_inputs` 分配給 #60），不需 Spec 或 contract change；TR-02 為 boundary 內的措辭修正。Binding 核對（全程）：124 則 assistant 訊息皆 (`claude-opus-5-5`, `high`)。
+- **套用**：本 session 依 DA 逐字替換文字修改 #60～#67（全部加入「Test 資料隔離」共同條款；#60 What to build 與兩條 AC；#61 兩條 AC；#62 一條 AC；#63 新增「開啟守門」AC；#64 TR-02 措辭；#67 新增重跑比對基準 AC）。所有 anchor 各恰出現一次。
+- **針對性一致性檢查**：8 張票 OPEN／`ready-for-agent`；依賴邊 60→61→62→{63,64}→65→66→67 未變；#60 不再匯出正式 test 列；#63 擁有正式 `test_inputs` 與守門開啟；#64 不再寫死 177；覆蓋 token（G-1～G-4、OV-1／OV-6、N-10、CC-1、SR-02／07／08／09、A-2／A-4／A-6、BR-03）仍齊全。Spec rev 5 無需修改（DA 的可選編輯註記：「以真實資料的小子集」讀作 training 列，已由共同條款約束）。
+- **Tickets Verdict：ACCEPTED**（記於 `doc/ticket/tickets.md`）。
+- **未做**：實作、Orchestrator 啟動、push、merge。

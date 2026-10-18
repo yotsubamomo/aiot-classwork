@@ -234,6 +234,87 @@ A-7（deferral 需要 DA 確認）與 A-8（不宣告 model diversity）適用�
 
 除了上列各項，Spec rev 5 的每條要求與 Brief §3 的每個必要項目都至少對應到一張票。Optional 的 (7) test 殘差表與 (8) 全部結果表沒有分配，因為它們不是完成條件（Brief §3.3）。
 
+### 9.6 Tickets Review 的 TR-01、TR-02（2026-10-18）
+
+- **Binding**：`gov-design-authority`，`claude-opus-5-5`／`high`（預設 mapping，沒有 escalation，沒有替代；由派工者依 Bindings §3.6 核對）。
+- **背景**：acceptor 以 APPROVED WITH ONE REQUIRED CLARIFICATION 接受 #60–#67 這一組票；TK-1 依 AD-3 處理。
+
+#### TR-01 [High] Test 資料的隔離
+
+**(1) 性質：只需要釐清票的文字。不需要修改 Spec，也不是 contract change。**
+
+- Spec rev 5 定義的是**最終的** `model_data` 契約（`test_inputs` 是全部 test 交易各一列，`test` 是授權集合的結果），沒有規定這兩個區段在開發的哪個階段第一次寫出。哪張票在什麼時候寫出，是 Ticket derivation 的分配，屬 DA 的 derived contract 設計（治理 §5.3 第 2 類）。
+- 這個缺陷是我在 §9.1 把 `test_inputs` 分配給 #60 造成的。它和 §9.3 條件 5「#61、#62 不得讀取正式 test 列」，以及 Brief「test 在全部選擇固定後才評估」（Q4、Q33；CC-1 (3)(4)）的精神衝突：只要被追蹤的 `model_data` 在 #60 就含有正式 test 列與 `actual_price`，後面的階段就**拿得到** test 標籤。
+- 修正方式：正式 test 列的載入、匯出與發布，綁在同一個守門上，最早在 #63 開啟。最終契約、test 列數與 CC-1 授權集合都不變。
+- **§9.1 的修正**：`test_inputs` 的**結構**屬 #60；`test_inputs` 的**列**與統計（房屋數、重複交易筆數、被編為基準的未見 zipcode 筆數）屬 #63。§9.3 新增條件 6：正式 test 列（特徵與 `price`）只能經由 G-3 的守門載入；守門只在 #63、全部 training CV 選擇與 alpha 固定之後開啟。分割在 #60 只產生 test 列的識別（`id`／列序號）與 n_test。
+
+**(3) Spec finding**：不需要修改 Spec。有一點可以選擇性地編輯：Spec Testing Decisions「以真實資料的小子集或固定 fixture」的「真實資料」應理解為 **training 列**。本節的共同條款已把這點變成對票的約束，所以 Spec 不改也不影響正確性。
+
+**(2) 票的文字（請逐字套用）**：
+
+**全部票的「共同條款」**：在「Test 時序」那一條之後新增一條：
+
+```markdown
+- **Test 資料隔離（DA TR-01，`derivation-SPEC.md` §9.6）**：分割在 #60 只產生 test 列的識別（`id`／列序號）與 n_test。正式 test 列的特徵與 `price` 只能經由 test 評估守門（G-3）載入；守門只在 #63、全部 training CV 選擇與 alpha 固定之後開啟。正式 `test_inputs` 列與 `test` 由同一個匯出程式在同一次執行中寫出，最早在 #63。#60～#62 的測試、dashboard 檢查與 OV-6 量測只用 synthetic fixture 或 training 列的子集，不得使用正式 test 列或由它們衍生的任何數值。Fixture 產生的 `model_data` 不得寫到被追蹤的正式 `model_data` 路徑，也不得被任何階段當成結果使用。最終 `model_data` 契約、test 列數與 CC-1 授權集合不變。
+```
+
+**#60**：
+
+- What to build 的「匯出 `model_data` 的 `meta`、`preprocess`、`inputs`、`test_inputs`（`.json` 與 `.js`）。」改為：
+
+```markdown
+匯出 `model_data` 的 `meta`、`preprocess`、`inputs`，以及 `test_inputs` 的**結構（schema）**（`.json` 與 `.js`）；正式 test 列在 #63 才寫出（共同條款「Test 資料隔離」）。
+```
+
+- AC「- [ ] `test_inputs` 含全部 test 列的 18 個原始 source feature、列識別、`actual_price`，以及房屋數與重複交易筆數（SR-02、SR-08）。」改為：
+
+```markdown
+- [ ] `test_inputs` 的 schema（列識別、18 個原始 source feature、`actual_price`、房屋數與重複交易筆數的欄位）已定義，並以 synthetic fixture 通過 pytest；被追蹤的正式 `model_data` 中 `test_inputs` 沒有任何列，也沒有任何 `test` 結果（TR-01）。
+- [ ] 全資料層級只做結構驗證（sha256、schema、列數、唯一 `id` 數、`sqft` 恆等式）；`price` 與特徵的分布統計、極端值只用 training 列（B-14）。分割只對外提供 test 列的識別與 n_test。
+```
+
+**#61**：
+
+- AC「- [ ] OV-6 的量測方式已內建（首次繪製與互動的時間戳可讀取；SR-09 (a)(b)(f)(g)），以 ≥ 4,000 筆的 fixture 量測並記錄。」改為：
+
+```markdown
+- [ ] OV-6 的量測方式已內建（首次繪製與互動的時間戳可讀取；SR-09 (a)(b)(f)(g)），以 ≥ 4,000 筆的 synthetic fixture（不取自正式 test 列）量測並記錄；這只驗證量測方法，OV-6 的正式 gate 在 #67。
+```
+
+- AC「- [ ] 正式 Test set 未被讀取用於任何評估或決定（worklog 記錄）；fixture 與正式資料走同一條程式路徑。」改為：
+
+```markdown
+- [ ] 正式 test 列（特徵與 `price`）沒有被載入：只能經由 G-3 守門載入，而守門在本票保持關閉（pytest 斷言守門關閉時載入會報錯）。Fixture 的列是 synthetic，或取自 training 列，不取自正式 test 列。被追蹤的正式 `model_data` 不含 `test` 結果與 `test_inputs` 列。Fixture 與正式資料走同一條程式路徑（worklog 記錄）。
+```
+
+**#62**：AC「- [ ] 正式 Test set 仍未被讀取用於評估（worklog）。」改為：
+
+```markdown
+- [ ] 正式 test 列（特徵與 `price`）仍未載入，G-3 守門保持關閉；Test 區塊與授權集合的分層只以 fixture 驗證；被追蹤的正式 `model_data` 不含 `test` 結果與 `test_inputs` 列（worklog 記錄）。
+```
+
+**#63**：在 G-3 那一條 AC 之後新增：
+
+```markdown
+- [ ] 開啟守門（TR-01）：在全部 alpha 與 winner 固定後，於同一次執行中經守門載入正式 test 列，執行唯一一次評估，並由同一個匯出程式寫入正式 `test_inputs` 列與 `test`。`test_inputs` 含全部 test 列的 18 個原始 source feature、列識別、`actual_price`，以及房屋數與重複交易筆數（SR-02、SR-08；原屬 #60）；同時記錄被編為基準的未見 zipcode 筆數（SR-07）。Worklog 記錄守門開啟的時間戳、這次執行的識別，以及 `test` 結果的摘要，作為之後重跑的比對基準（§9.3 條件 2）。
+```
+
+**#67**：在「乾淨環境重跑」那一條 AC 之後新增：
+
+```markdown
+- [ ] 乾淨環境重跑與 ZIP 內 `model_data` 的 `test_inputs` 與 `test`，與 #63 記錄的比對基準一致（§9.3 條件 2；不一致時停止並 route 給 DA）；ZIP 與追蹤檔案中沒有 fixture 產生的 `model_data`（TR-01）。
+```
+
+#### TR-02 [Low] #64 的「177 筆重複交易」
+
+**判定：只需要釐清文字，在 boundary 內。** 177 是全資料集的結構事實：21,613 列減去 21,436 個唯一 `id`（Brief §4）。Brief §6 的「討論 177 筆重複交易」以資料集層級的事實作為討論對象。診斷用的是 training 殘差，所以必須以 training set 實際的數字為準；177 仍然可以作為背景引用，但要標明是全資料層級。這不改變 Brief 的語義。
+
+**#64 的文字（請逐字套用）**：What to build 中的「討論 177 筆重複交易」改為：
+
+```markdown
+討論重複交易對誤差獨立性的影響：以 training set 實際的重複交易筆數（列數 − 唯一 `id` 數）與涉及的房屋數為準，由程式計算後引用，不寫死數字；全資料集的 177 筆（21,613 − 21,436）只作為背景，並標明是全資料層級
+```
+
 ## 10. Evidence
 
 - 讀取：Bindings b5；治理 v2.2 §1.2、§2.4、§2.5、§3.3–§3.6、§4.7、§5.1–§5.3；`outcome-contract.md`；`BRIEF.md`（HEAD 與 `dff7c55c`）；`dff7c55c` 的 Grill 紀錄（Q9、Q11、Q20、Q31 等）；`CONTEXT.md`；`SPEC.md` rev 3；`SPEC-review-2026-10-18.md`；`design/WIREFRAME-ACCEPTANCE.md`、`UI-DESIGN-NOTES.md`、`WIREFRAME-REVIEW-CHECKLIST.md`；`design/wireframe/mock-data.js`（第 188–189 行）；SRC-1 轉寫。
