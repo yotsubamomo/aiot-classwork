@@ -1,5 +1,7 @@
 # HW2 Dashboard — UI Design Notes（Wireframe v0.2，2026-10-18）
 
+> **狀態：UI DESIGN ACCEPTED（acceptor 2026-10-18 目視驗收）。** 設計基準＝v0.2 @ commit `0eb862594c8e38616534e9dd1be388e18ad01aa8`；接受紀錄見 [`WIREFRAME-ACCEPTANCE.md`](WIREFRAME-ACCEPTANCE.md)。本 wireframe 是後續實作的 UI 設計參考；功能與統計以 Brief 與 Spec rev 3 為準；mock 計算不是正式實作，Executor 不須複製。
+>
 > v0.2：依 acceptor 的 Wireframe Review 七項 UI 決策（§8）做最小修正：All-in 只顯示固定 k = 18；手機導覽改為可展開選單（含鍵盤、焦點與 `aria-expanded`）。其餘決策確認既有做法。
 
 - **目的**：依已接受的 Brief（`doc/brief/BRIEF.md` @ `dff7c55c`）與 Spec rev 3（`doc/spec/SPEC.md`，issue #59）設計 dashboard 的高保真靜態 wireframe，供 Wireframe Review 與後續 UI 實作參考。**不改變** Brief／Spec 的功能與統計要求。

@@ -1,5 +1,7 @@
 # HW2 Dashboard Wireframe — Review Checklist（供 acceptor）
 
+> **Review 結果：UI DESIGN ACCEPTED（2026-10-18，acceptor 目視驗收 v0.2 @ `0eb86259`）。** A–G、J、K 的設計項目依 acceptor 的目視確認視為通過；H、I 中屬於 Open Verification Items（真正斷網 `file://`、真實手機與觸控、Safari／Firefox、螢幕閱讀器、對比量測、正式 dashboard 的 PI 渲染效能）**維持 OPEN、不得標 PASS**，帶入後續 Tickets 與 ACCEPTANCE.md。完整紀錄見 [`WIREFRAME-ACCEPTANCE.md`](WIREFRAME-ACCEPTANCE.md)。
+
 開啟方式：直接以瀏覽器開啟 `home_work_02/design/wireframe/index.html`（`file://`，可斷網）。每項勾選 PASS／FAIL／N/A 並附註。
 
 ## A. 資料邊界與標示
@@ -99,4 +101,6 @@
 
 **未實測（需人工）**：真實 375 px 裝置、Safari／Firefox、`file://` 直接開啟（內建瀏覽器無法渲染本機檔案，改以本機伺服器檢查）、螢幕閱讀器朗讀、`prefers-reduced-motion` 實機、色彩對比的量測值、觸控裝置的拖曳與滾輪縮放。
 
-**Review 結論**：☐ 通過，進入 `/to-tickets`　☐ 修改後再審　☐ 退回
+**Review 結論**：☑ 通過（UI DESIGN ACCEPTED，2026-10-18）　☐ 修改後再審　☐ 退回
+
+**Open Verification Items（不得標 PASS，帶入 Tickets）**：OV-1 真正斷網 `file://`；OV-2 真實手機與觸控；OV-3 Safari／Firefox；OV-4 螢幕閱讀器與完整 accessibility；OV-5 色彩對比量測；OV-6 正式 dashboard 的逐筆 PI 渲染效能（SR-09）。
