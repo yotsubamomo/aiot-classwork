@@ -91,9 +91,9 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | ID | 內容 | 狀態 |
 | --- | --- | --- |
 | S-2 | 學號設定第一次存在時，一次補齊比對（`origin/main..HEAD` 每個 commit 內容、commit messages、追蹤檔案、#59–#67 Issue 與 PR 文字） | **完成**（2026-10-19，0 命中，§19） |
-| S-3 | 任何 push 前 S-2 完成且無命中；Orchestrator 機械檢查並記錄；push 授權請求須寫明學號設定需求 | open |
-| S-4 | 設定存在後的第一個 R1（或 Spec Integration Audit）自行重做比對 | open |
-| S-5 | #67 結案、Spec Integration Audit、phase acceptance、合併前已比對 | open |
+| S-3 | 任何 push 前 S-2 完成且無命中；Orchestrator 機械檢查並記錄；push 授權請求須寫明學號設定需求 | 每次 push 前重跑（學號設定已存在） |
+| S-4 | 設定存在後的第一個 R1（或 Spec Integration Audit）自行重做比對 | **完成**（#67 R1，0 命中） |
+| S-5 | #67 結案、Spec Integration Audit、phase acceptance、合併前已比對 | #67／SIA／phase acceptance **完成**（皆 0 命中）；合併時須涵蓋合併 subject（OI-7） |
 
 ## 9. Push 授權待請求（push 選項 (a)；S-3）
 
@@ -262,3 +262,23 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Spec Integration Audit**：派 `gov-primary-reviewer`（fresh context；不適用 fast path），subject＝`e2780f4`（整合範圍 `60d7fa6..e2780f4`），record `audit/spec-SPEC-c1-r1.md`。
 - **Spec Integration Audit R1**（agentId `a5b2226e12e62438f`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 340 則，單一元素；record `audit/spec-SPEC-c1-r1.md` 自寫。VERDICT: **CLOSURE**。Orchestrator 依 orch-default §6 核對 record 逐項載明 §4.7 五個範圍（§2～§6 各一節）、subject 為最終整合 subject `e2780f4`：成立。F-1 Low non-blocking（報告第九章 Pages 與原始碼連結合併前 404；owner acceptor（RB-1／RB-2 的先後）與 AD-3 合併後 work item）；無 routing。AD-3 Pages 檢查維持 open item（NOT TESTED，pending merge）。
 - **DA phase acceptance**：派 `gov-design-authority`，須引用上述 SIA closure record（orch-default §7 P10）。
+- **DA phase acceptance**（agentId `a721637e7100b57cc`；`gov-design-authority`；Orchestrator 觀測 Opus 5.5／`high` 65 則，單一元素）：record `decisions/decision-20261019-phase-acceptance-SPEC.md` 自寫。**Phase acceptance GRANTED**（SPEC rev 5，subject `e2780f4`），引用 SIA closure record（P10 成立）。Open items OI-1～OI-9（見該 record）。
+
+## 21. Terminus 與 completion report（2026-10-19）
+
+依 orch-default §8，本 run 的授權工作已全部完成（每張票 §7 P1～P8、Spec 的 SIA closure 與 DA phase acceptance／P10），run 於此達到 natural terminus。四種完成分開陳述：
+
+| 陳述 | 狀態 |
+| --- | --- |
+| Work item completion | #60～#67 全部結案（audit records 見 `audit/`；#61、#65 經 R1 BLOCKING → targeted correction → R2 CLOSURE） |
+| Phase acceptance | GRANTED（`decision-20261019-phase-acceptance-SPEC.md`） |
+| Run completion | **完成**（本節）——不等於 Outcome Contract 完成：Brief §7／§10 的 Pages 檢查（AD-3）仍是 open item |
+| Release authorization | **未授權**：合併屬 RB-1（OC 未 opt-in SA-3）；繳交屬 RB-2；push 屬 acceptor 逐次授權（選項 (a)），目前未授權（§14 第 7 點） |
+
+**Final subject**：`e2780f46dbea4d0816a6dcc8bba0725bc6182797`（之後只有 record-only commits）。ZIP：`home_work_02/dist/<學號>_hw2.zip`（未追蹤），sha256 `c84a3c5e6d295ed383fc8c085eb68f30aaa9035208cf9ca7eeaa0d9aae763fb6`。
+
+**Verification 與 audit**：每張票 R1（必要時 R2）由 separately bound `gov-primary-reviewer` 自寫；正式 Test 評估只在 #63 執行一次（run `fe76019b…`，digest `b53ff286…`），#67 Executor 與 SIA reviewer 各自重現一次並逐位元相同；學號比對 S-2～S-5 皆 0 命中。無 model diversity（Executor Opus 5.5／`high`，Reviewers Opus 5.5／`xhigh`）。
+
+**Routing／recovery 紀錄**：DA 裁決 9 份（#60 A-4／H-2、#62 共享子集、#63 容差、#64 重跑、#64 標準化讀法、#65 標示與圖、cell 28、phase acceptance，及 derivation）；無 FA、無 Alternate Review、無 escalation、無替代。Orchestrator 停滯一次（§13 註），無副作用。Acceptor 輸入兩次 stop（§16），已解除。
+
+**待 acceptor 的事項**（DA OI-1～OI-8）：push（OI-6；每次 push 前 Orchestrator 重跑 S-3）、合併進 `main`（OI-7，RB-1）、合併後 Pages／原始碼連結檢查的 Lightweight work item（OI-1、OI-2）、iLearning 繳交（OI-8，RB-2；建議先合併再繳交，SIA F-1）、ZIP 內 README 註記（OI-4，選擇性）。OI-3、OI-5 由之後動到相關程式的 work item 處理。

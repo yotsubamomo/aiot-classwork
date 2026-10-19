@@ -46,3 +46,7 @@ Parent #59；AC 只引用 Spec rev 5 與 DA 義務；不重開已接受的決定
 - F-4 補充義務（Kaggle 名次說明、notebook 六章、README、學號設定路徑）：#60、#65。
 - Acceptor 輸入：#66（ChatGPT PDF、NotebookLM）、#67（學號、root 檔案 RB-5）。
 - **合併後的 Lightweight work item（不在本批票內）**：GitHub Pages URL 上的 dashboard 檢查（Brief §7／§10）；acceptor 2026-10-18 TK-1 決定採 (a)：合併進 `main` 後執行，觸及 H-2 需 audit；#67 與 ACCEPTANCE.md 先記 NOT TESTED（pending merge）。見 `../governance/outcome-contract.md` §4 AD-3。
+
+## Phase acceptance
+
+- 2026-10-19：Spec Integration Audit CLOSURE（`../governance/audit/spec-SPEC-c1-r1.md`）；DA phase acceptance GRANTED（`../governance/decisions/decision-20261019-phase-acceptance-SPEC.md`）。Open items 見該 record（OI-1～OI-9）。
