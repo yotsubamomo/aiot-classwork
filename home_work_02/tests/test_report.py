@@ -263,7 +263,14 @@ def test_acceptance_covers_the_brief_spec_and_ov_items():
     for ov in ("OV-2", "OV-3", "OV-4"):
         assert "best effort" in rows[ov] and "NOT TESTED" in rows[ov], ov
     assert "best-effort 項目沒有證據時一律記 NOT TESTED，不得標 PASS" in ACCEPTANCE.replace("Best-effort", "best-effort")
-    assert "NOT TESTED（pending merge）" in ACCEPTANCE
+    # AD-3 ran after the merge (DA decision-20261019-post-merge-ad3-readme.md P-1 T-1): no status column of
+    # sections A-E or the OV rows may still carry the pre-merge placeholder (this covers D-12 and B-1;
+    # the explanatory text of the status-rule table is not a status column).
+    statuses = {m.group(1): m.group(0).rstrip().rstrip("|").split("|")[-1].strip()
+                for m in re.finditer(r"^\| ((?:[A-E]-\d+|OV-\d)) \|.*$", ACCEPTANCE, re.M)}
+    assert "B-1" in statuses and "D-12" in statuses
+    for key, status in statuses.items():
+        assert "pending merge" not in status, (key, status)
 
 
 def test_acceptance_statuses_are_filled_with_evidence():
@@ -278,7 +285,14 @@ def test_acceptance_statuses_are_filled_with_evidence():
         assert "PENDING" not in status, key
         if status.lstrip("*").startswith(("PASS", "FAIL")):
             assert re.search(r"worklog|見 [A-E]-\d+|見 OV-\d|下表|pytest", status), (key, status)
-    assert statuses["D-12"].startswith("**NOT TESTED（pending merge）**")
+    # D-12 is the post-merge GitHub Pages check (AD-3; DA decision-20261019-post-merge-ad3-readme.md
+    # P-1 T-2..T-4): a PASS that names the AD-3 worklog, the full 40-hex SHA of the checked `main`
+    # commit, and the github-pages deployment that commit triggered.
+    d12 = statuses["D-12"]
+    assert d12.startswith("**PASS**"), d12
+    assert "doc/governance/worklog/20261019-ad3-pages-check.md" in d12, d12
+    assert re.search(r"`main` @ `[0-9a-f]{40}`", d12), d12
+    assert "github-pages" in d12, d12
     for ov, item in (("OV-2", "真實觸控裝置"), ("OV-3", "Safari"), ("OV-4", "螢幕閱讀器")):
         assert f"{item} **NOT TESTED**" in statuses[ov], ov
     assert re.search(r"核對的 subject（#67 填寫）：branch `home_work_02-regrill` @ `[0-9a-f]{40}`", ACCEPTANCE)
