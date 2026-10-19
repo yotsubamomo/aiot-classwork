@@ -283,3 +283,4 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 
 **待 acceptor 的事項**（DA OI-1～OI-8）：push（OI-6；每次 push 前 Orchestrator 重跑 S-3）、合併進 `main`（OI-7，RB-1）、合併後 Pages／原始碼連結檢查的 Lightweight work item（OI-1、OI-2）、iLearning 繳交（OI-8，RB-2；建議先合併再繳交，SIA F-1）、ZIP 內 README 註記（OI-4，選擇性）。OI-3、OI-5 由之後動到相關程式的 work item 處理。
 - **S-3 push 前比對（2026-10-19，HEAD `53aa876`）**：`origin/home_work_02-regrill..HEAD` 73 個 commit 的 patch 與 message：0 命中；追蹤檔案：0；issues #59–#67：0；可 fast-forward。Push 待 acceptor 授權（選項 (a)）；若之後再有 commit，push 前重跑。
+- **Push 授權（acceptor 2026-10-19，逐字）**：「授權將 home_work_02-regrill 以一般 fast-forward push 推送到 origin（禁止 force push、merge、deployment）。」→ push 前重跑 S-3（含本紀錄 commit），之後一般 fast-forward push；結果記於下一行。
