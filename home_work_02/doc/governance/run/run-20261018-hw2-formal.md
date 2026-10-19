@@ -282,3 +282,4 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 **Routing／recovery 紀錄**：DA 裁決 9 份（#60 A-4／H-2、#62 共享子集、#63 容差、#64 重跑、#64 標準化讀法、#65 標示與圖、cell 28、phase acceptance，及 derivation）；無 FA、無 Alternate Review、無 escalation、無替代。Orchestrator 停滯一次（§13 註），無副作用。Acceptor 輸入兩次 stop（§16），已解除。
 
 **待 acceptor 的事項**（DA OI-1～OI-8）：push（OI-6；每次 push 前 Orchestrator 重跑 S-3）、合併進 `main`（OI-7，RB-1）、合併後 Pages／原始碼連結檢查的 Lightweight work item（OI-1、OI-2）、iLearning 繳交（OI-8，RB-2；建議先合併再繳交，SIA F-1）、ZIP 內 README 註記（OI-4，選擇性）。OI-3、OI-5 由之後動到相關程式的 work item 處理。
+- **S-3 push 前比對（2026-10-19，HEAD `53aa876`）**：`origin/home_work_02-regrill..HEAD` 73 個 commit 的 patch 與 message：0 命中；追蹤檔案：0；issues #59–#67：0；可 fast-forward。Push 待 acceptor 授權（選項 (a)）；若之後再有 commit，push 前重跑。
