@@ -387,7 +387,10 @@
       interaction: { mode: 'nearest', intersect: true },
       scales: {
         x: { type: 'linear', min: 0.5, max: 18.5, title: { display: true, text: 'k（feature groups）' },
-          ticks: { stepSize: 1, autoSkip: false, callback: function (v) { return Number.isInteger(v) && v >= 1 && v <= 18 ? v : ''; } } },
+          /* the axis runs from 0.5 to 18.5, so the generated ticks fall between the k values; place
+           * one tick on every k = 1…18 instead */
+          afterBuildTicks: function (axis) { axis.ticks = []; for (var t = 1; t <= 18; t++) axis.ticks.push({ value: t }); },
+          ticks: { autoSkip: false, callback: function (v) { return Number.isInteger(v) && v >= 1 && v <= 18 ? v : ''; } } },
         y: { min: lo, max: hi, title: { display: true, text: METRICS[metric].label + '（訓練 CV）' },
           ticks: { callback: function (v) { return fmt(v); } } }
       },
@@ -786,6 +789,7 @@
   function priceLabel(lv) {
     var v = Math.pow(10, lv);
     if (v >= 1e8) return trimZeros((v / 1e8).toPrecision(3)) + ' 億';
+    if (v >= 1e7) return nf.format(Math.round(v / 1e4)) + ' 萬';     /* 1,000 萬, not '1.00e+3 萬' */
     if (v >= 1e4) return trimZeros((v / 1e4).toPrecision(3)) + ' 萬';
     return String(Math.round(v));
   }
