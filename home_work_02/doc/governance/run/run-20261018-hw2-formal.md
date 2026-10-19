@@ -229,3 +229,19 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-66-c1-r1.md`。
 - **R1**（agentId `af3056b576d36adaf`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: CLOSURE；F-1 Medium non-blocking（衍生文字未被建置釘住；owner #67 Executor 與 Spec Integration Audit reviewer：final 建置前比對 record 所列 sha256）；F-2 Low（`pdf_append.py` 對加密輸入；目前不需動作）。
 - **Completion predicates**：P1 #65 已結案；P2 引用鏈存在；P3 evidence 在 worklog §5；P4 R1 CLOSURE；P5 無 blocking；P6 無 routed design question；P7 closed subject＝`d379732`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`fc38a92`）。→ **#66 結案**。
+
+## 19. #67 前置（2026-10-19）
+
+| 前置 | 狀態 |
+| --- | --- |
+| #66 結案 | 完成（`b5f7f4a`） |
+| `home_work_02/.local/packaging.json`（學號設定，acceptor 提供） | **缺**（目錄不存在） |
+| RB-5：root `README.md`、`CONTEXT-MAP.md` 各加一列 | 已向 acceptor 提交預計 diff（下方），**待明確授權** |
+| DA `decision-20261019-cell28-glyphs.md`、`decision-20261018-issue64-notebook-rerun.md`、acceptor §14 第 3 點、#64 R1 F-1、#66 R1 F-1 | 列入 #67 bounded pack |
+
+預計 diff（Orchestrator 擬稿供 acceptor 審閱；#67 Executor 只在取得授權後逐字套用）：
+
+- `README.md`「作業（Homework）」表，在 `home_work_01/` 列之後加一列：
+  `| [`home_work_02/`](./home_work_02/) | HW2 Multiple Linear Regression（King County 房價） | 以 Kaggle King County 房屋銷售資料依 CRISP-DM 完成多元線性回歸：Forward／Backward SFS、RFE、Lasso 路徑排序四種特徵選擇（k = 1～18），以房屋 id 分組切分與交叉驗證、Test 只評估一次、參數式 95% 預測區間；互動式 dashboard（Chart.js）。 | [開啟](https://yotsubamomo.github.io/aiot-classwork/home_work_02/) |`
+- `CONTEXT-MAP.md` 表，在 HW10 列之後加一列：
+  `| HW2 Multiple Linear Regression | [`home_work_02/CONTEXT.md`](./home_work_02/CONTEXT.md) | 作業 2：King County 房價多元線性回歸的分組切分、特徵選擇路徑、CV winner、一次性 Test 評估、metric-only 模型與預測區間等概念。 |`
