@@ -6,7 +6,7 @@
 | Lane | Lightweight（Bindings §4「已結案工作之後的單點修正」；AD-3 指定為合併後的 Lightweight work item）。不是 Formal run `run-20261018-hw2-formal` 的一部分 |
 | 日期 | 2026-10-19 |
 | Branch | `home_work_02-ad3-pages-check`，自 `origin/main` `5d650b1483bb5f5420af40c3bb88b801238b1bfb`（PR #68 的 merge commit）建立；只在本機 commit，未 push |
-| 狀態 | Pages 與連結檢查完成（self-verification）；ACCEPTANCE.md 更新 **BLOCKED**（與既有測試衝突，交 Design Authority，§7、§9 B-1）；independent audit **required（H-2）**，尚未派工 |
+| 狀態 | Pages 與連結檢查完成（self-verification）；B-1 已由 DA `decision-20261019-post-merge-ad3-readme.md` 解除，ACCEPTANCE.md D-12／B-1／F 與 `tests/test_report.py` 兩條斷言已依 P-1～P-3 更新（§7、§9）；independent audit **required（H-2）**，尚未派工 |
 
 ## 1. Contract reference
 
@@ -20,7 +20,7 @@
 ## 2. Executing role and binding reference
 
 - **角色**：Executor（`gov-executor` subagent，由主 session 派工；definition `.claude/agents/gov-executor.md`）。
-- **Binding**（Bindings §3.6）：session `4bbff425-7ff9-4cdc-b64c-cc68e824e1b1`，agentId **`a8d232aa45e9e1bb9`**，`meta.json` 的 `agentType`＝`gov-executor`；commit 前觀測 `('claude-opus-5-5', 'high')` 110 則，單一元素，等於 O-1 mapping。全程核對由派工者在採用 return 前執行。
+- **Binding**（Bindings §3.6）：session `4bbff425-7ff9-4cdc-b64c-cc68e824e1b1`，agentId **`a8d232aa45e9e1bb9`**，`meta.json` 的 `agentType`＝`gov-executor`；首次 commit 前觀測 `('claude-opus-5-5', 'high')` 110 則；續派後、最後一次 commit 前 148 則；全程單一元素，等於 O-1 mapping。全程核對由派工者在採用 return 前執行。
 - **Escalation／替代**：無。**Bounded assignments**：未使用。
 
 ## 3. 環境與方法
@@ -67,7 +67,7 @@
 | OV-4 | Tab 70 次：69 個停留點（1 次在頁面外）；除了日期輸入（computed outline none，#67 已以截圖確認月日段落反白，本次未重新目視），其餘都是 `:focus-visible`；RFE 按 Enter → rfe；k＝7 按 Space → 7；canvas 上 `+`、`←`、`0` → 3 次互動；比較全部按 Space → `aria-pressed` true；8 個控制項都有 label、28 個按鈕都有名稱、24 個 `aria-pressed`；landmarks 各 1、h1 1、兩個 canvas `role="img"` 並有說明；skip link 存在 | 同左 |
 | OV-5 | 792 個 DOM 文字：一般文字最低 6.49:1（winner 標籤 `rgb(22,101,52)` on `rgb(220,252,231)`）、大字最低 16.78:1，不合格 0 | 同左 |
 
-**OV-6 (a) 的判讀**：Spec rev 5 SR-09 的門檻寫明「在參考環境（acceptor 的電腦、目前版本的 Chrome 或 Edge）以 `file://` 開啟時」，OV-6 已在 #67 以 `file://` 通過（ACCEPTANCE E 節）。Brief §7 要求在 Pages 上重做的是同一節列出的離線驗收項目（區塊渲染、方法與 k 切換、預測器、縮放、zh-TW 無缺字、對外請求），不含時間門檻。因此 Pages 上的首次繪製只記錄、不作 PASS／FAIL 判定。Chrome 新 profile 的第一次載入 3,056 ms 超過 3 秒，主要是首次連線與下載 9.8 MB 的 `model_data.js`（Chrome `domContentLoaded` 3,056 ms；停用快取但連線已建立時 0.7～1.6 s）。我把這個判讀列為 concern C-1，供 Reviewer 檢查。
+**OV-6 (a) 的判讀**：Spec rev 5 SR-09 的門檻寫明「在參考環境（acceptor 的電腦、目前版本的 Chrome 或 Edge）以 `file://` 開啟時」，OV-6 已在 #67 以 `file://` 通過（ACCEPTANCE E 節）。Brief §7 要求在 Pages 上重做的是同一節列出的離線驗收項目（區塊渲染、方法與 k 切換、預測器、縮放、zh-TW 無缺字、對外請求），不含時間門檻。因此 Pages 上的首次繪製只記錄、不作 PASS／FAIL 判定。Chrome 新 profile 的第一次載入 3,056 ms 超過 3 秒，主要是首次連線與下載 9.8 MB 的 `model_data.js`（Chrome `domContentLoaded` 3,056 ms；停用快取但連線已建立時 0.7～1.6 s）。我把這個判讀列為 concern C-1。〔續派補記〕DA `decision-20261019-post-merge-ad3-readme.md` 第 2 節裁決：3 秒門檻在 Pages 上不是 PASS／FAIL gate，Pages 上適用的是 Brief Q43「可讀可操作、不得嚴重遮蔽或卡頓」（證據即上表 D-10 (b)～(e)(g)）；首次繪製與冷啟動數值只作紀錄，不建立 follow-up。C-1 依此結案。
 
 ## 6. 報告第九章的連結（SIA F-1；DA OI-2）
 
@@ -84,29 +84,41 @@
 ## 7. Decisions and assumptions
 
 - 檢查清單沿用 #67 的 D-1～D-11 與 OV-1～OV-6 作法，只把離線條件換成 Pages 的有網路條件；這是 HOW，沒有新增或刪減驗收項目。
-- OV-6 (a) 的時間門檻不適用於 Pages（依 Spec SR-09 的明文，§5）。這不是改變語義；若 Reviewer 或 DA 認為 Brief §7 的「同一份檢查」包含 SR-09 (a)，Pages 上的冷啟動數值已全部記錄。
+- OV-6 (a) 的時間門檻不適用於 Pages（依 Spec SR-09 的明文，§5；DA `decision-20261019-post-merge-ad3-readme.md` 第 2 節確認）。Pages 上的冷啟動數值只作紀錄。
 - `/favicon.ico` 404 是瀏覽器對網站根目錄的自動請求，頁面沒有引用；它不屬於任何驗收項目（對外請求為零的要求針對其他 host）。只記為觀察 O-1，沒有修改。
 - 不修改 dashboard、報告、notebook、結果或其他實作。
 - **ACCEPTANCE.md 沒有更新（停止該部分，BLOCKED → Design Authority）**：我先起草了 B-1 狀態欄、D-12 與 F 節的更新，再跑 `tests/test_report.py`，結果 2 個測試失敗：`test_acceptance_covers_the_brief_spec_and_ov_items`（`tests/test_report.py:266`，要求全文含「NOT TESTED（pending merge）」）與 `test_acceptance_statuses_are_filled_with_evidence`（`:281`，要求 D-12 的狀態以 `**NOT TESTED（pending merge）**` 開頭）。這兩條斷言把 D-12 的狀態固定為合併前的值；要更新 D-12，就得同時修改這些測試。派工指示只授權更新 ACCEPTANCE.md，不授權修改測試或其他實作；修改驗證斷言也可能被視為改變已接受的 verification（impl-default §5）。所以我還原了 ACCEPTANCE.md（`git restore`；還原後 `tests/test_report.py` 42 passed），把起草的變更存成 scratchpad 的 `ad3/proposed_acceptance.patch`（sha256 `66dd694a…bc99`），並把「本 work item 能否修改這兩條斷言（例如改成接受 pending merge 或 AD-3 的結果），還是另開 work item」交給 Design Authority 作 boundary determination。
+- **續派（2026-10-19，B-1 的解除依據）**：DA `doc/governance/decisions/decision-20261019-post-merge-ad3-readme.md`（commit `2bd1aeb`，在本 branch）第 1 節 Q1 裁決：本 work item 可以把 ACCEPTANCE.md 的 D-12、B-1 狀態欄、F 節 Pages 項與 `tests/test_report.py:266`、`:281` 一起更新，條件是 P-1～P-4。我讀了紀錄本身並依它執行（派工訊息只是入口）：
+  - **ACCEPTANCE.md**（P-2）：套用先前的 `proposed_acceptance.patch`，再做 DA 指出的修正——D-12 不寫 audit 狀態、以完整 SHA `5d650b1483bb5f5420af40c3bb88b801238b1bfb` 記錄 `main` 與 `github-pages` 部署 7170941789、引用本 worklog §4～§6、寫明 D-9 與 D-11／OV-1 不適用、D-10 (a) 只記錄數值（引用 DA 第 2 節並附實測值）、favicon 404 是同 origin 的瀏覽器自動請求而記為觀察、第九章兩個連結可開啟；B-1 狀態欄改為「Pages URL 見 D-12」；F 節寫「OI-1 在 AD-3 work item 的 independent audit closure 後結案」。
+  - **`tests/test_report.py`**（P-1）：`:266` 的 `assert "NOT TESTED（pending merge）" in ACCEPTANCE` 改為 T-1——以同一個 regex 取得 A～E 與 OV 各列的狀態欄，斷言 B-1、D-12 都存在且每個狀態欄都不含 `pending merge`（「狀態的規則」表的說明文字不是狀態欄，不在範圍內）。`:281` 改為 T-2～T-4——D-12 以 `**PASS**` 開頭、含 `doc/governance/worklog/20261019-ad3-pages-check.md`、符合 `` `main` @ `[0-9a-f]{40}` ``、含 `github-pages`。T-5：同一函式與同一檔案的其他斷言都沒有改動；`tests/` 的 diff 只有這兩處與它們的註解（`git diff 2bd1aeb 484f7fd -- home_work_02/tests` ＝ 1 個檔案，+16／−2）。
 
 ## 8. Artifacts
 
 | 檔案 | 變更 |
 | --- | --- |
-| `home_work_02/doc/governance/worklog/20261019-ad3-pages-check.md` | 新增（本檔） |
-| `home_work_02/doc/acceptance/ACCEPTANCE.md` | **未修改**（見 §7）；擬議的變更在 `ad3/proposed_acceptance.patch`，D-12 擬寫為 PASS（AD-3 self-verification，audit 待完成），附 subject 與 §4～§6 的結果 |
+| `home_work_02/doc/governance/worklog/20261019-ad3-pages-check.md` | 新增（本檔；`6975e22` 建立，續派後更新） |
+| `home_work_02/doc/acceptance/ACCEPTANCE.md` | `484f7fd`：B-1 狀態欄（Pages URL 見 D-12）、D-12（PASS 與 subject、瀏覽器、條件、結果）、F 節 Pages 項 |
+| `home_work_02/tests/test_report.py` | `484f7fd`：`:266`、`:281` 兩處斷言依 DA P-1 T-1～T-4 改寫 |
+| `home_work_02/doc/governance/decisions/decision-20261019-post-merge-ad3-readme.md` | `2bd1aeb`（DA 的紀錄，由派工者 commit；不是本 Executor 的產物） |
 
 證據檔都在 session scratchpad 的 `ad3/`，不進 git。
 
 ## 9. Verification、audit status、concerns 與 remaining work
 
-- **Verification**：§4～§6。沒有執行的部分：D-9（fixture 項目，Pages 上無法重做）、D-11／OV-1（離線，不適用）、Firefox／Safari、真實觸控裝置、螢幕閱讀器（AD-1 的 best-effort 項目，本 work item 沒有重做）。
+- **Verification（續派，P-3）**：
+  - `tests/test_report.py`：42 passed（ACCEPTANCE.md 與測試修改後、commit 前）。
+  - **新斷言不弱於 T-1～T-4 的核對**（scratchpad `ad3/mutants_ad3.py`，輸出 `ad3/mutants_ad3.txt`）：把兩個 ACCEPTANCE 測試函式套用到 8 種文字——目前版本：兩者 pass；`origin/main` 的合併前版本：兩者 FAIL；D-12 改成短 SHA、去掉 `github-pages`、去掉 worklog 路徑、改成 NOT TESTED：各自被 `test_acceptance_statuses_are_filled_with_evidence` 擋下；B-1 或 OV-3 的狀態加上 `pending merge`：各自被 `test_acceptance_covers_the_brief_spec_and_ov_items` 擋下。
+  - **完整 pytest，在 commit `484f7fd` 上**（單元工作樹對 HEAD 乾淨，`git diff --quiet HEAD -- home_work_02`）：`.venv/Scripts/python.exe -m pytest -q -rs`（Python 3.11.2，單元 `.venv`），2026-10-19T10:31:42Z～10:32:33Z：**395 passed**，skip 0。修改前另跑一次（10:29:08Z～10:31:13Z）同為 395 passed。`tests/test_repo_hygiene.py -rA`：17 passed，其中 `test_no_tracked_file_contains_the_student_id` **PASSED**（不是 skip；`.local/packaging.json` 存在）。
+  - Node：`node --test tests/js/core.test.js`：9 pass、3 skipped（需要 `HW2_FIXTURE_MODEL_DATA` 的 fixture 項目；它們由 pytest 的 `tests/test_node_core.py` 以 fixture 執行，含在上面的 395 內）。另有一次 `node --test tests/js`（以目錄為參數）回報 1 個失敗，那是我的指令用法錯誤（Node 把目錄當成測試檔），不是測試結果。
+  - 本 worklog 的最後一次修改在 `484f7fd` 之後，只動 `doc/governance/**`（record-only，Bindings §7），測試不讀取本檔。
+- **Verification（Pages 與連結）**：§4～§6。沒有執行的部分：D-9（fixture 項目，Pages 上無法重做）、D-11／OV-1（離線，不適用）、Firefox／Safari、真實觸控裝置、螢幕閱讀器（AD-1 的 best-effort 項目，本 work item 沒有重做）。
 - **H-1／A-4 核對**：commit 前以 `.local/packaging.json` 的值（只在記憶體中讀取，不輸出）對全部追蹤檔案與本 branch 的 diff 做 `git grep -F`／比對：結果見本節最後一列。追蹤檔案不含 PDF（老師文件除外）、ZIP、acceptor 材料；本 work item 沒有新增這些檔案。
-- **Audit status**：**required**（H-2；`decision-20261018-high-risk-categories.md` §4；acceptor 的指示「依 Bindings 派 independent audit」）。依 Bindings §3.7，由主 session 派 `gov-primary-reviewer`；Executor 不自行派工。受審 subject：branch `home_work_02-ad3-pages-check` 的 commit（見 return）＋ Pages 部署 `5d650b1`。Audit record 位置：`doc/governance/audit/20261019-ad3-pages-check-c1-r1.md`。尚未派工。
+- **Audit status**：**required**（H-2；`decision-20261018-high-risk-categories.md` §4；acceptor 的指示「依 Bindings 派 independent audit」）。依 Bindings §3.7，由主 session 派 `gov-primary-reviewer`；Executor 不自行派工。受審 subject（DA P-4）：branch `home_work_02-ad3-pages-check` 含 ACCEPTANCE.md 與測試變更的最終 commit（`484f7fd` 之後只有本 worklog 的 record-only commit，見 return）＋ Pages 部署 `5d650b1`。Audit record 位置：`doc/governance/audit/20261019-ad3-pages-check-c1-r1.md`。尚未派工。
 - **Concerns**：
-  - **C-1**：OV-6 (a) 是否適用於 Pages 的判讀（§5、§7）。依 Spec 明文判為不適用；若有不同解讀，屬 Design Authority 的語義裁決。
+  - **C-1**（已由 DA 裁決結案）：OV-6 (a) 不適用於 Pages，數值只作紀錄（DA `decision-20261019-post-merge-ad3-readme.md` 第 2 節）。
   - **C-2**：本 work item 的一次 `ls dist/` 把含學號的 ZIP 檔名印到這個 subagent 的終端輸出（session transcript，本機 `~/.claude/projects/…`，不在 repo、不在任何證據檔）。沒有寫入任何追蹤檔案或 scratchpad 的證據檔；之後所有讀 ZIP 的指令都不輸出檔名。依 H-1 的「終端輸出」涵蓋範圍如實記錄。
   - **O-1**（觀察，非缺陷）：瀏覽器自動請求 `https://yotsubamomo.github.io/favicon.ico` 得到 404，console 記 1 則 network error。若 acceptor 要消除，需要新增 favicon 或 `<link rel="icon">`，屬修改 dashboard 的新 work item（H-2 → audit）。
-  - **B-1（BLOCKED，required authority＝Design Authority）**：ACCEPTANCE.md D-12 的更新與 `tests/test_report.py:266`、`:281` 衝突（§7）。DA 需要判定這兩條斷言的修改是否在本 work item 的 boundary 內；若不在，由新的 work item（或 acceptor 的重新授權）處理。在此之前 ACCEPTANCE.md 的 D-12 仍記 NOT TESTED（pending merge），Pages 檢查的結果以本 worklog 為準。
-- **Remaining work**：B-1 的 DA 判定與之後的 ACCEPTANCE.md 更新；independent audit（R1）派工與 closure（主 session，Bindings §3.7）；之後 OI-1 才可結案；OI-2 是否在報告加註仍由 acceptor 決定。本 branch 未 push（push 屬 SA-1，由派工者決定）。
-- **學號核對結果（A-4）**：已核對、無命中——全部追蹤檔案 `git grep -c -F` 0 個檔案；本次 staged diff 0；scratchpad `ad3/` 的 60 個證據檔（不含瀏覽器暫存 profile）0；`git ls-files` 中 `.zip`、`acceptor_materials`、`packaging.json` 0。比對值只在記憶體中讀自 `.local/packaging.json`。
+  - **B-1**（已解除）：DA `decision-20261019-post-merge-ad3-readme.md` 第 1 節 Q1；依 P-1～P-3 完成（§7、本節 Verification）。
+  - **C-3**：DA 紀錄第 3 節的 README work item 也會修改 `tests/test_report.py`（README 測試函式）與 `ACCEPTANCE.md`（A-8）。兩個 branch 合併時可能有文字衝突，由派工者安排先後（DA 第 3.5 節）。
+- **Remaining work**：independent audit（R1）派工與 closure（主 session，Bindings §3.7；R1 依 DA P-4 以 P-1 核對新斷言並以 DA 第 2 節判讀 D-10 (a)）；之後 OI-1 才可結案；OI-2 是否在報告加註仍由 acceptor 決定。本 branch 未 push（push 屬 SA-1，由派工者決定）。
+- **學號核對結果（A-4）**：已核對、無命中——續派後：`origin/main..484f7fd` 的 3 個 commit（`6975e22`、`2bd1aeb`、`484f7fd`）各自的樹 `git grep -F` 0；同一 range 的 patch（`--binary`，含作者、committer 與 message，55,524 bytes）完全相同 0、允許空白／`_`／`.`／`,`／`/`／`-` 分隔的變形 0、前 8 碼與後 8 碼 0；本 worklog 最後一次 commit 的 staged diff 0。首次：全部追蹤檔案 `git grep -c -F` 0 個檔案；當時 staged diff 0；scratchpad `ad3/` 的 60 個證據檔（不含瀏覽器暫存 profile）0；`git ls-files` 中 `.zip`、`acceptor_materials`、`packaging.json` 0。比對值只在記憶體中讀自 `.local/packaging.json`。
