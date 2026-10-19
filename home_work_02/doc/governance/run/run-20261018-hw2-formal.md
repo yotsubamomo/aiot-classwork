@@ -55,7 +55,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
 | #65 T6 | #63、#64 | **已結案** | `worklog/issue-65.md` | `audit/issue-65-c1-r1.md` BLOCKING → `issue-65-c1-r2.md` CLOSURE |
 | #66 T7 | #65；acceptor 輸入 | **已結案** | `worklog/issue-66.md` | `audit/issue-66-c1-r1.md` CLOSURE |
-| #67 T8 | #66；學號；RB-5 | audit 中（R1） | `worklog/issue-67.md` | 待 `audit/issue-67-c1-r1.md` |
+| #67 T8 | #66；學號；RB-5 | **已結案** | `worklog/issue-67.md` | `audit/issue-67-c1-r1.md` CLOSURE |
 
 Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 結案後派。DA phase acceptance：其 closure 之後。
 
@@ -256,3 +256,5 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Machine gates**：單元外變更只有 `README.md`、`CONTEXT-MAP.md`，`git diff ace3958 e2780f4` 各為一列新增，與 §19 擬稿逐字相同（RB-5 授權範圍內）；無 `doc/requirement/`；追蹤檔案無 `.zip`／`dist/`。
 - **Concerns**：C-1（OV-1 以瀏覽器層斷網，未停用網卡——系統設定不可變更；evidence sufficiency 屬 R1）、C-2（`app.js` 兩處修正）、C-3（#65 測試改寫）、C-4（manifest `code_revision` 與 ZIP 來源 commit 不同）、C-5（Firefox best effort）。皆交 R1。
 - **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-67-c1-r1.md`；依 DA S-4 自行重做學號比對。
+- **R1**（agentId `af011fa0b337b405e`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: CLOSURE。S-4 學號比對 0 命中（88 commits、工作樹、issues、PR）。Executor C-1（OV-1 瀏覽器層斷網）由 R1 判定證據足夠，未 route。F-1 Low（打包檢查缺測試；owner 下一個改 `hw2/package.py` 的 work item）、F-2 Low（Executor 暫存瀏覽器 profile 含學號；owner Orchestrator，處理見下）、F-3 Low（ZIP 內 README 重跑步驟依 repo 結構；acceptor 決定繳交前是否加註，RB-2）。#64 F-1、#65 F-4、#66 F-1 resolved。
+- **Completion predicates**：P1 #66 已結案；P2 引用鏈存在；P3 evidence 在 worklog；P4 R1 CLOSURE；P5 無 blocking；P6 C-1 由 R1 在其 authority 內處理；P7 closed subject＝`e2780f4`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`87084b6`）。→ **#67 結案**。全部 8 張票結案。
