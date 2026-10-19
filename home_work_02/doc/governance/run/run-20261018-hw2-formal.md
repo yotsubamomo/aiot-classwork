@@ -55,7 +55,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
 | #65 T6 | #63、#64 | **已結案** | `worklog/issue-65.md` | `audit/issue-65-c1-r1.md` BLOCKING → `issue-65-c1-r2.md` CLOSURE |
 | #66 T7 | #65；acceptor 輸入 | **已結案** | `worklog/issue-66.md` | `audit/issue-66-c1-r1.md` CLOSURE |
-| #67 T8 | #66；學號；RB-5 | READY → 派工 | `worklog/issue-67.md` | — |
+| #67 T8 | #66；學號；RB-5 | audit 中（R1） | `worklog/issue-67.md` | 待 `audit/issue-67-c1-r1.md` |
 
 Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 結案後派。DA phase acceptance：其 closure 之後。
 
@@ -248,3 +248,11 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Acceptor RB-5 授權（2026-10-19，逐字）**：「RB-5 授權：root README.md 與 CONTEXT-MAP.md 依 run record §19 的擬稿各加一列，由 #67 逐字套用。」→ 範圍只限上列兩列；其他 root 檔案或文字變更不在授權內。#67 剩餘前置：`.local/packaging.json`。
 - **學號設定（2026-10-19）**：acceptor 在對話中提供學號並指示 Orchestrator 建立設定檔（原文不轉錄於此，避免學號進入追蹤檔案；指示要旨：「學號：<學號>，幫我建」）。DA `decision-20261018-issue60-a4-student-id.md` 原本規定 Agents 不得自行建立此檔或從對話取出學號；本次是 acceptor 本人提供數值並明確指示建立，屬 acceptor 對自身輸入（Brief §9）的處置，Orchestrator 依指示執行。`home_work_02/.local/packaging.json` 已建立（`{"student_id": ...}`，10 字元；`git check-ignore` 命中 `home_work_02/.gitignore:13`，未追蹤）。
 - **S-2 一次補齊比對（2026-10-19，Orchestrator 機械執行，只輸出計數）**：`origin/main..HEAD` 共 77 個 commit 的 patch 內容：0 命中；同範圍 commit messages：0 命中；`git grep` 追蹤檔案：0 命中；GitHub issues #59–#67 的標題、本文與留言：0 命中；本 branch 的 PR：無。`tests/test_repo_hygiene.py` 原本因缺設定而略過的學號測試現已執行：17 passed、0 skipped。S-3 的 push 前置條件就 HEAD `cbb895d` 而言已滿足；之後每次 push 前仍須重跑。S-4／S-5 由 #67 R1 與 Spec Integration Audit 自行重做。
+
+## 20. #67
+
+- **Executor**（agentId `ae2448c02ec3d8940`）：`DONE_WITH_CONCERNS`；`gov-executor`；Orchestrator 觀測 Opus 5.5／`high` 332 則，單一元素。
+- **Subject**：最後 implementation commit `e2780f46dbea4d0816a6dcc8bba0725bc6182797`（base `ace3958`）；之後 `87084b6` 只改 worklog。ZIP 打包自 `e2f391a`（`dist/<學號>_hw2.zip`，未追蹤，sha256 `c84a3c5e6d295ed383fc8c085eb68f30aaa9035208cf9ca7eeaa0d9aae763fb6`）。
+- **Machine gates**：單元外變更只有 `README.md`、`CONTEXT-MAP.md`，`git diff ace3958 e2780f4` 各為一列新增，與 §19 擬稿逐字相同（RB-5 授權範圍內）；無 `doc/requirement/`；追蹤檔案無 `.zip`／`dist/`。
+- **Concerns**：C-1（OV-1 以瀏覽器層斷網，未停用網卡——系統設定不可變更；evidence sufficiency 屬 R1）、C-2（`app.js` 兩處修正）、C-3（#65 測試改寫）、C-4（manifest `code_revision` 與 ZIP 來源 commit 不同）、C-5（Firefox best effort）。皆交 R1。
+- **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-67-c1-r1.md`；依 DA S-4 自行重做學號比對。
