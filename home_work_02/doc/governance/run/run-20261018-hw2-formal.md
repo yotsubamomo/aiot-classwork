@@ -54,7 +54,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
 | #65 T6 | #63、#64 | **已結案** | `worklog/issue-65.md` | `audit/issue-65-c1-r1.md` BLOCKING → `issue-65-c1-r2.md` CLOSURE |
-| #66 T7 | #65；acceptor 輸入 | audit 中（R1） | `worklog/issue-66.md` | 待 `audit/issue-66-c1-r1.md` |
+| #66 T7 | #65；acceptor 輸入 | **已結案** | `worklog/issue-66.md` | `audit/issue-66-c1-r1.md` CLOSURE |
 | #67 T8 | #66；學號；RB-5 | 待 #66（另缺學號設定） | — | — |
 
 Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 結案後派。DA phase acceptance：其 closure 之後。
@@ -227,3 +227,5 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Subject**：implementation commit `d379732983e0f446cc443d95a5f70d5e68209b17`（base `752791b`）；之後 `fc38a92` 只改 worklog。Machine gates：變更全在 `home_work_02/`、無 `doc/requirement/`；`results/`、`assets/`、notebook、`requirements.txt` 與 base 相同；追蹤檔案不含 `acceptor_materials/`、`dist/`。
 - **Concerns**：C-1（材料衍生文字留在未追蹤目錄；DA 只在要改作法時）、C-2（NotebookLM 報告內部矛盾；Executor 指 Reviewer 依 A-5 核對，需要時 DA）、C-3（DOI redirect；#67）、C-4（10.1 揭露部分決定採用 ChatGPT 建議；acceptor 只在反對時）、C-5（附錄頁含對話 URL 與作者姓名，只進 PDF／ZIP）。皆未指明需要現在 route 的 authority → 交 R1。
 - **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-66-c1-r1.md`。
+- **R1**（agentId `af3056b576d36adaf`）：`gov-primary-reviewer`；Orchestrator 觀測 Opus 5.5／`xhigh` 單一元素；record 自寫。VERDICT: CLOSURE；F-1 Medium non-blocking（衍生文字未被建置釘住；owner #67 Executor 與 Spec Integration Audit reviewer：final 建置前比對 record 所列 sha256）；F-2 Low（`pdf_append.py` 對加密輸入；目前不需動作）。
+- **Completion predicates**：P1 #65 已結案；P2 引用鏈存在；P3 evidence 在 worklog §5；P4 R1 CLOSURE；P5 無 blocking；P6 無 routed design question；P7 closed subject＝`d379732`＝R1 subject，之後只有 record-only delta；P8 worklog 已更新（`fc38a92`）。→ **#66 結案**。

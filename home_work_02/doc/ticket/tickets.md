@@ -14,7 +14,7 @@
 | #63 | T4 Ridge／Lasso 對照、p-value backward、Adjusted R² 與**一次性正式 Test 評估**（G-3 守門在此開啟；正式 `test_inputs` 列與 `test` 在此寫出） | #62 | H-2、H-3 | 已結案（`../governance/audit/issue-63-c1-r1.md` CLOSURE） | <https://github.com/yotsubamomo/aiot-classwork/issues/63> |
 | #64 | T5 五大假設診斷、模型解釋與 Deployment | #62 | H-2、H-3、H-4 | 已結案（`../governance/audit/issue-64-c1-r1.md` CLOSURE） | <https://github.com/yotsubamomo/aiot-classwork/issues/64> |
 | #65 | T6 報告 draft、單元 README 與 ACCEPTANCE.md | #63、#64 | H-2、H-4 | 已結案（`../governance/audit/issue-65-c1-r2.md` CLOSURE） | <https://github.com/yotsubamomo/aiot-classwork/issues/65> |
-| #66 | T7 Acceptor 證據整合與 final 報告 | #65；acceptor 輸入（ChatGPT PDF、NotebookLM 材料） | H-1、H-2、H-4 | 執行中 | <https://github.com/yotsubamomo/aiot-classwork/issues/66> |
+| #66 | T7 Acceptor 證據整合與 final 報告 | #65；acceptor 輸入（ChatGPT PDF、NotebookLM 材料） | H-1、H-2、H-4 | 已結案（`../governance/audit/issue-66-c1-r1.md` CLOSURE） | <https://github.com/yotsubamomo/aiot-classwork/issues/66> |
 | #67 | T8 打包、離線驗收（OV-1～OV-6）、乾淨環境重跑與整合 | #66；acceptor 輸入（學號）；root 檔案一列另需 RB-5 授權 | H-1～H-4 | 待執行（等待 acceptor 輸入） | <https://github.com/yotsubamomo/aiot-classwork/issues/67> |
 
 狀態值：待執行／執行中／audit 中／已結案（引用 audit record）／BLOCKED（引用 stop report）。
