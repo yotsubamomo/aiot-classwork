@@ -38,7 +38,7 @@
 
 | ID | 要求（來源） | 可觀察的檢查 | 證據位置 | 執行 | 狀態 |
 | --- | --- | --- | --- | --- | --- |
-| B-1 | Dashboard（課堂口頭要求）：`home_work_02/index.html`；Pages URL；ZIP 內完全離線可用 | 見 D 節（dashboard 人工檢查）與 E 節 OV-1；報告與 README 不把 dashboard 寫成作業頁的書面要求 | `index.html`、`assets/`；報告 §7.1、§9 與標示對照表 | #67 | PASS（ZIP／`file://`，見 OV-1）；Pages URL 見 D-12（NOT TESTED，pending merge） |
+| B-1 | Dashboard（課堂口頭要求）：`home_work_02/index.html`；Pages URL；ZIP 內完全離線可用 | 見 D 節（dashboard 人工檢查）與 E 節 OV-1；報告與 README 不把 dashboard 寫成作業頁的書面要求 | `index.html`、`assets/`；報告 §7.1、§9 與標示對照表 | #67；Pages：AD-3 work item | PASS（ZIP／`file://`，見 OV-1）；Pages URL 見 D-12 |
 | B-2 | Adjusted R²〔依老師補充建議〕 | 只對 OLS 子集模型在 log 尺度、以 n_train 與實際秩計算；Ridge／Lasso 與 CV 聚合值標「不適用」 | `tests/test_ols.py::test_adjusted_r2_uses_the_actual_rank_not_the_column_count`；`comparison.csv`；報告 §6.2 | #67 | PASS（乾淨環境 pytest 395 passed、Node 9 passed，#67 worklog §6） |
 | B-3 | 五大回歸假設診斷〔依老師補充建議〕 | 線性、誤差獨立（含 training 實際的重複交易）、同質變異、常態、多重共線性各有圖或數值與解讀；只用 training 殘差；違反只揭露 | `results/figures/diag_*.png`、`results/tables/diagnostics_*.csv`；`tests/test_diagnostics.py`；notebook 5.6；報告 §6.4 | #67 | PASS（乾淨環境 pytest 395 passed、Node 9 passed，#67 worklog §6） |
 | B-4 | Deployment 的預測新樣本與模型解釋〔依老師補充建議〕 | `predict_price()` 示範；係數的百分比讀法、one-hot 相對基準、標準化讀法（OLS 原始尺度；每 1 個 training sd 的百分比只引自 `final_model_coefficients.csv`）；permutation importance 標「專案延伸」；非因果提醒；報告不呈現 Ridge／Lasso 的係數（DA R-1.1、R-1.3、R-1.5） | notebook 6.2～6.5；`tests/test_deployment.py`；報告 §7.2、§7.3 | #67 | PASS（乾淨環境 pytest 395 passed、Node 9 passed，#67 worklog §6） |
@@ -83,7 +83,7 @@
 | D-9 | `invalid` 候選以明確標示呈現且不可成為 winner（正式資料沒有 invalid 候選；以 fixture 驗證） | `tests/js/core.test.js`（fixture）；`tests/test_models.py::test_invalid_candidates_never_win_even_with_the_lowest_rmse` | #67 | PASS（乾淨環境 pytest 395 passed、Node 9 passed，#67 worklog §6） |
 | D-10 | 實際 vs 預測圖的可讀性與反應性 SR-09 (a)～(e)：即 E 節 OV-6 | E 節 | #67 | PASS（見 OV-6） |
 | D-11 | 離線：即 E 節 OV-1 | E 節 | #67 | PASS（見 OV-1） |
-| D-12 | GitHub Pages URL 上重做同一份檢查（Brief §7、§10；DA TK-1；AD-3） | 合併進 `main` 後的 Lightweight work item（觸及 H-2，需 audit） | 合併後的 work item | **NOT TESTED（pending merge）** |
+| D-12 | GitHub Pages URL 上重做同一份檢查（Brief §7、§10；DA TK-1；AD-3） | 合併進 `main` 後的 Lightweight work item（觸及 H-2，需 audit）：`doc/governance/worklog/20261019-ad3-pages-check.md` §4～§6 | AD-3 work item | **PASS**（`doc/governance/worklog/20261019-ad3-pages-check.md` §4～§6）。核對的 subject：`main` @ `5d650b1483bb5f5420af40c3bb88b801238b1bfb`（PR #68 的 merge commit）觸發的 `github-pages` 部署 7170941789（success）；Pages 上 6 個檔案（`index.html` 與 5 個資源）與該 commit 的檔案 sha256 逐一相同。瀏覽器：Google Chrome 155.0.8059.80、Microsoft Edge 155.0.4283.62，可見視窗、全新 profile、有網路。結果：D-1～D-8、D-10 (b)～(e)(g)、OV-2（375／768 px 各 8 種狀態水平溢出 0 px）、OV-4、OV-5 都符合；請求只到 `yotsubamomo.github.io`，其他 host 0。不適用於 Pages：D-9（fixture 項目）、D-11／OV-1（離線）。D-10 (a)：3 秒門檻只定義於 `file://`（Spec SR-09；DA `decision-20261019-post-merge-ad3-readme.md` 第 2 節），Pages 上只記錄實測值、不判 PASS／FAIL——新 profile 第一次載入 Chrome 3,056 ms、Edge 1,964 ms；停用快取 Chrome 713～1,632 ms、Edge 667～2,095 ms；有快取 30～44 ms。觀察：瀏覽器對同一個 origin 自動請求 `/favicon.ico` 得到 404，頁面沒有引用它，不是對外請求。報告第九章的 dashboard 與原始碼連結在合併後都可開啟，並指向正確內容（worklog §6） |
 
 ### D.2 報告
 
@@ -135,7 +135,7 @@
 
 ## F. 待決與交接
 
-- **Pages 檢查（D-12）**：依 AD-3 在合併進 `main` 之後以獨立的 Lightweight work item 執行；Spec Integration Audit 與 phase acceptance 把它列為 open item。
+- **Pages 檢查（D-12）**：依 AD-3 在合併進 `main` 之後以獨立的 Lightweight work item 執行；Spec Integration Audit 與 phase acceptance 把它列為 open item（DA OI-1；SIA F-1／DA OI-2 的兩個連結同一 work item 核對）。2026-10-19 已在 `5d650b1` 的 Pages 部署上執行，結果見 D-12 與 `doc/governance/worklog/20261019-ad3-pages-check.md`；觸及 H-2，OI-1 在 AD-3 work item 的 independent audit closure 後結案。
 - **AI 證據（A-6、D-13、D-16、D-17）**：#66 已以 acceptor 2026-10-19 提供的 ChatGPT PDF 與 NotebookLM 材料整合（`doc/governance/worklog/issue-66.md`）；報告 PDF 的最終建置與 ZIP 內容已由 #67 驗收（A-6、A-7）；final 建置只接受 #66 R1 審查過的 derived 版本（`hw2/report.py` 的 `DERIVED_REVIEWED`）。
 - **學號（A-7、C-16、D-20）**：acceptor 已提供 `.local/packaging.json`（run record §19）；#67 已核對（C-16）。DA S-4、S-5 的比對由 #67 R1、Spec Integration Audit 與合併前各自重做。
 - **OV best-effort 項目**：真實觸控裝置、Safari、螢幕閱讀器沒有環境，記 NOT TESTED（AD-1）。
