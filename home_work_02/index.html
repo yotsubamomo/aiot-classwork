@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>King County 房價多元線性回歸分析 — HW2 Dashboard</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <div class="brand__mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 16l4-6 4 3 5-8"/></svg>
+      </div>
+      <div>
+        <div class="brand__title">King County 房價多元線性回歸分析</div>
+        <div class="brand__sub">NCHU AIoT HW2 · CRISP-DM · 特徵選擇比較與 95% 預測區間</div>
+      </div>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="topnav">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+      <span>選單</span>
+    </button>
+    <nav class="topnav" id="topnav" aria-label="頁內導覽">
+      <a href="#overview">概覽</a>
+      <a href="#model">模型與訓練 CV</a>
+      <a href="#predictor">即時預測</a>
+      <a href="#test">Test 評估</a>
+      <a href="#methods">方法與限制</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div id="load-error" class="alert" role="alert" hidden></div>
+
+  <!-- A. 概覽：資料來自 assets/model_data.js 的 meta -->
+  <section class="section" id="overview" aria-labelledby="h-overview">
+    <div class="section__head">
+      <span class="eyebrow">A · 概覽</span>
+      <h1 id="h-overview">King County House Sales 房價分析</h1>
+    </div>
+    <div class="grid grid--3">
+      <article class="card" aria-labelledby="h-dataset">
+        <h2 id="h-dataset">資料集</h2>
+        <p class="small"><a id="meta-dataset-link" href="#overview"><span id="meta-dataset-name"></span></a>（Kaggle <code id="meta-dataset-slug"></code>）</p>
+        <dl class="facts small">
+          <dt>授權</dt><dd id="meta-license"></dd>
+          <dt>交易筆數</dt><dd><span class="num" id="meta-rows"></span> 筆（<span class="num" id="meta-houses"></span> 棟房屋，<span class="num" id="meta-repeat"></span> 筆重複交易）</dd>
+          <dt>CSV sha256</dt><dd><code class="hash" id="meta-sha"></code></dd>
+        </dl>
+      </article>
+      <article class="card" aria-labelledby="h-features">
+        <h2 id="h-features">特徵數</h2>
+        <dl class="facts small">
+          <dt>Source features</dt><dd><strong class="num" id="meta-sf"></strong>（編碼前計數，不含 <code>id</code> 與 <code>price</code>）</dd>
+          <dt>建模 feature groups</dt><dd><strong class="num" id="meta-groups"></strong>（<code>sqft_basement</code> 不進模型）</dd>
+          <dt>特徵數條件</dt><dd>作業正文 10–20 與補充 14–39 的交集 <strong>14–20</strong></dd>
+        </dl>
+        <p class="small muted" id="meta-excluded"></p>
+      </article>
+      <article class="card" aria-labelledby="h-split">
+        <h2 id="h-split">切分與交叉驗證</h2>
+        <dl class="facts small">
+          <dt>切分</dt><dd>以房屋 <code>id</code> 分組的 80/20：訓練 <span class="num" id="meta-ntrain"></span> 筆、Test <span class="num" id="meta-ntest"></span> 筆</dd>
+          <dt>交叉驗證</dt><dd>訓練集內 <span class="num" id="meta-folds"></span> 個分組 fold（每折 <span id="meta-fold-rows"></span> 筆）</dd>
+          <dt>Seed</dt><dd class="num" id="meta-seed"></dd>
+        </dl>
+        <p class="small muted">模型選擇只用訓練集；Test 在全部選擇固定後只評估一次。</p>
+      </article>
+    </div>
+    <article class="card card--wide" aria-labelledby="h-repro">
+      <h2 id="h-repro">重現條件</h2>
+      <dl class="facts facts--inline small">
+        <dt>套件版本</dt><dd id="meta-versions"></dd>
+        <dt>計算耗時</dt><dd id="meta-timing"></dd>
+        <dt>產生時間（UTC）</dt><dd id="meta-generated"></dd>
+        <dt>已匯出的區段</dt><dd id="meta-sections"></dd>
+      </dl>
+    </article>
+  </section>
+
+  <!-- B + C. 模型選擇與訓練 CV（KPI 來自 cv，標「訓練 CV（USD）」；BR-01 第 1 點） -->
+  <section class="section" id="model" aria-labelledby="h-model">
+    <div class="section__head">
+      <span class="eyebrow">B · 模型選擇 ／ C · 訓練 CV 表現</span>
+      <h2 id="h-model">模型選擇與訓練 CV 表現</h2>
+    </div>
+    <div class="layout-2col">
+      <aside class="card control" aria-label="模型選擇控制">
+        <div class="field">
+          <span class="label" id="lbl-method">特徵選擇方法</span>
+          <div class="seg" role="group" aria-labelledby="lbl-method" id="method-seg"></div>
+        </div>
+        <div class="field">
+          <span class="label" id="lbl-k">特徵數 k（feature groups）</span>
+          <div class="kgrid" role="group" aria-labelledby="lbl-k" id="k-grid"></div>
+          <p class="help" id="k-help"></p>
+        </div>
+        <button class="toggle" id="compare-all" type="button" aria-pressed="false" aria-controls="compare-card kchart-card">
+          <span class="toggle__sw" aria-hidden="true"></span>
+          <span>比較全部方法</span>
+        </button>
+        <div class="selected-model" id="selected-model" aria-live="polite"></div>
+      </aside>
+
+      <div class="stack">
+        <div class="block-head">
+          <h3>訓練 CV 指標 <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+          <p class="small muted">來源：所選模型的 <code>cv</code>（訓練集內 <span id="cv-nfolds">5</span> 個分組 fold 的平均 ± 標準差）；不含任何 Test 資料。</p>
+        </div>
+        <div class="grid grid--kpi" id="kpi-cv"></div>
+
+        <div class="card" id="kchart-card">
+          <div class="chart__toolbar">
+            <h3>指標 vs k <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+            <span class="spacer"></span>
+            <label class="small muted" for="metric-select">指標</label>
+            <select class="input input--inline" id="metric-select">
+              <option value="rmse">RMSE（USD）</option>
+              <option value="mae">MAE（USD）</option>
+              <option value="mse">MSE（USD²）</option>
+              <option value="r2">R²（USD 尺度）</option>
+            </select>
+          </div>
+          <div class="kchart"><canvas id="kchart-canvas" role="img" aria-describedby="kchart-summary"
+            aria-label="折線圖：四種特徵選擇方法在 k = 1 到 18 的訓練 CV 指標；All-in baseline、Ridge、Lasso 為水平參考線；各方法 CV winner 以圓環標示，invalid 候選以叉號標示，目前選取的模型以大圓圈標示。"></canvas></div>
+          <p class="small muted" id="kchart-summary"></p>
+          <div class="legend small" id="kchart-legend"></div>
+          <p class="small muted">來源：<code>methods[].cv</code>、<code>baselines.allin.cv</code> 與 Ridge／Lasso 的 <code>baselines.*.cv</code>（5 個分組 fold 的平均；Ridge／Lasso 為全部 18 group、以訓練 CV 選定的 alpha）。每個 fold 的子集只在該 fold 的訓練列上選出；CV 指標估計的是「方法在 k 下的程序」，不是 canonical subset 本身。不含任何 Test 資料。</p>
+        </div>
+
+        <div class="card card--flat" id="compare-card" hidden>
+          <h3>各方法 CV winner 與對照模型比較 <span class="tag tag--cv">訓練 CV（USD）</span> <span class="tag tag--test">Test 評估（USD）</span></h3>
+          <div class="tablewrap"><table class="table" id="compare-table"></table></div>
+          <p class="small muted">整體 CV winner 是 CV RMSE 最小者（平手依方法順序 All-in、Forward SFS、Backward SFS、RFE、Lasso 路徑排序）。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤；Test 評估才是獨立估計，Test 排名不同時也不換模型。來源：訓練 CV 欄來自 <code>methods[].cv</code>、<code>baselines.*.cv</code>；Test 欄只讀取匯出的 <code>test</code>（每個被授權的模型只評估一次；canonical subset 相同的 CV winner 共用同一筆結果）。Ridge／Lasso 是 metric-only 對照（依老師補充建議）：alpha 只以訓練 CV 選、不參與 CV winner、Test 只報 MAE、MSE、RMSE、R²，沒有預測區間與涵蓋率；它們的 Test 指標只出現在本表。p-value backward 是講義方法對照，不在 Test 上評估。Adjusted R² 只對 OLS 子集模型在 log 尺度計算，Ridge／Lasso 與 CV 聚合值不適用。本頁的任何操作都不會觸發新的 Test 評估。</p>
+        </div>
+        <div class="card card--flat" id="fit-card">
+          <h3>全訓練集擬合 <span class="tag tag--fit">全訓練集擬合，R²／Adjusted R² 為 log 尺度</span></h3>
+          <dl class="facts facts--inline small" id="fit-facts"></dl>
+          <!-- 選配 (4) 係數表：預設收合（UI 決策 5）；來源是所選模型的 fit -->
+          <details class="coef" id="coef-details">
+            <summary>
+              <span class="coef__title">係數表（選配）</span>
+              <span class="tag tag--fit">全訓練集擬合，R²／Adjusted R² 為 log 尺度</span>
+            </summary>
+            <div class="coef__body">
+              <p class="small muted" id="coef-intro"></p>
+              <div class="tablewrap"><table class="table" id="coef-table"></table></div>
+              <p class="small muted">讀法：模型以 ln(price) 為目標、特徵為原始尺度，係數 b 表示其他欄位固定時，該欄增加 1 個單位，預測價格（exp(log 預測)，條件中位數的估計）約變動 100·(exp(b) − 1)%；zipcode 欄是相對於基準 zipcode 的差異；不同單位的特徵不能直接比較係數大小（notebook 第 6 章另列每 1 個 training 標準差的讀法）。標準誤是古典 OLS 標準誤，假設殘差同質變異與獨立，且沒有考慮特徵選擇。係數描述的是關聯，不是因果效果。</p>
+            </div>
+          </details>
+        </div>
+        <p class="small muted" id="status-box" role="status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. 即時預測（只對 OLS 子集；來自 fit；BR-01 第 2 點；SR-07） -->
+  <section class="section" id="predictor" aria-labelledby="h-predictor">
+    <div class="section__head">
+      <span class="eyebrow">D · 即時預測</span>
+      <h2 id="h-predictor">即時房價預測</h2>
+    </div>
+    <div class="card predictor">
+      <form id="pred-form" novalidate>
+        <p class="small muted" id="pred-intro"></p>
+        <div class="fields" id="pred-fields"></div>
+      </form>
+      <aside class="result card card--flat" aria-live="polite" aria-atomic="true">
+        <h3>預測結果</h3>
+        <div>
+          <div class="small muted">點預測（USD；exp(log 預測)，估計的是條件中位數，不是條件平均）</div>
+          <div class="result__price num" id="pred-price">—</div>
+        </div>
+        <div>
+          <div class="small muted">95% 預測區間（參數式 OLS PI，在 log 尺度計算後轉回 USD，不對稱）</div>
+          <div class="result__pi num" id="pred-pi">—</div>
+        </div>
+        <div class="result__status" id="pred-status"></div>
+        <div class="result__meta">
+          <span>模型：<strong id="pred-model"></strong></span>
+          <span>來源：所選模型的 <code>fit</code>（在整個 training set 上擬合）</span>
+          <span>Ridge／Lasso 對照模型不提供即時預測與區間。</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- E. Test 評估（只讀 model_data.test；BR-01 第 3–5 點；Q43） -->
+  <section class="section" id="test" aria-labelledby="h-test">
+    <div class="section__head">
+      <span class="eyebrow">E · 保留 Test 集評估</span>
+      <h2 id="h-test">保留 Test 集評估</h2>
+    </div>
+    <div class="testzone">
+      <div class="testzone__head">
+        <span class="tag tag--test">Test 評估（USD）</span>
+        <span class="testzone__model">展示模型：<strong id="test-model">—</strong></span>
+        <span class="tag tag--winner" id="test-winner-tag" hidden></span>
+      </div>
+      <p class="small muted" id="test-source">來源：<code>test[kind=ols_subset]</code>；只對被授權評估的模型，每個模型只評估一次。本頁的任何操作都不會觸發新的 Test 評估。</p>
+      <div class="notice" id="test-notice" role="status" hidden></div>
+      <div class="notice notice--empty" id="test-empty" hidden>Test 評估尚未執行：依協定，Test set 只在全部模型選擇與 alpha 固定之後評估一次，結果由主程式匯出。</div>
+
+      <div id="test-body" hidden>
+        <div class="grid grid--kpi4" id="kpi-test"></div>
+
+        <div class="scatter-wrap">
+          <div class="chart__toolbar">
+            <h3>實際 vs 預測（log 刻度，逐筆 95% PI）</h3>
+            <span class="spacer"></span>
+            <button class="btn btn--icon" type="button" id="zoom-in" aria-label="放大">＋</button>
+            <button class="btn btn--icon" type="button" id="zoom-out" aria-label="縮小">－</button>
+            <button class="btn" type="button" id="zoom-reset">重設檢視</button>
+          </div>
+          <div class="scatter" id="scatter">
+            <canvas id="scatter-canvas" tabindex="0" role="img" aria-describedby="scatter-help"
+              aria-label="散佈圖：x 軸為預測價格、y 軸為實際價格，皆為 log 刻度；每筆 Test 樣本有一條垂直的 95% 預測區間線段，依實際價格是否落入區間著色並以不同形狀標示；含 y = x 參考線。"></canvas>
+            <div class="scatter__tip" id="scatter-tip" hidden></div>
+          </div>
+          <div class="scatter__meta">
+            <span><span class="key key--in" aria-hidden="true"></span>落入 PI（圓點）</span>
+            <span><span class="key key--out" aria-hidden="true"></span>未落入 PI（方塊）</span>
+            <span><span class="key key--diag" aria-hidden="true"></span>y = x</span>
+            <span id="scatter-help">滾輪縮放、拖曳平移、游標停留讀取單筆；鍵盤：方向鍵平移、＋／－ 縮放、0 重設。全部 Test 樣本逐筆繪製，不抽樣、不聚合。</span>
+          </div>
+          <p class="small muted num" id="scatter-perf" aria-live="off"></p>
+        </div>
+
+        <div class="covstats" id="covstats"></div>
+        <p class="small muted" id="coverage-note">涵蓋率的不確定性是假設各筆涵蓋事件獨立的二項近似（1.96·√(p(1−p)/n_test)）。Test set 含同一房屋的重複交易，涵蓋事件不保證獨立，這個近似的準確度未經估計，本頁不陳述偏差的方向或幅度。</p>
+        <p class="small muted">預測區間假設殘差常態、同質變異、獨立；特徵選擇後的推論與模型誤設都會影響名目涵蓋率，<strong>不宣稱保證 95% 的經驗涵蓋率</strong>。經驗涵蓋率偏離 95% 時需要分析原因，不自動判定失敗。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- F. 方法與限制（必要區塊 (9)；四段，各標三種標示之一） -->
+  <section class="section" id="methods" aria-labelledby="h-methods">
+    <div class="section__head">
+      <span class="eyebrow">F · 方法與限制</span>
+      <h2 id="h-methods">方法與限制</h2>
+    </div>
+    <p class="small muted labels-legend">標示：<span class="tag tag--teacher">老師要求</span> 作業頁正文的要求；<span class="tag tag--suggest">依老師補充建議</span> 作業頁「補充」段的建議，本專案採用；<span class="tag tag--project">專案延伸</span> 本專案自行加入的設計，不是老師的要求。</p>
+    <div class="methods">
+      <article class="card prose" id="methods-selection" aria-labelledby="h-m-selection">
+        <h3 id="h-m-selection">特徵選擇方法 <span class="tag tag--teacher">老師要求</span></h3>
+        <p class="small">作業要求必做特徵選擇。本專案以 feature group 為選擇單位（同一個 source feature 的 encoded 欄位同進同出，例如 zipcode 的全部 one-hot 欄），比較四種有 k = 1…18 路徑的方法：Forward SFS、Backward SFS、RFE、Lasso 路徑排序取前 k 個；另以單一的 All-in baseline（全部 18 個 group 的 OLS，等於路徑在 k = 18 的端點）作為基準。每個方法的子集在每個 CV fold 的訓練列上重新計算（fold-internal selection），驗證列不參與選擇；另在整個 training set 上計算一次 canonical subset，作為本頁顯示的 groups、即時預測與 Test 評估的模型。</p>
+        <p class="small">Ridge／Lasso 是依老師補充建議加入的 metric-only 對照（alpha 只以訓練 CV 選，不參與 CV winner，不提供預測與區間）；講義的 p-value backward elimination 只列為對照，不參與 CV winner，也不在 Test 上評估。</p>
+      </article>
+      <article class="card prose" id="methods-protocol" aria-labelledby="h-m-protocol">
+        <h3 id="h-m-protocol">訓練 CV／Test 協定 <span class="tag tag--project">專案延伸</span></h3>
+        <p class="small">模型評估是老師的要求；下面的評估協定是本專案的設計。資料以房屋 <code>id</code> 分組切成 80／20 的 training 與 Test，training 內再以 <code>id</code> 分組成 5 個 fold，所有方法與 k 共用同一組 fold。每個方法取 CV RMSE（USD）最小的 k 為該方法的 CV winner，再從各方法 CV winner 與 All-in 中取最小者為整體 CV winner。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤。</p>
+        <p class="small">全部選擇固定之後，Test 只對各方法 CV winner、All-in 與整體 CV winner（同一模型只評估一次）以及 Ridge／Lasso 各評估一次；Test 排名與 CV 排名不同時也不換模型。本頁的 KPI 與「指標 vs k」圖是訓練 CV，Test 區塊與比較表的 Test 欄只讀取匯出的結果，任何操作都不會觸發新的 Test 評估。</p>
+      </article>
+      <article class="card prose" id="methods-interval" aria-labelledby="h-m-interval">
+        <h3 id="h-m-interval">預測區間的統計假設 <span class="tag tag--teacher">老師要求</span></h3>
+        <p class="small">作業要求預測圖加上信賴區間或預測區間。本專案對 OLS 子集模型在 ln(price) 尺度計算參數式 95% 預測區間 ŷ ± t·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))，再以 exp 轉回 USD，所以區間不對稱；點預測 exp(log 預測) 估計的是條件中位數，不是條件平均。</p>
+        <p class="small">區間假設殘差常態、同質變異、彼此獨立，而且沒有把特徵選擇的不確定性與可能的模型誤設算進去，所以<strong>不宣稱保證 95% 的經驗涵蓋率</strong>；Test 上的經驗涵蓋率是對它的檢驗，偏離 95% 時分析原因，不自動判定失敗。涵蓋率的不確定性是假設各筆獨立的二項近似，Test 含同一房屋的重複交易，這個近似的準確度未經估計。</p>
+      </article>
+      <article class="card prose" id="methods-limits" aria-labelledby="h-m-limits">
+        <h3 id="h-m-limits">限制與非因果解讀 <span class="tag tag--suggest">依老師補充建議</span></h3>
+        <p class="small">五大回歸假設的診斷與模型解釋是依老師補充建議加入（見主程式 notebook 5.6 與第 6 章，只用 training set）。古典回歸假設的診斷與預測區間的假設分開看：training 殘差的診斷不能證明或否定區間的 95% 涵蓋。</p>
+        <p class="small" id="methods-limits-scope">適用範圍：King County 的房屋交易；超出 training 範圍的輸入仍會計算但屬於外推，未見過的 zipcode 以基準類別計算。同一房屋重複交易的誤差可能相關（notebook 5.6.2），誤差獨立的假設對這些交易不一定成立。</p>
+        <p class="small">係數、係數表與重要性描述的是資料中的<strong>關聯，不是因果效果</strong>：不能用來推論「改變某個特徵會讓價格改變多少」。Ridge／Lasso 只是 metric-only 對照，不提供預測。</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer small muted">
+  <p>本頁讀取主程式 <code>hw2.ipynb</code> 匯出的 <code>model_data</code>；所有資料與程式庫都在本機，不發出任何對外請求。圖表程式庫：<span id="chartjs-version">Chart.js（本機打包）</span>。</p>
+</footer>
+
+<script src="assets/vendor/chart.umd.js"></script>
+<script src="assets/model_data.js"></script>
+<script src="assets/hw2core.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

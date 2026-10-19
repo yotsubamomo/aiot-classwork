@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HW2 King County 房價多元線性回歸 — Dashboard Wireframe（示意資料）</title>
+<link rel="stylesheet" href="wireframe.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <div class="brand__mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 16l4-6 4 3 5-8"/></svg>
+      </div>
+      <div>
+        <div class="brand__title">King County 房價多元線性回歸分析</div>
+        <div class="brand__sub">NCHU AIoT HW2 · CRISP-DM · 特徵選擇比較與 95% 預測區間</div>
+      </div>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="topnav" aria-label="開啟頁內導覽">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+      <span>選單</span>
+    </button>
+    <nav class="topnav" id="topnav" aria-label="頁內導覽">
+      <a href="#overview">概覽</a>
+      <a href="#model">模型選擇與訓練 CV</a>
+      <a href="#predictor">即時預測</a>
+      <a href="#test">Test 評估</a>
+      <a href="#methods">方法與限制</a>
+    </nav>
+  </div>
+</header>
+<div class="mockbar" role="status">
+  <div class="mockbar__inner">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <span><strong>UI Wireframe · 示意資料／非實際模型結果。</strong>所有數字由固定種子亂數產生，未執行 Python 模型、未做統計驗證，涵蓋率不代表真實結果。</span>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- A. 概覽 -->
+  <section class="section" id="overview" aria-labelledby="h-overview">
+    <div class="section__head">
+      <span class="eyebrow">A · Project Overview</span>
+      <h1 id="h-overview">King County House Price Analysis</h1>
+      <span class="spec">Spec：Problem／Solution、§2 來源</span>
+    </div>
+    <div class="grid grid--3">
+      <article class="card">
+        <h3>資料集</h3>
+        <p class="small" id="meta-dataset"></p>
+        <ul class="small muted" style="margin:0;padding-left:1.1em">
+          <li><span class="num" id="meta-rows"></span> 筆交易・<span class="num" id="meta-houses"></span> 棟房屋（<span class="num" id="meta-repeat"></span> 筆重複交易）</li>
+          <li>Source features <strong class="num" id="meta-sf"></strong>（規則：編碼前、不含 <code>id</code> 與 <code>price</code>）・建模 feature groups <strong class="num" id="meta-groups"></strong></li>
+          <li>特徵數條件：正文 10–20 與補充 14–39 的交集 <strong>14–20</strong></li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>CRISP-DM 與研究問題</h3>
+        <p class="small">以 log(price) 建模、USD 報告，預測房屋成交價；六階段：Business Understanding → Data Understanding → Data Preparation → Modeling → Evaluation → Deployment。</p>
+        <p class="small muted" style="margin:0">主程式 notebook 是唯一數字來源；本頁讀取其匯出的 <code>model_data</code>。</p>
+      </article>
+      <article class="card">
+        <h3>方法摘要</h3>
+        <p class="small">四種有 k 路徑的特徵選擇方法（Forward SFS、Backward SFS、RFE、Lasso 路徑排序）＋單一 All-in baseline；Ridge／Lasso 為對照。以房屋分組的 80/20 切分與訓練集內 5-fold CV 選模；test 只對 CV winner 評估一次。</p>
+        <div class="legend small">
+          <span class="tag tag--teacher">老師要求</span>
+          <span class="tag tag--suggest">依老師補充建議</span>
+          <span class="tag tag--project">專案延伸</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- B + C. 模型選擇 / 訓練 CV -->
+  <section class="section" id="model" aria-labelledby="h-model">
+    <div class="section__head">
+      <span class="eyebrow">B · Model Selection &nbsp;／&nbsp; C · Training CV Performance</span>
+      <h2 id="h-model">模型選擇與訓練 CV 表現</h2>
+      <span class="spec">Spec：Dashboard 區塊 (1)(2)(3)、分層規則、BR-01</span>
+    </div>
+    <div class="layout-2col">
+      <aside class="card sticky control" aria-label="模型選擇控制">
+        <div class="field">
+          <span class="label" id="lbl-method">特徵選擇方法</span>
+          <div class="seg" role="group" aria-labelledby="lbl-method" id="method-seg"></div>
+        </div>
+        <div class="field">
+          <span class="label" id="lbl-k">特徵數 k（source feature groups）</span>
+          <div class="kgrid" role="group" aria-labelledby="lbl-k" id="k-grid"></div>
+          <div class="klegend" id="k-legend">
+            <span><span class="dot" style="background:var(--c-success)"></span>該方法 CV winner</span>
+            <span><span class="dot" style="background:repeating-linear-gradient(135deg,#fff 0 2px,#FEE2E2 2px 4px);border:1px solid #FECACA"></span>invalid（canonical fit 秩不足）</span>
+          </div>
+          <p class="help" id="k-help">All-in baseline 的 k 固定為 18，不提供切換。</p>
+        </div>
+        <button class="toggle" id="compare-all" aria-pressed="false" type="button">
+          <span class="toggle__sw" aria-hidden="true"></span>
+          <span>比較全部方法</span>
+        </button>
+        <div class="selected-model" aria-live="polite" id="selected-model"></div>
+      </aside>
+
+      <div class="grid" style="gap:var(--space-4)">
+        <div class="section__head" style="margin:0">
+          <h3>訓練 CV 指標 <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+          <span class="spec">來源：<code>methods[].cv</code>・5 個分組 fold 的平均 ± 標準差・不含任何 test 資料</span>
+        </div>
+        <div class="grid grid--kpi fade" id="kpi-cv"></div>
+
+        <div class="card">
+          <div class="chart__toolbar">
+            <h3 style="margin:0">指標 vs k</h3>
+            <span class="tag tag--cv">訓練 CV（USD）</span>
+            <span class="spacer"></span>
+            <label class="small muted" for="metric-select">指標</label>
+            <select class="input" id="metric-select" style="min-height:40px;width:auto">
+              <option value="rmse">RMSE（USD）</option>
+              <option value="mae">MAE（USD）</option>
+              <option value="r2">R²（USD 尺度）</option>
+            </select>
+          </div>
+          <div class="chart" id="kchart" role="img" aria-labelledby="kchart-summary"></div>
+          <p class="sr-only" id="kchart-summary">折線圖：四種方法在 k=1 到 18 的訓練 CV 指標；All-in、Ridge、Lasso 以水平參考線呈現；CV winner 以圓環標示，invalid 候選以叉號標示。數值為示意資料。</p>
+          <div class="legend" id="kchart-legend" style="margin-top:var(--space-3)"></div>
+        </div>
+
+        <div class="card card--flat" id="compare-table-card" hidden>
+          <h3>各方法 CV winner 比較 <span class="tag tag--cv">訓練 CV（USD）</span></h3>
+          <div class="tablewrap"><table id="compare-table"></table></div>
+          <p class="small muted" style="margin-top:var(--space-3)">整體 CV winner 以 CV RMSE 最小者決定；test 排名不同時不換模型。對照模型（Ridge、Lasso、p-value backward）只列指標，不參與 winner。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. 即時預測 -->
+  <section class="section" id="predictor" aria-labelledby="h-predictor">
+    <div class="section__head">
+      <span class="eyebrow">D · Live House Price Predictor</span>
+      <h2 id="h-predictor">即時房價預測</h2>
+      <span class="spec">Spec：Dashboard 區塊 (5)、未見 zipcode、超出範圍警告</span>
+    </div>
+    <div class="card predictor">
+      <div>
+        <p class="small muted" id="pred-intro"></p>
+        <div class="fields" id="pred-fields"></div>
+      </div>
+      <aside class="result card card--flat" aria-live="polite" aria-atomic="true">
+        <div class="section__head" style="margin:0"><h3 style="margin:0">預測結果</h3><span class="tag tag--mock">模擬數值</span></div>
+        <div>
+          <div class="small muted">點預測（USD，exp(log 預測)＝條件中位數的估計）</div>
+          <div class="result__price num" id="pred-price">—</div>
+        </div>
+        <div>
+          <div class="small muted">95% 預測區間（參數式 OLS PI，log 尺度回轉，不對稱）</div>
+          <div class="result__pi num" id="pred-pi">—</div>
+          <div class="result__bar" aria-hidden="true"><span id="pred-bar-span"></span><i id="pred-bar-pt"></i></div>
+        </div>
+        <div class="result__status" id="pred-status"></div>
+        <div class="result__meta">
+          <span>模型：<strong id="pred-model"></strong></span>
+          <span>來源：<code>methods[].fit</code>（整個 training set 擬合）</span>
+          <span>Ridge／Lasso 不提供即時預測與區間。</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- E. Test -->
+  <section class="section" id="test" aria-labelledby="h-test">
+    <div class="section__head">
+      <span class="eyebrow">E · Held-out Test Evaluation</span>
+      <h2 id="h-test">保留 Test 集評估</h2>
+      <span class="spec">Spec：Dashboard 區塊 (6)、BR-01 分層、Q43 逐筆 PI 圖</span>
+    </div>
+    <div class="testzone">
+      <div class="testzone__head">
+        <span class="tag tag--test">Test 評估（USD）</span>
+        <span class="testzone__model">展示模型：<strong id="test-model"></strong></span>
+        <span class="tag tag--winner" id="test-winner-tag"></span>
+        <span class="spacer" style="flex:1"></span>
+        <span class="small muted">來源：<code>test[kind=ols_subset]</code>・只對被授權評估的模型・切換不會觸發新的 test 評估</span>
+      </div>
+      <div class="notice" id="test-notice" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        <div id="test-notice-text"></div>
+      </div>
+      <div class="grid grid--kpi4 fade" id="kpi-test"></div>
+
+      <div class="scatter-wrap">
+        <div class="chart__toolbar">
+          <h3 style="margin:0">實際 vs 預測（log 刻度，逐筆 95% PI）</h3>
+          <span class="tag tag--test">Test 評估</span>
+          <span class="spacer"></span>
+          <button class="btn btn--icon" type="button" id="zoom-in" aria-label="放大">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M8 11h6"/><path d="M11 8v6"/></svg>
+          </button>
+          <button class="btn btn--icon" type="button" id="zoom-out" aria-label="縮小">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M8 11h6"/></svg>
+          </button>
+          <button class="btn" type="button" id="zoom-reset">重設檢視</button>
+        </div>
+        <div class="scatter" id="scatter">
+          <canvas id="scatter-canvas" role="img" aria-label="散佈圖：x 軸為預測價格、y 軸為實際價格，皆為 log 刻度；每筆 test 樣本有一條垂直的 95% 預測區間線段，依實際價格是否落入區間著色；含 y=x 參考線。示意資料。"></canvas>
+          <div class="scatter__tip" id="scatter-tip" hidden></div>
+        </div>
+        <div class="scatter__meta">
+          <span><span class="dot" style="background:var(--s-in)"></span>落入 PI</span>
+          <span><span class="dot" style="background:var(--s-out)"></span>未落入 PI</span>
+          <span>── y = x</span>
+          <span>滾輪縮放・拖曳平移・游標停留讀取單筆</span>
+          <span id="scatter-perf" class="num"></span>
+        </div>
+      </div>
+
+      <div class="covstats" id="covstats"></div>
+      <p class="small muted" style="margin:0">涵蓋率的不確定性為假設各筆獨立的二項近似；test 含同一房屋的重複交易，近似的準確度未經估計，此處不陳述偏差方向。偏離 95% 需分析，不自動判定失敗。</p>
+    </div>
+  </section>
+
+  <!-- F. 方法與限制 -->
+  <section class="section" id="methods" aria-labelledby="h-methods">
+    <div class="section__head">
+      <span class="eyebrow">F · Methods &amp; Limitations</span>
+      <h2 id="h-methods">方法與限制</h2>
+      <span class="spec">Spec：Dashboard 區塊 (9)</span>
+    </div>
+    <div class="card prose cols-2">
+      <div>
+        <h3>特徵選擇方法 <span class="tag tag--suggest">依老師補充建議</span></h3>
+        <ul class="small">
+          <li><strong>Forward SFS／Backward SFS</strong>：以 feature group 為單位逐步加入／移除，每步以 fold 內 CV RMSE 決定。</li>
+          <li><strong>RFE</strong>：依 group 重要度遞迴消去。</li>
+          <li><strong>Lasso 路徑排序</strong>：依 group 進入 Lasso 路徑的順序取 top-k。</li>
+          <li><strong>All-in baseline</strong>：全部 18 個 group 的單一 OLS，沒有 k 路徑；等於路徑方法在 k=18 的端點。</li>
+          <li><strong>講義對照</strong>：p-value backward elimination 產生單一子集，只列對照、不進 winner。</li>
+        </ul>
+      </div>
+      <div>
+        <h3>訓練 CV／Test 協定 <span class="tag tag--project">專案延伸</span></h3>
+        <ul class="small">
+          <li>80/20 train/test，以房屋 <code>id</code> 分組；訓練集內 5 個分組 fold。</li>
+          <li>子集在每個 fold 的訓練列上重算（fold-internal selection）；驗證列不參與選擇。</li>
+          <li>每個方法以 CV RMSE 最小的 k 為 CV winner；整體 winner 為其中最小者。CV winner 的分數有樂觀偏誤。</li>
+          <li>Test 只對各方法 CV winner、All-in 與整體 winner 各評估一次；本頁任何切換都不會觸發新的評估。</li>
+        </ul>
+      </div>
+      <div>
+        <h3>預測區間的統計假設 <span class="tag tag--teacher">老師要求：區間</span></h3>
+        <ul class="small">
+          <li>參數式 OLS 預測區間，在 log(price) 尺度計算後 exp 回 USD；區間不對稱。</li>
+          <li>假設殘差常態、同質變異、獨立；特徵選擇後的推論與模型誤設會影響名目涵蓋率。<strong>不宣稱保證 95% 經驗涵蓋率。</strong></li>
+          <li>點預測 exp(log 預測) 估計的是條件中位數，不是條件平均。</li>
+        </ul>
+      </div>
+      <div>
+        <h3>模型限制與非因果解讀</h3>
+        <ul class="small">
+          <li>適用範圍：King County，2014-05 至 2015-05 的交易；超出訓練範圍屬外推。</li>
+          <li>係數與重要性描述的是模型中的關聯，<strong>不是因果效果</strong>。</li>
+          <li>涵蓋率是 marginal 的經驗估計，不保證任一價格區間或地區的條件涵蓋。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 選配 -->
+  <section class="section" aria-label="選配區塊">
+    <details class="card">
+      <summary>係數表（選配）<span class="tag tag--fit">全訓練集擬合・R²／Adjusted R² 為 log 尺度</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="body"><div class="tablewrap"><table id="coef-table"></table></div></div>
+    </details>
+    <details class="card">
+      <summary>Test 殘差表（選配）<span class="tag tag--test">Test 評估</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="body"><div class="tablewrap"><table id="resid-table"></table></div></div>
+    </details>
+    <details class="card">
+      <summary>全部結果表（選配）<span class="tag tag--cv">訓練 CV</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="body"><div class="tablewrap"><table id="all-table"></table></div></div>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <div>HW2 Dashboard Wireframe · 示意資料／非實際模型結果 · 本頁不載入任何外部資源，可在 <code>file://</code> 與離線環境開啟。</div>
+</footer>
+
+<script src="mock-data.js"></script>
+<script src="wireframe.js"></script>
+</body>
+</html>

@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | DIC-1 個人入口網站與時鐘 | [`week02/CONTEXT.md`](./week02/CONTEXT.md) | Lecture 2 的課堂實作：顯示名稱、台北時間、時間格式、視覺主題、保存偏好等概念。 |
 | HW10 Taiwan Weather Forecast | [`home_work_01/CONTEXT.md`](./home_work_01/CONTEXT.md) | Part 5 作業：六大區域、一週預報、MinT/MaxT、Forecast Snapshot、Web App 與 Taiwan Map 等概念，以及 MVM 與 scope class 的定義。 |
+| HW2 Multiple Linear Regression | [`home_work_02/CONTEXT.md`](./home_work_02/CONTEXT.md) | 作業 2：King County 房價多元線性回歸的分組切分、特徵選擇路徑、CV winner、一次性 Test 評估、metric-only 模型與預測區間等概念。 |
 
 尚未列出的單元表示還沒有需要固定的詞彙，直接讀該單元的檔案即可。新增單元的詞彙表時在此補一行。
 

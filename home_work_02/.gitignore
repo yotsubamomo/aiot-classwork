@@ -1,0 +1,25 @@
+# --- Never tracked: PDFs and ZIPs (H-1, A-4). Teacher documents under doc/requirement/ are the
+# only tracked PDFs; the report PDF (with the ChatGPT appendix) and the submission ZIP stay local.
+*.pdf
+*.zip
+!/doc/requirement/*.pdf
+
+# Teacher's iLearning page print (SRC-2): kept local only; the tracked faithful transcription is
+# doc/requirement/HW2-requirements-Multiple Linear regression_SRC-2_2026-10-18.txt (records the PDF sha256)
+/doc/requirement/HW2-requirements-Multiple Linear regression.pdf
+
+# --- Untracked local configuration (BR-03): the real student id lives only in
+# .local/packaging.json as {"student_id": "<學號>"}; tracked files always write <學號>.
+/.local/
+
+# --- Acceptor materials (Brief §9): ChatGPT conversation PDF, NotebookLM output and sources.
+/acceptor_materials/
+
+# --- Packaging output: <學號>_hw2.ipynb, <學號>_hw2.zip, built report.
+/dist/
+
+# --- Environments and tool state.
+/.venv/
+.ipynb_checkpoints/
+.pytest_cache/
+__pycache__/

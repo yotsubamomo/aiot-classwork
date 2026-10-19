@@ -1,0 +1,157 @@
+〔轉寫說明——本區塊不是老師原文〕
+來源（SRC-2）：HW2-requirements-Multiple Linear regression.pdf
+來源 sha256：1b3a5aad1c261425eb34f2eb46aebe6a62c73aba4fbf2d67a166fe9df28639d7（1,083,106 bytes，4 頁）
+來源性質：瀏覽器列印的 iLearning 作業頁 https://lms2020.nchu.edu.tw/course/homework/74761 ；PDF CreationDate D:20261017185958+00'00'（＝2026-10-18 02:59:58 +0800），Producer Skia/PDF m155
+老師更新日：2026-10-18（acceptor 陳述）
+原始 PDF 保留在 acceptor 本機，不納入 git 追蹤（理由見 doc/brief/HW2_Requirements_Rebaseline_2026-10-18.md §1.1）
+轉寫方式：依 PDF 文字層與頁面影像逐頁人工轉寫，文字照原樣保留（含簡體字、全形／半形與原有的錯字及排版殘字），不改寫、不翻譯
+轉寫者註記格式：〔轉寫註：…〕，只說明版面、圖片與連結，不是原文
+頁面分隔格式：==== [SRC-2 p.N] ====
+每頁頁首「2026/10/18 凌晨2:59　HW2: Multiple Linear regression | iLearning 3.0」與頁尾「https://lms2020.nchu.edu.tw/course/homework/74761 N/4」是瀏覽器列印的頁面框，各頁相同，不重複轉寫
+連結目標取自 PDF 的 link annotation（/URI）
+〔轉寫說明結束〕
+
+==== [SRC-2 p.1] ====
+HW2: Multiple Linear regression
+类型
+个人作业
+开放缴交
+2025-10-15 00:00
+缴交期限
+2026-11-04
+已缴交
+8人
+允许迟交
+是
+成绩比重
+10%
+评分方式
+直接打分数
+说明
+一、作業目標：
+本次作業延伸自 HW1，目標是讓同學能夠以實際資料集進行「多元線性回歸 (Multiple Linear Regression)」的完整分析，並遵循 CRISP-DM 流程完成從資料理解、建模到評估的全過程。
+
+二、作業內容：
+1. 資料來源
+  至 Kaggle 選擇一個具有 10 至 20 個特徵 (features) 的公開資料集。
+  類型不限（可為房價預測、醫療、車輛效能等主題）。
+  請明確標示資料集來源與連結。
+2. 分析任務
+  使用線性回歸 (Linear Regression) 模型進行預測。
+  可嘗試單純線性回歸、多元線性回歸或 Auto Regression。
+  必須執行 特徵選擇 (Feature Selection) 與 模型評估 (Model Evaluation)。
+  結果部分需包含請提供預測圖(加上信賴區間或預測區間)
+3. CRISP-DM 流程說明
+    Business Understanding
+    Data Understanding
+    Data Preparation
+    Modeling
+    Evaluation
+    Deployment
+
+4. AI協助要求
+  所有與 ChatGPT 的對話請以 pdfCrowd 或其他方式須匯出為 PDF
+  請使用 NotebookLM 對網路上同主題的解法進行研究，並撰寫一份 100 字以上的摘要，放入報告中。
+  請在報告中明確標示「GPT 輔助內容」與「NotebookLM 摘要」
+5. 繳交內容
+  主程式：7114056XXX_hw2.py/.ipynb
+  報告檔： PDF，需包含以下內容：
+      按照 CRISP-DM 說明的分析流程
+      GPT 對話過程（pdfCrowd 匯出）
+      NotebookLM 研究摘要
+〔轉寫註：頁面中「匯出為 PDF」、「請使用 NotebookLM」、「特徵選擇 (Feature Selection)」、「模型評估 (Model Evaluation)」為粗體〕
+
+==== [SRC-2 p.2] ====
+      網路上主流或更優解法之比較與說明
+  以上檔案與資料夾請壓縮為學號命名的一個zip（例如 7114056XXX_hw2.zip）上傳。
+
+  (optional) 若上傳至 GitHub，或是以colab撰寫，需提供連結，並在 README.md 中整理流程與成果。
+
+三、評分標準
+  文件說明（50%）
+    CRISP-DM 流程完整且邏輯清楚（25%）
+    包含 GPT 對話與 NotebookLM 摘要（15%）
+    有明確說明資料集來源與研究脈絡（10%）
+  結果呈現（50%）
+    模型正確可執行，具特徵選擇與評估（25%）
+    結果合理、美觀且具有說服力（15%）
+    呈現出Kaggle名次(若有)/預測結果評估(預測圖、評估指標)（10%）
+〔轉寫註：「請壓縮為學號命名的一個zip」為粗體。以上 p.1～p.2 至此的正文，與 SRC-1（HW2-requirements-Multiple Linear regression.txt）文字相同，差別只有「已缴交」4人→8人〕
+
+==== 補充 ====
+list kaggle multiple linear regression problems , choose features > 13,
+< 40
+
+Kaggle Multiple Linear Regression Problems (14–39 Features)
+你希望找適合 Multiple Linear Regression（多元線性回歸） 的 Kaggle 題目，條件為：
+1133<<NNuummbbeerrooffFFeeaatuturreess<<4400
+〔轉寫註：上一行是 PDF 文字層的原樣；頁面上看起來是一個重疊渲染的數學式，可辨識為「13 < Number of Features < 40」。依原樣保留，不改寫〕
+也就是 14–39 個輸入特徵，不包含 Target（預測目標）。
+建議優先選擇連續數值預測（Regression）、可使用 sklearn.LinearRegression 、適合進行 Feature Selection、MSE、RMSE、R² 與五大回歸假設檢驗的資料集。
+特別注意：Kaggle 上常見的 House Prices — Advanced Regression Techniques 有 79 個原始特徵，不符合你的原始特徵數限制，但可以透過特徵選擇建立 14–39 特徵的練習版本。
+k
+Kaggle
++1
+〔轉寫註：上三行是引用標記的殘留（一個小圖示與「Kaggle」「+1」）〕
+
+Recommended Kaggle Regression Problems
+以下區分「原始特徵符合條件」與「需要 Feature Selection 才符合條件」。
+
+# | Kaggle Problem | Features | Target | Suitability
+1 | Predict the Flood | 20 | FloodProbability | Excellent
+2 | Flood Prediction Dataset | 20 | FloodProbability | Excellent
+3 | Istanbul Apartment Prices 2026 | 29 or fewer* | Price | Good
+4 | Swiss Housing Price Prediction | 30 | House price | Good; restricted access
+〔轉寫註：表格以「 | 」分隔欄位。各列 Kaggle Problem 的連結目標：
+ 1 Predict the Flood → https://www.kaggle.com/competitions/predictheflood
+ 2 Flood Prediction Dataset → https://www.kaggle.com/competitions/playground-series-s4e5
+ 3 Istanbul Apartment Prices 2026 → https://www.kaggle.com/datasets/brahimenesulusoy/istanbul-apartment-prices-2026
+ 4 Swiss Housing Price Prediction → https://www.kaggle.com/competitions/i3-ml-21-22-mini-project〕
+
+==== [SRC-2 p.3] ====
+5 | Human–AI Interaction | 20 | Trust score | Excellent; synthetic
+6 | House Prices — Advanced Regression | 79 → select 20–30 | SalePrice | Excellent for feature selection
+〔轉寫註：連結目標：
+ 5 Human–AI Interaction → https://www.kaggle.com/dsv/13207192
+ 6 House Prices — Advanced Regression → https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques〕
+*Istanbul 資料集描述為 30 欄，包含價格等欄位；精確輸入特徵數需檢查 CSV。上述資料集的特徵數以來源描述為準，類別編碼後可能增加。
+k
+Kaggle
++5
+〔轉寫註：上三行是引用標記的殘留〕
+
+My Top 3 for Teaching
+〔轉寫註：圖片——洪水淹沒市區的空拍縮圖〕
+1. Predict the Flood
+〔轉寫註：連結目標 https://www.kaggle.com/competitions/predictheflood〕
+20 numerical features, continuous target. Best for teaching OLS, MSE, R², residual analysis and regression assumptions.
+〔轉寫註：圖片——城市公寓建築的空拍縮圖〕
+2. Istanbul Apartment Prices
+〔轉寫註：連結目標 https://www.kaggle.com/datasets/brahimenesulusoy/istanbul-apartment-prices-2026〕
+Suitable for categorical encoding, feature selection, and housing-price regression. Check the dataset columns before modeling.
+〔轉寫註：圖片——操作筆記型電腦與 AI 介面的縮圖〕
+3. Human–AI Interaction
+〔轉寫註：連結目標 https://www.kaggle.com/dsv/13207192〕
+20 original features, 10,100 samples. Useful for studying coefficients, categorical features and multicollinearity.
+
+Suggested Assignment: CRISP-DM + Feature Selection
+For any selected dataset, students can complete:
+1. Business Understanding: Define the continuous prediction target.
+2. Data Understanding: Verify sample size, feature count, missing values and correlations.
+3. Data Preparation: Train/test split, missing-value handling and categorical encoding.
+4. Modeling: Train LinearRegression , Ridge and Lasso.
+
+==== [SRC-2 p.4] ====
+5. Evaluation: Compare MAE, MSE, RMSE, R² and Adjusted R²; check the five regression assumptions.
+6. Deployment: Predict new samples and explain the model.
+For Feature Selection, compare SelectKBest, RFE, Sequential Feature Selection, Lasso and permutation importance, selecting 14, 20, 25 or 30 features using training data only.
+My first choice is Predict the Flood, because its 20 numerical features meet your constraint directly and avoid the extra complexity of categorical encoding.
+〔轉寫註：p.3～p.4 中「Business Understanding:」等六個階段名稱、「SelectKBest, RFE, Sequential Feature Selection, Lasso and permutation importance」、「My first choice is Predict the Flood」為粗體；「LinearRegression」為等寬字〕
+
+交作业
+〔轉寫註：以下為 iLearning 網站頁尾〕
+© Copyright since 2020 by National Chung Hsing University.
+All rights reserved.
+● 本站由 教學資源暨發展中心 管理●
+线上： 585 人
+〔轉寫註：「教學資源暨發展中心」連結目標 http://oaa.nchu.edu.tw/zh-tw/cdtl〕

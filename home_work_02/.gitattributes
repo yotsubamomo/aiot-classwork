@@ -1,0 +1,7 @@
+# Byte-pinned files: no end-of-line conversion on checkout (core.autocrlf=true would otherwise turn
+# LF into CRLF in the working copy and break the pinned sha256 values).
+data/kc_house_data.csv -text
+assets/vendor/** -text
+# Binary result artifacts (#64): figures cited by the report and the Deployment demonstration pickle.
+results/figures/*.png binary
+results/deployment/*.pkl binary
