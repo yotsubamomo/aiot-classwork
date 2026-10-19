@@ -54,7 +54,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
 | #65 T6 | #63、#64 | **已結案** | `worklog/issue-65.md` | `audit/issue-65-c1-r1.md` BLOCKING → `issue-65-c1-r2.md` CLOSURE |
-| #66 T7 | #65；acceptor 輸入 | READY → 派工 | `worklog/issue-66.md` | — |
+| #66 T7 | #65；acceptor 輸入 | audit 中（R1） | `worklog/issue-66.md` | 待 `audit/issue-66-c1-r1.md` |
 | #67 T8 | #66；學號；RB-5 | 待 #66（另缺學號設定） | — | — |
 
 Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 結案後派。DA phase acceptance：其 closure 之後。
@@ -220,3 +220,10 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Acceptor 2026-10-19（逐字）**：「照這樣繼續就行」→ 以現有材料派 #66（§16 blocker 解除）；第 6～8 項網址的處理交 #66 Executor，涉及證據標示或可引用性的判斷依 H-4 route DA，不由 Orchestrator 判斷。
 - **Acceptor 2026-10-19（逐字）**：「我忘了原本的參考 我們重來一份？」→ NotebookLM 材料重做；#66 尚未派工，維持等待。原材料移至 `acceptor_materials/notebooklm_v1_superseded/`（保留，不使用）。Orchestrator 以內建瀏覽器確認兩個 Kaggle notebook 的公開頁存在（arthurtok/feature-ranking-rfe-random-forest-linear-models，標示資料集 House Sales in King County, USA，Apache 2.0；burhanykiyakoglu/predicting-house-prices，Apache 2.0），只核對頁面存在與標題，未讀內容；來源由 acceptor 決定是否採用。
 - **NotebookLM v2 材料收件（2026-10-19）**：`acceptor_materials/notebooklm/notebooklm_report_v2_2026-10-19.docx`（acceptor 自 Downloads 提供，原樣複製，sha256 `77b8f7e7841418e3187a76bede66b63ca0a284d4e91b6e317f9728feb47e4a96`）；`sources.md`（acceptor 貼上的 7 個來源，依 acceptor 指示「去重復」整理為每來源一個網址，sha256 `141c211b8993e889b171eb34ecc524c85c44fe83aef962ad64a4a5cb557f5e2b`）。ChatGPT PDF 不變（`0a5d29e3…a194`）。§16 blocker 解除 → 派 #66。
+
+## 18. #66
+
+- **Executor**（agentId `ae6f6de8468402cf7`）：`DONE_WITH_CONCERNS`；`gov-executor`；Orchestrator 觀測 Opus 5.5／`high` 單一元素。
+- **Subject**：implementation commit `d379732983e0f446cc443d95a5f70d5e68209b17`（base `752791b`）；之後 `fc38a92` 只改 worklog。Machine gates：變更全在 `home_work_02/`、無 `doc/requirement/`；`results/`、`assets/`、notebook、`requirements.txt` 與 base 相同；追蹤檔案不含 `acceptor_materials/`、`dist/`。
+- **Concerns**：C-1（材料衍生文字留在未追蹤目錄；DA 只在要改作法時）、C-2（NotebookLM 報告內部矛盾；Executor 指 Reviewer 依 A-5 核對，需要時 DA）、C-3（DOI redirect；#67）、C-4（10.1 揭露部分決定採用 ChatGPT 建議；acceptor 只在反對時）、C-5（附錄頁含對話 URL 與作者姓名，只進 PDF／ZIP）。皆未指明需要現在 route 的 authority → 交 R1。
+- **R1**：派 `gov-primary-reviewer`（fresh context），record `audit/issue-66-c1-r1.md`。
