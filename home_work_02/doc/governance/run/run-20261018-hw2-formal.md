@@ -54,7 +54,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #63 T4 | #62 | **已結案** | `worklog/issue-63.md` | `audit/issue-63-c1-r1.md` CLOSURE |
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
 | #65 T6 | #63、#64 | **已結案** | `worklog/issue-65.md` | `audit/issue-65-c1-r1.md` BLOCKING → `issue-65-c1-r2.md` CLOSURE |
-| #66 T7 | #65；acceptor 輸入 | READY → 派工（§17 材料到位） | `worklog/issue-66.md` | — |
+| #66 T7 | #65；acceptor 輸入 | BLOCKED（NotebookLM 材料重做中，§17） | — | — |
 | #67 T8 | #66；學號；RB-5 | 待 #66（另缺學號設定） | — | — |
 
 Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 結案後派。DA phase acceptance：其 closure 之後。
@@ -218,3 +218,4 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - **Acceptor 2026-10-19（逐字）**：「等 NotebookLM 材料放好後，#66 一次做完。」→ #66 維持 BLOCKED；恢復條件：NotebookLM 原始輸出與來源清單放入 `home_work_02/acceptor_materials/` 並告知 Orchestrator。
 - **NotebookLM 材料收件（2026-10-19）**：acceptor 在對話中提供；Orchestrator 只原樣存檔與核對存在，不讀內容判斷。`acceptor_materials/notebooklm/`：`notebooklm_answer_pasted_2026-10-19.md`（對話貼上的回答原文＋轉錄說明）、`notebooklm_report_2026-10-19.pdf`、`notebooklm_report_2026-10-19.docx`（acceptor 自 Downloads 提供，原樣複製）、`sources.md`（第二次貼上的來源清單）、`sources_v1_links-removed.md`（第一次貼上，3 個網址被對話介面移除）。全部在未追蹤目錄。Orchestrator 已告知 acceptor：來源第 6、7、8 項為 Kaggle 私人編輯頁（`/code/scratchpad/…/edit`），非公開網址。
 - **Acceptor 2026-10-19（逐字）**：「照這樣繼續就行」→ 以現有材料派 #66（§16 blocker 解除）；第 6～8 項網址的處理交 #66 Executor，涉及證據標示或可引用性的判斷依 H-4 route DA，不由 Orchestrator 判斷。
+- **Acceptor 2026-10-19（逐字）**：「我忘了原本的參考 我們重來一份？」→ NotebookLM 材料重做；#66 尚未派工，維持等待。原材料移至 `acceptor_materials/notebooklm_v1_superseded/`（保留，不使用）。Orchestrator 以內建瀏覽器確認兩個 Kaggle notebook 的公開頁存在（arthurtok/feature-ranking-rfe-random-forest-linear-models，標示資料集 House Sales in King County, USA，Apache 2.0；burhanykiyakoglu/predicting-house-prices，Apache 2.0），只核對頁面存在與標題，未讀內容；來源由 acceptor 決定是否採用。
