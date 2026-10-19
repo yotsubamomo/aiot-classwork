@@ -200,16 +200,48 @@ def test_markdown_to_html_subset():
 
 # --- README (Brief §8 Q39; DA F-4; N-5) ---------------------------------------------------------
 
+# The seven README items of Brief §8, each with its own heading (one-to-one; DA
+# decision-20261019-post-merge-ad3-readme.md D-R3 RT-5): purpose, data source and licence, process,
+# results, rerun steps, dashboard link, file layout.
+README_ITEMS = ("目的", "資料來源與授權", "流程（CRISP-DM）", "成果", "重跑步驟", "Dashboard", "檔案配置")
+
+
 def test_readme_has_every_required_item():
     heads = re.findall(r"^#{2,3} (.+)$", README, re.M)
-    for required in ("目的", "資料來源與授權", "流程（CRISP-DM）", "成果", "Dashboard", "重跑步驟",
-                     "學號設定（打包用）", "檔案配置"):
-        assert any(h.startswith(required) for h in heads), required
-    assert ".local/packaging.json" in README and "<學號>" in README
+    matched = {}
+    for required in README_ITEMS:
+        hits = [h for h in heads if h.startswith(required)]
+        assert len(hits) == 1, (required, hits)
+        matched[required] = hits[0]
+    assert len(set(matched.values())) == len(README_ITEMS), matched
     assert "https://yotsubamomo.github.io/aiot-classwork/home_work_02/" in README
     assert "python -m hw2.report" in README
     for phase in PHASES:
         assert phase in README
+
+
+# The README does not record the student-id setting (DA decision-20261019-post-merge-ad3-readme.md
+# D-R1, D-R2, D-R3 RT-2..RT-4). The exact comparison with the real value stays in
+# tests/test_repo_hygiene.py::test_no_tracked_file_contains_the_student_id, which covers the README;
+# the checks below do not depend on the local setting.
+
+def test_readme_does_not_record_the_student_id_setting():
+    for forbidden in ("學號設定", "packaging.json", "student_id", ".local/"):
+        assert forbidden not in README, forbidden
+
+
+# Failure messages give only the offset, never the text, so a real value is not echoed into logs.
+
+def test_readme_submission_file_names_use_only_the_placeholder():
+    # Whether <學號> appears at all is not required (RT-3); where a prefixed name appears, its prefix is it.
+    for m in re.finditer(r"([^\s/\\`'\"(（）)、，,:：|*\[\]]*)_hw2\.(?:ipynb|zip)", README):
+        assert m.group(1) == "<學號>", f"submission file name at offset {m.start()} has another prefix"
+
+
+def test_readme_has_no_digit_run_after_the_word_student_id():
+    for m in re.finditer(r"學號", README):
+        assert not re.match(r"[\s\S]{0,12}?\d{7}", README[m.end():]), \
+            f"seven or more digits within 12 characters after 學號 at offset {m.start()}"
 
 
 def test_readme_states_the_one_formal_evaluation_and_reruns_as_reproduction():
@@ -237,6 +269,11 @@ def test_readme_results_numbers_equal_the_exports(md):
     assert f"{report.METHOD_LABELS[ov['method']]} k = {k}" in results
     tokens = set(_NUMBER.findall(re.sub(r"`[^`]*`", " ", results)))
     assert tokens <= set(expected.values()), tokens - set(expected.values())
+    # Every section that states a test result is the checked one (RT-5): outside "## 成果" the README
+    # states none of the test result values (k and the PI level also name the design, so they may).
+    outside = README.replace(results, "")
+    for name in ("n_test", "rmse", "mae", "r2", "coverage", "n_covered"):
+        assert expected[name] not in outside, name
     data = README.split("## 資料來源與授權", 1)[1].split("\n## ", 1)[0]
     assert f"{md['meta']['n_rows']:,} 列 × {md['meta']['n_columns']} 欄" in data
     assert md["meta"]["csv_sha256"] in data
