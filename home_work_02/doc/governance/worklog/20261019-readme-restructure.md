@@ -141,5 +141,5 @@ HW01 中沒有對應內容而未採用的：部署（Vercel）、安全性（API
   - README 測試 `pytest -q -rs tests/test_report.py -k readme`：7 passed。
   - `tests/test_repo_hygiene.py::test_no_tracked_file_contains_the_student_id`：1 passed（實際執行，不是 skip）。
   - 完整 `pytest -q -rs`：**398 passed**，0 skipped、0 failed。
-  - A-4：`1862a41..HEAD` 全部 commit 的內容與訊息，以設定值比對只輸出計數，結果記在下一點；本次沒有列出 `dist/`，也沒有印出任何含學號的檔名。
+  - A-4：`1862a41..HEAD` 全部 commit 的內容與訊息，以設定值比對只輸出計數：在 `ee55769`（含本次兩個 commit）上，`1862a41..ee55769` 的 5 個 commit（`ccdc9f2`、`dcb6052`、`1b7689e`、`706cc8c`、`ee55769`）**0 命中**；同一時點 `tests/test_repo_hygiene.py` 17 passed。本次沒有列出 `dist/`，也沒有印出任何含學號的檔名。
 - **Binding**：同一個 agentId `ab07c6cd5d35d7f6f`（`gov-executor`，以 SendMessage 續派）；全程核對由派工者在採用 return 前執行。
