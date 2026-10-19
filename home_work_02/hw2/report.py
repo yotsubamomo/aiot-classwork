@@ -19,20 +19,33 @@ Placeholders of the template:
 - ``{{table:name}}``: a Markdown table of :func:`build_tables`.
 - ``{{quote:src1|src2t:fragment}}``: the requirement-transcript line that contains *fragment*
   (exactly one line must match); ``{{quote:src:fragment|n}}`` takes that line and the next n - 1.
-- ``{{pending:key}}``: a clearly marked slot for acceptor material (#66); never example text.
+- ``{{evidence:key}}``: a section built from the author's material (#66), read at build time from
+  the untracked ``acceptor_materials/`` (never tracked, Brief §9): ``gpt`` (the ChatGPT part of
+  「GPT 輔助內容」), ``notebooklm`` (「NotebookLM 摘要」 with its source list) and ``chatgpt_pdf``
+  (the appendix that introduces the ChatGPT conversation PDF); ``status`` is the report-status
+  line. A section whose material is missing is a clearly marked pending slot, never example text;
+  the other sections build as usual.
 - ``![caption](fig:file.png)``: a figure of ``results/figures/``.
 - ``![caption](shot:name)``: a screenshot of the dashboard taken at build time from ``index.html``.
+
+The author's material is checked against the sha256 recorded when it was received (a different file
+stops the build). The two sections written from it by Claude Code (``acceptor_materials/derived/``,
+untracked as well) are checked mechanically: the NotebookLM summary must have at least 100 Han
+characters (DA B-15) and every sentence must appear, in order, in its trace table to the NotebookLM
+report. The PDF build appends the pages of the ChatGPT conversation PDF unchanged after the report
+pages (:mod:`hw2.pdf_append`).
 
 Usage (from ``home_work_02/``)::
 
     python -m hw2.report                 # dist/report/hw2_report.{md,html,pdf}
     python -m hw2.report --no-pdf        # Markdown and HTML only (no browser needed)
-    python -m hw2.report --final         # fail while any acceptor-material slot is still pending
+    python -m hw2.report --final         # fail while any acceptor-material section is still pending
 """
 from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import json
 import math
@@ -43,9 +56,11 @@ import statistics
 import subprocess
 import sys
 import tempfile
+from dataclasses import dataclass, field
 from pathlib import Path
 
-from .paths import DIST_DIR, FIGURES_DIR, MODEL_DATA_JSON, TABLES_DIR, UNIT_DIR
+from . import pdf_append
+from .paths import ACCEPTOR_MATERIALS_DIR, DIST_DIR, FIGURES_DIR, MODEL_DATA_JSON, TABLES_DIR, UNIT_DIR
 
 REPORT_DIR = UNIT_DIR / "report"
 TEMPLATE = REPORT_DIR / "report.md"
@@ -81,18 +96,50 @@ FIGURES = ("eval_actual_vs_predicted_pi.png", "diag_linearity_residuals_vs_fitte
            "explain_permutation_importance.png")
 SHOTS = ("overview", "model", "compare", "test", "methods")
 PENDING = {
-    "gpt": ("GPT 輔助內容",
-            "本節依作業要求揭露 ChatGPT 與 Claude Code 各自的用途，內容取自作者本人的 ChatGPT "
-            "對話匯出 PDF 與實際使用紀錄。材料尚未提供，本節尚未撰寫；這裡沒有任何範例或代擬文字。"),
+    "gpt": ("GPT 輔助內容（ChatGPT）",
+            "本節依作業要求揭露 ChatGPT 的用途，內容取自作者本人的 ChatGPT "
+            "對話匯出 PDF。材料尚未提供，本節尚未撰寫；這裡沒有任何範例或代擬文字。"),
     "notebooklm": ("NotebookLM 摘要",
                    "本節是作者以 NotebookLM 研究網路上同主題解法後的摘要（依作業要求的字數），"
                    "只整理、摘要或翻譯作者提供的原始輸出與來源清單，不新增內容或來源。"
                    "材料尚未提供，本節尚未撰寫；這裡沒有任何範例或代擬文字。"),
-    "chatgpt_pdf": ("附錄：ChatGPT 對話 PDF",
-                    "作者本人與 ChatGPT 的對話匯出 PDF 將附於此處（並放入繳交 ZIP）。"
+    "chatgpt_pdf": ("附錄 B：ChatGPT 對話 PDF",
+                    "作者本人與 ChatGPT 的對話匯出 PDF 將原樣附於本報告最後（並放入繳交 ZIP）。"
                     "檔案尚未提供；這裡沒有任何替代內容。"),
 }
 LABEL_CLASSES = {"老師要求": "teacher", "依老師補充建議": "suggest", "專案延伸": "project"}
+
+# --- the author's material (#66; Brief §9: untracked, provided by the author only) ---------------
+# Files under acceptor_materials/ and the sha256 recorded when they were received (run record
+# run-20261018-hw2-formal §17; doc/governance/worklog/issue-66.md). A different file stops the build.
+ACCEPTOR_MATERIALS = {
+    "chatgpt_pdf": ("ChatGPT_logs.pdf",
+                    "0a5d29e30802270af6a7ff02b692e2bf26e808a5102c6b787adf1ee36a3ca194"),
+    "notebooklm_report": ("notebooklm/notebooklm_report_v2_2026-10-19.docx",
+                          "77b8f7e7841418e3187a76bede66b63ca0a284d4e91b6e317f9728feb47e4a96"),
+    "notebooklm_sources": ("notebooklm/sources.md",
+                           "141c211b8993e889b171eb34ecc524c85c44fe83aef962ad64a4a5cb557f5e2b"),
+}
+# Sections written from that material by Claude Code (#66); untracked like the material itself.
+DERIVED = {"gpt": "derived/gpt_assist.md", "notebooklm": "derived/notebooklm_summary.md",
+           "notebooklm_trace": "derived/notebooklm_trace.md"}
+EVIDENCE_NEEDS = {"gpt": ("chatgpt_pdf",), "notebooklm": ("notebooklm_report", "notebooklm_sources"),
+                  "chatgpt_pdf": ("chatgpt_pdf",)}
+NOTEBOOKLM_MIN_HANZI = 100        # assignment page "100 字以上", counted as Han characters (DA B-15)
+_HAN = re.compile("[㐀-䶿一-鿿豈-﫿\U00020000-\U0002ebef\U00030000-\U0003134f]")
+_COMMENT = re.compile(r"<!--.*?-->", re.S)
+_SENTENCE = re.compile(r"[^。！？\n]+[。！？]")
+REPORT_STATUS = {
+    "final": "**報告狀態：final。** 本報告的數字、表格與分析圖都在建置時（`python -m hw2.report`）"
+             "從主程式 `hw2.ipynb` 匯出的結果（`results/model_data.json`、`results/tables/`、"
+             "`results/figures/`）注入，沒有手抄數字。「GPT 輔助內容」的 ChatGPT 部分、「NotebookLM "
+             "摘要」與附錄 B 的 ChatGPT 對話 PDF 取自作者本人提供的原始材料（材料不進 git）。",
+    "draft": "**報告狀態：draft。** 本報告的數字、表格與分析圖都在建置時（`python -m hw2.report`）"
+             "從主程式 `hw2.ipynb` 匯出的結果（`results/model_data.json`、`results/tables/`、"
+             "`results/figures/`）注入，沒有手抄數字。「GPT 輔助內容」的 ChatGPT 部分、「NotebookLM "
+             "摘要」與附錄 B 的 ChatGPT 對話 PDF 必須由作者本人提供原始材料；尚未提供的部分以【待填】"
+             "標示，尚未撰寫。",
+}
 
 _PLACEHOLDER = re.compile(r"\{\{([^{}]+)\}\}")
 _IMAGE = re.compile(r"!\[([^\]]*)\]\((fig|shot):([^)\s]+)\)")
@@ -433,6 +480,185 @@ def check_claims(md: dict, tables: dict[str, list[dict]]) -> None:
         raise ReportError("the template's statements no longer match the results: " + "; ".join(problems))
 
 
+# --- the author's material and the sections written from it (#66) -----------------------------
+
+def count_hanzi(text: str) -> int:
+    """Han characters only: punctuation, spaces, Latin letters and digits do not count (DA B-15)."""
+    return len(_HAN.findall(text))
+
+
+def sha256_hex(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+@dataclass
+class Evidence:
+    """Report sections built from the author's material; a key missing from ``blocks`` is pending."""
+    blocks: dict[str, str] = field(default_factory=dict)
+    info: dict = field(default_factory=dict)
+    chatgpt_pdf: bytes | None = None
+
+
+def _read_materials(root: Path, pins: dict) -> dict[str, bytes]:
+    """The material files that exist, by key; one whose sha256 differs from its receipt stops."""
+    found = {}
+    for key, (rel, expected) in pins.items():
+        path = root / rel
+        if not path.is_file():
+            continue
+        data = path.read_bytes()
+        actual = sha256_hex(data)
+        if actual != expected:
+            raise ReportError(f"acceptor material {rel}: sha256 {actual} differs from the recorded receipt "
+                              f"{expected} (stop and route to the acceptor)")
+        found[key] = data
+    return found
+
+
+def _read_derived(path: Path) -> str | None:
+    """A section written from the material, without its provenance comment; None when absent."""
+    if not path.is_file():
+        return None
+    text = _COMMENT.sub("", path.read_text(encoding="utf-8")).strip()
+    return text or None
+
+
+def parse_notebooklm_summary(text: str) -> tuple[str, list[int], str]:
+    """(report title, numbers of the sources the NotebookLM report cites, summary body)."""
+    lines = text.splitlines()
+    meta = {}
+    while lines and re.match(r"^(title|cited-sources):", lines[0]):
+        key, value = lines.pop(0).split(":", 1)
+        meta[key] = value.strip()
+    if not meta.get("title") or not meta.get("cited-sources"):
+        raise ReportError("NotebookLM summary: the title and cited-sources lines are required")
+    body = "\n".join(lines).strip()
+    if not body:
+        raise ReportError("NotebookLM summary: empty body")
+    return meta["title"], [int(n) for n in meta["cited-sources"].split()], body
+
+
+def summary_sentences(body: str) -> list[str]:
+    """The sentences of the summary body; text that is not inside a complete sentence is an error."""
+    sentences = [s.strip() for s in _SENTENCE.findall(body)]
+    if re.sub(r"\s", "", "".join(sentences)) != re.sub(r"\s", "", body):
+        raise ReportError("NotebookLM summary: text outside complete sentences (。！？)")
+    return sentences
+
+
+def check_notebooklm_trace(sentences: list[str], trace_text: str) -> int:
+    """Every summary sentence appears, in order, in the trace table with a report location, the
+    quoted basis and its source numbers (H-4, A-5). Returns the number of traced sentences."""
+    rows = []
+    for line in _COMMENT.sub("", trace_text).splitlines():
+        m = re.match(r"^\| (N\d+) \| (.*) \|$", line.strip())
+        if not m:
+            continue
+        cells = [c.strip() for c in m.group(2).split(" | ")]
+        if len(cells) != 4:
+            raise ReportError(f"NotebookLM trace row {m.group(1)}: expected 5 cells")
+        rows.append((m.group(1), *cells))
+    traced = [r[1] for r in rows]
+    if traced != sentences:
+        missing = [n for n, s in enumerate(sentences, 1) if s not in traced]
+        extra = [r[0] for r in rows if r[1] not in sentences]
+        raise ReportError("NotebookLM summary and trace differ: sentences not traced "
+                          f"{missing}, trace rows without a summary sentence {extra}, or order")
+    empty = [r[0] for r in rows if not (r[2] and r[3] and r[4])]
+    if empty:
+        raise ReportError(f"NotebookLM trace rows without location, basis or source: {empty}")
+    return len(rows)
+
+
+def parse_sources(text: str) -> list[tuple[int, str, str]]:
+    """(number, title and authors, URL) of every row of the author's NotebookLM source list."""
+    rows = []
+    for line in text.splitlines():
+        m = re.match(r"^\|\s*(\d+)\s*\|(.*)\|\s*$", line)
+        if not m:
+            continue
+        cells = [c.strip() for c in m.group(2).split("|")]
+        if len(cells) != 3 or not cells[2].startswith("https://"):
+            raise ReportError(f"NotebookLM sources: malformed row {m.group(1)}")
+        rows.append((int(m.group(1)), cells[1], cells[2]))
+    if [r[0] for r in rows] != list(range(1, len(rows) + 1)):
+        raise ReportError("NotebookLM sources: rows must be numbered 1..n")
+    return rows
+
+
+def _notebooklm_block(summary_text: str, trace_text: str, sources_text: str) -> tuple[str, dict]:
+    title, cited, body = parse_notebooklm_summary(summary_text)
+    sentences = summary_sentences(body)
+    n_traced = check_notebooklm_trace(sentences, trace_text)
+    hanzi = count_hanzi(body)
+    if hanzi < NOTEBOOKLM_MIN_HANZI:
+        raise ReportError(f"NotebookLM summary: {hanzi} Han characters (at least {NOTEBOOKLM_MIN_HANZI})")
+    sources = parse_sources(sources_text)
+    if not cited or any(n not in {s[0] for s in sources} for n in cited):
+        raise ReportError("NotebookLM summary: cited-sources must be numbers of the source list")
+    table = md_table(["#", "標題（作者）", "網址", "報告引用"],
+                     [[str(n), t, f"<{u}>", "是" if n in cited else "—"] for n, t, u in sources])
+    block = (f"**依 NotebookLM 研究整理。** 作者以 NotebookLM 研究網路上同主題的解法：筆記本收錄 "
+             f"{len(sources)} 個來源（列於本節最後），NotebookLM 依此產生研究報告〈{title}〉，"
+             f"該報告的文獻清單引用其中 {len(cited)} 個。以下摘要由 Claude Code 依該報告整理，只整理與"
+             f"摘要，不新增該報告沒有的論點、數字或來源；摘要本文的漢字數為 {hanzi} 字（不含標點、空白、"
+             f"拉丁字母與數字）。\n\n{body}\n\n**NotebookLM 筆記本的來源**（作者提供的來源清單；"
+             f"「報告引用」標示該報告文獻清單引用的來源）：\n\n{table}")
+    return block, {"notebooklm_hanzi": hanzi, "notebooklm_sentences": n_traced,
+                   "notebooklm_sources": len(sources), "notebooklm_cited": cited}
+
+
+def _pdf_date(value: str) -> str:
+    m = re.match(r"D:(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(?:([+-])(\d{2})'?(\d{2}))?", value)
+    if not m:
+        return value
+    date = f"{m.group(1)}-{m.group(2)}-{m.group(3)} {m.group(4)}:{m.group(5)}:{m.group(6)}"
+    return date + (f" {m.group(7)}{m.group(8)}:{m.group(9)}" if m.group(7) else "")
+
+
+def _chatgpt_block(data: bytes, name: str) -> tuple[str, dict]:
+    pages = pdf_append.page_count(data)
+    meta = pdf_append.document_info(data)
+    lines = [f"- 檔案：`{name}`（{len(data):,} bytes，{pages} 頁）",
+             f"- sha256：`{sha256_hex(data)}`（與收件紀錄相同）"]
+    if meta.get("CreationDate") or meta.get("Producer"):
+        lines.append(f"- PDF 建立時間：{_pdf_date(meta.get('CreationDate', '—'))}；"
+                     f"產生方式（PDF Producer）：{meta.get('Producer', '—')}")
+    block = (f"以下 {pages} 頁是作者本人與 ChatGPT 的對話匯出 PDF，原樣附於本報告的最後：沒有修改、"
+             "刪減或重新排版，頁面上的頁首、頁尾與頁碼都是原 PDF 的內容。這段對話的用途見第十章。\n\n"
+             + "\n".join(lines))
+    return block, {"chatgpt_pdf_pages": pages, "chatgpt_pdf_sha256": sha256_hex(data)}
+
+
+def load_evidence(materials_dir: Path = ACCEPTOR_MATERIALS_DIR, pins: dict = ACCEPTOR_MATERIALS) -> Evidence:
+    """The report sections whose material is present under ``materials_dir`` (untracked)."""
+    root = Path(materials_dir)
+    found = _read_materials(root, pins)
+    ev = Evidence()
+
+    def have(key):
+        return all(k in found for k in EVIDENCE_NEEDS[key])
+
+    if have("gpt"):
+        text = _read_derived(root / DERIVED["gpt"])
+        if text:
+            ev.blocks["gpt"] = text
+    if have("notebooklm"):
+        summary = _read_derived(root / DERIVED["notebooklm"])
+        trace_path = root / DERIVED["notebooklm_trace"]
+        if summary and trace_path.is_file():
+            block, info = _notebooklm_block(summary, trace_path.read_text(encoding="utf-8"),
+                                            found["notebooklm_sources"].decode("utf-8"))
+            ev.blocks["notebooklm"] = block
+            ev.info.update(info)
+    if have("chatgpt_pdf"):
+        block, info = _chatgpt_block(found["chatgpt_pdf"], Path(pins["chatgpt_pdf"][0]).name)
+        ev.blocks["chatgpt_pdf"] = block
+        ev.info.update(info)
+        ev.chatgpt_pdf = found["chatgpt_pdf"]
+    return ev
+
+
 # --- tables -----------------------------------------------------------------------------------
 
 def build_tables(md: dict, tables: dict[str, list[dict]]) -> dict[str, str]:
@@ -647,16 +873,20 @@ def pending_block(key: str) -> str:
 
 
 def render_markdown(md: dict | None = None, tables: dict | None = None, template: str | None = None,
-                    check: bool = True) -> tuple[str, dict]:
-    """Return (resolved Markdown, info) where info lists used placeholders, figures, shots, pending."""
+                    check: bool = True, evidence: Evidence | None = None) -> tuple[str, dict]:
+    """Return (resolved Markdown, info) where info lists used placeholders, figures, shots, pending
+    and the evidence sections built from the author's material."""
     md = load_model_data() if md is None else md
     tables = load_tables() if tables is None else tables
     template = TEMPLATE.read_text(encoding="utf-8") if template is None else template
+    evidence = load_evidence() if evidence is None else evidence
     if check:
         check_formal_evaluation(md)
         check_claims(md, tables)
     ctx, tabs = build_context(md, tables), build_tables(md, tables)
-    info = {"values": set(), "tables": set(), "quotes": [], "pending": [], "figures": [], "shots": []}
+    info = {"values": set(), "tables": set(), "quotes": [], "pending": [], "figures": [], "shots": [],
+            "evidence": []}
+    status = "final" if all(k in evidence.blocks for k in PENDING) else "draft"
 
     def sub(m):
         token = m.group(1).strip()
@@ -669,10 +899,15 @@ def render_markdown(md: dict | None = None, tables: dict | None = None, template
         if token.startswith("quote:"):
             info["quotes"].append(token[6:])
             return requirement_quote(token[6:])
-        if token.startswith("pending:"):
-            key = token[8:]
+        if token.startswith("evidence:"):
+            key = token[9:]
+            if key == "status":
+                return REPORT_STATUS[status]
             if key not in PENDING:
-                raise ReportError(f"unknown pending slot {key!r}")
+                raise ReportError(f"unknown evidence section {key!r}")
+            if key in evidence.blocks:
+                info["evidence"].append(key)
+                return evidence.blocks[key]
             info["pending"].append(key)
             return pending_block(key)
         if token not in ctx:
@@ -862,10 +1097,12 @@ def run_capture(mode: str, browser: str, *args: str) -> dict:
 
 # --- build ------------------------------------------------------------------------------------
 
-def build(out_dir: Path = BUILD_DIR, pdf: bool = True, final: bool = False) -> dict:
-    text, info = render_markdown()
+def build(out_dir: Path = BUILD_DIR, pdf: bool = True, final: bool = False,
+          evidence: Evidence | None = None) -> dict:
+    evidence = load_evidence() if evidence is None else evidence
+    text, info = render_markdown(evidence=evidence)
     if final and info["pending"]:
-        raise ReportError("pending acceptor-material slots: " + ", ".join(info["pending"]))
+        raise ReportError("pending acceptor-material sections: " + ", ".join(info["pending"]))
     out_dir = Path(out_dir)
     (out_dir / "figures").mkdir(parents=True, exist_ok=True)
     (out_dir / "shots").mkdir(parents=True, exist_ok=True)
@@ -878,6 +1115,7 @@ def build(out_dir: Path = BUILD_DIR, pdf: bool = True, final: bool = False) -> d
     html_path = out_dir / "hw2_report.html"
     html_path.write_text(html_text, encoding="utf-8")
     result = {"markdown": str(out_dir / "hw2_report.md"), "html": str(html_path), "pending": info["pending"],
+              "evidence": info["evidence"], **evidence.info,
               "figures": info["figures"], "shots": info["shots"], "pdf": None}
     if pdf:
         browser = find_browser()
@@ -893,7 +1131,26 @@ def build(out_dir: Path = BUILD_DIR, pdf: bool = True, final: bool = False) -> d
                       first_draw_ms=shots.get("first_draw_ms"))
         if result["external_requests"]:
             raise ReportError(f"non-file requests during the build: {result['external_requests']}")
+        if evidence.chatgpt_pdf is not None:
+            result.update(attach_chatgpt_appendix(Path(printed["pdf"]), evidence.chatgpt_pdf))
     return result
+
+
+def attach_chatgpt_appendix(pdf_path: Path, chatgpt_pdf: bytes) -> dict:
+    """Appendix B: append the pages of the author's ChatGPT PDF, unchanged, after the report pages."""
+    report_pdf = Path(pdf_path).read_bytes()
+    try:
+        merged = pdf_append.append_pages(report_pdf, chatgpt_pdf)
+        n_report = pdf_append.page_count(report_pdf)
+        n_appendix = pdf_append.page_count(chatgpt_pdf)
+        n_total = pdf_append.page_count(merged)
+    except pdf_append.PdfError as exc:
+        raise ReportError(f"cannot append the ChatGPT PDF: {exc}") from exc
+    if n_total != n_report + n_appendix:
+        raise ReportError(f"appending the ChatGPT PDF gave {n_total} pages, not {n_report} + {n_appendix}")
+    Path(pdf_path).write_bytes(merged)
+    return {"report_pages": n_report, "appendix_pages": n_appendix, "pdf_pages": n_total,
+            "pdf_sha256": sha256_hex(merged)}
 
 
 def main(argv=None) -> int:

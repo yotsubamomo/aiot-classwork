@@ -26,6 +26,9 @@ The notebook ``hw2.ipynb`` is the main program; it calls the public functions of
 - ``prediction_plot``: the actual vs predicted figure with every test row's 95% PI, drawn from the
   exported results only.
 - ``report``: the report build (``report/report.md`` -> Markdown, HTML, PDF) with every number
-  injected from the exported results.
+  injected from the exported results and the AI-evidence sections built from the author's untracked
+  material.
+- ``pdf_append``: appending the pages of one PDF after another unchanged (the report's ChatGPT
+  conversation appendix).
 - ``local_config``: reading the untracked packaging configuration (student id).
 """

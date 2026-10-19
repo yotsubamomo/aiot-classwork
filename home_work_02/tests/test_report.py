@@ -1,10 +1,14 @@
-"""Report draft, unit README and ACCEPTANCE.md (#65).
+"""Report, unit README and ACCEPTANCE.md (#65), and the sections built from the author's material (#66).
 
 Single source of numbers: the report template holds no hand-typed result number, every placeholder
 resolves from the tracked exported results, every analysis figure is a file of results/figures/,
 and every number of the README's results section equals the exported value. The checks read only
 tracked exports (model_data.json and the result CSVs); nothing here fits or scores a model, and no
-official test row is loaded."""
+official test row is loaded.
+
+The author's material (ChatGPT PDF, NotebookLM output and sources) is never tracked; the tests of
+the evidence sections use synthetic material written to a temporary directory, so they do not
+depend on whether the real material is present on this machine (one test checks it when it is)."""
 import copy
 import json
 import re
@@ -32,9 +36,12 @@ def tables():
     return report.load_tables()
 
 
+NO_EVIDENCE = report.Evidence()          # the author's material is absent: every evidence section pending
+
+
 @pytest.fixture(scope="module")
 def rendered(md, tables):
-    return report.render_markdown(md, tables)
+    return report.render_markdown(md, tables, evidence=NO_EVIDENCE)
 
 
 def _prose(text: str) -> str:
@@ -84,8 +91,9 @@ def test_pending_slots_are_marked_and_hold_no_example_text(rendered, tmp_path):
     assert [k for k, _ in blocks] == ["gpt", "notebooklm", "chatgpt_pdf"]
     for _, body in blocks:
         assert "【待填" in body and "尚未" in body and "沒有任何" in body
+    assert "**報告狀態：draft。**" in text and "**報告狀態：final。**" not in text
     with pytest.raises(report.ReportError):
-        report.build(out_dir=tmp_path, pdf=False, final=True)
+        report.build(out_dir=tmp_path, pdf=False, final=True, evidence=NO_EVIDENCE)
 
 
 def test_key_values_equal_the_exported_results(rendered, md):
@@ -149,22 +157,22 @@ def test_build_refuses_results_that_are_not_the_formal_evaluation(md, tables):
     key = md["winners"]["overall"]["test_model_key"]
     tampered["test"][key]["rmse"] += 1.0
     with pytest.raises(report.ReportError, match="formal evaluation"):
-        report.render_markdown(tampered, tables)
+        report.render_markdown(tampered, tables, evidence=NO_EVIDENCE)
     fixture = copy.deepcopy(md)
     fixture["meta"]["fixture"] = True
     with pytest.raises(report.ReportError):
-        report.render_markdown(fixture, tables)
+        report.render_markdown(fixture, tables, evidence=NO_EVIDENCE)
 
 
 def test_build_refuses_when_a_qualitative_statement_no_longer_holds(md, tables):
     t = copy.deepcopy(tables)
     t["permutation_importance_training"] = list(reversed(t["permutation_importance_training"]))
     with pytest.raises(report.ReportError, match="permutation"):
-        report.render_markdown(md, t)
+        report.render_markdown(md, t, evidence=NO_EVIDENCE)
     m = copy.deepcopy(md)
     m["baselines"]["ridge"]["alpha_at_grid_edge"] = None
     with pytest.raises(report.ReportError, match="grid edge"):
-        report.render_markdown(m, tables)
+        report.render_markdown(m, tables, evidence=NO_EVIDENCE)
 
 
 def test_external_sources_are_complete_and_cited():
@@ -327,3 +335,189 @@ def test_readme_does_not_present_the_method_comparison_as_a_requirement():
     purpose = README.split("## 目的", 1)[1].split("\n## ", 1)[0]
     assert "依作業要求比較" not in purpose
     assert "依作業要求執行特徵選擇" in purpose and "補充" in purpose
+
+
+# --- sections built from the author's material (#66; Brief §9; DA B-15; H-1, H-2, H-4) ----------
+
+SYNTHETIC_SENTENCES = [
+    "這是自動化測試使用的合成摘要第一句，內容只用來檢查報告建置的行為，不是任何真實研究的結論。",
+    "第二句同樣是合成文字，用來確認每一句摘要都能在對照表中找到對應的位置與來源編號。",
+    "第三句說明合成材料只寫在暫存目錄中，測試不讀取作者本人的對話紀錄或研究材料。",
+    "第四句讓摘要的漢字數超過作業要求的一百字下限，並且以句號結尾。",
+]
+
+
+def _synthetic_pdf(n_pages: int) -> bytes:
+    from test_pdf_append import make_pdf
+    return make_pdf(n_pages, "synthetic chat")
+
+
+def _write_material(root, *, sentences=SYNTHETIC_SENTENCES, traced=None, sources_ok=True,
+                    parts=("chatgpt_pdf", "notebooklm_report", "notebooklm_sources", "gpt", "notebooklm")):
+    """Synthetic material under root (a temporary directory) and the pins for its sha256."""
+    files = {
+        "chatgpt_pdf": _synthetic_pdf(3),
+        "notebooklm_report": b"synthetic NotebookLM report (stands in for the .docx)",
+        "notebooklm_sources": ("〔轉錄說明〕合成的來源清單。\n\n| # | 類型 | 標題（作者） | 網址 |\n| --- | --- | --- | --- |\n"
+                               "| 1 | 網頁 | 合成來源一（作者甲） | https://example.org/one |\n"
+                               "| 2 | 網頁 | 合成來源二（作者乙） | "
+                               + ("https://example.org/two" if sources_ok else "not-a-url") + " |\n").encode("utf-8"),
+    }
+    pins = {}
+    for key, (rel, _) in report.ACCEPTOR_MATERIALS.items():
+        pins[key] = (rel, report.sha256_hex(files[key]))
+        if key in parts:
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_bytes(files[key])
+    (root / "derived").mkdir(parents=True, exist_ok=True)
+    if "gpt" in parts:
+        (root / report.DERIVED["gpt"]).write_text(
+            "<!-- provenance comment, not rendered -->\n合成的 ChatGPT 用途說明（測試用）。\n", encoding="utf-8")
+    if "notebooklm" in parts:
+        body = "\n\n".join(sentences)
+        (root / report.DERIVED["notebooklm"]).write_text(
+            f"<!-- provenance -->\ntitle: 合成研究報告\ncited-sources: 1\n\n{body}\n", encoding="utf-8")
+        rows = "\n".join(f"| N{i:02d} | {s} | §{i}（合成） | 「合成依據」 | #1 |"
+                         for i, s in enumerate(sentences if traced is None else traced, 1))
+        (root / report.DERIVED["notebooklm_trace"]).write_text(
+            "<!-- trace -->\n\n| 句 | 摘要句 | 位置 | 依據 | 來源清單 |\n| --- | --- | --- | --- | --- |\n" + rows + "\n",
+            encoding="utf-8")
+    return pins
+
+
+def test_count_hanzi_counts_han_characters_only():
+    assert report.count_hanzi("漢字 abc 123，。、！？「」（）—…ＡＢ１") == 2
+    assert report.count_hanzi("".join(SYNTHETIC_SENTENCES)) >= report.NOTEBOOKLM_MIN_HANZI
+
+
+def test_evidence_sections_are_built_from_the_material(tmp_path, md, tables):
+    pins = _write_material(tmp_path)
+    ev = report.load_evidence(tmp_path, pins)
+    text, info = report.render_markdown(md, tables, evidence=ev)
+    assert info["pending"] == [] and info["evidence"] == ["gpt", "notebooklm", "chatgpt_pdf"]
+    assert "**報告狀態：final。**" in text and "【待填" not in text
+    _, gpt = _section(text, "10. GPT 輔助內容")
+    assert "合成的 ChatGPT 用途說明（測試用）。" in gpt and "provenance" not in text
+    assert "### 10.1 ChatGPT" in gpt and "### 10.2 Claude Code" in gpt
+    _, nlm = _section(text, "11. NotebookLM 摘要")
+    body = "\n\n".join(SYNTHETIC_SENTENCES)
+    assert "**依 NotebookLM 研究整理。**" in nlm and body in nlm
+    assert f"摘要本文的漢字數為 {report.count_hanzi(body)} 字" in nlm
+    assert ev.info["notebooklm_sentences"] == len(SYNTHETIC_SENTENCES)
+    assert "| 1 | 合成來源一（作者甲） | <https://example.org/one> | 是 |" in nlm
+    assert "| 2 | 合成來源二（作者乙） | <https://example.org/two> | — |" in nlm
+    _, appendix = _section(text, "附錄 B：ChatGPT 對話 PDF")
+    assert pins["chatgpt_pdf"][1] in appendix and "以下 3 頁" in appendix and "原樣附於本報告的最後" in appendix
+    assert ev.chatgpt_pdf is not None and ev.info["chatgpt_pdf_pages"] == 3
+    result = report.build(out_dir=tmp_path / "out", pdf=False, final=True, evidence=ev)
+    assert result["pending"] == [] and result["notebooklm_hanzi"] >= report.NOTEBOOKLM_MIN_HANZI
+
+
+def test_appendix_b_is_the_last_section_so_the_pdf_pages_follow_it(rendered):
+    text, _ = rendered
+    headings = re.findall(r"^## (.+)$", text, re.M)
+    assert headings[-2].startswith("附錄 A：重現資訊") and headings[-1].startswith("附錄 B：ChatGPT 對話 PDF")
+
+
+def test_a_material_file_that_differs_from_its_receipt_stops_the_build(tmp_path):
+    pins = _write_material(tmp_path)
+    pins["notebooklm_sources"] = (pins["notebooklm_sources"][0], "0" * 64)
+    with pytest.raises(report.ReportError, match="recorded receipt"):
+        report.load_evidence(tmp_path, pins)
+
+
+def test_missing_material_stops_only_its_own_section(tmp_path, md, tables):
+    no_nlm = tmp_path / "a"
+    pins = _write_material(no_nlm, parts=("chatgpt_pdf", "gpt"))
+    _, info = report.render_markdown(md, tables, evidence=report.load_evidence(no_nlm, pins))
+    assert info["pending"] == ["notebooklm"] and info["evidence"] == ["gpt", "chatgpt_pdf"]
+    no_pdf = tmp_path / "b"
+    pins = _write_material(no_pdf, parts=("notebooklm_report", "notebooklm_sources", "gpt", "notebooklm"))
+    ev = report.load_evidence(no_pdf, pins)
+    _, info = report.render_markdown(md, tables, evidence=ev)
+    assert info["pending"] == ["gpt", "chatgpt_pdf"] and info["evidence"] == ["notebooklm"]
+    assert ev.chatgpt_pdf is None
+    no_summary = tmp_path / "c"
+    pins = _write_material(no_summary, parts=("chatgpt_pdf", "notebooklm_report", "notebooklm_sources", "gpt"))
+    _, info = report.render_markdown(md, tables, evidence=report.load_evidence(no_summary, pins))
+    assert info["pending"] == ["notebooklm"]
+
+
+def test_every_summary_sentence_must_be_traced_in_order(tmp_path):
+    pins = _write_material(tmp_path / "a", traced=SYNTHETIC_SENTENCES[:-1])
+    with pytest.raises(report.ReportError, match="not traced"):
+        report.load_evidence(tmp_path / "a", pins)
+    pins = _write_material(tmp_path / "b", traced=list(reversed(SYNTHETIC_SENTENCES)))
+    with pytest.raises(report.ReportError, match="differ"):
+        report.load_evidence(tmp_path / "b", pins)
+    pins = _write_material(tmp_path / "c", sentences=SYNTHETIC_SENTENCES[:2] + ["沒有句號結尾的殘句"],
+                           traced=SYNTHETIC_SENTENCES[:2])
+    with pytest.raises(report.ReportError, match="outside complete sentences"):
+        report.load_evidence(tmp_path / "c", pins)
+
+
+def test_a_summary_below_one_hundred_han_characters_stops_the_build(tmp_path):
+    short = ["只有幾個字的摘要。"]
+    pins = _write_material(tmp_path, sentences=short, traced=short)
+    with pytest.raises(report.ReportError, match="Han characters"):
+        report.load_evidence(tmp_path, pins)
+
+
+def test_a_trace_row_without_location_or_source_stops_the_build(tmp_path):
+    pins = _write_material(tmp_path)
+    trace = tmp_path / report.DERIVED["notebooklm_trace"]
+    trace.write_text(trace.read_text(encoding="utf-8").replace("| #1 |", "|  |", 1), encoding="utf-8")
+    with pytest.raises(report.ReportError, match="without location"):
+        report.load_evidence(tmp_path, pins)
+
+
+def test_a_malformed_source_list_stops_the_build(tmp_path):
+    pins = _write_material(tmp_path, sources_ok=False)
+    with pytest.raises(report.ReportError, match="sources"):
+        report.load_evidence(tmp_path, pins)
+
+
+def test_the_author_material_on_this_machine_when_present():
+    """The real material is untracked; this runs only where the author has placed it (H-1)."""
+    root = report.ACCEPTOR_MATERIALS_DIR
+    if not all((root / rel).is_file() for rel, _ in report.ACCEPTOR_MATERIALS.values()):
+        pytest.skip("the author's material is not on this machine (untracked, Brief §9)")
+    ev = report.load_evidence()
+    assert sorted(ev.blocks) == ["chatgpt_pdf", "gpt", "notebooklm"]
+    assert ev.info["notebooklm_hanzi"] >= report.NOTEBOOKLM_MIN_HANZI
+    assert ev.info["chatgpt_pdf_sha256"] == report.ACCEPTOR_MATERIALS["chatgpt_pdf"][1]
+
+
+def test_the_summary_threshold_is_one_hundred_han_characters(tmp_path):
+    at_limit = ["字" * 99 + "。"]
+    pins = _write_material(tmp_path / "a", sentences=at_limit, traced=at_limit)
+    with pytest.raises(report.ReportError, match="99 Han characters"):
+        report.load_evidence(tmp_path / "a", pins)
+    enough = ["字" * 100 + "abc 123。"]
+    pins = _write_material(tmp_path / "b", sentences=enough, traced=enough)
+    assert report.load_evidence(tmp_path / "b", pins).info["notebooklm_hanzi"] == 100
+
+
+def test_the_appendix_pages_follow_the_report_pages_unchanged(tmp_path):
+    from test_pdf_append import _content, _pages_in_order, make_pdf
+    pdf_path = tmp_path / "hw2_report.pdf"
+    pdf_path.write_bytes(make_pdf(2, "report"))
+    chat = make_pdf(3, "chat")
+    result = report.attach_chatgpt_appendix(pdf_path, chat)
+    assert (result["report_pages"], result["appendix_pages"], result["pdf_pages"]) == (2, 3, 5)
+    merged = pdf_path.read_bytes()
+    assert result["pdf_sha256"] == report.sha256_hex(merged)
+    pages = _pages_in_order(merged)
+    assert [_content(merged, n) for n in pages[2:]] == [_content(chat, n) for n in _pages_in_order(chat)]
+    pdf_path.write_bytes(make_pdf(1, "report"))
+    with pytest.raises(report.ReportError, match="cannot append"):
+        report.attach_chatgpt_appendix(pdf_path, b"%PDF-1.4 broken")
+
+
+def test_a_page_count_mismatch_after_appending_stops_the_build(tmp_path, monkeypatch):
+    from test_pdf_append import make_pdf
+    pdf_path = tmp_path / "hw2_report.pdf"
+    pdf_path.write_bytes(make_pdf(2, "report"))
+    monkeypatch.setattr(report.pdf_append, "append_pages", lambda base, extra: base)
+    with pytest.raises(report.ReportError, match="pages"):
+        report.attach_chatgpt_appendix(pdf_path, make_pdf(3, "chat"))

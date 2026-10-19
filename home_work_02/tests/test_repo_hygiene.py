@@ -40,6 +40,7 @@ def test_no_forbidden_files_are_tracked():
     ".local/packaging.json",
     "acceptor_materials/chatgpt.pdf",
     "acceptor_materials/notebooklm/sources.txt",
+    "acceptor_materials/derived/notebooklm_summary.md",
     "dist/hw2.zip",
     "dist/report.pdf",
     ".venv/Scripts/python.exe",

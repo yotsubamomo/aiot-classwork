@@ -1,6 +1,6 @@
 # HW2：King County 房價多元線性回歸分析報告
 
-> **報告狀態：draft。** 本報告的數字、表格與分析圖都在建置時（`python -m hw2.report`）從主程式 `hw2.ipynb` 匯出的結果（`results/model_data.json`、`results/tables/`、`results/figures/`）注入，沒有手抄數字。「GPT 輔助內容」「NotebookLM 摘要」與附錄的 ChatGPT 對話 PDF 必須由作者本人提供原始材料，目前以【待填】標示，尚未撰寫。
+> {{evidence:status}}
 
 ## 標示說明與對照表
 
@@ -313,17 +313,29 @@ Ridge 與 Lasso 的 Test 指標（metric-only，只出現在比較表）：
 
 > {{quote:src1:請在報告中明確標示}}
 
-{{pending:gpt}}
+本章揭露 ChatGPT 與 Claude Code 在本專案中各自的用途；NotebookLM 的使用見第十一章。
+
+### 10.1 ChatGPT
+
+{{evidence:gpt}}
+
+### 10.2 Claude Code
+
+Claude Code（Anthropic 的 AI 程式開發工具）在本專案做了下列工作；過程、決定與審查紀錄都在 repo 的 `home_work_02/doc/`。
+
+- **需求與設計文件**：以 MATT 工作流程釐清需求（Grill，由 Claude Code 提出問題與建議選項），撰寫 Brief 與 `CONTEXT.md`；以 `/to-spec` 產生 Spec 並依審查意見修正；以 `/ui-ux-pro-max` 產生 dashboard 的 wireframe；以 `/to-tickets` 拆成 GitHub Issues 上的實作票。
+- **治理角色**：Design Authority、Orchestrator、Executor 與獨立 Reviewer 由不同的 Claude Code session 或 subagent 擔任，紀錄在 `doc/governance/`。
+- **實作**：主程式 `hw2.ipynb`、分析套件 `hw2/`、互動 dashboard（`index.html`、`assets/`）、Python 與 JavaScript 測試、報告建置程式、單元 `README.md` 與驗收清單。
+- **本報告**：除了老師原文的引用，報告的文字由 Claude Code 撰寫；本專案的數字、表與圖由建置程式從主程式的匯出結果注入。第八章的公開解法由 Claude Code 開啟原文逐一核對。第 10.1 節與第十一章的摘要，是 Claude Code 依作者提供的材料整理，不新增材料沒有的內容。
+- **沒有做的事**：Claude Code 沒有產生、改寫或替代作者與 ChatGPT 的對話或 NotebookLM 的輸出；附錄 B 是作者提供的對話 PDF 原頁。
 
 ## 11. NotebookLM 摘要 〔老師要求〕
 
-{{pending:notebooklm}}
+> {{quote:src1:請使用 NotebookLM}}
 
-## 附錄 A：ChatGPT 對話 PDF 〔老師要求〕
+{{evidence:notebooklm}}
 
-{{pending:chatgpt_pdf}}
-
-## 附錄 B：重現資訊
+## 附錄 A：重現資訊
 
 - 主程式：`hw2.ipynb`（CRISP-DM 六章）；分析套件 `hw2/`；鎖定版本的 `requirements.txt`；重跑步驟見單元 `README.md`。
 - seed {{seed}}；資料 sha256 {{csv_sha256}}。
@@ -331,3 +343,9 @@ Ridge 與 Lasso 的 Test 指標（metric-only，只出現在比較表）：
 - 套件版本：
 
 {{table:versions}}
+
+## 附錄 B：ChatGPT 對話 PDF 〔老師要求〕
+
+> {{quote:src1:所有與 ChatGPT 的對話}}
+
+{{evidence:chatgpt_pdf}}

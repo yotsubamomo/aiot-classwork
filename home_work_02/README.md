@@ -55,7 +55,7 @@ node --test tests/js/core.test.js             # dashboard 計算的 Node 測試
 .venv/Scripts/python -m hw2.report            # 建置報告：dist/report/hw2_report.md、.html、.pdf
 ```
 
-- **報告建置**需要 Node.js 與 Chrome 或 Edge（擷取 dashboard 截圖、列印 PDF；找不到瀏覽器時以環境變數 `HW2_BROWSER` 指定執行檔）。`--no-pdf` 只產生 Markdown 與 HTML；`--final` 在 AI 證據章節仍是【待填】時失敗。建置前會核對匯出的 Test 結果就是唯一一次正式評估的結果，不符就拒絕建置。
+- **報告建置**需要 Node.js 與 Chrome 或 Edge（擷取 dashboard 截圖、列印 PDF；找不到瀏覽器時以環境變數 `HW2_BROWSER` 指定執行檔）。`--no-pdf` 只產生 Markdown 與 HTML；`--final` 在 AI 證據章節仍是【待填】時失敗。建置前會核對匯出的 Test 結果就是唯一一次正式評估的結果，不符就拒絕建置。AI 證據章節（「GPT 輔助內容」的 ChatGPT 部分、「NotebookLM 摘要」、附錄 B 的 ChatGPT 對話 PDF）在建置時讀取本機的 `acceptor_materials/`：材料的 sha256 必須與收件紀錄相同，否則拒絕建置；NotebookLM 摘要必須至少 100 個漢字，且每一句都在對照表中；PDF 版本把 ChatGPT 對話 PDF 的原頁接在報告最後。材料不存在時只有對應章節以【待填】標示，其他章節照常建置。
 - **Test 評估只有一次**：唯一一次正式 Test 評估在 notebook 第 5.4 節、全部選擇（各方法 CV winner、整體 CV winner、Ridge／Lasso 的 alpha）只用 training set 固定之後執行，執行識別 `fe76019b9af84b1e8ff46095d5ac0fb2`、Test 結果摘要（`test_inputs` 與 `test` 的 sha256）`b53ff286ae0734add8b272089aba904a1cb7f5aca444a62d356420b25dc3cfc6`；權威紀錄在 `doc/governance/worklog/issue-63.md` §5。`model_data` 的 `meta.test_evaluation` 只記錄**產生目前這份檔案的那次執行**；完整重跑 notebook 是以相同的 seed 與鎖定版本**重現**同一個評估，不是新的評估，結果必須與上述摘要完全相同（bit-exact），不一致時不得採用新數字。同一次執行內第二次評估會被拒絕。
 - 四種方法的路徑計算時間每次重跑都會量測，寫在 `model_data` 的 `meta.timing_s`（`path_<方法>`）與 `meta.path_timing_s`，notebook 第 4.2 節與報告也會列出；Ridge／Lasso、p-value backward 與 Test 評估的時間在 `meta.timing_s` 與 `meta.comparison_timing_s`。
 - 要在單元目錄**以外**產生一份使用 synthetic fixture 的 dashboard 複本（例如量測繪圖效能；不是正式結果，頁面頂端會顯示警告）：`.venv/Scripts/python -m hw2.fixture <單元以外的輸出目錄>`。
@@ -72,7 +72,7 @@ node --test tests/js/core.test.js             # dashboard 計算的 Node 測試
 | 路徑 | 內容 |
 | --- | --- |
 | `.local/packaging.json` | 打包設定（學號，見上節）。只有打包步驟讀取它 |
-| `acceptor_materials/` | ChatGPT 對話 PDF、NotebookLM 原始輸出與來源清單 |
+| `acceptor_materials/` | ChatGPT 對話 PDF、NotebookLM 原始輸出與來源清單（作者提供）；`derived/` 是 Claude Code 依這些材料整理的報告章節與 NotebookLM 摘要的對照表，同樣不進 git |
 | `dist/` | 建置與打包輸出（`dist/report/` 的報告；`<學號>_hw2.ipynb`、`<學號>_hw2.zip`） |
 | `.venv/` | 虛擬環境 |
 
