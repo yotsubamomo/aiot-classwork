@@ -33,6 +33,7 @@ aiot-classwork/
 | 目錄 | 作業 | 內容 | Live Demo |
 | --- | --- | --- | --- |
 | [`home_work_01/`](./home_work_01/) | HW10 Taiwan Weather Forecast（CWA API 天氣預測） | CWA API × JSON × Python × SQLite × Streamlit：推導六大區域一週 MinT／MaxT 存入 SQLite，Streamlit 評分應用程式提供區域選單、折線圖與表格；另部署 Flask dashboard，含 Taiwan Map 的 Now mode（CWA 測站最新觀測、縣市下鑽、雷達）與 Forecast mode（六區預報地圖）。 | [開啟](https://aiot-hw01-weather.vercel.app) |
+| [`home_work_02/`](./home_work_02/) | HW2 Multiple Linear Regression（King County 房價） | 以 Kaggle King County 房屋銷售資料依 CRISP-DM 完成多元線性回歸：Forward／Backward SFS、RFE、Lasso 路徑排序四種特徵選擇（k = 1～18），以房屋 id 分組切分與交叉驗證、Test 只評估一次、參數式 95% 預測區間；互動式 dashboard（Chart.js）。 | [開啟](https://yotsubamomo.github.io/aiot-classwork/home_work_02/) |
 
 作業說明文件放在各作業目錄的 `doc/requirement/`，其中的 PDF 未納入版本控制。
 
