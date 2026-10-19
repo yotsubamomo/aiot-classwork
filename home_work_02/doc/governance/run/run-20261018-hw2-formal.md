@@ -55,7 +55,7 @@ Acceptor（GitHub `yotsubamomo`）於 2026-10-18 在本 session 對話中指定�
 | #64 T5 | #62 | **已結案** | `worklog/issue-64.md` | `audit/issue-64-c1-r1.md` CLOSURE |
 | #65 T6 | #63、#64 | **已結案** | `worklog/issue-65.md` | `audit/issue-65-c1-r1.md` BLOCKING → `issue-65-c1-r2.md` CLOSURE |
 | #66 T7 | #65；acceptor 輸入 | **已結案** | `worklog/issue-66.md` | `audit/issue-66-c1-r1.md` CLOSURE |
-| #67 T8 | #66；學號；RB-5 | 待 #66（另缺學號設定） | — | — |
+| #67 T8 | #66；學號；RB-5 | READY → 派工 | `worklog/issue-67.md` | — |
 
 Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 結案後派。DA phase acceptance：其 closure 之後。
 
@@ -90,7 +90,7 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 
 | ID | 內容 | 狀態 |
 | --- | --- | --- |
-| S-2 | 學號設定第一次存在時，一次補齊比對（`origin/main..HEAD` 每個 commit 內容、commit messages、追蹤檔案、#59–#67 Issue 與 PR 文字） | open（`.local/packaging.json` 不存在） |
+| S-2 | 學號設定第一次存在時，一次補齊比對（`origin/main..HEAD` 每個 commit 內容、commit messages、追蹤檔案、#59–#67 Issue 與 PR 文字） | **完成**（2026-10-19，0 命中，§19） |
 | S-3 | 任何 push 前 S-2 完成且無命中；Orchestrator 機械檢查並記錄；push 授權請求須寫明學號設定需求 | open |
 | S-4 | 設定存在後的第一個 R1（或 Spec Integration Audit）自行重做比對 | open |
 | S-5 | #67 結案、Spec Integration Audit、phase acceptance、合併前已比對 | open |
@@ -235,7 +235,7 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | 前置 | 狀態 |
 | --- | --- |
 | #66 結案 | 完成（`b5f7f4a`） |
-| `home_work_02/.local/packaging.json`（學號設定，acceptor 提供） | **缺**（目錄不存在） |
+| `home_work_02/.local/packaging.json`（學號設定，acceptor 提供） | 已建立（acceptor 指示，見本節末） |
 | RB-5：root `README.md`、`CONTEXT-MAP.md` 各加一列 | **已授權**（2026-10-19，見本節末） |
 | DA `decision-20261019-cell28-glyphs.md`、`decision-20261018-issue64-notebook-rerun.md`、acceptor §14 第 3 點、#64 R1 F-1、#66 R1 F-1 | 列入 #67 bounded pack |
 
@@ -246,3 +246,5 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 - `CONTEXT-MAP.md` 表，在 HW10 列之後加一列：
   `| HW2 Multiple Linear Regression | [`home_work_02/CONTEXT.md`](./home_work_02/CONTEXT.md) | 作業 2：King County 房價多元線性回歸的分組切分、特徵選擇路徑、CV winner、一次性 Test 評估、metric-only 模型與預測區間等概念。 |`
 - **Acceptor RB-5 授權（2026-10-19，逐字）**：「RB-5 授權：root README.md 與 CONTEXT-MAP.md 依 run record §19 的擬稿各加一列，由 #67 逐字套用。」→ 範圍只限上列兩列；其他 root 檔案或文字變更不在授權內。#67 剩餘前置：`.local/packaging.json`。
+- **學號設定（2026-10-19）**：acceptor 在對話中提供學號並指示 Orchestrator 建立設定檔（原文不轉錄於此，避免學號進入追蹤檔案；指示要旨：「學號：<學號>，幫我建」）。DA `decision-20261018-issue60-a4-student-id.md` 原本規定 Agents 不得自行建立此檔或從對話取出學號；本次是 acceptor 本人提供數值並明確指示建立，屬 acceptor 對自身輸入（Brief §9）的處置，Orchestrator 依指示執行。`home_work_02/.local/packaging.json` 已建立（`{"student_id": ...}`，10 字元；`git check-ignore` 命中 `home_work_02/.gitignore:13`，未追蹤）。
+- **S-2 一次補齊比對（2026-10-19，Orchestrator 機械執行，只輸出計數）**：`origin/main..HEAD` 共 77 個 commit 的 patch 內容：0 命中；同範圍 commit messages：0 命中；`git grep` 追蹤檔案：0 命中；GitHub issues #59–#67 的標題、本文與留言：0 命中；本 branch 的 PR：無。`tests/test_repo_hygiene.py` 原本因缺設定而略過的學號測試現已執行：17 passed、0 skipped。S-3 的 push 前置條件就 HEAD `cbb895d` 而言已滿足；之後每次 push 前仍須重跑。S-4／S-5 由 #67 R1 與 Spec Integration Audit 自行重做。
