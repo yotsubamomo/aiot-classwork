@@ -170,6 +170,43 @@ def test_predict_price_flags_unseen_zipcode_and_extrapolation(run):
     assert np.isfinite(out[["predicted_price", "pi_lower", "pi_upper"]].to_numpy()).all()
 
 
+def test_predict_price_flags_values_below_the_training_minimum(run):
+    """#64 R1 F-1 (1): extrapolation below the training lower bound is flagged too (still predicted)."""
+    pipe = run["pipe"]
+    numeric = [f for f in pipe.uses_source_features
+               if pipe.input_ranges[f].get("kind") not in ("nominal", "date") and f != "yr_renovated"]
+    assert numeric, "the synthetic final model uses at least one numeric source feature"
+    base = constructed_rows(pipe)[0]
+    for name in numeric:
+        low = dict(base, **{name: pipe.input_ranges[name]["min"] - 1})
+        out = deployment.predict_price([base, low], pipe)
+        assert out["out_of_training_range"].iloc[0] == ""
+        assert name in out["out_of_training_range"].iloc[1].split(", ")
+        assert np.isfinite(out[["predicted_price", "pi_lower", "pi_upper"]].to_numpy()).all()
+
+
+def test_shared_with_lists_the_allin_baseline_when_the_overall_winner_is_that_model(run):
+    """#64 R1 F-1 (2) / DA D-2: an overall winner that is the All-in model (here RFE k = 18 with
+    every group) names All-in among the winners it shares its model with."""
+    prepared, allin = run["prepared"], run["allin"]
+    full = models.evaluate_candidate(prepared.training, "rfe", len(preprocess.FEATURE_GROUPS),
+                                     preprocess.FEATURE_GROUPS)
+    assert full.valid and full.key != allin.key
+    cands = {m: list(cs) for m, cs in run["cands"].items()}
+    cands["rfe"].append(full)
+    winners = json.loads(json.dumps(run["winners"]))
+    winners["allin"] = dict(winners.get("allin") or {}, model_key=allin.key, test_model_key=allin.key)
+    winners["method_winners"]["rfe"] = dict(winners["method_winners"]["rfe"], model_key=full.key,
+                                            k=full.k, test_model_key=allin.key)
+    winners["overall"] = {"model_key": full.key, "method": "rfe", "cv_rmse": full.cv_rmse,
+                          "test_model_key": allin.key}
+    pipe = deployment.final_model(prepared, winners, allin, cands)
+    assert pipe.model_key == full.key and pipe.test_model_key == allin.key
+    assert models.METHOD_LABELS[models.ALLIN] in pipe.shared_with
+    # the winner itself is never listed as sharing with itself
+    assert pipe.label not in pipe.shared_with
+
+
 def test_predict_price_input_forms_and_errors(run):
     pipe = run["pipe"]
     rows = constructed_rows(pipe)

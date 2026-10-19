@@ -31,4 +31,5 @@ The notebook ``hw2.ipynb`` is the main program; it calls the public functions of
 - ``pdf_append``: appending the pages of one PDF after another unchanged (the report's ChatGPT
   conversation appendix).
 - ``local_config``: reading the untracked packaging configuration (student id).
+- ``package``: the submission packaging (``<學號>_hw2.ipynb`` and ``<學號>_hw2.zip`` in ``dist/``).
 """

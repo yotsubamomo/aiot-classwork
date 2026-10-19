@@ -53,6 +53,7 @@ py -3.11 -m venv .venv
 .venv/Scripts/python -m hw2.offline_scan      # dashboard 外部資源靜態掃描
 node --test tests/js/core.test.js             # dashboard 計算的 Node 測試
 .venv/Scripts/python -m hw2.report            # 建置報告：dist/report/hw2_report.md、.html、.pdf
+.venv/Scripts/python -m hw2.package           # 打包：dist/<學號>_hw2.ipynb、dist/<學號>_hw2.zip（需要學號設定與 AI 證據材料）
 ```
 
 - **報告建置**需要 Node.js 與 Chrome 或 Edge（擷取 dashboard 截圖、列印 PDF；找不到瀏覽器時以環境變數 `HW2_BROWSER` 指定執行檔）。`--no-pdf` 只產生 Markdown 與 HTML；`--final` 在 AI 證據章節仍是【待填】時失敗。建置前會核對匯出的 Test 結果就是唯一一次正式評估的結果，不符就拒絕建置。AI 證據章節（「GPT 輔助內容」的 ChatGPT 部分、「NotebookLM 摘要」、附錄 B 的 ChatGPT 對話 PDF）在建置時讀取本機的 `acceptor_materials/`：材料的 sha256 必須與收件紀錄相同，否則拒絕建置；NotebookLM 摘要必須至少 100 個漢字，且每一句都在對照表中；PDF 版本把 ChatGPT 對話 PDF 的原頁接在報告最後。材料不存在時只有對應章節以【待填】標示，其他章節照常建置。
@@ -64,6 +65,8 @@ node --test tests/js/core.test.js             # dashboard 計算的 Node 測試
 ### 學號設定（打包用）
 
 繳交檔名 `<學號>_hw2.ipynb`、`<學號>_hw2.zip` 的學號只從本機、不進 git 的 `.local/packaging.json` 讀取，內容是 `{"student_id": "<學號>"}`（填入實際學號）。任何追蹤的檔案一律寫 `<學號>`。
+
+`python -m hw2.package` 在寫出任何檔案之前先核對：打包的追蹤檔案都已 commit；`hw2.ipynb` 是一次完整執行的結果（code cell 的執行序號依序是 1…N、沒有錯誤輸出，Test 評估那一格印出的執行識別等於 `model_data` 的 manifest），而且匯出的 Test 結果就是唯一一次正式評估；報告以 `--final` 重新建置（AI 證據章節不得是【待填】，依材料整理的章節必須是審查過的版本）。之後把 `hw2.ipynb` 原樣複製為 `dist/<學號>_hw2.ipynb`，並寫出 `dist/<學號>_hw2.zip`：ZIP 內有一個資料夾 `<學號>_hw2/`，含主程式 `<學號>_hw2.ipynb`、報告 `hw2_report.pdf`、ChatGPT 對話 PDF、`hw2/`、`requirements.txt`、`data/kc_house_data.csv`、`README.md`、`results/` 與 dashboard（`index.html`、`assets/`）。ZIP 寫出後逐一讀回核對 sha256；檔案清單與 sha256 寫在 `dist/hw2_package_manifest.json`（名稱以 `<學號>` 表示）。解壓後直接開啟 `<學號>_hw2/index.html` 即可離線使用 dashboard。
 
 ## 本機、不進 git 的設定與材料
 
@@ -81,7 +84,7 @@ node --test tests/js/core.test.js             # dashboard 計算的 Node 測試
 | 路徑 | 說明 |
 | --- | --- |
 | `hw2.ipynb` | 主程式（CRISP-DM 六章；唯一的數字來源） |
-| `hw2/` | 分析套件：資料、前處理、分割、四種特徵選擇方法的 k 路徑（`selection`）、OLS 與預測區間、模型候選與 CV winner、Ridge／Lasso 對照與講義的 p-value backward（`comparison`）、Test 評估守門、`model_data` 契約與匯出、最終模型與 `predict_price()`（`deployment`）、五大假設診斷（`diagnostics`）、模型解釋（`explain`）、預測圖（`prediction_plot`）、報告建置（`report`）、synthetic fixture、離線掃描 |
+| `hw2/` | 分析套件：資料、前處理、分割、四種特徵選擇方法的 k 路徑（`selection`）、OLS 與預測區間、模型候選與 CV winner、Ridge／Lasso 對照與講義的 p-value backward（`comparison`）、Test 評估守門、`model_data` 契約與匯出、最終模型與 `predict_price()`（`deployment`）、五大假設診斷（`diagnostics`）、模型解釋（`explain`）、預測圖（`prediction_plot`）、報告建置（`report`）、打包（`package`）、synthetic fixture、離線掃描 |
 | `report/` | 報告來源：`report.md`（zh-TW Markdown；數字以佔位符在建置時注入）、`external_sources.json`（主流解法比較的公開來源與其自報數字）、`chrome_capture.js`（建置時擷取 dashboard 截圖與列印 PDF） |
 | `tests/` | pytest；`tests/js/` 是 dashboard 計算的 Node 測試 |
 | `data/kc_house_data.csv` | 資料檔 |

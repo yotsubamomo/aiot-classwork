@@ -32,8 +32,9 @@ The author's material is checked against the sha256 recorded when it was receive
 stops the build). The two sections written from it by Claude Code (``acceptor_materials/derived/``,
 untracked as well) are checked mechanically: the NotebookLM summary must have at least 100 Han
 characters (DA B-15) and every sentence must appear, in order, in its trace table to the NotebookLM
-report. The PDF build appends the pages of the ChatGPT conversation PDF unchanged after the report
-pages (:mod:`hw2.pdf_append`).
+report. A final build from the author's material (``--final``) also requires the derived sections
+to be the reviewed versions (:data:`DERIVED_REVIEWED`, #66 R1 F-1). The PDF build appends the pages
+of the ChatGPT conversation PDF unchanged after the report pages (:mod:`hw2.pdf_append`).
 
 Usage (from ``home_work_02/``)::
 
@@ -123,6 +124,14 @@ ACCEPTOR_MATERIALS = {
 # Sections written from that material by Claude Code (#66); untracked like the material itself.
 DERIVED = {"gpt": "derived/gpt_assist.md", "notebooklm": "derived/notebooklm_summary.md",
            "notebooklm_trace": "derived/notebooklm_trace.md"}
+# sha256 of those sections as reviewed (#66 R1, doc/governance/audit/issue-66-c1-r1.md, subject
+# table; #66 R1 F-1). The final build from the author's material refuses any other version: a
+# changed section is a post-review delta and goes back to review first.
+DERIVED_REVIEWED = {
+    "gpt": "1a9663f750253d983934034b360acce91a85e11730ce4c25bf416f1cc8976023",
+    "notebooklm": "358c78f2d3b735e437c10e365ef66b238a8d56bc01d39472a70b70687ac2731d",
+    "notebooklm_trace": "5cae03568339075430c4e2d5eb9ad791ef955897a04adcc6c55849e30aeeb7b4",
+}
 EVIDENCE_NEEDS = {"gpt": ("chatgpt_pdf",), "notebooklm": ("notebooklm_report", "notebooklm_sources"),
                   "chatgpt_pdf": ("chatgpt_pdf",)}
 NOTEBOOKLM_MIN_HANZI = 100        # assignment page "100 字以上", counted as Han characters (DA B-15)
@@ -512,6 +521,25 @@ def _read_materials(root: Path, pins: dict) -> dict[str, bytes]:
             raise ReportError(f"acceptor material {rel}: sha256 {actual} differs from the recorded receipt "
                               f"{expected} (stop and route to the acceptor)")
         found[key] = data
+    return found
+
+
+def check_derived_reviewed(materials_dir: Path = ACCEPTOR_MATERIALS_DIR,
+                           pins: dict = DERIVED_REVIEWED) -> dict[str, str]:
+    """The derived sections under ``materials_dir`` are the reviewed versions (sha256 by key)."""
+    root = Path(materials_dir)
+    found, problems = {}, []
+    for key, rel in DERIVED.items():
+        path = root / rel
+        if not path.is_file():
+            problems.append(f"{rel} is missing")
+            continue
+        found[key] = sha256_hex(path.read_bytes())
+        if found[key] != pins[key]:
+            problems.append(f"{rel}: sha256 {found[key]} differs from the reviewed {pins[key]}")
+    if problems:
+        raise ReportError("derived sections are not the reviewed versions: " + "; ".join(problems)
+                          + " (stop and route the change to review before a final build)")
     return found
 
 
@@ -1099,6 +1127,8 @@ def run_capture(mode: str, browser: str, *args: str) -> dict:
 
 def build(out_dir: Path = BUILD_DIR, pdf: bool = True, final: bool = False,
           evidence: Evidence | None = None) -> dict:
+    if final and evidence is None:
+        check_derived_reviewed()          # #66 R1 F-1: only the reviewed derived text is built
     evidence = load_evidence() if evidence is None else evidence
     text, info = render_markdown(evidence=evidence)
     if final and info["pending"]:

@@ -488,6 +488,40 @@ def test_the_author_material_on_this_machine_when_present():
     assert ev.info["chatgpt_pdf_sha256"] == report.ACCEPTOR_MATERIALS["chatgpt_pdf"][1]
 
 
+def test_a_final_build_refuses_derived_sections_other_than_the_reviewed_ones(tmp_path):
+    """#66 R1 F-1: a changed derived section is a post-review delta; the final build stops."""
+    _write_material(tmp_path)
+    reviewed = report.check_derived_reviewed(tmp_path, pins={
+        k: report.sha256_hex((tmp_path / rel).read_bytes()) for k, rel in report.DERIVED.items()})
+    assert sorted(reviewed) == sorted(report.DERIVED)
+    pins = dict(reviewed)
+    (tmp_path / report.DERIVED["gpt"]).write_text("合成的 ChatGPT 用途說明（審查後被改動）。\n", encoding="utf-8")
+    with pytest.raises(report.ReportError, match="reviewed"):
+        report.check_derived_reviewed(tmp_path, pins)
+    (tmp_path / report.DERIVED["notebooklm_trace"]).unlink()
+    with pytest.raises(report.ReportError, match="missing"):
+        report.check_derived_reviewed(tmp_path, pins)
+
+
+def test_the_final_build_checks_the_reviewed_derived_sections(monkeypatch, tmp_path):
+    calls = []
+    monkeypatch.setattr(report, "check_derived_reviewed", lambda *a, **k: calls.append(1) or {})
+    monkeypatch.setattr(report, "load_evidence", lambda *a, **k: report.Evidence())
+    with pytest.raises(report.ReportError, match="pending"):
+        report.build(out_dir=tmp_path, pdf=False, final=True)
+    assert calls == [1]
+    report.build(out_dir=tmp_path, pdf=False, final=False)
+    assert calls == [1]                     # a draft build does not require the reviewed versions
+
+
+def test_the_reviewed_derived_sections_on_this_machine_when_present():
+    """The derived sections are untracked; this runs only where the author's material is (H-1, H-4)."""
+    root = report.ACCEPTOR_MATERIALS_DIR
+    if not all((root / rel).is_file() for rel in report.DERIVED.values()):
+        pytest.skip("the derived sections are not on this machine (untracked, Brief §9)")
+    assert report.check_derived_reviewed() == report.DERIVED_REVIEWED
+
+
 def test_the_summary_threshold_is_one_hundred_han_characters(tmp_path):
     at_limit = ["字" * 99 + "。"]
     pins = _write_material(tmp_path / "a", sentences=at_limit, traced=at_limit)

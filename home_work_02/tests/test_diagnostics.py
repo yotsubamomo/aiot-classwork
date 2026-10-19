@@ -263,6 +263,34 @@ def test_permutation_importance_is_reproducible_and_reads_the_model(runs):
     assert baseline["n_rows"] == r["prepared"].n_train
 
 
+def test_permutation_moves_a_groups_columns_together(runs, monkeypatch):
+    """#64 R1 F-1 (3): a group's encoded columns are permuted with one row order, so every
+    permuted design keeps the group's row tuples (one-hot rows stay one-hot rows)."""
+    r = runs["base"]
+    pipe = r["pipe"]
+    cols = list(pipe.preprocessor.columns)
+    owner = pipe.preprocessor.group_of_column
+    multi = [g for g in pipe.groups if sum(owner[c] == g for c in cols) > 1]
+    assert multi, "the synthetic final model has a multi-column group (zipcode or yr_renovated)"
+    seen = []
+    real_design = explain.ols.design
+    monkeypatch.setattr(explain.ols, "design", lambda X: seen.append(np.array(X)) or real_design(X))
+    explain.permutation_importance(r["prepared"], pipe, n_repeats=2)
+    X = seen[0]                                   # the unpermuted design
+    checked = 0
+    for Xp in seen[1:]:
+        changed = np.flatnonzero((Xp != X).any(axis=0))
+        groups = {owner[cols[j]] for j in changed}
+        assert len(groups) <= 1                   # one group at a time
+        if groups and groups <= set(multi):
+            idx = [j for j, c in enumerate(cols) if owner[c] in groups]
+            before = sorted(map(tuple, X[:, idx]))
+            after = sorted(map(tuple, Xp[:, idx]))
+            assert before == after                # the same row tuples, only reordered
+            checked += 1
+    assert checked >= 2 * len(multi)
+
+
 # --- the official outputs (written by the notebook from the real training rows) -------------
 
 def test_official_diagnostic_and_explanation_files(prepared_real):
