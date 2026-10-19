@@ -236,7 +236,7 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | --- | --- |
 | #66 結案 | 完成（`b5f7f4a`） |
 | `home_work_02/.local/packaging.json`（學號設定，acceptor 提供） | **缺**（目錄不存在） |
-| RB-5：root `README.md`、`CONTEXT-MAP.md` 各加一列 | 已向 acceptor 提交預計 diff（下方），**待明確授權** |
+| RB-5：root `README.md`、`CONTEXT-MAP.md` 各加一列 | **已授權**（2026-10-19，見本節末） |
 | DA `decision-20261019-cell28-glyphs.md`、`decision-20261018-issue64-notebook-rerun.md`、acceptor §14 第 3 點、#64 R1 F-1、#66 R1 F-1 | 列入 #67 bounded pack |
 
 預計 diff（Orchestrator 擬稿供 acceptor 審閱；#67 Executor 只在取得授權後逐字套用）：
@@ -245,3 +245,4 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
   `| [`home_work_02/`](./home_work_02/) | HW2 Multiple Linear Regression（King County 房價） | 以 Kaggle King County 房屋銷售資料依 CRISP-DM 完成多元線性回歸：Forward／Backward SFS、RFE、Lasso 路徑排序四種特徵選擇（k = 1～18），以房屋 id 分組切分與交叉驗證、Test 只評估一次、參數式 95% 預測區間；互動式 dashboard（Chart.js）。 | [開啟](https://yotsubamomo.github.io/aiot-classwork/home_work_02/) |`
 - `CONTEXT-MAP.md` 表，在 HW10 列之後加一列：
   `| HW2 Multiple Linear Regression | [`home_work_02/CONTEXT.md`](./home_work_02/CONTEXT.md) | 作業 2：King County 房價多元線性回歸的分組切分、特徵選擇路徑、CV winner、一次性 Test 評估、metric-only 模型與預測區間等概念。 |`
+- **Acceptor RB-5 授權（2026-10-19，逐字）**：「RB-5 授權：root README.md 與 CONTEXT-MAP.md 依 run record §19 的擬稿各加一列，由 #67 逐字套用。」→ 範圍只限上列兩列；其他 root 檔案或文字變更不在授權內。#67 剩餘前置：`.local/packaging.json`。
