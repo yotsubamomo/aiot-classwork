@@ -266,11 +266,23 @@ def test_acceptance_covers_the_brief_spec_and_ov_items():
     assert "NOT TESTED（pending merge）" in ACCEPTANCE
 
 
-def test_acceptance_marks_nothing_pass_before_it_is_verified():
-    statuses = [row.rstrip("|").split("|")[-1].strip()
-                for row in ACCEPTANCE.splitlines()
-                if re.match(r"^\| (?:[A-E]-\d+|OV-\d) \|", row)]
-    assert statuses and all(not s.startswith(("PASS", "FAIL")) for s in statuses), statuses
+def test_acceptance_statuses_are_filled_with_evidence():
+    """After #67 (the verification ticket) every row has a status: a PASS or FAIL names its evidence,
+    nothing is left PENDING, and the subject the checks ran on is a commit. (Until #67 the rule was
+    the reverse: nothing could be PASS before it was verified.)"""
+    rows = {m.group(1): m.group(0) for m in re.finditer(r"^\| ((?:[A-E]-\d+|OV-\d)) \|.*$", ACCEPTANCE, re.M)}
+    statuses = {k: row.rstrip().rstrip("|").split("|")[-1].strip() for k, row in rows.items()}
+    assert len(statuses) >= 60
+    for key, status in statuses.items():
+        assert status.lstrip("*").startswith(("PASS", "FAIL", "NOT TESTED")), (key, status)
+        assert "PENDING" not in status, key
+        if status.lstrip("*").startswith(("PASS", "FAIL")):
+            assert re.search(r"worklog|見 [A-E]-\d+|見 OV-\d|下表|pytest", status), (key, status)
+    assert statuses["D-12"].startswith("**NOT TESTED（pending merge）**")
+    for ov, item in (("OV-2", "真實觸控裝置"), ("OV-3", "Safari"), ("OV-4", "螢幕閱讀器")):
+        assert f"{item} **NOT TESTED**" in statuses[ov], ov
+    assert re.search(r"核對的 subject（#67 填寫）：branch `home_work_02-regrill` @ `[0-9a-f]{40}`", ACCEPTANCE)
+    assert "（#67 填寫） |" not in ACCEPTANCE          # the OV-6 measurement record is filled
 
 
 # --- section-level labels (R1 F-1, F-2) --------------------------------------------------------
