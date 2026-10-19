@@ -52,7 +52,7 @@ REPORT_PDF_NAME = "hw2_report.pdf"
 TRACKED_ITEMS = ("README.md", "requirements.txt", "index.html", "data/kc_house_data.csv",
                  "hw2", "results", "assets")
 ZIP_TIME = (2026, 1, 1, 0, 0, 0)          # fixed entry time stamps: the same inputs give the same ZIP
-EVALUATION_CELL_MARK = "gate.evaluate("
+EVALUATION_CELL_MARK = "gate.open("     # the 5.4 cell that opens the gate and evaluates once
 
 
 class PackagingError(RuntimeError):

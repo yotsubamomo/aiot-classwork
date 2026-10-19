@@ -19,7 +19,8 @@ FAKE_ID = "Z98765432"
 def _notebook(counts, run_id="r1", error_at=None):
     nb = nbformat.v4.new_notebook()
     for i, n in enumerate(counts):
-        src = "gate.evaluate(models)" if i == 1 else f"x = {i}"
+        src = ("gate.open(winners, alphas)\nevaluation = gate.evaluate(models)" if i == 1
+               else "gate.evaluate(models)  # second call, refused" if i == 2 else f"x = {i}")
         cell = nbformat.v4.new_code_cell(src, execution_count=n)
         if i == 1:
             cell.outputs = [nbformat.v4.new_output("stream", name="stdout",
@@ -57,6 +58,13 @@ def test_single_run_refuses_an_error_output(no_formal_check):
 def test_single_run_refuses_a_model_data_from_another_run(no_formal_check):
     with pytest.raises(package.PackagingError, match="not the run"):
         package.check_single_run(_notebook([1, 2, 3], run_id="r1"), _model_data("r2"))
+
+
+def test_single_run_needs_exactly_one_gate_opening_cell(no_formal_check):
+    nb = _notebook([1, 2, 3])
+    nb.cells[0].source = "gate.open(winners, alphas)"
+    with pytest.raises(package.PackagingError, match="one test-evaluation cell"):
+        package.check_single_run(nb, _model_data())
 
 
 def test_single_run_applies_the_formal_evaluation_check(monkeypatch):
