@@ -73,6 +73,7 @@
 | CRISP-DM 流程說明（六階段） | notebook 與報告各有六章，見「流程（CRISP-DM）」 |
 | AI 協助要求：ChatGPT 對話 PDF、NotebookLM 摘要（100 字以上）、標示「GPT 輔助內容」與「NotebookLM 摘要」 | 報告的對應兩節與附錄；作者的原始材料只在本機，不進 git |
 | 繳交內容：主程式、PDF 報告、學號命名的 ZIP | `<學號>_hw2.ipynb`、報告 PDF、`<學號>_hw2.zip`，由作者在本機打包 |
+| 報告內容：網路上主流或更優解法之比較與說明 | 〔老師要求〕報告第 8 章「主流或更優解法比較」：使用同一份資料的公開解法、各來源自報的數字與不可比之處，以及與本專案的比較；來源與數字記在 [`report/external_sources.json`](report/external_sources.json) |
 | （optional）上傳 GitHub 時提供連結，並在 README 整理流程與成果 | 本檔；本專案使用 GitHub，所以適用 |
 | 評分：Kaggle 名次（若有）／預測結果評估 | King County 沒有競賽名次，以 Test 評估指標與預測圖呈現，見「成果」 |
 
