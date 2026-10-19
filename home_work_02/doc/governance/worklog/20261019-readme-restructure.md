@@ -6,7 +6,7 @@
 | Lane | Lightweight（Bindings §4「已結案工作之後的單點修正」；DA `decision-20261019-post-merge-ad3-readme.md` §3.5）。不是 Formal run `run-20261018-hw2-formal` 的一部分 |
 | 日期 | 2026-10-19 |
 | Branch | `home_work_02-readme-restructure`，自 `1862a41`（AD-3 work item `home_work_02-ad3-pages-check` 的最後 commit）建立，疊在 AD-3 之上；合併順序預定 AD-3 先、本 branch 後。只在本機 commit，未 push |
-| 狀態 | 實作與 self-verification 完成；independent audit **required（H-1、H-2）**，尚未派工 |
+| 狀態 | 實作與 self-verification 完成；independent audit **required（H-1、H-2）**：R1（`doc/governance/audit/20261019-readme-restructure-c1-r1.md`）有 blocking F-1，已依 §9 做 targeted correction（`706cc8c`），待 R2 closure |
 
 ## 1. Contract reference
 
@@ -128,3 +128,18 @@ HW01 中沒有對應內容而未採用的：部署（Vercel）、安全性（API
 - **Remaining work**：
   - 派工者：binding 全程核對、派 R1、push（SA-1）。
   - acceptor：合併（RB-1；預定 AD-3 先、本 branch 後）；檢視版面是否符合「參考 homework 01」的期待；是否重新打包 ZIP。
+
+## 9. Targeted correction — cycle 1（R1 F-1）
+
+- **依據**：R1 record `doc/governance/audit/20261019-readme-restructure-c1-r1.md`（commit `1b7689e`）的 F-1（Medium，blocking）與其 closure 條件：「README 不再把 sha256 核對呈現為〔老師要求〕……以報告定義下正確的標示呈現；其他標示不變」。派工者 2026-10-19 的續派指示：只處理 F-1；F-2 不處理（需要 acceptor 另行指示）；F-3、F-4 不處理。
+- **是否爭議**：不爭議。Brief §4 把「載入時核對 sha256」標為 [D Q35]（acceptor 在 Grill 的決定），作業頁正文（`doc/requirement/HW2-requirements-Multiple Linear regression.txt` 資料來源段）沒有這項要求；報告的標示定義中，不是老師要求的本專案設計屬〔專案延伸〕（`report/report.md:11`）。
+- **修正**（commit `706cc8c`，只改 `README.md` 一行，拆成兩點）：
+  - 原：「〔老師要求〕載入時核對資料檔的 sha256，不符即停止；CRISP-DM 六章依序執行。」
+  - 新：「〔老師要求〕CRISP-DM 六章依序執行。」與「〔專案延伸〕載入時核對資料檔的 sha256，不符即停止（本專案的決定，不是作業頁的要求）。」
+  - CRISP-DM 六章維持〔老師要求〕（作業頁正文第 3 點、報告對照表「CRISP-DM 六階段｜老師要求」）。其他標示、測試、ACCEPTANCE.md 都沒有改動（`git show --stat 706cc8c`：只有 `home_work_02/README.md`，+2／−1）。
+- **回歸證據**（subject：`706cc8c` 的工作樹；`.local/packaging.json` 存在）：
+  - README 測試 `pytest -q -rs tests/test_report.py -k readme`：7 passed。
+  - `tests/test_repo_hygiene.py::test_no_tracked_file_contains_the_student_id`：1 passed（實際執行，不是 skip）。
+  - 完整 `pytest -q -rs`：**398 passed**，0 skipped、0 failed。
+  - A-4：`1862a41..HEAD` 全部 commit 的內容與訊息，以設定值比對只輸出計數，結果記在下一點；本次沒有列出 `dist/`，也沒有印出任何含學號的檔名。
+- **Binding**：同一個 agentId `ab07c6cd5d35d7f6f`（`gov-executor`，以 SendMessage 續派）；全程核對由派工者在採用 return 前執行。
