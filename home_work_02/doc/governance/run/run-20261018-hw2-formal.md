@@ -208,3 +208,10 @@ Spec Integration Audit（SPEC rev 5）：多張票，不適用 fast path；#67 �
 | Blocker 與恢復條件 | **Blocker**：上列 (1)(2) 不存在。**恢復條件**：acceptor 把 ChatGPT PDF 與 NotebookLM 材料放進 `home_work_02/acceptor_materials/`（未追蹤），並在對話中告知 → Orchestrator 核對檔案存在後派 #66。#67：#66 結案、`.local/packaging.json` 已由 acceptor 放入，且 root 兩列取得 RB-5 授權後派工；F-4（cell 28）依 DA record 在 #67 內處理 |
 | 其他路徑 | 沒有其他可執行的票。Spec Integration Audit 與 DA phase acceptance 依 orch-default §6 在全部票結案後才派，不提前 |
 - **Acceptor 2026-10-19 回覆（逐字）**：「材料稍後提供，先維持停止狀態。」→ #66、#67 維持 BLOCKED；run 在此 checkpoint 暫停於 §16 的 boundary，恢復條件不變。
+
+## 17. Acceptor 輸入與示範重跑（2026-10-19）
+
+- **Acceptor 指示（逐字）**：「NotebookLM 我們還沒有開始做，你可以讀 取原始的requirement 看一下我們要在 NotebookLM 裡面放什麼和做些什麼，chatgpt 的我放了。然後再對齊原始需求，確認一下交付的東西，python 的ipynb 也跑起來給我看一下。」
+- **ChatGPT PDF 收件**（Orchestrator 只核對存在與完整性，不讀內容）：`home_work_02/acceptor_materials/ChatGPT_logs.pdf`，41,784,474 bytes，檔尾有 `%%EOF`，09:58:36 後大小不再變化；sha256 `0a5d29e30802270af6a7ff02b692e2bf26e808a5102c6b787adf1ee36a3ca194`；`git check-ignore` 命中 `home_work_02/.gitignore:16`（未追蹤）。#66 的 worklog 須重新記錄並核對同一 sha256。
+- **NotebookLM 材料**：尚未製作（acceptor 陳述）。§16 的 #66 blocker 縮小為 NotebookLM 原始輸出與來源清單。
+- **示範重跑**（依 acceptor 要求；不在 repo 內）：以 `git archive HEAD`（`c559b19`）在 session scratchpad 建立單元副本，執行 `python -m hw2.run_notebook`：44.1 s，exit 0，無 error 輸出，執行序 1…40。結果：`result_digest`＝`b53ff286ae0734add8b272089aba904a1cb7f5aca444a62d356420b25dc3cfc6`（與 #63 相同）；manifest `selection_digest`＝`44f7723e…`、授權集合 `allin`、`forward_sfs_k17`、`evaluations_in_this_run: 1`；`model_data` 各段除時間欄位外與 repo 相同；`results/figures/*.png`、`results/tables/*.csv` 與 repo 逐位元相同。repo 工作樹未改動。這是示範，不是 #67 的正式重現證據（#67 須在 cell 28 修正後於乾淨環境自行執行並記錄）。
