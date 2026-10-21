@@ -239,10 +239,15 @@
 
   /* Rows -> encoded columns (no intercept), one Float64Array per encoded column. Unseen levels are the
    * baseline (all zeros), counted. */
-  function encodeCols(load, enc, rows) {
-    var n = rows.length, cols = [], unseenRows = 0, unseenByGroup = {};
-    enc.columns.forEach(function () { cols.push(new Float64Array(n)); });
+  function* encodeSteps(load, enc, rows) {
+    var n = rows.length, cols = [], unseenRows = 0, unseenByGroup = {}, q = enc.columns.length;
+    var block = Math.max(1, Math.floor(YIELD_CELLS / Math.max(q, 1)));
+    for (var j = 0; j < q; j++) {
+      cols.push(new Float64Array(n));
+      if (n * (j + 1) % YIELD_CELLS < n && n * q > YIELD_CELLS) yield null;
+    }
     for (var i = 0; i < n; i++) {
+      if (i > 0 && i % block === 0 && n * q > YIELD_CELLS) yield null;
       var src = load.rows[rows[i]], c = 0, unseen = false;
       for (var gi = 0; gi < enc.groups.length; gi++) {
         var g = enc.groups[gi], v = src[g.index];
@@ -257,6 +262,7 @@
     }
     return { cols: cols, n: n, unseenRows: unseenRows, unseenByGroup: unseenByGroup };
   }
+  function encodeCols(load, enc, rows) { return drive(encodeSteps(load, enc, rows)); }
 
   /* The design row of row i (intercept first). */
   function designRow(cols, i) {
@@ -332,29 +338,32 @@
   function* olsSteps(cols, y) {
     var n = y.length, p = cols.length + 1, j, i, k;
     var colOf = function (jj) { return jj === 0 ? null : cols[jj - 1]; };
-    var norms = new Float64Array(p);
+    var norms = new Float64Array(p), big = n * p > YIELD_CELLS;
     for (j = 0; j < p; j++) {
       var s = 0, src = colOf(j);
       for (i = 0; i < n; i++) { var dv = src === null ? 1 : src[i]; s += dv * dv; }
       norms[j] = s > 0 ? Math.sqrt(s) : 1;
+      if (big && n * (j + 1) % YIELD_CELLS < n) yield null;
     }
     var A = [];
     for (j = 0; j < p; j++) {
       var col = new Float64Array(n), sj = colOf(j);
       for (i = 0; i < n; i++) col[i] = (sj === null ? 1 : sj[i]) / norms[j];
       A.push(col);
+      if (big && n * (j + 1) % YIELD_CELLS < n) yield null;
     }
     var b = Float64Array.from(y);
     var perm = [];
     for (j = 0; j < p; j++) perm.push(j);
     var kmax = Math.min(n, p), rdiag = new Float64Array(kmax);
     for (k = 0; k < kmax; k++) {
-      if (n * (p - k) > YIELD_CELLS) yield null;
+      var work = 0;
       var best = k, bestN = -1;
       for (j = k; j < p; j++) {
         var ss = 0, cj = A[j];
         for (i = k; i < n; i++) ss += cj[i] * cj[i];
         if (ss > bestN) { bestN = ss; best = j; }
+        if ((work += n - k) > YIELD_CELLS) { work = 0; yield null; }
       }
       if (best !== k) {
         var tc = A[k]; A[k] = A[best]; A[best] = tc;
@@ -374,7 +383,10 @@
         c[k] -= f * v0;
         for (ii = k + 1; ii < n; ii++) c[ii] -= f * x[ii];
       };
-      for (j = k + 1; j < p; j++) apply(A[j]);
+      for (j = k + 1; j < p; j++) {
+        apply(A[j]);
+        if ((work += 2 * (n - k)) > YIELD_CELLS) { work = 0; yield null; }
+      }
       apply(b);
       x[k] = alpha;
       for (i = k + 1; i < n; i++) x[i] = 0;
@@ -398,6 +410,7 @@
     var Rinv = [];
     for (i = 0; i < p; i++) Rinv.push(new Float64Array(p));
     for (j = 0; j < p; j++) {
+      if (p * j > YIELD_CELLS) yield null;
       Rinv[j][j] = 1 / A[j][j];
       for (i = j - 1; i >= 0; i--) {
         var sum = 0;
@@ -408,6 +421,7 @@
     var xtx = [];
     for (i = 0; i < p; i++) xtx.push(new Array(p));
     for (i = 0; i < p; i++) {
+      if (p * p > YIELD_CELLS) yield null;
       for (j = 0; j < p; j++) {
         var m = 0;
         for (k = Math.max(i, j); k < p; k++) m += Rinv[i][k] * Rinv[j][k];
@@ -552,14 +566,14 @@
         continue;
       }
       var enc = fitEncoding(load, subsetGroups(groups, subset), rows.train);
-      var fit = yield* olsSteps(encodeCols(load, enc, rows.train).cols, targetOf(load, rows.train));
+      var fit = yield* olsSteps((yield* encodeSteps(load, enc, rows.train)).cols, targetOf(load, rows.train));
       var rec = { fold: f, n_train: rows.train.length, n_valid: rows.valid.length, groups: subset.slice(),
         levels: levelsOf(enc), n_columns: fit.n_columns, rank: fit.rank, df_resid: fit.df_resid };
       if (!fit.ok) {
         rec.status = 'invalid'; rec.rule = fit.rule; rec.metrics = null;
         reasons.push({ rule: fit.rule, scope: 'fold', fold: f, rank: fit.rank, n_columns: fit.n_columns, df_resid: fit.df_resid });
       } else {
-        var valid = encodeCols(load, enc, rows.valid), pred = [];
+        var valid = yield* encodeSteps(load, enc, rows.valid), pred = [];
         for (var i = 0; i < valid.n; i++) pred.push(rowDot(valid.cols, i, fit.coef));
         rec.status = 'ok'; rec.rule = null; rec.coef = fit.coef.slice();
         rec.metrics = metricsOf(targetOf(load, rows.valid), pred);
@@ -574,7 +588,7 @@
       reasons.push(missingReason('training_set', null, canonicalLasso));
     } else {
       cEnc = fitEncoding(load, subsetGroups(groups, canonicalSubset), split.train);
-      cFit = yield* olsSteps(encodeCols(load, cEnc, split.train).cols, targetOf(load, split.train));
+      cFit = yield* olsSteps((yield* encodeSteps(load, cEnc, split.train)).cols, targetOf(load, split.train));
       yield null;
       if (!cFit.ok) {
         reasons.push({ rule: cFit.rule, scope: 'training_set', fold: null, rank: cFit.rank, n_columns: cFit.n_columns, df_resid: cFit.df_resid });
@@ -1161,16 +1175,21 @@
 
   /* ---- A-3: linear relations among the All-in design columns on the training set ---------------- */
   function* dependencySteps(load, groups, rows) {
-    var enc = fitEncoding(load, groups, rows), X = encodeCols(load, enc, rows).cols;
+    var enc = fitEncoding(load, groups, rows), X = (yield* encodeSteps(load, enc, rows)).cols;
     var n = rows.length, q = enc.columns.length, p = q + 1, i, j, l;
     var cols = [{ intercept: true, group: null, level: null }].concat(enc.columns.map(function (c) {
       return { intercept: false, group: c.group, level: c.level };
     }));
     var D = [new Float64Array(n).fill(1)].concat(X);
-    var safe = D.map(function (c) { var s = Math.sqrt(dot(c, c)); return s > 0 ? s : 1; });
-    var tol = Math.max(n, p) * EPS, Q = [], R = [], basis = [], relations = [];
+    var safe = [];
     for (j = 0; j < p; j++) {
-      if (n * Q.length > YIELD_CELLS) yield null;
+      var sn = Math.sqrt(dot(D[j], D[j]));
+      safe.push(sn > 0 ? sn : 1);
+      if (n * (j + 1) % YIELD_CELLS < n && n * p > YIELD_CELLS) yield null;
+    }
+    var tol = Math.max(n, p) * EPS, Q = [], R = [], basis = [], relations = []
+    var dwork = 0;
+    for (j = 0; j < p; j++) {
       var v = new Float64Array(n), rj = new Array(Q.length).fill(0);
       for (i = 0; i < n; i++) v[i] = D[j][i] / safe[j];
       for (var pass = 0; pass < 2; pass++) {
@@ -1178,6 +1197,7 @@
           var d = dot(Q[l], v);
           for (i = 0; i < n; i++) v[i] -= d * Q[l][i];
           rj[l] += d;
+          if ((dwork += 2 * n) > YIELD_CELLS) { dwork = 0; yield null; }
         }
       }
       var r = Math.sqrt(dot(v, v));
@@ -1214,7 +1234,7 @@
   /* ---- test: only for the frozen winners' canonical fits --------------------------------------- */
   function* testSteps(load, candidate, testRows) {
     var fit = candidate.fit;
-    var enc = encodeCols(load, fit.encoding, testRows);
+    var enc = yield* encodeSteps(load, fit.encoding, testRows);
     var actual = targetOf(load, testRows);
     var predicted = [], lower = [], upper = [], covered = [];
     var block = Math.max(1, Math.floor(YIELD_CELLS / (fit.coef.length * fit.coef.length)));
