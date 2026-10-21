@@ -664,3 +664,17 @@ test('C2-R3 (b): a URL body the browser cannot hold is reported as such, not as 
   assert.equal(views.at(-1).mode, 'explore');
   assert.equal(big.calls.length, 2);                             // one request for this submission
 });
+
+test('C2-R3: a decoder that silently returns a short or empty string for a large input is detected as a size failure', () => {
+  const EMPTY_DECODE = () => '';                                  // what Chrome 155 / Edge 155 give for a 540 MB input
+  const over = new TextEncoder().encode('a,b,y\n' + Array.from({ length: 80 }, (_, i) => i + ',x,' + i).join('\n') + '\n');
+  assert.deepEqual(L.inspectCsv(over, { limits: { maxRows: 50 }, decode: EMPTY_DECODE }).load, L.inspectCsv(over, { limits: { maxRows: 50 } }).load);
+  const within = L.inspectCsv(CSV_BYTES, { decode: EMPTY_DECODE }).load;
+  assert.equal(within.reason, null);
+  assert.equal(within.environment_error.stage, 'decode');
+  assert.match(within.environment_error.message, /^the decoder returned 0 characters for \d+ bytes/);
+  assert.notEqual(L.inspectCsv(CSV_BYTES, { decode: EMPTY_DECODE }).load.reason, 'NOT_CSV');
+  // a genuinely empty input is still NOT_CSV / empty (the check only applies when bytes outnumber 3 x characters)
+  assert.equal(L.inspectCsv(new Uint8Array(0)).load.reason, 'NOT_CSV');
+  assert.equal(L.inspectCsv(new TextEncoder().encode('   ')).load.reason, 'NOT_CSV');
+});

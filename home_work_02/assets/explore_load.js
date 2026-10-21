@@ -62,7 +62,8 @@
  *
  * Large inputs (#77; DA decision-20261022-issue77-resource-limits C2-R3): there is no byte limit (C2-R2).
  * When the bytes are in hand but cannot be decoded into one string (a JS engine refuses strings longer
- * than about 2^29 characters, i.e. an input larger than about 512 MiB, or the memory runs out), the same
+ * than about 2^29 characters, i.e. an input larger than about 512 MiB, or the memory runs out; Chrome's
+ * decoder may also return a short or empty string instead of throwing, which is detected), the same
  * checks are made on the bytes instead (inspectBytes): strict UTF-8 in chunks, U+FFFD / NUL, the RFC 4180
  * records counted byte by byte with the same rules and order as readRecords, the header record decoded on
  * its own, the record lengths. So an input over the row or column limit is TOO_LARGE whatever its size,
@@ -348,6 +349,12 @@
         /* invalid UTF-8 is a TypeError; anything else is the input's size (string length, memory) */
         if (e && e.name === 'TypeError') return out(reject('ENCODING', { problem: 'not_utf8' }, sha256Hex(bytes)));
         return out(inspectBytes(bytes, limits, e));
+      }
+      /* A decoder that silently gives up on a very large input (Chrome returns a short or empty string
+       * instead of throwing) is a size failure too: valid UTF-8 has at least one UTF-16 unit per 3 bytes. */
+      if (text.length * 3 < bytes.length - 3) {
+        return out(inspectBytes(bytes, limits, { name: 'Error', message: 'the decoder returned ' + text.length +
+          ' characters for ' + bytes.length + ' bytes (the input is too large for this browser as text)' }));
       }
     }
     var sha = sha256Hex(bytes);
