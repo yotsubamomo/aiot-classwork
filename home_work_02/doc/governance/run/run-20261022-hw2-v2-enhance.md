@@ -162,3 +162,26 @@ Tracked items for later dispatch packs：#76 ← R1-F2（`audit/issue-74-c1-r1.m
 | 7 | 2026-10-22 | #75 | agentId `a5dedd102dd077202` | `gov-executor` | Opus 5.5／`high`（O-1） | DONE_WITH_CONCERNS；subject `2069fea`（實作）＋`ded2769`（records）；觀測 `('claude-opus-5-5','high')` 296 則 → 採用。Machine gates：diff 全在 `home_work_02/`、無 `doc/requirement/`；V1 腳本、`model_data.js`、`style.css`、`results/`、V1 Spec／tickets／Brief、notebook 自 `d7f02d4` 無 diff；`hw2/` 只有 `explore_reference.py`；既有測試只有 CC-V2-1 斷言（#75 未再動）。Concerns：#1 指名 Reviewer（或 DA）→ 隨 R1 pack 以 worklog 引用；#2 觀察；#3 Executor 執行 `taskkill /F /IM chrome.exe`，影響 repo 外的 acceptor Chrome 程序 → 告知 acceptor，之後派工 pack 加入「只停止自己啟動的程序」；#4 已依分配屬 #76／#77 |
 | 8 | 2026-10-22 | #75 R1 c1 | （fresh） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `ded2769`，BASE `3dfba2d` |
 | 8→ | 2026-10-22 | #75 R1 c1 | agentId `a9a75e1af80e98547` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**（無 blocking）；record `audit/issue-75-c1-r1.md`；R1-F1（Medium，non-blocking，指名 Design Authority：Lasso 路徑非共線提前結束的分類與單位相依停止條件）、R1-F2～F4（Low）。Routing：R1-F1 → DA（record 已指明，與 §2.4 一致）；#75 結案待 DA decision record（P6）。R1-F3（文字）→ #76 pack；R1-F4 → #78 pack 與 Spec Integration Audit；R1-F2 → Spec Integration Audit 知悉 |
+| 9 | 2026-10-22 | #75 R1-F1 | agentId `ae5f000e48cc110e8` | `gov-design-authority` | Opus 5.5／`high` | 裁決 `decisions/decision-20261022-issue75-lasso-early-stop.md`（R4-1～R4-4；不改變 accepted 語義；#75 不需 rework）；觀測 `('claude-opus-5-5','high')` 55 則 → 採用。工作分配：#77 ← R4-2～R4-4；#76、#78 知悉；#78 報告／README 須與 #77 後行為一致；Spec Integration Audit 核對 R4-1～R4-4 |
+
+### #75 結案核對（orch-default §7）
+
+| Predicate | 證據 | 結果 |
+| --- | --- | --- |
+| P1 | #74 已結案 | 成立 |
+| P2 | OC §5／§5.2；`derivation-SPEC-V2.md`；#75 → #73 → OC §5 | 成立 |
+| P3 | `worklog/issue-75.md`；R1 自行重跑 pytest 442 passed、0 skipped，Node、offline_scan | 引用存在 |
+| P4 | `audit/issue-75-c1-r1.md` CLOSURE（Reviewer 自寫，binding 已核 181 則 xhigh） | 成立 |
+| P5 | 無 blocking；R1-F1～F4 disposition 在 R1 record，owner 與去向見上 | 成立 |
+| P6 | R1-F1 → `decision-20261022-issue75-lasso-early-stop.md` | 成立 |
+| P7 | 受審 subject `ded2769`；其後只有 record-only commit | 成立 |
+| P8 | `worklog/issue-75.md` | 成立 |
+| P9 | phase 層（Spec Integration Audit） | 待 #78 後 |
+
+**#75：已結案**（closed subject `ded276929d45727cbc164ec53865d6ff04cba963`）。Frontier：#76（READY）；#77 待 #76。
+
+Tracked items for dispatch packs（更新）：
+- #76 ← #74 R1-F2（物件鍵健壯性）、R3-5（探索模式隱藏 V1 頁尾）、#75 R1-F3（「每次選取都重算」用語）；知悉 R4（已分配 #77）。
+- #77 ← R4-2～R4-4（`decision-20261022-issue75-lasso-early-stop.md`）；保持 R3-2 行為。
+- #78 ← R3-6（README 陳述）、#75 R1-F4（截圖不得作 50 Startups 證據）、R4 後的報告／README 文字一致。
+- Spec Integration Audit ← #75 R1-F2、R4-1～R4-4、B-10 Pages open item。
