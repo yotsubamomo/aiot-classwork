@@ -3,7 +3,7 @@
 - **Work item**：GitHub issue #74（V2-T1），Formal lane，run `run-20261022-hw2-v2-enhance`（Orchestrator＝root session `37216426-f292-44f9-bad1-e2d862e7b8f1`）。
 - **執行角色**：Executor（治理 §2.1；`gov-executor`，有效 mapping `claude-opus-5-5`／`high`，Bindings b5 §3.1 O-1）。
 - **Subject**：branch `home_work_02-v2-enhance`（未 push）。BASE `506581aea6db04422d087c4e22c5dcf211c734e9`；實作 commit `1bd1df8c72808c807d231d20400be1d1c9d415a2`；之後的紀錄 commit 只改 `doc/`（本 worklog、`doc/screenshots/v2-issue74/` 的證據），沒有程式、資料或測試的變更（§5）。
-- **狀態**：Executor 工作完成（DONE）；independent audit 待 Orchestrator 派工（§7）。
+- **狀態**：cycle 1 R1 BLOCKING（R1-F1）→ targeted correction 完成（§9），待 R2。
 
 ## 1. Contract reference
 
@@ -128,3 +128,14 @@
   2. 證據截圖與瀏覽器報告追蹤在 `doc/screenshots/v2-issue74/`（`doc/` 不進 ZIP，`package.tracked_files()` 排除）。
   3. 新模組 `hw2/explore_reference.py` 會隨 `hw2/` 進入 ZIP（#78 重打包時會看到）；它只被測試 import。
 - **Push**：未 push（OC §5.1 未授權）。
+
+## 9. Targeted correction — cycle 1，R1-F1（2026-10-22）
+
+- **來源**：R1 audit record `doc/governance/audit/issue-74-c1-r1.md`（commit `0631bc1`）的 R1-F1（Medium，blocking；H-4／A-5）：`doc/acceptance/ACCEPTANCE.md` V2-3 的執行時間「change handler 2.1～5.2 ms、引擎 0.4～2.5 ms」與它引用的 committed evidence 不符。這些數值來自較早一次執行，`f4e487c` 換掉證據時沒有同步改這一格（我的疏失）。Orchestrator 派工的範圍：只修正這一格的時間數值，不重跑量測，不處理 R1-F2、R1-F3。
+- **修正**：V2-3「狀態」欄改為 committed evidence 的數值並直接引用證據檔：頁內量測 5 次，change handler Chrome 2.0～4.0 ms、Edge 2.1～6.8 ms；controller（載入＋引擎）Chrome 0.4～1.7 ms、Edge 0.4～3.7 ms；來源為 `doc/screenshots/v2-issue74/browser_check_chrome.json`、`browser_check_edge.json` 的 `checks.timing_in_page`。PASS 狀態與其他文字不變。
+- **Closure 證據**：
+  - 以 `git show HEAD:home_work_02/doc/screenshots/v2-issue74/browser_check_<b>.json` 讀出 `checks.timing_in_page`：Chrome 155.0.8059.85 `handler_ms` [4, 2.8, 2.1, 2.2, 2]（2.0～4.0）、`controller_ms` [1.7, 0.7, 0.4, 0.5, 0.4]（0.4～1.7）；Edge 155.0.4283.62 `handler_ms` [6.8, 2.9, 2.1, 2.1, 2.2]（2.1～6.8）、`controller_ms` [3.7, 0.9, 0.4, 0.4, 0.5]（0.4～3.7）。新數值逐一等於這些最小值與最大值，也與 §6.3 一致。
+  - Diff 範圍：`git diff` 只有 `doc/acceptance/ACCEPTANCE.md` 1 行（第 151 行，V2-3），逐格比較 5 格中只有第 5 格（狀態）不同；其他條目、程式、測試、證據都沒有修改。
+- **Regression**：`python -m pytest -q -rs`（主 checkout）**433 passed，0 skipped**，53.04 s（與修正前相同）。本修正只改文件，沒有重跑瀏覽器量測（依派工）。
+- **Binding**：同一 assignment，agentId `addc2dc935a7822fe`；修正前核對 `('claude-opus-5-5', 'high')` 單一元素，return 前由派工者依 Bindings §3.6 全程核對。
+- **未處理（依派工）**：R1-F2（排入 #76）、R1-F3（DA）。
