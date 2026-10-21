@@ -40,8 +40,28 @@
  * The load limits are the Spec's candidate values; the final numbers are measured and recorded in
  * ACCEPTANCE (Spec V2 「載入契約」「運算預算與載入上限的數字」).
  *
- * This file has no network access (#74); it works in the browser (window.HW2ExploreLoad) and in
- * Node (module.exports). Strings from the CSV are data only: nothing here writes to the page. */
+ * inspectCsv(input, options) returns the LoadResult together with the column list (name, index, type)
+ * whenever the structure checks got that far, so that the page can offer the target drop-down even when
+ * the default target is rejected (TARGET_NOT_NUMERIC). Column names are kept in Map / array form, never
+ * as keys of plain objects, so that names such as `__proto__` or `constructor` are ordinary data
+ * (#74 R1-F2): `__proto__,__proto__,y` is DUPLICATE_COLUMN like any other repeated name.
+ *
+ * The URL entrance (#76 V2-T3; Spec V2 「載入契約」入口, 「離線與請求隔離」; DA derivation D-1):
+ * this is the only file of the unit that may call the network, and only in fetchCsvBytes(), which the
+ * page calls when the user presses 「載入 URL」. Per submission it makes at most one request, to the
+ * submitted URL itself: one call, GET, credentials 'omit' (no cookie or HTTP authentication), redirect
+ * 'error' (a redirect is not followed; it fails like a network error), no custom header (a CORS simple
+ * request, no preflight), no retry. A timeout aborts the request and nothing is sent again. The
+ * network function is injectable (options.fetchImpl) so that Node tests can prove all of this with a
+ * mock; without it the browser's own function is used. checkUrl() accepts only an absolute http(s)
+ * URL without user name or password; anything else is refused before any request. Failures are
+ * reported as { ok: false, reason: 'URL_FETCH_FAILED', detail: { cause } } with cause 'network'
+ * (network error, cross-origin refusal or redirect), 'http_status' (with the status), 'timeout' or
+ * 'not_text' (the body contains a NUL byte: binary data, not text). A body that is text but not UTF-8
+ * goes on to loadCsv and is ENCODING there, exactly as the same bytes from a local file.
+ *
+ * It works in the browser (window.HW2ExploreLoad) and in Node (module.exports). Strings from the CSV,
+ * the URL and the server are data only: nothing here writes to the page or stores anything. */
 (function (root, factory) {
   'use strict';
   var api = factory();
@@ -53,6 +73,9 @@
   var LIMITS = { maxRows: 50000, maxColumns: 60, minRows: 20 };
   var REASONS = ['NOT_CSV', 'NO_HEADER', 'RAGGED_ROWS', 'ENCODING', 'TOO_LARGE', 'TOO_FEW_ROWS',
     'TARGET_NOT_NUMERIC', 'DUPLICATE_COLUMN'];
+  var URL_REASON = 'URL_FETCH_FAILED';
+  var URL_CAUSES = ['network', 'http_status', 'timeout', 'not_text'];
+  var URL_TIMEOUT_MS = 20000;
   var NUMBER_LITERAL = /^[+-]?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/;
   var EDGE_SPACE = /^[ \t\r\n\f\v]+|[ \t\r\n\f\v]+$/g;
 
@@ -187,51 +210,54 @@
     return idx;
   }
 
-  /* CSV text (string) or UTF-8 bytes (Uint8Array / ArrayBuffer) -> LoadResult. */
-  function loadCsv(input, options) {
+  /* CSV text (string) or UTF-8 bytes (Uint8Array / ArrayBuffer) -> { load: LoadResult, columns }.
+   * `columns` (name, index, type) is set once the header, the record lengths and the column types are
+   * known (every reason from TOO_FEW_ROWS on); otherwise it is null. */
+  function inspectCsv(input, options) {
     options = options || {};
     var limits = Object.assign({}, LIMITS, options.limits || {});
     var bytes, text;
+    function out(load, cols) { return { load: load, columns: cols || null }; }
     if (typeof input === 'string') {
       text = input;
       bytes = utf8Bytes(text);
     } else {
       bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
       try { text = decodeUtf8Strict(bytes); } catch (e) {
-        return reject('ENCODING', { problem: 'not_utf8' }, sha256Hex(bytes));
+        return out(reject('ENCODING', { problem: 'not_utf8' }, sha256Hex(bytes)));
       }
     }
     var sha = sha256Hex(bytes);
     if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
     if (text.indexOf('�') >= 0 || text.indexOf('\u0000') >= 0) {
-      return reject('ENCODING', { problem: text.indexOf('\u0000') >= 0 ? 'nul_character' : 'replacement_character' }, sha);
+      return out(reject('ENCODING', { problem: text.indexOf('\u0000') >= 0 ? 'nul_character' : 'replacement_character' }, sha));
     }
-    if (trimCell(text) === '') return reject('NOT_CSV', { problem: 'empty' }, sha);
+    if (trimCell(text) === '') return out(reject('NOT_CSV', { problem: 'empty' }, sha));
     var read = readRecords(text, limits.maxRows);
-    if (read.error) return reject(read.error, read.detail, sha);
+    if (read.error) return out(reject(read.error, read.detail, sha));
     var records = read.records;
-    if (!records.length) return reject('NOT_CSV', { problem: 'empty' }, sha);
+    if (!records.length) return out(reject('NOT_CSV', { problem: 'empty' }, sha));
     var header = records[0].map(trimCell);
     var ncol = header.length;
-    if (ncol < 2) return reject('NOT_CSV', { problem: 'fewer_than_two_columns', columns: ncol }, sha);
-    if (ncol > limits.maxColumns) return reject('TOO_LARGE', { columns: ncol, max_columns: limits.maxColumns }, sha);
+    if (ncol < 2) return out(reject('NOT_CSV', { problem: 'fewer_than_two_columns', columns: ncol }, sha));
+    if (ncol > limits.maxColumns) return out(reject('TOO_LARGE', { columns: ncol, max_columns: limits.maxColumns }, sha));
     var emptyAt = header.indexOf('');
-    if (emptyAt >= 0) return reject('NO_HEADER', { problem: 'empty_column_name', column: emptyAt }, sha);
-    if (header.every(isNumberLiteral)) return reject('NO_HEADER', { problem: 'numeric_header' }, sha);
-    var seen = {};
+    if (emptyAt >= 0) return out(reject('NO_HEADER', { problem: 'empty_column_name', column: emptyAt }, sha));
+    if (header.every(isNumberLiteral)) return out(reject('NO_HEADER', { problem: 'numeric_header' }, sha));
+    var seen = new Map();                         /* a Map: any name, `__proto__` included, is a plain key */
     for (var c = 0; c < ncol; c++) {
-      if (Object.prototype.hasOwnProperty.call(seen, header[c])) {
-        return reject('DUPLICATE_COLUMN', { name: header[c], columns: [seen[header[c]], c] }, sha);
+      if (seen.has(header[c])) {
+        return out(reject('DUPLICATE_COLUMN', { name: header[c], columns: [seen.get(header[c]), c] }, sha));
       }
-      seen[header[c]] = c;
+      seen.set(header[c], c);
     }
     var data = records.slice(1);
     for (var r = 0; r < data.length; r++) {
       if (data[r].length !== ncol) {
-        return reject('RAGGED_ROWS', { record: r + 1, expected: ncol, found: data[r].length }, sha);
+        return out(reject('RAGGED_ROWS', { record: r + 1, expected: ncol, found: data[r].length }, sha));
       }
     }
-    if (data.length > limits.maxRows) return reject('TOO_LARGE', { rows: data.length, max_rows: limits.maxRows }, sha);
+    if (data.length > limits.maxRows) return out(reject('TOO_LARGE', { rows: data.length, max_rows: limits.maxRows }, sha));
     var cells = data.map(function (row) { return row.map(trimCell); });
     var types = [];
     for (c = 0; c < ncol; c++) {
@@ -244,33 +270,125 @@
       }
       types.push(numeric && nonEmpty > 0 ? 'numeric' : 'categorical');
     }
+    var columns = header.map(function (name, j) { return { name: name, index: j, type: types[j] }; });
     var kept = [], dropped = 0;
     for (r = 0; r < cells.length; r++) {
       if (cells[r].indexOf('') >= 0) { dropped++; continue; }
       kept.push(cells[r].map(function (s, j) { return types[j] === 'numeric' ? Number(s) : s; }));
     }
     if (kept.length < limits.minRows) {
-      return reject('TOO_FEW_ROWS', { rows: kept.length, min_rows: limits.minRows, dropped_missing: dropped }, sha);
+      return out(reject('TOO_FEW_ROWS', { rows: kept.length, min_rows: limits.minRows, dropped_missing: dropped }, sha), columns);
     }
     var t = resolveTarget(header, options.target);
-    if (types[t] !== 'numeric') return reject('TARGET_NOT_NUMERIC', { target: header[t], index: t }, sha);
-    return {
+    if (types[t] !== 'numeric') return out(reject('TARGET_NOT_NUMERIC', { target: header[t], index: t }, sha), columns);
+    return out({
       ok: true,
       sha256: sha,
-      columns: header.map(function (name, j) { return { name: name, index: j, type: types[j] }; }),
+      columns: columns.map(function (col) { return { name: col.name, index: col.index, type: col.type }; }),
       target: { name: header[t], index: t },
       rows: kept,
       n_rows_read: data.length,
       n_rows_dropped_missing: dropped,
       n_rows: kept.length,
       limits: limits
-    };
+    }, columns);
+  }
+
+  /* CSV text (string) or UTF-8 bytes (Uint8Array / ArrayBuffer) -> LoadResult. */
+  function loadCsv(input, options) { return inspectCsv(input, options).load; }
+
+  /* ---- the URL entrance (#76; DA D-1) ------------------------------------------------------------ */
+
+  /* Only an absolute http: or https: URL without user name / password is read; anything else is
+   * refused here, before any request ({ ok: false, problem }). */
+  function checkUrl(text) {
+    var s = trimCell(text === undefined || text === null ? '' : String(text));
+    if (s === '') return { ok: false, problem: 'empty' };
+    var u;
+    try { u = new URL(s); } catch (e) { return { ok: false, problem: 'not_absolute_url' }; }
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return { ok: false, problem: 'not_http' };
+    if (u.username !== '' || u.password !== '') return { ok: false, problem: 'has_credentials' };
+    return { ok: true, url: u.href };
+  }
+
+  /* The init of the single request: exactly these members (DA D-1; asserted by the Node tests). */
+  function requestInit(signal) {
+    var init = { method: 'GET', credentials: 'omit', redirect: 'error' };
+    if (signal) init.signal = signal;
+    return init;
+  }
+
+  /* The browser's own network function; used only when no fetchImpl is injected. */
+  function defaultFetch(url, init) { return fetch(url, init); }
+
+  function urlFailure(cause, extra) {
+    return { ok: false, reason: URL_REASON, detail: Object.assign({ cause: cause }, extra || {}), sha256: null };
+  }
+
+  function hasNulByte(bytes) {
+    for (var i = 0; i < bytes.length; i++) if (bytes[i] === 0) return true;
+    return false;
+  }
+
+  /* Read the submitted URL once -> Promise of { ok: true, url, bytes, status } or a URL_FETCH_FAILED
+   * failure, or { ok: false, input_error } (refused before any request), or { ok: false, cancelled }
+   * when options.signal aborts it (the page left the custom dataset or a new submission replaced it).
+   * options: fetchImpl (injected network function), signal, timeoutMs. It never sends a second
+   * request: no retry on any failure, a redirect is an error, the timeout aborts. */
+  function fetchCsvBytes(text, options) {
+    options = options || {};
+    var checked = checkUrl(text);
+    if (!checked.ok) return Promise.resolve({ ok: false, input_error: checked.problem });
+    var doFetch = options.fetchImpl || defaultFetch;
+    var timeoutMs = options.timeoutMs > 0 ? options.timeoutMs : URL_TIMEOUT_MS;
+    var abort = typeof AbortController === 'function' ? new AbortController() : null;
+    var hasTimer = typeof setTimeout === 'function';
+    return new Promise(function (resolve) {
+      var settled = false, timer = null;
+      function done(value) {
+        if (settled) return;
+        settled = true;
+        if (timer !== null && typeof clearTimeout === 'function') clearTimeout(timer);
+        resolve(value);
+      }
+      function stop(value) { done(value); if (abort) abort.abort(); }
+      if (options.signal) {
+        if (options.signal.aborted) { done({ ok: false, cancelled: true }); return; }
+        options.signal.addEventListener('abort', function () { stop({ ok: false, cancelled: true }); });
+      }
+      if (hasTimer) timer = setTimeout(function () { stop(urlFailure('timeout', { timeout_ms: timeoutMs })); }, timeoutMs);
+      var pending;
+      try { pending = doFetch(checked.url, requestInit(abort ? abort.signal : null)); } catch (e) {
+        done(urlFailure('network'));
+        return;
+      }
+      Promise.resolve(pending).then(function (response) {
+        if (settled) return null;
+        if (!response || !response.ok) {
+          done(urlFailure('http_status', { status: response ? Number(response.status) || 0 : 0,
+            status_text: response && response.statusText ? String(response.statusText) : '' }));
+          return null;
+        }
+        return Promise.resolve(response.arrayBuffer()).then(function (buffer) {
+          var bytes = new Uint8Array(buffer);
+          if (hasNulByte(bytes)) done(urlFailure('not_text', { bytes: bytes.length }));
+          else done({ ok: true, url: checked.url, bytes: bytes, status: Number(response.status) || 0 });
+        });
+      }).then(null, function () { done(urlFailure('network')); });
+    });
   }
 
   return {
     LIMITS: LIMITS,
     REASONS: REASONS,
+    URL_REASON: URL_REASON,
+    URL_CAUSES: URL_CAUSES,
+    URL_TIMEOUT_MS: URL_TIMEOUT_MS,
     loadCsv: loadCsv,
+    inspectCsv: inspectCsv,
+    checkUrl: checkUrl,
+    requestInit: requestInit,
+    fetchCsvBytes: fetchCsvBytes,
     isNumberLiteral: isNumberLiteral,
     trimCell: trimCell,
     sha256Hex: sha256Hex,

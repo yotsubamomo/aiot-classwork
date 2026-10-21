@@ -13,6 +13,12 @@ the problem drop-down, and the V2 files' isolation rules.
 - **Isolation**: no V2 page file names ``model_data`` / ``MODEL_DATA`` / ``test_inputs`` (DA B-9, A-3),
   none writes markup from strings (DA D-2), the V2 ids are namespaced, and the generic Python reference is
   imported by no formal path.
+- **#76 V2-T3**: ``fetch(`` appears once in the unit, in the exploratory load module only, and the offline
+  scan's single exception is keyed by that path (Spec V2 「離線與請求隔離」; DA I-2): the same text in any
+  other file is a finding, and every other rule still applies to the load module. The custom dataset's
+  input panel (URL form, local file, target drop-down) sends no form by itself; the V1 footer is hidden
+  while exploring by a V2 stylesheet rule only (DA decision-20261022-r1f3-v1-footer R3-2, R3-5); the
+  「方法與限制」 table no longer says the test is recomputed on every selection (#75 R1-F3).
 """
 import hashlib
 import json
@@ -32,6 +38,7 @@ STARTUPS_SHA256 = "c6075ca5a7551243b31193bad9228f0a1b9468cdde2475c6586c56dcfac56
 V2_SCRIPTS = ["assets/data/startups50.js", "assets/explore_load.js", "assets/explore_engine.js",
               "assets/explore_plot.js", "assets/explore_app.js", "assets/explore_ui.js"]
 V2_FILES = V2_SCRIPTS + ["assets/explore.css"]
+FETCH_FILE = "assets/explore_load.js"          # #76: the one file allowed to call fetch( (DA I-2)
 # A-3 (derivation-SPEC-V2.md §7.3) plus the V1 stylesheet, all at the accepted baseline d7f02d4.
 V1_SHA256 = {
     "assets/app.js": "c1ab3f21cd9cc324ad820c46621c985bf8728a511d6db9a7f286fd7e57c982ad",
@@ -302,7 +309,123 @@ def test_exploratory_files_write_no_markup_and_run_no_strings(rel):
                 "document.cookie"):
         assert api not in code, api
     assert not re.search(r"set(?:Timeout|Interval)\(\s*['\"]", code)
-    assert not re.search(r"\bfetch\s*\(", code)                 # #74 has no network path at all
+    if rel != FETCH_FILE:                                       # #76: the load module is the only exception
+        assert not re.search(r"\bfetch\s*\(", code)
+
+
+def _page_files():
+    files = [DASHBOARD_HTML] + sorted(p for p in ASSETS_DIR.rglob("*")
+                                      if p.suffix in (".js", ".css", ".html") and "vendor" not in p.parts)
+    return [p for p in files if p.is_file()]
+
+
+def test_fetch_appears_once_and_only_in_the_load_module():
+    """Spec V2 「離線與請求隔離」; DA D-1, I-2: one call site, the browser's own function behind an
+    injectable parameter; the request options are exactly GET, credentials 'omit', redirect 'error',
+    with no header; no URL is written into the module."""
+    hits = []
+    for path in _page_files():
+        text = path.read_text(encoding="utf-8")
+        for m in re.finditer(r"\bfetch\s*\(", text, flags=re.I):
+            hits.append((path.relative_to(UNIT_DIR).as_posix(), text.count("\n", 0, m.start()) + 1))
+    assert [h[0] for h in hits] == [FETCH_FILE], hits
+    loader = (UNIT_DIR / FETCH_FILE).read_text(encoding="utf-8")
+    assert "function defaultFetch(url, init) { return fetch(url, init); }" in loader
+    assert "var init = { method: 'GET', credentials: 'omit', redirect: 'error' };" in loader
+    code = _code(UNIT_DIR / FETCH_FILE)
+    assert "headers" not in code.lower() and "keepalive" not in code and "mode:" not in code
+    assert not re.search(r"https?://", code)
+    assert code.count("doFetch(") == 1                          # one request per submission, no retry loop
+
+
+def test_offline_scan_exception_is_one_path_and_fetch_only(tmp_path):
+    """The scanner's exception (hw2/offline_scan.py): ``fetch(`` in ``assets/explore_load.js`` only.
+    Any other network API or an external URL in that file, and ``fetch(`` in any other file (same
+    name elsewhere included), are findings; the data-file allowances are not widened (DA I-2)."""
+    from hw2 import offline_scan
+
+    assert offline_scan.FETCH_ALLOWED_FILE == FETCH_FILE
+    assert offline_scan.ALLOWED_DATA_URLS == ("https://www.kaggle.com/datasets/harlfoxem/housesalesprediction",)
+    assert offline_scan.DATA_FILES == ("assets/model_data.js",)
+
+    def rules(files, html='<html><body><script src="assets/explore_load.js"></script></body></html>'):
+        unit = tmp_path / f"u{len(list(tmp_path.iterdir()))}"
+        (unit / "assets" / "vendor").mkdir(parents=True)
+        (unit / "index.html").write_text(html, encoding="utf-8")
+        files = {FETCH_FILE: "", **files}
+        for name, text in files.items():
+            path = unit / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        return sorted((f.path, f.rule) for f in offline_scan.scan(unit))
+
+    allowed = "function f(u, i) { return fetch(u, i); }\nvar g = function () { return Fetch (1); };\n"
+    assert rules({FETCH_FILE: allowed}) == []
+    for api in ("new XMLHttpRequest();", "new WebSocket('x');", "navigator.sendBeacon('x');",
+                "new EventSource('x');", "importScripts('x');", "import('x');"):
+        assert rules({FETCH_FILE: allowed + api}) == [(FETCH_FILE, "network-api")], api
+    assert rules({FETCH_FILE: allowed + "var u = 'https://example.org/data.csv';"}) == \
+        [(FETCH_FILE, "external-url")]
+    for other in ("assets/explore_app.js", "assets/explore_ui.js", "assets/explore_engine.js",
+                  "assets/data/startups50.js", "assets/data/explore_load.js", "assets/app.js",
+                  "assets/explore_load.mjs.js", "explore_load.js"):
+        found = rules({other: "fetch('a.csv');"})
+        if other == "explore_load.js":                        # outside index.html / assets: not scanned
+            assert found == []
+        else:
+            assert found == [(other, "network-api")], other
+    assert rules({"assets/vendor/explore_load.js": "fetch('a.csv');"}) == \
+        [("assets/vendor/explore_load.js", "network-api")]
+    assert rules({}, html="<html><body><script>fetch('a.csv')</script></body></html>") == \
+        [("index.html", "network-api")]
+    assert rules({"assets/model_data.js": "window.MODEL_DATA = {\"u\": \"https://other.example.org\"};"}) == \
+        [("assets/model_data.js", "external-url")]
+
+
+def test_custom_dataset_panel_has_the_three_inputs_and_sends_no_form():
+    """#76: URL form (submitted by the page script only), local file, target drop-down, each labelled;
+    no ``name`` / ``action`` / ``method`` that would let the browser send or put anything in the URL."""
+    root = parse(DASHBOARD_HTML.read_text(encoding="utf-8"))
+    panel = next(n for n in _walk(root) if _attr(n, "id") == "ex-custom")
+    by_id = {_attr(n, "id"): n for n in _walk(panel) if _attr(n, "id")}
+    form = by_id["ex-url-form"]
+    assert form["tag"] == "form" and _attr(form, "action") is None and _attr(form, "method") is None
+    assert by_id["ex-url"]["tag"] == "input" and _attr(by_id["ex-url"], "type") == "url"
+    assert by_id["ex-url-load"]["tag"] == "button" and _attr(by_id["ex-url-load"], "type") == "submit"
+    assert by_id["ex-file"]["tag"] == "input" and _attr(by_id["ex-file"], "type") == "file"
+    assert by_id["ex-target"]["tag"] == "select" and ["disabled", None] in by_id["ex-target"]["attrs"]
+    labels = {_attr(n, "for") for n in _walk(panel) if n["tag"] == "label"}
+    assert {"ex-url", "ex-file", "ex-target"} <= labels
+    assert all(_attr(n, "name") is None for n in _walk(panel) if n["tag"] in ("input", "select", "button", "form"))
+
+    def text(n):
+        return "".join(c.get("text", "") if "text" in c else text(c) for c in n["children"]
+                       if "comment" not in c)
+    body = text(panel)
+    for phrase in ("一次 GET", "不帶 cookie 等憑證", "不跟隨重新導向", "不重試", "不發出任何請求", "預設為最後一欄"):
+        assert phrase in body, phrase
+    assert "V2-T3" not in body and "目前不接受任何輸入" not in body
+
+
+def test_v1_footer_is_hidden_while_exploring_by_a_v2_rule_only():
+    css = (ASSETS_DIR / "explore.css").read_text(encoding="utf-8")
+    assert re.search(r"body\.is-exploring footer\.footer\s*\{\s*display:\s*none !important;\s*\}", css)
+    ui = _code(ASSETS_DIR / "explore_ui.js")
+    assert "footer" not in ui                                    # the footer's DOM is never touched
+
+
+def test_methods_table_no_longer_says_recomputed_on_every_selection():
+    """#75 R1-F3: the exploratory test is computed once per exploratory run, for the CV winners."""
+    html = DASHBOARD_HTML.read_text(encoding="utf-8")
+    assert "每次選取都重算" not in html and "每次選取都在瀏覽器內重新計算" not in html
+    root = parse(html)
+    table = next(n for n in _walk(root) if _attr(n, "id") == "ex-semantics")
+
+    def text(n):
+        return "".join(c.get("text", "") if "text" in c else text(c) for c in n["children"]
+                       if "comment" not in c)
+    row = next(text(n) for n in _walk(table) if n["tag"] == "tr" and text(n).startswith("Test 的地位"))
+    assert "只對 CV winner 計算一次" in row and "選取候選或切換方法不會重算" in row
 
 
 def test_the_reference_module_is_not_imported_by_any_formal_path():

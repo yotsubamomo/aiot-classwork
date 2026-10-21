@@ -13,6 +13,9 @@
 
 /* While exploring, the V1 page navigation points at hidden blocks: hide it (King County restores it). */
 body.is-exploring .topnav, body.is-exploring .nav-toggle { display: none !important; }
+/* #76 (DA decision-20261022-r1f3-v1-footer R3-2): the V1 footer belongs to King County; it is hidden
+ * while exploring, without touching its DOM or text, and shows again as it was on King County. */
+body.is-exploring footer.footer { display: none !important; }
 
 .tag--explore { background: #FFEDD5; color: #7C2D12; border-color: #FDBA74; white-space: normal; }
 .explore__banner { margin: var(--space-2) 0 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -28,11 +31,15 @@ body.is-exploring .topnav, body.is-exploring .nav-toggle { display: none !import
 #ex-columns th[scope="row"] { min-width: 7.5em; }
 #ex-columns td:last-child { min-width: 10em; }
 #ex-columns, #ex-folds { margin-top: var(--space-3); }
-.ex-placeholder { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
-.ex-placeholder__slot {
-  min-height: 56px; display: grid; place-items: center; text-align: center; padding: var(--space-2);
-  border: 2px dashed #94A3B8; border-radius: var(--radius); color: var(--c-muted); font-size: 0.875rem;
-}
+/* #76: the custom dataset's inputs (URL, local file, target column) */
+.ex-inputs { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-3) var(--space-4); margin-top: var(--space-3); }
+.ex-url { margin: 0; }
+.ex-url__row { display: flex; gap: var(--space-2); min-width: 0; }
+.ex-url__row .input { flex: 1 1 auto; min-width: 0; }
+.ex-url__btn { flex: 0 0 auto; font-weight: 600; }
+.ex-url__btn:disabled { cursor: progress; opacity: 0.7; }
+.ex-file { padding: 6px 8px; }
+.ex-custom-status { margin: var(--space-3) 0 0; overflow-wrap: anywhere; }
 #ex-pred-form[aria-disabled="true"] .fields { display: none; }
 .explore .field > label { font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
 
@@ -59,9 +66,12 @@ body.is-exploring .topnav, body.is-exploring .nav-toggle { display: none !import
 
 @media (max-width: 1024px) {
   .ex-kpi5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ex-inputs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ex-url { grid-column: 1 / -1; }
 }
 @media (max-width: 768px) {
-  .ex-placeholder { grid-template-columns: 1fr; }
+  .ex-inputs { grid-template-columns: 1fr; }
+  .ex-url__row { flex-wrap: wrap; }
   .problembar__select.input { min-width: 0; width: 100%; }
 }
 @media (max-width: 480px) {

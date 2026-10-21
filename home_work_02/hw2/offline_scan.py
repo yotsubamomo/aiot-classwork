@@ -12,6 +12,9 @@ scanned. A finding is any of:
   unit, and ``@import``;
 - in the unit's own scripts (not ``assets/vendor/``), a network API: ``fetch(``,
   ``XMLHttpRequest``, ``WebSocket``, ``EventSource``, ``sendBeacon``, ``importScripts``, ``import(``;
+  the one exception (HW2 V2, #76; Spec V2 「離線與請求隔離」; DA derivation I-2) is ``fetch(`` in the
+  file :data:`FETCH_ALLOWED_FILE` (the exploratory load module, which reads a user-submitted URL once),
+  keyed by that exact path; every other network API and every other rule still applies to that file;
 - in HTML, a ``src``/``href``/``srcset``/``poster``/``data``/``action`` reference (other than
   ``<a href>``) that is absolute or names a file missing from the unit.
 """
@@ -23,6 +26,7 @@ from .paths import UNIT_DIR
 
 ALLOWED_DATA_URLS = ("https://www.kaggle.com/datasets/harlfoxem/housesalesprediction",)
 DATA_FILES = ("assets/model_data.js",)
+FETCH_ALLOWED_FILE = "assets/explore_load.js"
 SCANNED_SUFFIXES = (".html", ".css", ".js")
 
 _URL = re.compile(r"""(?:https?:)?//[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}[^\s"'<>)]*""", re.I)
@@ -34,6 +38,7 @@ _NETWORK_API = re.compile(
 _TAG = re.compile(r"<([A-Za-z][A-Za-z0-9-]*)\b([^>]*)>", re.S)
 _ATTR = re.compile(r"""\b(src|href|srcset|poster|data|action)\s*=\s*(["'])(.*?)\2""", re.I | re.S)
 _LICENSE_COMMENT = re.compile(r"/\*!.*?\*/", re.S)
+_FETCH = re.compile(r"fetch\s*\(", re.I)
 
 
 @dataclass(frozen=True)
@@ -117,6 +122,8 @@ def scan_file(path: Path, unit_dir: Path = UNIT_DIR) -> list[Finding]:
         findings.append(Finding(rel, _line(text, m.start()), "css-import", m.group(0)))
     if suffix in (".js", ".html") and not vendored and rel not in DATA_FILES:
         for m in _NETWORK_API.finditer(work):
+            if rel == FETCH_ALLOWED_FILE and _FETCH.fullmatch(m.group(0)):
+                continue                  # the single fetch( exception (#76); nothing else is waived
             findings.append(Finding(rel, _line(text, m.start()), "network-api", m.group(0)))
     if vendored:
         for m in _NETWORK_API.finditer(work):

@@ -56,18 +56,34 @@
     <div class="section__head">
       <span class="eyebrow">探索執行 · Exploratory run</span>
       <h1 id="ex-title">探索執行</h1>
-      <p class="explore__banner small"><span class="tag tag--explore">探索執行，非正式評估</span> 每次選取都在瀏覽器內重新計算，結果不保存、不進報告數字，也不是作業的 Test 評估；King County 的正式分析與其數字不受影響。</p>
+      <p class="explore__banner small"><span class="tag tag--explore">探索執行，非正式評估</span> 每次執行探索（選取 50 Startups，或提交自訂資料集）都在瀏覽器內重新計算，結果不保存、不進報告數字，也不是作業的 Test 評估；King County 的正式分析與其數字不受影響。</p>
     </div>
     <div class="notice explore__message" id="ex-message" role="status" hidden></div>
 
     <article class="card ex-block" id="ex-custom" aria-labelledby="ex-h-custom" hidden>
       <h2 id="ex-h-custom">自訂資料集 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
-      <p class="small">自訂資料集的 URL 與本機 CSV 檔案輸入由 V2-T3 提供；目前不接受任何輸入。</p>
-      <div class="ex-placeholder" aria-hidden="true">
-        <div class="ex-placeholder__slot">CSV 的 URL（V2-T3）</div>
-        <div class="ex-placeholder__slot">本機 CSV 檔案（V2-T3）</div>
-        <div class="ex-placeholder__slot">預測目標欄（V2-T3）</div>
+      <p class="small">以 CSV 的 URL 或本機 CSV 檔案提交資料（UTF-8、逗號分隔、第一列為欄名）。兩種入口取得的內容走同一條載入與分析流程；資料只在這個分頁的記憶體中計算，不上傳、不保存，換到其他 problem 後再回來需要重新提交。</p>
+      <div class="ex-inputs">
+        <form class="field ex-url" id="ex-url-form" novalidate>
+          <label for="ex-url">CSV 的 URL</label>
+          <div class="ex-url__row">
+            <input class="input" id="ex-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" aria-describedby="ex-url-help">
+            <button class="btn ex-url__btn" type="submit" id="ex-url-load">載入 URL</button>
+          </div>
+          <p class="help" id="ex-url-help">只有按下「載入 URL」時，瀏覽器才對這個 URL 發出一次 GET 讀取：不帶 cookie 等憑證、不跟隨重新導向、不重試；其他操作都不發出請求。對方伺服器必須允許跨來源讀取（CORS），例如 GitHub 上的檔案請用 Raw 連結。讀取失敗時，可下載該 CSV 後改用本機檔案載入。</p>
+        </form>
+        <div class="field">
+          <label for="ex-file">本機 CSV 檔案</label>
+          <input class="input ex-file" id="ex-file" type="file" accept=".csv,text/csv,text/plain" aria-describedby="ex-file-help">
+          <p class="help" id="ex-file-help">在瀏覽器內讀取，不發出任何請求，離線也能使用。</p>
+        </div>
+        <div class="field">
+          <label for="ex-target">預測目標欄</label>
+          <select class="input" id="ex-target" disabled aria-describedby="ex-target-help"><option value="">（載入資料後選擇）</option></select>
+          <p class="help" id="ex-target-help">預設為最後一欄，必須是數值欄；改選後以同一份資料重新執行，不會重新讀取 URL。</p>
+        </div>
       </div>
+      <p class="small ex-custom-status" id="ex-custom-status" role="status">尚未載入資料：請以 URL 或本機 CSV 檔案提交。</p>
     </article>
 
     <article class="card ex-block" id="ex-data" aria-labelledby="ex-h-data" hidden>
@@ -202,7 +218,7 @@
             <tr><th scope="row">切分</th><td>以房屋 id 分組的 80／20 與分組 5-fold（同一房屋不跨訓練與 test）</td><td>固定 seed 的逐列 80／20 與逐列 5-fold，不分組</td></tr>
             <tr><th scope="row">Lasso 退化</th><td>未進入路徑的 group 依欄序補成 k = 1…18 的子集（King County 的選模語義）</td><td>路徑退化後停止：已求得的路徑段是實際結果，之後的 group 只作展示，k 超過的候選為無效（lasso_path_degenerate）</td></tr>
             <tr><th scope="row">派生規則</th><td>有：date 轉為日數、yr_renovated 拆成整修旗標與有效年份、zipcode 為類別、sqft_basement 不進模型</td><td>無：每個來源欄就是一個 feature group（數值欄一欄、類別欄為訓練層級的 one-hot）；沒有日期轉換或任何資料專屬規則</td></tr>
-            <tr><th scope="row">Test 的地位</th><td>正式的 Test evaluation，只做一次並記錄</td><td>探索 test：每次選取都重算、不保存，永遠不是 Test evaluation</td></tr>
+            <tr><th scope="row">Test 的地位</th><td>正式的 Test evaluation，只做一次並記錄</td><td>探索 test：每次執行探索時只對 CV winner 計算一次（選取候選或切換方法不會重算）、不保存，永遠不是 Test evaluation</td></tr>
           </tbody>
         </table>
       </div>

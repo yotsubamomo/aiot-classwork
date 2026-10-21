@@ -63,7 +63,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  var ENGINE_VERSION = 'explore-engine 2 (V2-T2: five methods)';
+  var ENGINE_VERSION = 'explore-engine 2.1 (V2-T3: column names as own keys)';
   var SEED = 42;
   var TEST_FRACTION = 0.2;
   var N_FOLDS = 5;
@@ -82,6 +82,18 @@
   var TINY32 = 1.1754943508222875e-38;        /* numpy float32 tiny */
   var EQ_TOL = 1.1920928955078125e-7;         /* numpy float32 eps (sklearn's equality_tolerance) */
   var RELATION_ZERO = 1e-9;
+
+  /* Objects keyed by column names (fit.levels, fit.inputs, n_unseen_by_group, predictor inputs) get
+   * their keys as own data properties and are read through own properties only, so that a name such as
+   * `__proto__`, `constructor` or `toString` is an ordinary key (#74 R1-F2), not the prototype or an
+   * inherited member. The objects stay plain, so the result contract serializes them as before. */
+  function putOwn(obj, key, value) {
+    Object.defineProperty(obj, key, { value: value, enumerable: true, writable: true, configurable: true });
+    return obj;
+  }
+  function getOwn(obj, key) {
+    return obj && Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined;
+  }
 
   /* ---- PRNG, split and folds ---------------------------------------------------------------- */
   function mulberry32(seed) {
@@ -183,7 +195,7 @@
         if (g.type === 'numeric') { x.push(v); return; }
         if (g.levels.indexOf(v) < 0) {
           unseen = true;
-          unseenByGroup[g.name] = (unseenByGroup[g.name] || 0) + 1;
+          putOwn(unseenByGroup, g.name, (getOwn(unseenByGroup, g.name) || 0) + 1);
         }
         for (var l = 1; l < g.levels.length; l++) x.push(v === g.levels[l] ? 1 : 0);
       });
@@ -383,7 +395,7 @@
   /* ---- one candidate: CV on the folds and the canonical fit ------------------------------------ */
   function levelsOf(enc) {
     var out = {};
-    enc.groups.forEach(function (g) { if (g.type === 'categorical') out[g.name] = { levels: g.levels.slice(), baseline: g.baseline }; });
+    enc.groups.forEach(function (g) { if (g.type === 'categorical') putOwn(out, g.name, { levels: g.levels.slice(), baseline: g.baseline }); });
     return out;
   }
 
@@ -397,7 +409,7 @@
     enc.groups.forEach(function (g) {
       if (g.type !== 'numeric') return;
       var v = rows.map(function (r) { return load.rows[r][g.index]; });
-      out[g.name] = { min: Math.min.apply(null, v), max: Math.max.apply(null, v), median: median(v) };
+      putOwn(out, g.name, { min: Math.min.apply(null, v), max: Math.max.apply(null, v), median: median(v) });
     });
     return out;
   }
@@ -1123,20 +1135,20 @@
   /* Inputs the predictor asks for: one per feature group of the fit (training-set values only). */
   function inputSpec(fit) {
     return fit.groups.map(function (name) {
-      var lv = fit.levels[name];
+      var lv = getOwn(fit.levels, name);
       if (lv) return { name: name, type: 'categorical', levels: lv.levels.slice(), baseline: lv.baseline, default: lv.baseline };
-      var info = fit.inputs[name];
+      var info = getOwn(fit.inputs, name);
       return { name: name, type: 'numeric', min: info.min, max: info.max, median: info.median, default: info.median };
     });
   }
 
-  /* Point prediction and 95% PI for raw source values {group: value}. Out-of-range numbers are still
-   * computed (warning); an unseen category is computed as the baseline (warning). */
+  /* Point prediction and 95% PI for raw source values {group: value} (own properties, or a Map). Out-of-range
+   * numbers are still computed (warning); an unseen category is computed as the baseline (warning). */
   function predict(candidate, raw) {
     if (!canPredict(candidate)) throw new Error('this candidate is not VALID: no prediction');
     var fit = candidate.fit, x = [1], warnings = [];
     inputSpec(fit).forEach(function (spec) {
-      var v = raw[spec.name];
+      var v = raw instanceof Map ? raw.get(spec.name) : getOwn(raw, spec.name);
       if (spec.type === 'numeric') {
         var num = typeof v === 'number' ? v : Number(String(v).trim());
         if (v === null || v === undefined || String(v).trim() === '' || !isFinite(num)) throw new Error('input ' + spec.name + ' is not a number');
@@ -1161,6 +1173,6 @@
     fitOls: fitOls, tQuantile: tQuantile, metricsOf: metricsOf, interval: interval,
     evaluateCandidate: evaluateCandidate, modelKey: modelKey, determineWinners: determineWinners,
     larsLasso: larsLasso, pathsOnRows: pathsOnRows, dependencyGroups: dependencyGroups, run: run,
-    canPredict: canPredict, inputSpec: inputSpec, predict: predict
+    canPredict: canPredict, inputSpec: inputSpec, predict: predict, putOwn: putOwn, getOwn: getOwn
   };
 });

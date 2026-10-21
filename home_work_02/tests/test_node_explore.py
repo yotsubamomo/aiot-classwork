@@ -14,7 +14,15 @@ Decisions; #74 V2-T1, #75 V2-T2).
   invalid); the A-1 reasons are checked on the All-in candidate.
 - The winner rules are also compared on injected candidate lists (``winner_cases.json``): equal CV
   RMSE within a method → the smaller k; equal CV RMSE between methods → the method order.
-- 次 seam: the load contract, the three-layer boundary, the request isolation / predictor tests and
+- #76 (#74 R1-F2): column names that are members of ``Object.prototype`` in JS (``constructor``,
+  ``toString``, ``valueOf``, ``hasOwnProperty``, ``isPrototypeOf``, ``__proto__``) are ordinary names.
+  Two full cases (``objkey_names``: numeric ``constructor`` and ``toString``, categorical ``__proto__``
+  whose levels include ``__proto__`` and ``constructor``, categorical ``hasOwnProperty``, target
+  ``valueOf``; ``objkey_numeric_proto``: numeric ``__proto__``) and two load cases (``proto_names``:
+  accepted; ``duplicate_proto``: ``__proto__,__proto__,y`` is DUPLICATE_COLUMN) are compared Node vs
+  Python like every other case, including the fits' ``levels`` and ``inputs``.
+- 次 seam: the load contract, the three-layer boundary, the request isolation / predictor tests, the
+  #76 custom dataset tests (URL read with a mock network function, file, target, switching, no storage) and
   the #75 method tests (hand-computed aggregation, freezing, Lasso degeneracy, fold boundary of
   the paths, the view helpers) need no reference and run as they are.
 
@@ -122,6 +130,30 @@ def a1_no_groups() -> bytes:
     return _csv(["k", "y"], [["1", _num(i * 1.5)] for i in range(30)])
 
 
+def objkey_names(n=70, seed=82) -> bytes:
+    """#74 R1-F2: names that are Object.prototype members in JS, as numeric and categorical columns,
+    as category levels and as the target. Non-degenerate, every candidate valid."""
+    rng = np.random.default_rng(seed)
+    a, b = rng.uniform(0, 50, n), rng.normal(10, 3, n)
+    proto = rng.choice(["__proto__", "constructor", "plain"], n)
+    own = rng.choice(["yes", "no"], n)
+    eff = {"__proto__": 0.0, "constructor": 7.0, "plain": -4.0}
+    y = (1.5 * a - 2.0 * b + np.array([eff[v] for v in proto]) + np.where(own == "yes", 3.0, 0.0)
+         + rng.normal(0, 2, n))
+    rows = [[_num(round(a[i], 3)), _num(round(b[i], 3)), proto[i], own[i], _num(round(y[i], 3))]
+            for i in range(n)]
+    return _csv(["constructor", "toString", "__proto__", "hasOwnProperty", "valueOf"], rows)
+
+
+def objkey_numeric_proto(n=50, seed=83) -> bytes:
+    """#74 R1-F2: a numeric column called ``__proto__`` (the predictor's numeric inputs)."""
+    rng = np.random.default_rng(seed)
+    x, z = rng.uniform(-5, 5, n), rng.uniform(0, 1, n)
+    y = 4.0 * x + 10.0 * z + rng.normal(0, 1, n)
+    return _csv(["__proto__", "isPrototypeOf", "y"],
+                [[_num(round(x[i], 4)), _num(round(z[i], 4)), _num(round(y[i], 4))] for i in range(n)])
+
+
 def degenerate_mixed(n=80, seed=81) -> bytes:
     """Synthetic degenerate data (Spec 主 seam (c)): ``x_sum = x1 + x2`` exactly (as doubles), and
     ``dup_b`` identical to ``dup_a`` (perfectly collinear; their Lasso entries tie exactly). The
@@ -153,6 +185,8 @@ CASES = {
     "a1_collinear": (a1_collinear, "COMPLETED"),
     "a1_no_groups": (a1_no_groups, "REJECTED"),
     "degenerate_mixed": (degenerate_mixed, "COMPLETED"),
+    "objkey_names": (objkey_names, "COMPLETED"),
+    "objkey_numeric_proto": (objkey_numeric_proto, "COMPLETED"),
 }
 DEGENERATE = {"a1_collinear", "degenerate_mixed"}
 
@@ -212,6 +246,9 @@ LOAD_CASES = {
     "hex_is_categorical": "a,y\n" + "\n".join(("0x1A" if i == 3 else str(i)) + f",{i}"
                                               for i in range(25)),
     "single_column": "only\n" + "\n".join(str(i) for i in range(25)),
+    "proto_names": "__proto__,constructor,toString\n" + "\n".join(
+        f"{('__proto__', 'hasOwnProperty')[i % 2]},{i},{i * 2}" for i in range(22)),
+    "duplicate_proto": "__proto__,__proto__,y\n" + "\n".join(f"{i},x,{i}" for i in range(25)),
 }
 
 
@@ -272,7 +309,8 @@ def test_node_explore_contract_matches_the_python_reference(reference_dir):
 @pytest.mark.parametrize("script", ["tests/js/explore_load.test.js",
                                     "tests/js/explore_boundary.test.js",
                                     "tests/js/explore_app.test.js",
-                                    "tests/js/explore_methods.test.js"])
+                                    "tests/js/explore_methods.test.js",
+                                    "tests/js/explore_custom.test.js"])
 def test_node_explore_secondary_seams(script):
     _node(script)
 
@@ -436,6 +474,29 @@ def test_degenerate_fixture_semantics(reference_dir):
     w = res["winners"]
     assert w["method_winners"]["allin"] is None
     assert all(by_key[v["key"]]["status"] == "VALID" for v in w["method_winners"].values() if v)
+
+
+def test_object_member_names_are_ordinary_names_in_the_reference(reference_dir):
+    """#74 R1-F2, Python side: the reference treats every name as data, so the Node comparison of
+    these cases is against the right expectation (DUPLICATE_COLUMN for a repeated ``__proto__``;
+    the fits keep ``__proto__`` / ``constructor`` as keys of ``levels`` / ``inputs``)."""
+    dup = R.load_csv(LOAD_CASES["duplicate_proto"].encode("utf-8"))
+    assert dup["ok"] is False and dup["reason"] == "DUPLICATE_COLUMN"
+    assert dup["detail"] == {"name": "__proto__", "columns": [0, 1]}
+    ok = R.load_csv(LOAD_CASES["proto_names"].encode("utf-8"))
+    assert ok["ok"] and [c["name"] for c in ok["columns"]] == ["__proto__", "constructor", "toString"]
+    assert [c["type"] for c in ok["columns"]] == ["categorical", "numeric", "numeric"]
+    res = _result(reference_dir, "objkey_names")
+    assert res["meta"]["target"] == "valueOf"
+    assert [g["name"] for g in res["groups"]] == ["constructor", "toString", "__proto__",
+                                                  "hasOwnProperty"]
+    assert {c["status"] for c in res["candidates"]} == {"VALID"}
+    fit = res["candidates"][0]["fit"]
+    assert set(fit["levels"]) == {"__proto__", "hasOwnProperty"}
+    assert set(fit["levels"]["__proto__"]["levels"]) == {"__proto__", "constructor", "plain"}
+    assert set(fit["inputs"]) == {"constructor", "toString"}
+    res = _result(reference_dir, "objkey_numeric_proto")
+    assert set(res["candidates"][0]["fit"]["inputs"]) == {"__proto__", "isPrototypeOf"}
 
 
 def test_winner_rules_on_injected_candidates():

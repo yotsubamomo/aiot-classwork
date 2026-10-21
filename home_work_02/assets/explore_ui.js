@@ -1,12 +1,21 @@
 /* HW2 V2 dashboard: the problem drop-down and the Exploratory run blocks on the page (#74 V2-T1; #75
  * V2-T2: the five methods, the metric vs k chart, the winners, the Lasso path and the dependency
- * diagnostic).
+ * diagnostic; #76 V2-T3: the custom dataset's input panel).
  *
  * King County (the default) is the V1 dashboard exactly as assets/app.js renders it; this file never
  * changes a V1 element's content. Selecting 50 Startups or 自訂資料集 hides the V1 blocks (the
  * `hidden` attribute of #overview, #model, #predictor, #test, #methods, #load-error) and shows the
  * #explore subtree, whose ids all start with "ex-"; selecting King County again shows the V1 blocks
  * and restores #load-error to what it was. Every exploratory block is labelled 「探索執行，非正式評估」.
+ * The V1 footer is hidden while exploring by a body.is-exploring rule of assets/explore.css (its DOM
+ * and text are never touched; DA decision-20261022-r1f3-v1-footer R3-2, R3-5).
+ *
+ * Custom dataset (#76): the #ex-custom panel stays visible in that mode, with the results under it. A
+ * URL is read only when the user submits the URL form (「載入 URL」), through the controller and the
+ * loader (one GET; DA D-1); a local file is read here with File.arrayBuffer() (no network) and handed
+ * over as bytes. The target drop-down lists the columns of the content read (default: the last one);
+ * choosing another runs the same content again without reading the URL again. Selecting another
+ * problem forgets the submission; selecting 自訂資料集 again shows an empty panel.
  *
  * Model block (#75): a method switch (All-in, Forward SFS, Backward SFS, RFE, Lasso path), a k grid
  * (CV winners marked, INVALID_MODEL candidates striped and still selectable with their reasons), a
@@ -27,6 +36,7 @@
   var Plot = window.HW2ExplorePlot, DATA = window.HW2_STARTUPS50;
   var V1_BLOCKS = ['overview', 'model', 'predictor', 'test', 'methods'];
   var EX_BLOCKS = ['ex-custom', 'ex-data', 'ex-model', 'ex-predictor', 'ex-test', 'ex-methods'];
+  var controller = null;
   var METRICS = { rmse: 'RMSE', mae: 'MAE', mse: 'MSE', r2: 'R²' };
   var loadErrorWasHidden = null;
   var scatter = null, kchart = null;
@@ -107,8 +117,9 @@
   }
   function renderData(run) {
     var load = run.load, res = run.result, sourceText = { builtin: '內建資料（assets/data/50_Startups.csv，取自 Avik-Jain/100-Days-Of-ML-Code，MIT 授權）',
-      file: '本機文字', url: 'URL' }[run.source] || String(run.source);
-    var pairs = [['來源', sourceText], ['內容 sha256', load.sha256, 'hash']];
+      file: '本機 CSV 檔案', url: 'URL' }[run.source] || String(run.source);
+    if (run.label) sourceText += '：' + run.label;              /* the file name or the URL, as text */
+    var pairs = [['來源', sourceText], ['內容 sha256', load.sha256 || '—', 'hash']];
     if (load.ok) {
       pairs.push(['預測目標', load.target.name + '（原始尺度，不取 log）']);
       pairs.push(['列數', nf0.format(load.n_rows_read) + ' 列讀入；刪除含缺值的列 ' + nf0.format(load.n_rows_dropped_missing) + ' 列；分析 ' + nf0.format(load.n_rows) + ' 列']);
@@ -419,19 +430,76 @@
     renderTest();
   }
 
+  /* ---- custom dataset input panel (#76) ------------------------------------------------------------ */
+  function renderCustom(panel) {
+    panel = panel || { busy: false, source: null, label: null, hasData: false, columns: null, target: null };
+    var target = byId('ex-target');
+    clear(target);
+    if (panel.columns && panel.columns.length) {
+      panel.columns.forEach(function (c) {
+        var opt = document.createElement('option');
+        opt.value = String(c.index);
+        opt.text = c.name + '（' + (c.type === 'numeric' ? '數值' : '類別') + '）';
+        target.appendChild(opt);
+      });
+      target.value = String(panel.target);
+      target.disabled = panel.busy;
+    } else {
+      var none = document.createElement('option');
+      none.value = '';
+      none.text = '（載入資料後選擇）';
+      target.appendChild(none);
+      target.disabled = true;
+    }
+    byId('ex-url-load').disabled = panel.busy;
+    var status = byId('ex-custom-status');
+    if (panel.busy) status.textContent = '讀取中：' + panel.label;
+    else if (panel.hasData) status.textContent = '目前的資料：' + (panel.source === 'url' ? 'URL ' : '本機 CSV 檔案 ') + (panel.label || '');
+    else if (panel.source === 'url') status.textContent = '沒有載入任何資料（URL 讀取失敗）：' + panel.label;
+    else status.textContent = '尚未載入資料：請以 URL 或本機 CSV 檔案提交。';
+  }
+
+  var fileToken = 0;
+  function readFile(input) {
+    var file = input.files && input.files[0];
+    if (!file || !controller) return;
+    var token = ++fileToken;
+    file.arrayBuffer().then(function (buffer) {
+      input.value = '';                            /* the same file can be chosen again */
+      /* dropped if the user has moved to another problem or chosen another file meanwhile */
+      if (token !== fileToken || byId('problem-select').value !== 'custom') return;
+      controller.submitData(new Uint8Array(buffer), { source: 'file', label: file.name });
+    }, function () {
+      input.value = '';
+      if (token !== fileToken || byId('problem-select').value !== 'custom') return;
+      message('無法讀取這個本機檔案（瀏覽器拒絕讀取）。請重新選擇檔案。', 'error');
+    });
+  }
+
   /* ---- render ------------------------------------------------------------------------------------- */
   function render(view) {
     current = view;
     if (view.mode === 'king_county') { setExploring(false); return; }
     setExploring(true);
     byId('ex-title').textContent = App.PROBLEM_TITLES[view.problem] || '探索執行';
-    if (view.mode === 'custom') { message(''); showBlocks(['ex-custom']); return; }
-    if (view.mode === 'error') { message(view.message, 'error'); showBlocks([]); return; }
+    var isCustom = view.problem === 'custom';
+    var withPanel = function (ids) { return isCustom ? ['ex-custom'].concat(ids) : ids; };
+    if (isCustom) renderCustom(view.custom);
+    if (view.mode === 'custom') {
+      message(view.notice ? view.notice.text : '', view.notice ? view.notice.kind : null);
+      showBlocks(['ex-custom']);
+      return;
+    }
+    if (view.mode === 'error') { message(view.message, 'error'); showBlocks(withPanel([])); return; }
     var run = view.run;
     if (!run.load.ok) {
-      message('無法載入資料：' + App.loadReasonText(run.load.reason) + '（' + run.load.reason + '）', 'error');
-      renderData(run);
-      showBlocks(['ex-data']);
+      message('無法載入資料：' + App.loadFailureText(run.load), 'error');
+      if (run.load.sha256) {
+        renderData(run);
+        showBlocks(withPanel(['ex-data']));
+      } else {
+        showBlocks(withPanel([]));
+      }
       return;
     }
     var res = run.result;
@@ -443,11 +511,11 @@
         if (inv.length > 1) lines.push('其餘 ' + (inv.length - 1) + ' 個候選也都無效；原因見下方共線診斷。');
       }
       message(lines.join(' '), 'error');
-      showBlocks(['ex-data', 'ex-methods']);
+      showBlocks(withPanel(['ex-data', 'ex-methods']));
       return;
     }
     message('執行完成：五種方法共 ' + res.candidates.length + ' 個候選' + (run.ms === null ? '' : '，耗時 ' + run.ms.toFixed(1) + ' ms（瀏覽器內計算，只供參考）'));
-    showBlocks(['ex-data', 'ex-model', 'ex-predictor', 'ex-test', 'ex-methods']);
+    showBlocks(withPanel(['ex-data', 'ex-model', 'ex-predictor', 'ex-test', 'ex-methods']));
     ui.result = res;
     ui.key = App.defaultKey(res);
     renderCompare();
@@ -459,7 +527,7 @@
     var problemSelect = byId('problem-select');
     if (!problemSelect || !byId('explore')) return;
     if (!App || !Engine || !Loader || !Plot) { problemSelect.disabled = true; return; }
-    var controller = App.createController({ loader: Loader, engine: Engine, datasets: { startups50: DATA }, render: render,
+    controller = App.createController({ loader: Loader, engine: Engine, datasets: { startups50: DATA }, render: render,
       now: function () { return performance.now(); } });
     window.HW2_EXPLORE = { state: controller.state, view: function () { return current; },
       selection: function () { return { key: ui.key, compareAll: ui.compareAll, metric: ui.metric }; } };
@@ -470,8 +538,25 @@
       ui.compareAll = !ui.compareAll;
       if (ui.result) { renderControls(); renderKChart(); }
     });
+    /* #76: the custom dataset's inputs. Submitting the URL form is the only action that reads a URL;
+     * no form is ever sent by the browser itself (that would reload the page and add URL parameters). */
+    byId('ex-url-form').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (byId('ex-url-load').disabled) return;
+      controller.submitUrl(byId('ex-url').value);
+    });
+    byId('ex-file').addEventListener('change', function (ev) { readFile(ev.target); });
+    byId('ex-target').addEventListener('change', function (ev) {
+      if (ev.target.value !== '') controller.setTarget(Number(ev.target.value));
+    });
+    byId('ex-pred-form').addEventListener('submit', function (ev) { ev.preventDefault(); });
     controller.init();
-    problemSelect.addEventListener('change', function () { controller.selectProblem(problemSelect.value); });
+    problemSelect.addEventListener('change', function () {
+      byId('ex-url').value = '';                   /* a new visit to the custom dataset starts empty */
+      byId('ex-file').value = '';
+      fileToken++;
+      controller.selectProblem(problemSelect.value);
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
