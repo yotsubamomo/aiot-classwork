@@ -324,14 +324,14 @@
     var rows = info.entries.map(function (e, i) {
       return { position: i + 1, group: e.group, alpha: e.entry_alpha, state: '實際路徑' };
     }).concat(info.not_entered.map(function (g) {
-      return { position: null, group: g, alpha: null, state: info.degenerate ? '未進入（退化後，只作展示）' : '未進入' };
+      return { position: null, group: g, alpha: null, state: info.degenerate ? '未進入（路徑停止後，只作展示）' : '未進入' };
     }));
     var summary = info.degenerate
       ? '路徑只求得前 ' + info.n_entered + ' 個 feature group 就停止（停止原因：' + causeText(info.cause) + '）：只有這 ' +
         info.n_entered + ' 個 group 是實際路徑，k ≥ ' + info.first_invalid_k + ' 的 Lasso 候選無效。'
       : '全部 ' + info.n_entered + ' 個 feature group 都進入路徑，沒有退化。';
     var folds = result.lasso_path.folds.filter(function (f) { return f.degenerate; }).length;
-    if (folds) summary += '另有 ' + folds + ' 個 fold 的路徑退化（見各候選的原因）。';
+    if (folds) summary += '另有 ' + folds + ' 個 fold 的路徑也在全部 group 進入前停止（停止原因見各候選的原因）。';
     return { rows: rows, summary: summary, degenerate: info.degenerate };
   }
 
