@@ -137,3 +137,25 @@ Activation grounding 補讀：治理 §1.4、§1.5、§2.4、§2.5、§3.8、§4
 | 3→ | 2026-10-22 | #74 R1 c1 | agentId `a940e0242c7bf7572` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **BLOCKING**（R1-F1）；record `audit/issue-74-c1-r1.md`；觀測 `('claude-opus-5-5','xhigh')` 199 則 → return 採用 |
 
 #74 R1 routing（治理 §2.4；record §8 已指明 authority，與規則一致 → 直接派工）：R1-F1 → Executor targeted correction（同一 worklog identity，以 SendMessage 續派同一 Executor）→ R2。R1-F3 → Design Authority（契約語義：V1 頁尾在探索模式的處理）。R1-F2（non-blocking，owner＝Orchestrator）→ tracked：派 #76 時列入 bounded pack，由 #76 R1 與 Spec Integration Audit 核對。
+| 4 | 2026-10-22 | #74 correction（R1-F1） | agentId `addc2dc935a7822fe`（續派） | `gov-executor` | Opus 5.5／`high` | DONE；subject `9e99a10`（只改 `doc/acceptance/ACCEPTANCE.md` V2-3 與 worklog）；觀測 `('claude-opus-5-5','high')` 209 則（全 transcript）→ 採用 |
+| 5 | 2026-10-22 | R1-F3 | agentId `ae1fc9b67e8291ba0` | `gov-design-authority` | Opus 5.5／`high` | 裁決 `decisions/decision-20261022-r1f3-v1-footer.md`（R3-1～R3-6；不改變 accepted 語義）；觀測 `('claude-opus-5-5','high')` 30 則 → 採用；受影響 #76（R3-5）、#78（R3-6）→ 派工時列入 pack |
+| 6 | 2026-10-22 | #74 R2 c1 | agentId `a940e0242c7bf7572`（續派，重讀修正後 diff） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `9e99a10` |
+
+Tracked items for later dispatch packs：#76 ← R1-F2（`audit/issue-74-c1-r1.md`）、R3-5（decision-20261022-r1f3-v1-footer）；#78 ← R3-6。
+| 6→ | 2026-10-22 | #74 R2 c1 | agentId `a940e0242c7bf7572` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/issue-74-c1-r2.md`；觀測 `('claude-opus-5-5','xhigh')` 219 則（R1＋R2 全 transcript，單一元素）→ 採用 |
+
+### #74 結案核對（orch-default §7；只核對 record 存在與一致）
+
+| Predicate | 證據 | 結果 |
+| --- | --- | --- |
+| P1 dependencies | #74 無依賴 | 成立 |
+| P2 授權與引用鏈 | OC §5（`4eb03e6`）＋§5.2 CC-V2-1（`506581a`）；`derivation-SPEC-V2.md`（`540e6f2`）；#74 → #73 Spec V2 → OC §5 | 成立 |
+| P3 self-verification 與 gates | worklog `issue-74.md` §6–§9 的指令與輸出；R1／R2 自行重跑 pytest 433 passed、0 skipped | 引用存在 |
+| P4 audit closure | `audit/issue-74-c1-r1.md`（BLOCKING：R1-F1）→ `audit/issue-74-c1-r2.md`（CLOSURE），Reviewer 自寫，binding 已核 | 成立 |
+| P5 無未處置 blocking | R1-F1 已由 R2 closure；R1-F2（non-blocking）disposition 在 R1 record §7，owner＝Orchestrator → #76 | 成立 |
+| P6 已 route 的 design questions | R1-F3 → `decisions/decision-20261022-r1f3-v1-footer.md` | 成立 |
+| P7 最終 subject coverage | 受審 subject `9e99a10`；其後只有 record-only commit（`doc/governance/**`，Bindings §7） | 成立 |
+| P8 worklog | `worklog/issue-74.md` §9 於 correction 後更新 | 成立 |
+| P9 整合驗證 | phase 層：Spec V2 的 Spec Integration Audit | 待 #78 後 |
+
+**#74：已結案**（closed subject `9e99a10cc9f78901bd0a41d400757c9fc00d036c`）。GitHub issue #74 不在本 run 關閉：commits 未 push，issue 狀態留待 acceptor 的 push／merge 決定時一併處理；本 run record 是結案的權威紀錄。Push：未授權（OC §5.1），列入 completion report。Frontier：#75（READY；#76 亦 READY，依並行度 1 先 #75）。
