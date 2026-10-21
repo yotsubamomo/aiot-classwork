@@ -188,3 +188,22 @@ Tracked items for dispatch packs（更新）：
 | 10 | 2026-10-22 | #76 | agentId `acd62ed3a70012296` | `gov-executor` | Opus 5.5／`high`（O-1） | DONE；subject `e405bf1`（實作）＋`a4b6c76`（records）；觀測 `('claude-opus-5-5','high')` 220 則 → 採用。Machine gates：diff 全在 `home_work_02/`、無 `doc/requirement/`；V1 腳本、`model_data.js`、`style.css`、`results/`、V1 Spec／tickets／Brief、notebook 自 `d7f02d4` 無 diff；`hw2/` 只有 `explore_reference.py` 與 `offline_scan.py`（DA B-2）；#76 未動任何既有測試。Concerns：#1、#2 指名 Reviewer → R1 以 worklog 引用；#3 → #77（已分配）；#4 Pages → B-10 合併後；#5 push → completion report |
 | 11 | 2026-10-22 | #76 R1 c1 | （fresh） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `a4b6c76`，BASE `450bcff` |
 | 11→ | 2026-10-22 | #76 R1 c1 | agentId `ad730583783ecd443` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **BLOCKING**（R1-F1：`explore_ui.js` 預測器輸入以一般物件收集，`__proto__` 欄的輸入被忽略；#74 R1-F2 的剩餘部分）；record `audit/issue-76-c1-r1.md`；觀測 `('claude-opus-5-5','xhigh')` 155 則 → 採用。Routing：R1-F1 → Executor targeted correction（續派 `acd62ed3a70012296`）→ R2；R1-F2（Low）→ Spec Integration Audit pack；O-1 → #77（已分配）；O-3：Reviewer 執行 `chrome.exe --version` 以 acceptor 預設 profile 開啟一次 Chrome，已以 PID 停止 → 告知 acceptor；之後派工 pack 加「不得以預設 profile 啟動瀏覽器」 |
+| 12 | 2026-10-22 | #76 correction（R1-F1） | agentId `acd62ed3a70012296`（續派） | `gov-executor` | Opus 5.5／`high` | DONE；subject `c4256f5`（`explore_ui.js`、`tests/test_explore_static.py`）＋`9ac8499`（records）；觀測 `('claude-opus-5-5','high')` 262 則（全 transcript）→ 採用 |
+| 13 | 2026-10-22 | #76 R2 c1 | agentId `ad730583783ecd443`（續派，重讀修正後 diff） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `9ac8499` |
+| 13→ | 2026-10-22 | #76 R2 c1 | agentId `ad730583783ecd443` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/issue-76-c1-r2.md`；觀測 `('claude-opus-5-5','xhigh')` 188 則（R1＋R2 全 transcript）→ 採用 |
+
+### #76 結案核對（orch-default §7）
+
+| Predicate | 證據 | 結果 |
+| --- | --- | --- |
+| P1 | #74 已結案 | 成立 |
+| P2 | OC §5／§5.2；`derivation-SPEC-V2.md`；#76 → #73 → OC §5 | 成立 |
+| P3 | `worklog/issue-76.md` §1–§10；R2 自行重跑 pytest 455 passed、0 skipped，Node、offline_scan、瀏覽器重現 | 引用存在 |
+| P4 | `audit/issue-76-c1-r1.md`（BLOCKING：R1-F1）→ `audit/issue-76-c1-r2.md`（CLOSURE） | 成立 |
+| P5 | R1-F1 closure；R1-F2（Low）→ Spec Integration Audit；O-1 → #77 | 成立 |
+| P6 | 無新的 routed design question（R3、R4 已有 decision record） | 成立 |
+| P7 | 受審 subject `9ac8499`；其後只有 record-only commit | 成立 |
+| P8 | `worklog/issue-76.md` §10 | 成立 |
+| P9 | phase 層 | 待 #78 後 |
+
+**#76：已結案**（closed subject `9ac8499cef2af446bfb31e9b5421c7a0836cc2a2`）。#74 R1-F2 由 #76 R2 確認於頁面路徑解決。Frontier：#77（READY）。
