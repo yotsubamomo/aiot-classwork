@@ -380,8 +380,8 @@
       fields.appendChild(field);
     });
     function update() {
-      var raw = {};
-      inputs.forEach(function (x) { raw[x.spec.name] = x.input.value; });
+      var raw = new Map();             /* a Map: a column called `__proto__` is an ordinary key (#76 R1-F1) */
+      inputs.forEach(function (x) { raw.set(x.spec.name, x.input.value); });
       var v = App.predictorView(Engine, candidate, raw);
       clear(status);
       if (v.error) {

@@ -299,6 +299,18 @@ def test_exploratory_files_never_read_model_data_or_test_inputs(rel):
 
 
 @pytest.mark.parametrize("rel", V2_SCRIPTS)
+def test_exploratory_files_never_assign_a_computed_key_on_a_plain_object(rel):
+    """#74 R1-F2 / #76 R1-F1: a value keyed by a column name is never written as ``obj[name] = …``
+    (a column called ``__proto__`` would hit the prototype setter and be lost); such values go
+    through ``putOwn`` (own data property) or a ``Map``. Bracket writes keyed by array indices or
+    internal keys (candidate keys, method names) are not affected; a write whose key expression
+    names a column, group, level or header is a finding."""
+    code = _code(UNIT_DIR / rel)
+    for m in re.finditer(r"(\w+(?:\.\w+)*)\[([^\[\]]+)\]\s*(?:=(?!=)|\+=|-=|\*=|/=)", code):
+        assert not re.search(r"name|group|level|header|column|target", m.group(2), re.I), (rel, m.group(0))
+
+
+@pytest.mark.parametrize("rel", V2_SCRIPTS)
 def test_exploratory_files_write_no_markup_and_run_no_strings(rel):
     """DA D-2 / A-9: strings from a dataset reach the page as text only."""
     code = _code(UNIT_DIR / rel)
