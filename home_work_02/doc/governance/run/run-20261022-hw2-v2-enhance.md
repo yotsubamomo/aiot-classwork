@@ -6,7 +6,7 @@
 - **Bindings**：b5（`main` merge commit `5ebcc58eba1d776cc7380d391ced1dc503a3ee31`；已確認為 `origin/main` 的祖先）
 - **Branch**：`home_work_02-v2-enhance`；核對時 HEAD＝`d7f02d4179d2cb5c2ecf0c39a4643a6ef8287907`（SDD baseline），未 push（`origin` 無此 branch）
 - **並行度**：1（Bindings §6；designation 第 3 點）
-- **狀態**：**尚未 activation**（orch-default §3：缺前提時不啟動 run；缺口是「尚未 activation」，不是 run 內的 stop）。見第 5 節。
+- **狀態**：**ACTIVE**（2026-10-22 activation；前提見第 2、7 節，F-1 由 acceptor 決定見第 8 節）。
 
 ## 1. Designation 與授權
 
@@ -113,3 +113,19 @@ Activation grounding 補讀：治理 §1.4、§1.5、§2.4、§2.5、§3.8、§4
 - **所用規則**：治理 §2.4、orch-default §5 boundary 列——DA 無法確立在 boundary 內 → 該路徑 fail-closed 至 acceptor（治理 §1.5 第 2 項）。
 - **受影響路徑**：#74 的 `index.html` 腳本加入與 #74 結案；#75–#78 依賴 #74，結案同受阻。
 - **Stop report（治理 §1.5）**：現況＝前提 D8-f、O-2 成立，run 可 activation；缺少＝acceptor 對 F-1 的決定（DA 建議 (a)：只修改該斷言，V1 四檔仍為前四項且順序不變，其後逐一列出 V2 腳本）；已嘗試＝re-ground、DA boundary determination（無法確立）；所需 authority＝acceptor（contract change，治理 §5.3 第 1 類）；下一步＝acceptor 決定後派 #74。Acceptor 已指示「report their validation results before dispatching #74」，所以 #74 在回報後才派工；不預判 F-1 的部分工作是否先行，依 acceptor 回覆。
+
+## 8. F-1 acceptor 決定與 activation（2026-10-22）
+
+- Acceptor 原文逐字（亦轉錄於 `outcome-contract.md` §5.2 CC-V2-1）：
+
+> F-1：採 (a)。授權只修改 test_page_loads_data_as_a_js_global_and_the_bundled_chartjs 這一條斷言：前四個 <script src> 必須仍是 V1 的四個檔案且順序不變，其後逐一列出 V2 腳本；其他既有測試不變，於 #74 R1 以 H-2 核對。請派工 #74。
+
+- 效果：F-1 路徑解除；第 7.2 節的 stop 結束。全部前提成立，run activation。designation 第 4 點的「既有測試不變」對這一條斷言依 CC-V2-1 放寬，其餘不變。
+- Frontier：#74（READY）。
+- **Acceptor 追加指示（2026-10-22，逐字）**：「後續所有的事項照我們的治理原則，都不要再來詢問。」
+  - Orchestrator 的適用方式：依治理 §1.4 自主續行（work item 完成、findings、rework、DA／FA 裁決、rollover 都不詢問）。本指示未改變 OC §5.1 的「No push, merge … is authorized」與 designation 第 6 點，所以 push 不執行、也不逐次詢問，累積到 run 結束時在 completion report 列出；merge（RB-1）、root 檔案（RB-5）、繳交（RB-2）仍保留。只有治理 §1.5 的 boundary（含 DA fail-closed 至 acceptor 的路徑）停止受影響路徑並寫 stop report，其他路徑繼續。
+
+## 9. Dispatch log
+
+| # | 時間 | Work item | Assignment | Definition | 有效 mapping | 結果 |
+| --- | --- | --- | --- | --- | --- | --- |

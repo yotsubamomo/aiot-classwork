@@ -210,3 +210,13 @@
 > Please record this acceptor decision verbatim, complete the two missing preconditions, and report their validation results before dispatching #74.
 
 轉錄者：Orchestrator session `37216426-f292-44f9-bad1-e2d862e7b8f1`，依上述原文「Authorize registration of this V2 acceptance in the existing outcome-contract.md」轉錄；接受與授權的效力來自原文，不來自本轉錄。本節不改變第 1–4 節的任何內容。
+
+### 5.2 CC-V2-1（2026-10-22）— F-1：既有 `<script src>` 斷言（APPROVED CONTRACT CHANGE）
+
+- **性質**：治理 §5.3 第 1 類（改變 accepted 語義：票的共同條款與 run designation 第 4 點的「既有測試全部不變」對這一條斷言放寬）。來源：Design Authority [`decisions/derivation-SPEC-V2.md`](decisions/derivation-SPEC-V2.md) §4 B-13、§9 F-1，fail-closed 至 acceptor。
+- **變更後的 accepted 語義**：只有 `tests/test_dashboard_static.py::test_page_loads_data_as_a_js_global_and_the_bundled_chartjs` 的 `<script src>` 斷言可修改：前四個 `<script src>` 必須仍是 V1 的四個檔案（`assets/vendor/chart.umd.js`、`assets/model_data.js`、`assets/hw2core.js`、`assets/app.js`）且順序不變，其後逐一列出 V2 腳本。其他既有測試不變。修改於 #74 R1 以 H-2 核對。
+- **Acceptor 原文（2026-10-22，逐字）**：
+
+> F-1：採 (a)。授權只修改 test_page_loads_data_as_a_js_global_and_the_bundled_chartjs 這一條斷言：前四個 <script src> 必須仍是 V1 的四個檔案且順序不變，其後逐一列出 V2 腳本；其他既有測試不變，於 #74 R1 以 H-2 核對。請派工 #74。
+
+轉錄者：Orchestrator session `37216426-f292-44f9-bad1-e2d862e7b8f1`；效力來自上述原文。
