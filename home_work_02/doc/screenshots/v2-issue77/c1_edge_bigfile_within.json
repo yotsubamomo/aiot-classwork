@@ -1,0 +1,47 @@
+{
+  "label": "edge_subject",
+  "mode": "bigfile",
+  "browserPid": 19752,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.1 (V2-T4: budgets, cancellation incl. the final phase, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "bigfile": {
+      "done": true,
+      "ms": 8908,
+      "message": "無法載入資料：瀏覽器無法處理這份輸入（約 534 MB）：它是有效的 UTF-8，列數與欄數都在載入上限內，但超過這個瀏覽器分頁能以文字處理的大小或記憶體（Error：the decoder returned 0 characters for 560080006 bytes (the input is too large for this browser as text)）。這不是 CSV 格式或編碼的問題；沒有執行分析。",
+      "load": {
+        "reason": null,
+        "detail": {},
+        "env": {
+          "stage": "decode",
+          "error": "Error",
+          "message": "the decoder returned 0 characters for 560080006 bytes (the input is too large for this browser as text)",
+          "bytes": 560080006
+        },
+        "sha256": "a809c2348e30e547c3fceb8d69c794ecff14d9396158e5fe272a28552f910717"
+      },
+      "blocks": [
+        "ex-custom",
+        "ex-data"
+      ]
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Edg/155.0.4283.62",
+  "csv": {
+    "file": "within_560mb.csv",
+    "bytes": 560080006
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "label": "chrome_subject",
+  "mode": "live",
+  "browserPid": 20872,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.1 (V2-T4: budgets, cancellation incl. the final phase, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "live": {
+      "running": [
+        {
+          "text": "執行中（準備完成，開始計算候選）：已完成 0／121 個候選、0／5 個方法（0%），已耗時 0.1 秒",
+          "seconds": 0.1
+        },
+        {
+          "text": "執行中（準備完成，開始計算候選）：已完成 0／121 個候選、0／5 個方法（0%），已耗時 1.1 秒",
+          "seconds": 1.1
+        },
+        {
+          "text": "執行中（準備完成，開始計算候選）：已完成 0／121 個候選、0／5 個方法（0%），已耗時 2.1 秒",
+          "seconds": 2.1
+        },
+        {
+          "text": "執行中（準備完成，開始計算候選）：已完成 0／121 個候選、0／5 個方法（0%），已耗時 3.2 秒",
+          "seconds": 3.2
+        },
+        {
+          "text": "執行中（準備完成，開始計算候選）：已完成 0／121 個候選、0／5 個方法（0%），已耗時 4.0 秒",
+          "seconds": 4
+        },
+        {
+          "text": "執行中（準備完成，開始計算候選）：已完成 0／121 個候選、0／5 個方法（0%），已耗時 5.0 秒",
+          "seconds": 5
+        }
+      ],
+      "running_elapsed_increasing": true,
+      "cancelling": [
+        {
+          "text": "取消中：目前的候選算完後（下一個候選邊界）停止，不顯示任何結果。已耗時 6.3 秒",
+          "seconds": 6.3
+        },
+        {
+          "text": "取消中：目前的候選算完後（下一個候選邊界）停止，不顯示任何結果。已耗時 7.1 秒",
+          "seconds": 7.1
+        },
+        {
+          "text": "取消中：目前的候選算完後（下一個候選邊界）停止，不顯示任何結果。已耗時 8.2 秒",
+          "seconds": 8.2
+        },
+        {
+          "text": "取消中：目前的候選算完後（下一個候選邊界）停止，不顯示任何結果。已耗時 9.2 秒",
+          "seconds": 9.2
+        },
+        {
+          "text": "取消中：目前的候選算完後（下一個候選邊界）停止，不顯示任何結果。已耗時 10.2 秒",
+          "seconds": 10.2
+        }
+      ],
+      "cancelling_elapsed_increasing": true,
+      "cancel_end": {
+        "ms": 7745,
+        "run": {
+          "status": "CANCELLED",
+          "reason": null,
+          "methods_completed": 1,
+          "methods_total": 5,
+          "candidates_completed": 1,
+          "candidates_total": 121
+        },
+        "message": "已取消：取消在下一個候選邊界生效，停止時已完成 1／5 個方法（1／121 個候選）。已算出的部分結果不顯示；再次執行會從頭開始。",
+        "blocks": [
+          "ex-custom"
+        ]
+      },
+      "waiting": [
+        {
+          "text": "等待前一次執行停止（在它的下一個候選邊界，全部候選完成後則在進行中的步驟完成時），之後從頭開始新的執行…已等待 0.0 秒",
+          "seconds": 0
+        },
+        {
+          "text": "等待前一次執行停止（在它的下一個候選邊界，全部候選完成後則在進行中的步驟完成時），之後從頭開始新的執行…已等待 0.9 秒",
+          "seconds": 0.9
+        },
+        {
+          "text": "等待前一次執行停止（在它的下一個候選邊界，全部候選完成後則在進行中的步驟完成時），之後從頭開始新的執行…已等待 1.9 秒",
+          "seconds": 1.9
+        },
+        {
+          "text": "等待前一次執行停止（在它的下一個候選邊界，全部候選完成後則在進行中的步驟完成時），之後從頭開始新的執行…已等待 2.9 秒",
+          "seconds": 2.9
+        }
+      ],
+      "wait_state": {
+        "running": 2,
+        "cancelling": true,
+        "waiting": true,
+        "phase": "start"
+      },
+      "in_final_phase": true,
+      "final_before": [
+        "執行中（全部候選已完成，正在計算共線診斷）：已完成 121／121 個候選、5／5 個方法（100%），已耗時 13.8 秒",
+        "執行中（全部候選已完成，正在計算共線診斷）：已完成 121／121 個候選、5／5 個方法（100%），已耗時 14.4 秒"
+      ],
+      "final_cancelling": [
+        {
+          "text": "取消中：全部候選已完成，正在進行的共線診斷或探索 test 步驟完成後停止，不顯示任何結果。已耗時 15.4 秒",
+          "seconds": 15.4
+        },
+        {
+          "text": "取消中：全部候選已完成，正在進行的共線診斷或探索 test 步驟完成後停止，不顯示任何結果。已耗時 16.1 秒",
+          "seconds": 16.1
+        },
+        {
+          "text": "取消中：全部候選已完成，正在進行的共線診斷或探索 test 步驟完成後停止，不顯示任何結果。已耗時 16.9 秒",
+          "seconds": 16.9
+        }
+      ],
+      "final_end": {
+        "ms": 2391,
+        "run": {
+          "status": "CANCELLED",
+          "reason": null,
+          "methods_completed": 5,
+          "methods_total": 5,
+          "candidates_completed": 121,
+          "candidates_total": 121
+        },
+        "message": "已取消：取消在全部候選完成後、進行中的步驟完成時生效，停止時已完成 5／5 個方法（121／121 個候選）。已算出的部分結果不顯示；再次執行會從頭開始。",
+        "blocks": [
+          "ex-custom"
+        ],
+        "result_keys": [
+          "meta",
+          "run"
+        ]
+      },
+      "measures": {
+        "inputs": [
+          {
+            "type": "input",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "change",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-cancel",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "focusin",
+            "id": "ex-cancel",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "ex-cancel",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "change",
+            "id": "ex-target",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "change",
+            "id": "ex-target",
+            "lat_ms": 0
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-cancel",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "focusin",
+            "id": "ex-cancel",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "ex-cancel",
+            "lat_ms": 11.5
+          }
+        ],
+        "max_input_latency_ms": 12.1,
+        "frames": 3869,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 12.6,
+        "frame_gap_max_ms": 41.6,
+        "long_tasks": 0,
+        "long_task_max_ms": 0,
+        "long_error": null
+      }
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85",
+  "csv": {
+    "file": "cat_long.csv",
+    "bytes": 1118967
+  }
+}

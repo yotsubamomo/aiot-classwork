@@ -1,0 +1,44 @@
+{
+  "label": "chrome_subject",
+  "mode": "bigfile",
+  "browserPid": 18492,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.1 (V2-T4: budgets, cancellation incl. the final phase, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "bigfile": {
+      "done": true,
+      "ms": 7033,
+      "message": "無法載入資料：超過載入上限（TOO_LARGE）：資料列超過 50,000 列的上限；不會截斷。",
+      "load": {
+        "reason": "TOO_LARGE",
+        "detail": {
+          "rows_over": 50000
+        },
+        "env": null,
+        "sha256": "79dc2507a9513e58c3d578fa72123f44651d975a971fb3b30217c685c0c43db9"
+      },
+      "blocks": [
+        "ex-custom",
+        "ex-data"
+      ]
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85",
+  "csv": {
+    "file": "over_540mb.csv",
+    "bytes": 540000006
+  }
+}

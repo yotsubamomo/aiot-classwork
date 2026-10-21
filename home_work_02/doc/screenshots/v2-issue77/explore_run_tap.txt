@@ -2,135 +2,195 @@ TAP version 13
 # Subtest: budget: an injected small budget skips whole methods before they run (counted); All-in and the others run
 ok 1 - budget: an injected small budget skips whole methods before they run (counted); All-in and the others run
   ---
-  duration_ms: 20.6356
+  duration_ms: 20.6447
   type: 'test'
   ...
 # Subtest: budget: the decision uses the estimate only -- the same with any clock, and > budget (not >=) skips
 ok 2 - budget: the decision uses the estimate only -- the same with any clock, and > budget (not >=) skips
   ---
-  duration_ms: 29.2208
+  duration_ms: 26.8575
   type: 'test'
   ...
 # Subtest: G-4: under the final budget constants 50 Startups runs all five methods; every candidate VALID
 ok 3 - G-4: under the final budget constants 50 Startups runs all five methods; every candidate VALID
   ---
-  duration_ms: 3.6755
+  duration_ms: 4.4877
   type: 'test'
   ...
 # Subtest: failure: an exception in one candidate makes that whole method FAILED with its message; the others complete
 ok 4 - failure: an exception in one candidate makes that whole method FAILED with its message; the others complete
   ---
-  duration_ms: 9.8238
+  duration_ms: 11.3594
   type: 'test'
   ...
 # Subtest: failure: in a path computation, in All-in, and in every method (then the run is rejected)
 ok 5 - failure: in a path computation, in All-in, and in every method (then the run is rejected)
   ---
-  duration_ms: 8.4208
+  duration_ms: 9.1071
   type: 'test'
   ...
 # Subtest: cancel after the n-th candidate: the run stops at that boundary, CANCELLED, no partial result (counted)
 ok 6 - cancel after the n-th candidate: the run stops at that boundary, CANCELLED, no partial result (counted)
   ---
-  duration_ms: 8.9806
+  duration_ms: 9.0571
   type: 'test'
   ...
 # Subtest: cancel requested in the middle of a candidate: that candidate is finished, then the run stops (never cut)
 ok 7 - cancel requested in the middle of a candidate: that candidate is finished, then the run stops (never cut)
   ---
-  duration_ms: 1.869
+  duration_ms: 2.2107
   type: 'test'
   ...
 # Subtest: a rerun after a cancellation starts from the beginning and equals an uncancelled run (deterministic part)
 ok 8 - a rerun after a cancellation starts from the beginning and equals an uncancelled run (deterministic part)
   ---
-  duration_ms: 9.0158
+  duration_ms: 9.2601
   type: 'test'
   ...
 # Subtest: progress: an event at the start and at every candidate boundary; counts monotone; ends at 1
 ok 9 - progress: an event at the start and at every candidate boundary; counts monotone; ends at 1
   ---
-  duration_ms: 3.3888
+  duration_ms: 3.9979
   type: 'test'
   ...
 # Subtest: reproducibility: the same input twice gives bit-identical deterministic parts; timings are outside it
 ok 10 - reproducibility: the same input twice gives bit-identical deterministic parts; timings are outside it
   ---
-  duration_ms: 25.0434
+  duration_ms: 24.8003
   type: 'test'
   ...
 # Subtest: R4-3 / R4-4: multiplying the target by c > 0 leaves every path, stop, cause, state and winner unchanged
 ok 11 - R4-3 / R4-4: multiplying the target by c > 0 leaves every path, stop, cause, state and winner unchanged
   ---
-  duration_ms: 48.9184
+  duration_ms: 48.6244
   type: 'test'
   ...
 # Subtest: R4-2: an exact fit ends the path with the true cause (path_ended), and the page text claims no collinearity
 ok 12 - R4-2: an exact fit ends the path with the true cause (path_ended), and the page text claims no collinearity
   ---
-  duration_ms: 2.3398
+  duration_ms: 2.9456
   type: 'test'
   ...
 # Subtest: R4-2: a constant target on the rows has its own cause; nothing is divided by zero
 ok 13 - R4-2: a constant target on the rows has its own cause; nothing is divided by zero
   ---
-  duration_ms: 1.9954
+  duration_ms: 1.971
   type: 'test'
   ...
 # Subtest: scheduled: the run advances in steps; the controller hands control back between them
 ok 14 - scheduled: the run advances in steps; the controller hands control back between them
   ---
-  duration_ms: 11.2972
+  duration_ms: 10.7102
   type: 'test'
   ...
 # Subtest: scheduled: a new submission cancels the run in progress at its next boundary, then starts from the beginning
 ok 15 - scheduled: a new submission cancels the run in progress at its next boundary, then starts from the beginning
   ---
-  duration_ms: 18.8777
+  duration_ms: 19.0684
   type: 'test'
   ...
 # Subtest: scheduled: several requests while one runs -- only the latest starts; each URL submission reads once
 ok 16 - scheduled: several requests while one runs -- only the latest starts; each URL submission reads once
   ---
-  duration_ms: 7.213
+  duration_ms: 6.7767
   type: 'test'
   ...
 # Subtest: scheduled: 取消執行 shows CANCELLED with the finished methods and nothing else; a rerun is complete
 ok 17 - scheduled: 取消執行 shows CANCELLED with the finished methods and nothing else; a rerun is complete
   ---
-  duration_ms: 11.62
+  duration_ms: 12.7019
   type: 'test'
   ...
 # Subtest: scheduled: 取消執行 while a new request waits for the previous run: the waiting one never starts
 ok 18 - scheduled: 取消執行 while a new request waits for the previous run: the waiting one never starts
   ---
-  duration_ms: 0.9946
+  duration_ms: 1.7161
   type: 'test'
   ...
 # Subtest: scheduled: switching to King County during a run cancels it; nothing exploratory is shown afterwards
 ok 19 - scheduled: switching to King County during a run cancels it; nothing exploratory is shown afterwards
   ---
-  duration_ms: 0.8116
+  duration_ms: 1.7532
   type: 'test'
   ...
 # Subtest: scheduled: the target drop-down during a run cancels it and runs the new target from the beginning (no new read)
 ok 20 - scheduled: the target drop-down during a run cancels it and runs the new target from the beginning (no new read)
   ---
-  duration_ms: 5.1963
+  duration_ms: 6.2754
   type: 'test'
   ...
 # Subtest: scheduled: the three entrances give the same deterministic part (shared case with V2-T3)
 ok 21 - scheduled: the three entrances give the same deterministic part (shared case with V2-T3)
   ---
-  duration_ms: 13.7512
+  duration_ms: 14.2873
   type: 'test'
   ...
-1..21
-# tests 21
+# Subtest: CF-1: cancel at the start of the final phase (diagnostic) -> CANCELLED after the diagnostic step, no result
+ok 22 - CF-1: cancel at the start of the final phase (diagnostic) -> CANCELLED after the diagnostic step, no result
+  ---
+  duration_ms: 8.8379
+  type: 'test'
+  ...
+# Subtest: CF-1: cancel during the exploratory test -> stops when that winner's test is complete; rerun equals an uncancelled run
+ok 23 - CF-1: cancel during the exploratory test -> stops when that winner's test is complete; rerun equals an uncancelled run
+  ---
+  duration_ms: 170.6854
+  type: 'test'
+  ...
+# Subtest: CF-1: a cancellation in the final phase wins over REJECTED (all candidates invalid)
+ok 24 - CF-1: a cancellation in the final phase wins over REJECTED (all candidates invalid)
+  ---
+  duration_ms: 0.3852
+  type: 'test'
+  ...
+# Subtest: CF-1 scheduled: 取消執行 in the final phase -> CANCELLED shown with no result; the text names the step, not a candidate
+ok 25 - CF-1 scheduled: 取消執行 in the final phase -> CANCELLED shown with no result; the text names the step, not a candidate
+  ---
+  duration_ms: 61.9086
+  type: 'test'
+  ...
+# Subtest: CF-1 scheduled: a new submission in the final phase cancels the run there and starts after it (one run at a time)
+ok 26 - CF-1 scheduled: a new submission in the final phase cancels the run there and starts after it (one run at a time)
+  ---
+  duration_ms: 65.2948
+  type: 'test'
+  ...
+# Subtest: C1-R3: heartbeats keep the elapsed time moving between progress events, while cancelling and while waiting
+ok 27 - C1-R3: heartbeats keep the elapsed time moving between progress events, while cancelling and while waiting
+  ---
+  duration_ms: 92.1061
+  type: 'test'
+  ...
+# Subtest: C2-R3 (a): an input over the row or column limit is TOO_LARGE also when it cannot be decoded as one string
+ok 28 - C2-R3 (a): an input over the row or column limit is TOO_LARGE also when it cannot be decoded as one string
+  ---
+  duration_ms: 1.2461
+  type: 'test'
+  ...
+# Subtest: C2-R3 (b): an input within the limits that cannot be decoded is an environment failure, never ENCODING
+ok 29 - C2-R3 (b): an input within the limits that cannot be decoded is an environment failure, never ENCODING
+  ---
+  duration_ms: 0.9353
+  type: 'test'
+  ...
+# Subtest: C2-R3 (b): a URL body the browser cannot hold is reported as such, not as a network failure; one request
+ok 30 - C2-R3 (b): a URL body the browser cannot hold is reported as such, not as a network failure; one request
+  ---
+  duration_ms: 0.547
+  type: 'test'
+  ...
+# Subtest: C2-R3: a decoder that silently returns a short or empty string for a large input is detected as a size failure
+ok 31 - C2-R3: a decoder that silently returns a short or empty string for a large input is detected as a size failure
+  ---
+  duration_ms: 0.5583
+  type: 'test'
+  ...
+1..31
+# tests 31
 # suites 0
-# pass 21
+# pass 31
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 307.7269
+# duration_ms 728.1942

@@ -1,0 +1,631 @@
+{
+  "label": "chrome_subject",
+  "mode": "medium",
+  "browserPid": 22628,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.1 (V2-T4: budgets, cancellation incl. the final phase, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "run_while_operating": {
+      "run_panel_shown_after_ms": 150,
+      "progress_samples": [
+        {
+          "t": 150,
+          "v": 0,
+          "text": "執行中：準備資料與切分…，已耗時 0.2 秒"
+        },
+        {
+          "t": 1711,
+          "v": 0.1485148514851485,
+          "text": "執行中（Forward SFS · k = 14：完成）：已完成 15／101 個候選、1／5 個方法（15%），已耗時 1.5 秒"
+        },
+        {
+          "t": 2396,
+          "v": 0.16831683168316833,
+          "text": "執行中（Forward SFS · k = 16：完成）：已完成 17／101 個候選、1／5 個方法（17%），已耗時 2.1 秒"
+        },
+        {
+          "t": 3974,
+          "v": 0.2079207920792079,
+          "text": "執行中（Forward SFS · k = 20：完成）：已完成 21／101 個候選、1／5 個方法（21%），已耗時 3.9 秒"
+        },
+        {
+          "t": 5511,
+          "v": 0.24752475247524752,
+          "text": "執行中（Forward SFS · k = 24：完成）：已完成 25／101 個候選、1／5 個方法（25%），已耗時 5.5 秒"
+        }
+      ],
+      "progress_distinct_values": 5,
+      "dropdown_problem": {
+        "focused": "problem-select",
+        "value": "custom",
+        "unchanged": true
+      },
+      "dropdown_target": {
+        "focused": "ex-target",
+        "disabled": false,
+        "options": 26
+      },
+      "typed_url": "https://example.org/typing-test.csv",
+      "still_running_before_cancel": true,
+      "run_state_before_cancel": {
+        "running": 1,
+        "cancelling": false,
+        "waiting": false,
+        "phase": "candidate"
+      },
+      "cancel_acknowledged": true,
+      "cancel_ack_ms": 104,
+      "ended": true,
+      "cancel_to_end_ms": 307,
+      "result_run": {
+        "status": "CANCELLED",
+        "reason": null,
+        "methods_completed": 2,
+        "methods_total": 5,
+        "candidates_completed": 26,
+        "candidates_total": 101
+      },
+      "message": "已取消：取消在下一個候選邊界生效，停止時已完成 2／5 個方法（26／101 個候選）。已算出的部分結果不顯示；再次執行會從頭開始。",
+      "visible_blocks": [
+        "ex-custom"
+      ],
+      "result_blocks_shown": [],
+      "no_candidates_in_result": true,
+      "measures_during_run": {
+        "inputs": [
+          {
+            "type": "input",
+            "id": "ex-file",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "change",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "mousedown",
+            "id": "problem-select",
+            "lat_ms": 12.2
+          },
+          {
+            "type": "focusin",
+            "id": "problem-select",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "problem-select",
+            "lat_ms": 7.3
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-target",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "focusin",
+            "id": "ex-target",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 7.9
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "focusin",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "ex-url",
+            "lat_ms": 12.4
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.2
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 13.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.5
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.4
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 13.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.3
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-cancel",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "change",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "focusin",
+            "id": "ex-cancel",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "ex-cancel",
+            "lat_ms": 12.3
+          }
+        ],
+        "max_input_latency_ms": 13.9,
+        "frames": 479,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 16.7,
+        "frame_gap_max_ms": 125.1,
+        "long_tasks": 1,
+        "long_task_max_ms": 125,
+        "long_error": null
+      }
+    },
+    "rerun": {
+      "completed": true,
+      "wall_ms": 19891,
+      "first_progress_texts": [
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.1 秒",
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.1 秒",
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.4 秒",
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.6 秒",
+        "執行中（All-in baseline · k = 25：完成）：已完成 1／101 個候選、1／5 個方法（1%），已耗時 0.5 秒",
+        "執行中（All-in baseline · k = 25：完成）：已完成 1／101 個候選、1／5 個方法（1%），已耗時 0.8 秒"
+      ],
+      "message": "執行完成：五種方法共 101 個候選，耗時 19840.5 ms（瀏覽器內計算，只供參考）。各方法耗時：All-in baseline 412.6 ms、Forward SFS 4865.6 ms、Backward SFS 4732.2 ms、RFE 4623.2 ms、Lasso 路徑排序 4776.8 ms。",
+      "timing_ms": {
+        "started_at_epoch_ms": 1792625813127,
+        "decisions": 27.5,
+        "allin": 412.59999999403954,
+        "forward_sfs": 4865.600000008941,
+        "backward_sfs": 4732.20000000298,
+        "rfe": 4623.20000000298,
+        "lasso_path": 4776.79999999702,
+        "dependencies": 117.79999999701977,
+        "test": 98.6000000089407,
+        "total": 19718.90000000596
+      },
+      "budget": {
+        "unit": "estimated OLS solves x training rows x encoded columns^2",
+        "constants": {
+          "forward_sfs": 200000000000,
+          "backward_sfs": 200000000000,
+          "rfe": 200000000000,
+          "lasso_path": 80000000000
+        },
+        "estimates": {
+          "allin": 405600000,
+          "forward_sfs": 141960000000,
+          "backward_sfs": 141960000000,
+          "rfe": 141960000000,
+          "lasso_path": 20280000000
+        },
+        "n_train": 16000,
+        "encoded_columns": 65,
+        "feature_groups": 25
+      },
+      "statuses": {
+        "allin": {
+          "VALID": 1
+        },
+        "forward_sfs": {
+          "VALID": 25
+        },
+        "backward_sfs": {
+          "VALID": 25
+        },
+        "rfe": {
+          "VALID": 25
+        },
+        "lasso_path": {
+          "VALID": 25
+        }
+      },
+      "kpi_test": "4.94 / 3.98 / 24.39 / 0.9938 / 95.6%",
+      "measures": {
+        "inputs": [
+          {
+            "type": "change",
+            "id": "ex-target",
+            "lat_ms": 0.1
+          }
+        ],
+        "max_input_latency_ms": 0.1,
+        "frames": 1556,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 16.7,
+        "frame_gap_max_ms": 116.7,
+        "long_tasks": 1,
+        "long_task_max_ms": 120,
+        "long_error": null
+      }
+    },
+    "reproducible": {
+      "same_deterministic": true,
+      "kpi_test": "4.94 / 3.98 / 24.39 / 0.9938 / 95.6%",
+      "timing_ms": {
+        "started_at_epoch_ms": 1792625833931,
+        "decisions": 27.200000002980232,
+        "allin": 425.59999999403954,
+        "forward_sfs": 4917.79999999702,
+        "backward_sfs": 4770,
+        "rfe": 4625.5,
+        "lasso_path": 4595.5999999940395,
+        "dependencies": 185.5,
+        "test": 106.20000000298023,
+        "total": 19714.29999999702
+      }
+    },
+    "back_to_kc": {
+      "v1Visible": true,
+      "exploreHidden": true,
+      "footer": "block"
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85",
+  "csv": {
+    "file": "medium.csv",
+    "bytes": 2725065
+  }
+}
