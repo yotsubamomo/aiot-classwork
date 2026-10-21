@@ -95,5 +95,21 @@ Acceptor 於本 session 對話中回覆，原文逐字收錄於 [`../outcome-con
 
 | 缺口 | 處理 | 驗證 | 結果 |
 | --- | --- | --- | --- |
-| D8-f | `outcome-contract.md` 新增檔頭一列與第 5 節（acceptor 原文逐字）；commit 見下 | 待填 | 待填 |
-| O-2 | 派 `gov-design-authority` | 待填 | 待填 |
+| D8-f | `outcome-contract.md` 新增檔頭一列與第 5 節（acceptor 原文逐字），commit `4eb03e6` | §5 引用接受基準 `d7f02d4179d2cb5c2ecf0c39a4643a6ef8287907`、Brief V2 rev 2＋E-1、Spec V2 rev 2、`tickets-v2.md`、#74–#78；§5.1 為原文；SA-3 未引用 → RB-1 | **成立** |
+| O-2 | 派 `gov-design-authority`（有效 mapping Opus 5.5／`high`，Profile 預設；無 escalation、無替代），產出 [`../decisions/derivation-SPEC-V2.md`](../decisions/derivation-SPEC-V2.md) | 存在；版本對應（Spec V2 @ `d7f02d4` sha256、#73–#78 body sha256、OC §5 @ `4eb03e6`）；引用鏈 Ticket → Spec V2 → OC §5 完整；含 boundary determination（§4）、分配（§5）、lane（§6：Formal，本 run）、高風險類別（§7：H-1～H-4 全部適用＋DA 新增 H-5）。不判斷內容（orch-default §3、§13-E） | **成立，附 fail-closed 路徑 F-1**（§4 B-13、§9） |
+
+### 7.1 Assignment binding
+
+| Assignment | Definition | 有效 mapping | 觀測（全部 assistant 訊息） | 結果 |
+| --- | --- | --- | --- | --- |
+| agentId `a4e73f0ab2659a956` | `gov-design-authority` | Opus 5.5／`high` | `('claude-opus-5-5', 'high')`：60 則，單一元素 | 符合；return 採用 |
+| Root session `37216426-…` | Orchestrator | Opus 5.5／`medium` | `('claude-opus-5-5', 'medium')`：61 則，單一元素 | 符合 |
+
+Activation grounding 補讀：治理 §1.4、§1.5、§2.4、§2.5、§3.8、§4（全節）。
+
+### 7.2 Routing：F-1（acceptor）
+
+- **事件**：DA derivation §9 F-1（High，boundary，fail-closed）：`tests/test_dashboard_static.py::test_page_loads_data_as_a_js_global_and_the_bundled_chartjs`（第 24–30 行，Orchestrator 已核對檔案存在該斷言）要求 `index.html` 的 `<script src>` 恰為 V1 四檔；Spec V2 需在同頁加入 V2 腳本；票的共同條款與 designation 第 4 點要求既有測試不變。
+- **所用規則**：治理 §2.4、orch-default §5 boundary 列——DA 無法確立在 boundary 內 → 該路徑 fail-closed 至 acceptor（治理 §1.5 第 2 項）。
+- **受影響路徑**：#74 的 `index.html` 腳本加入與 #74 結案；#75–#78 依賴 #74，結案同受阻。
+- **Stop report（治理 §1.5）**：現況＝前提 D8-f、O-2 成立，run 可 activation；缺少＝acceptor 對 F-1 的決定（DA 建議 (a)：只修改該斷言，V1 四檔仍為前四項且順序不變，其後逐一列出 V2 腳本）；已嘗試＝re-ground、DA boundary determination（無法確立）；所需 authority＝acceptor（contract change，治理 §5.3 第 1 類）；下一步＝acceptor 決定後派 #74。Acceptor 已指示「report their validation results before dispatching #74」，所以 #74 在回報後才派工；不預判 F-1 的部分工作是否先行，依 acceptor 回覆。
