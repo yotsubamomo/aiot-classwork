@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>King County 房價多元線性回歸分析 — HW2 Dashboard</title>
 <link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/explore.css">
 </head>
 <body>
 <a class="skip" href="#main">跳到主要內容</a>
@@ -34,8 +35,108 @@
   </div>
 </header>
 
+<!-- V2：problem 下拉（控制列）。King County 是正式分析（V1 的頁面原樣）；其他兩項是探索執行。 -->
+<div class="problembar" id="problembar">
+  <div class="problembar__inner">
+    <label class="problembar__label" for="problem-select">分析問題（Problem）</label>
+    <select class="input problembar__select" id="problem-select" autocomplete="off" aria-describedby="problem-help" aria-controls="main">
+      <option value="king_county" selected>King County 房價（正式分析）</option>
+      <option value="startups50">50 Startups 利潤（探索）</option>
+      <option value="custom">自訂資料集（探索）</option>
+    </select>
+    <p class="problembar__help small muted" id="problem-help">King County 是作業的正式分析；50 Startups 與自訂資料集是探索執行，非正式評估。</p>
+  </div>
+</div>
+
 <main id="main">
   <div id="load-error" class="alert" role="alert" hidden></div>
+
+  <!-- V2. 探索執行（Exploratory run）：選 50 Startups 或自訂資料集時顯示、V1 區塊隱藏；id 一律以 ex- 開頭 -->
+  <section class="section explore" id="explore" aria-labelledby="ex-title" hidden>
+    <div class="section__head">
+      <span class="eyebrow">探索執行 · Exploratory run</span>
+      <h1 id="ex-title">探索執行</h1>
+      <p class="explore__banner small"><span class="tag tag--explore">探索執行，非正式評估</span> 每次選取都在瀏覽器內重新計算，結果不保存、不進報告數字，也不是作業的 Test 評估；King County 的正式分析與其數字不受影響。</p>
+    </div>
+    <div class="notice explore__message" id="ex-message" role="status" hidden></div>
+
+    <article class="card ex-block" id="ex-custom" aria-labelledby="ex-h-custom" hidden>
+      <h2 id="ex-h-custom">自訂資料集 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <p class="small">自訂資料集的 URL 與本機 CSV 檔案輸入由 V2-T3 提供；目前不接受任何輸入。</p>
+      <div class="ex-placeholder" aria-hidden="true">
+        <div class="ex-placeholder__slot">CSV 的 URL（V2-T3）</div>
+        <div class="ex-placeholder__slot">本機 CSV 檔案（V2-T3）</div>
+        <div class="ex-placeholder__slot">預測目標欄（V2-T3）</div>
+      </div>
+    </article>
+
+    <article class="card ex-block" id="ex-data" aria-labelledby="ex-h-data" hidden>
+      <h2 id="ex-h-data">資料與前處理 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <dl class="facts small" id="ex-facts"></dl>
+      <div class="tablewrap"><table class="table" id="ex-columns"></table></div>
+      <p class="small muted">欄位型態在載入時逐格判定（每個非空儲存格都是數字的欄為數值欄）；含缺值的列整列刪除。保留或排除只用<strong>訓練列</strong>決定：類別欄在訓練列上超過 20 個層級、或任何欄在訓練列上只有一個值，就排除。Test 列不影響這些決定。</p>
+    </article>
+
+    <article class="card ex-block" id="ex-model" aria-labelledby="ex-h-model" hidden>
+      <h2 id="ex-h-model">模型與訓練 CV <span class="tag tag--explore">探索執行，非正式評估</span> <span class="tag tag--cv">訓練 CV</span></h2>
+      <p class="small" id="ex-candidate"></p>
+      <div class="grid grid--kpi" id="ex-kpi-cv"></div>
+      <div class="tablewrap"><table class="table" id="ex-folds"></table></div>
+      <h3 class="ex-subhead">全訓練集擬合（canonical fit）</h3>
+      <dl class="facts facts--inline small" id="ex-fit"></dl>
+      <p class="small muted">CV 指標是 5 個 fold 驗證列指標的算術平均 ± 樣本標準差；每個 fold 的類別層級、基準層級（該 fold 訓練列中最先出現的層級）、one-hot 欄與 OLS 只用該 fold 的訓練列。不含任何 test 資料。</p>
+    </article>
+
+    <article class="card ex-block" id="ex-predictor" aria-labelledby="ex-h-predictor" hidden>
+      <h2 id="ex-h-predictor">即時預測 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <div class="predictor">
+        <form id="ex-pred-form" novalidate>
+          <p class="small muted">輸入所選模型用到的來源欄原始值（預設為訓練中位數；類別欄只列訓練層級）。只有狀態為有效（VALID）的候選才提供預測。</p>
+          <div class="fields" id="ex-pred-fields"></div>
+        </form>
+        <aside class="result card card--flat" aria-live="polite" aria-atomic="true">
+          <h3>預測結果</h3>
+          <div>
+            <div class="small muted">點預測（目標原始單位）</div>
+            <div class="result__price num" id="ex-pred-value">—</div>
+          </div>
+          <div>
+            <div class="small muted">95% 預測區間（參數式 OLS PI，原始尺度）</div>
+            <div class="result__pi num" id="ex-pred-pi">—</div>
+          </div>
+          <div class="result__status" id="ex-pred-status"></div>
+          <div class="result__meta"><span>模型：All-in baseline 在整個訓練集上的擬合</span></div>
+        </aside>
+      </div>
+    </article>
+
+    <article class="testzone ex-block" id="ex-test" aria-labelledby="ex-h-test" hidden>
+      <h2 id="ex-h-test">探索 test（非正式評估） <span class="tag tag--explore">探索執行，非正式評估</span> <span class="tag tag--test">探索 test（非正式評估）</span></h2>
+      <p class="small" id="ex-test-model"></p>
+      <div class="grid ex-kpi5" id="ex-kpi-test"></div>
+      <div class="scatter-wrap">
+        <div class="chart__toolbar">
+          <h3>實際 vs 預測（線性刻度，逐筆 95% PI）</h3>
+          <span class="spacer"></span>
+          <button class="btn btn--icon" type="button" id="ex-zoom-in" aria-label="放大">＋</button>
+          <button class="btn btn--icon" type="button" id="ex-zoom-out" aria-label="縮小">－</button>
+          <button class="btn" type="button" id="ex-zoom-reset">重設檢視</button>
+        </div>
+        <div class="scatter" id="ex-scatter">
+          <canvas id="ex-scatter-canvas" tabindex="0" role="img" aria-describedby="ex-scatter-help"
+            aria-label="散佈圖：x 軸為預測值、y 軸為實際值，皆為線性刻度；每筆 test 樣本有一條垂直的 95% 預測區間線段，落入區間為圓點、未落入為方塊；含 y = x 參考線。"></canvas>
+          <div class="scatter__tip" id="ex-scatter-tip" hidden></div>
+        </div>
+        <div class="scatter__meta">
+          <span><span class="key key--in" aria-hidden="true"></span>落入 PI（圓點）</span>
+          <span><span class="key key--out" aria-hidden="true"></span>未落入 PI（方塊）</span>
+          <span><span class="key key--diag" aria-hidden="true"></span>y = x</span>
+          <span id="ex-scatter-help">滾輪縮放、拖曳平移、游標停留讀取單筆；鍵盤：方向鍵平移、＋／－ 縮放、0 重設。全部 test 樣本逐筆繪製。</span>
+        </div>
+      </div>
+      <p class="small muted">95% 預測區間 ŷ ± t(0.975, df)·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀)) 在目標的原始尺度計算，假設殘差常態、同質變異、獨立，不宣稱保證 95% 的經驗涵蓋率。Test 列在全部模型選擇固定之後才讀取，只對被選出的模型計算，不回饋任何選擇。</p>
+    </article>
+  </section>
 
   <!-- A. 概覽：資料來自 assets/model_data.js 的 meta -->
   <section class="section" id="overview" aria-labelledby="h-overview">
@@ -279,5 +380,11 @@
 <script src="assets/model_data.js"></script>
 <script src="assets/hw2core.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/data/startups50.js"></script>
+<script src="assets/explore_load.js"></script>
+<script src="assets/explore_engine.js"></script>
+<script src="assets/explore_plot.js"></script>
+<script src="assets/explore_app.js"></script>
+<script src="assets/explore_ui.js"></script>
 </body>
 </html>

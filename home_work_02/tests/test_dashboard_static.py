@@ -25,7 +25,9 @@ def test_page_loads_data_as_a_js_global_and_the_bundled_chartjs():
     html = DASHBOARD_HTML.read_text(encoding="utf-8")
     scripts = re.findall(r'<script\s+src="([^"]+)"', html)
     assert scripts == ["assets/vendor/chart.umd.js", "assets/model_data.js", "assets/hw2core.js",
-                       "assets/app.js"]
+                       "assets/app.js", "assets/data/startups50.js", "assets/explore_load.js",
+                       "assets/explore_engine.js", "assets/explore_plot.js", "assets/explore_app.js",
+                       "assets/explore_ui.js"]
     assert all((UNIT_DIR / s).is_file() for s in scripts)
     assert 'lang="zh-Hant-TW"' in html
 

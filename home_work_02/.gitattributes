@@ -2,6 +2,9 @@
 # LF into CRLF in the working copy and break the pinned sha256 values).
 data/kc_house_data.csv -text
 assets/vendor/** -text
+# V2 (#74): the bundled teacher sample data (50_Startups.csv, CRLF as published) and its
+# provenance and license notes are byte-pinned too (sha256 recorded in assets/data/50_Startups.SOURCE.md).
+assets/data/** -text
 # Binary result artifacts (#64): figures cited by the report and the Deployment demonstration pickle.
 results/figures/*.png binary
 results/deployment/*.pkl binary

@@ -1,0 +1,48 @@
+/* HW2 V2 dashboard: the problem drop-down and the Exploratory run blocks (#74). Uses the V1 tokens of
+ * assets/style.css (not modified); every rule here targets V2 elements only (problembar, #explore, ex-*)
+ * or the page while exploring (body.is-exploring). No remote or imported resources. */
+.problembar { background: var(--c-surface-2); border-bottom: 1px solid var(--c-border); }
+.problembar__inner {
+  max-width: 1440px; margin: 0 auto; padding: var(--space-2) var(--space-4);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
+}
+.problembar__label { font-weight: 700; font-size: 0.9375rem; }
+.problembar__select.input { width: auto; min-width: 16rem; max-width: 100%; min-height: 44px; font-weight: 600; }
+.problembar__select:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.problembar__help { margin: 0; flex: 1 1 18rem; min-width: 0; }
+
+/* While exploring, the V1 page navigation points at hidden blocks: hide it (King County restores it). */
+body.is-exploring .topnav, body.is-exploring .nav-toggle { display: none !important; }
+
+.tag--explore { background: #FFEDD5; color: #7C2D12; border-color: #FDBA74; white-space: normal; }
+.explore__banner { margin: var(--space-2) 0 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.explore__message { margin-bottom: var(--space-4); }
+.explore__message[hidden] { display: none; }
+.explore__message--error { border-color: #FCA5A5; border-left-color: var(--c-danger); background: #FEF2F2; color: #7F1D1D; }
+.explore .ex-block { margin-bottom: var(--space-4); }
+.explore .ex-block[hidden] { display: none !important; }
+.explore h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ex-subhead { margin-top: var(--space-4); }
+.ex-kpi5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+#ex-columns th[scope="row"], #ex-folds th[scope="row"] { color: var(--c-text); font-weight: 600; overflow-wrap: break-word; }
+#ex-columns th[scope="row"] { min-width: 7.5em; }
+#ex-columns td:last-child { min-width: 10em; }
+#ex-columns, #ex-folds { margin-top: var(--space-3); }
+.ex-placeholder { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
+.ex-placeholder__slot {
+  min-height: 56px; display: grid; place-items: center; text-align: center; padding: var(--space-2);
+  border: 2px dashed #94A3B8; border-radius: var(--radius); color: var(--c-muted); font-size: 0.875rem;
+}
+#ex-pred-form[aria-disabled="true"] .fields { display: none; }
+.explore .field > label { font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
+
+@media (max-width: 1024px) {
+  .ex-kpi5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .ex-placeholder { grid-template-columns: 1fr; }
+  .problembar__select.input { min-width: 0; width: 100%; }
+}
+@media (max-width: 480px) {
+  .ex-kpi5 { grid-template-columns: 1fr; }
+}
