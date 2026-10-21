@@ -129,3 +129,11 @@ Activation grounding 補讀：治理 §1.4、§1.5、§2.4、§2.5、§3.8、§4
 
 | # | 時間 | Work item | Assignment | Definition | 有效 mapping | 結果 |
 | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 2026-10-22 | — | agentId `a4e73f0ab2659a956` | `gov-design-authority` | Opus 5.5／`high` | derivation-SPEC-V2.md；觀測 `('claude-opus-5-5','high')` 60 則（§7.1） |
+| 2 | 2026-10-22 | #74 | agentId `addc2dc935a7822fe` | `gov-executor` | Opus 5.5／`high`（O-1） | DONE；subject `1bd1df8`（實作）＋`f4e487c`（worklog／evidence，只動 `doc/`）；觀測 `('claude-opus-5-5','high')` 197 則，單一元素 → return 採用 |
+| 3 | 2026-10-22 | #74 R1 c1 | agentId `a940e0242c7bf7572` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `f4e487c`，BASE `506581a` |
+
+#74 machine gates／evidence presence（orch-default §4 步驟 6；不判斷 sufficiency）：commit 存在；`git diff --name-only 506581a f4e487c` 全部在 `home_work_02/` 內、無 `doc/requirement/`；V1 腳本、`model_data.js`、`results/`、V1 Spec／tickets／Brief、notebook 無 diff；`hw2/` 只新增 `hw2/explore_reference.py`（是否符合不變量由 R1 判斷）；既有測試只有 `test_dashboard_static.py` 的 CC-V2-1 斷言變更；worklog `worklog/issue-74.md` 存在。Root session 核對：`('claude-opus-5-5','medium')` 87 則。
+| 3→ | 2026-10-22 | #74 R1 c1 | agentId `a940e0242c7bf7572` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **BLOCKING**（R1-F1）；record `audit/issue-74-c1-r1.md`；觀測 `('claude-opus-5-5','xhigh')` 199 則 → return 採用 |
+
+#74 R1 routing（治理 §2.4；record §8 已指明 authority，與規則一致 → 直接派工）：R1-F1 → Executor targeted correction（同一 worklog identity，以 SendMessage 續派同一 Executor）→ R2。R1-F3 → Design Authority（契約語義：V1 頁尾在探索模式的處理）。R1-F2（non-blocking，owner＝Orchestrator）→ tracked：派 #76 時列入 bounded pack，由 #76 R1 與 Spec Integration Audit 核對。
