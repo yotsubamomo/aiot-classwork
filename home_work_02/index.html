@@ -75,16 +75,68 @@
       <dl class="facts small" id="ex-facts"></dl>
       <div class="tablewrap"><table class="table" id="ex-columns"></table></div>
       <p class="small muted">欄位型態在載入時逐格判定（每個非空儲存格都是數字的欄為數值欄）；含缺值的列整列刪除。保留或排除只用<strong>訓練列</strong>決定：類別欄在訓練列上超過 20 個層級、或任何欄在訓練列上只有一個值，就排除。Test 列不影響這些決定。</p>
+      <h3 class="ex-subhead" id="ex-h-deps">共線診斷（線性相依的欄位組）</h3>
+      <div id="ex-deps" aria-labelledby="ex-h-deps"></div>
+      <p class="small muted">對整個訓練集的 All-in 設計矩陣（截距＋全部編碼欄，canonical 編碼）做一次相依分析：欄依序檢查，與前面獨立欄的線性組合相同（容忍度 max(n, p)·eps）的欄形成一組線性關係。每組列出涉及的全部編碼欄、對應的 feature group 與關係式；同一組的欄彼此相依，不指認哪一欄是「問題欄」。含有完整一組相依欄的候選，設計矩陣秩不足，標為無效（INVALID_MODEL）。</p>
     </article>
 
     <article class="card ex-block" id="ex-model" aria-labelledby="ex-h-model" hidden>
-      <h2 id="ex-h-model">模型與訓練 CV <span class="tag tag--explore">探索執行，非正式評估</span> <span class="tag tag--cv">訓練 CV</span></h2>
-      <p class="small" id="ex-candidate"></p>
-      <div class="grid grid--kpi" id="ex-kpi-cv"></div>
-      <div class="tablewrap"><table class="table" id="ex-folds"></table></div>
-      <h3 class="ex-subhead">全訓練集擬合（canonical fit）</h3>
-      <dl class="facts facts--inline small" id="ex-fit"></dl>
-      <p class="small muted">CV 指標是 5 個 fold 驗證列指標的算術平均 ± 樣本標準差；每個 fold 的類別層級、基準層級（該 fold 訓練列中最先出現的層級）、one-hot 欄與 OLS 只用該 fold 的訓練列。不含任何 test 資料。</p>
+      <h2 id="ex-h-model">模型選擇與訓練 CV <span class="tag tag--explore">探索執行，非正式評估</span> <span class="tag tag--cv">訓練 CV</span></h2>
+      <div class="layout-2col ex-layout">
+        <aside class="card card--flat control" aria-label="探索模型選擇控制">
+          <div class="field">
+            <span class="label" id="ex-lbl-method">特徵選擇方法</span>
+            <div class="seg" role="group" aria-labelledby="ex-lbl-method" id="ex-method-seg"></div>
+          </div>
+          <div class="field">
+            <span class="label" id="ex-lbl-k">特徵數 k（feature groups）</span>
+            <div class="kgrid" role="group" aria-labelledby="ex-lbl-k" id="ex-k-grid"></div>
+            <p class="help" id="ex-k-help"></p>
+          </div>
+          <button class="toggle" id="ex-compare-all" type="button" aria-pressed="false" aria-controls="ex-kchart-card">
+            <span class="toggle__sw" aria-hidden="true"></span>
+            <span>比較全部方法</span>
+          </button>
+          <div class="selected-model" id="ex-selected" aria-live="polite"></div>
+        </aside>
+        <div class="stack">
+          <p class="small" id="ex-candidate"></p>
+          <div class="grid grid--kpi" id="ex-kpi-cv"></div>
+          <div class="card card--flat" id="ex-kchart-card">
+            <div class="chart__toolbar">
+              <h3>指標 vs k <span class="tag tag--cv">訓練 CV</span></h3>
+              <span class="spacer"></span>
+              <label class="small muted" for="ex-metric">指標</label>
+              <select class="input input--inline" id="ex-metric">
+                <option value="rmse">RMSE（目標單位）</option>
+                <option value="mae">MAE（目標單位）</option>
+                <option value="mse">MSE（目標單位²）</option>
+                <option value="r2">R²</option>
+              </select>
+            </div>
+            <div class="kchart"><canvas id="ex-kchart-canvas" role="img" aria-describedby="ex-kchart-summary"
+              aria-label="折線圖：四種特徵選擇方法在 k = 1 到 p 的訓練 CV 指標；All-in baseline 為水平虛線參考線；各方法 CV winner 以圓環標示，無效候選以紅色叉號標示在圖底，目前選取的模型以大圓圈標示。"></canvas></div>
+            <p class="small muted" id="ex-kchart-summary"></p>
+            <div class="legend small" id="ex-kchart-legend"></div>
+            <p class="small muted">每個 fold 的子集只在該 fold 的訓練列上選出（fold-internal selection），驗證列不參與選擇；CV 指標是 5 個 fold 驗證列指標的平均，估計的是「方法在 k 下的程序」，不是 canonical 子集本身。無效（INVALID_MODEL）的候選沒有 CV 指標，線段在該處中斷。不含任何 test 資料。</p>
+          </div>
+          <div class="card card--flat" id="ex-compare-card">
+            <h3>各方法 CV winner 與整體 CV winner <span class="tag tag--cv">訓練 CV</span> <span class="tag tag--test">探索 test（非正式評估）</span></h3>
+            <div class="tablewrap"><table class="table" id="ex-compare"></table></div>
+            <p class="small muted">方法 CV winner：該方法有效（VALID）候選中 CV RMSE 最小者，平手取較小的 k；All-in 只有一個候選，即為自身的 winner。整體 CV winner：各方法 winner 之中 CV RMSE 最小者，平手依方法順序 All-in、Forward SFS、Backward SFS、RFE、Lasso 路徑排序。全部選擇固定之後才讀取 test 列，test 只對這些 winner 的 canonical fit 計算（canonical 子集相同的 winner 是同一個模型，只算一次）；其他候選沒有 test 數字，test 也不回饋任何選擇。在多個 k 與方法中取最小值，使 winner 的 CV 分數帶有樂觀的選擇偏誤。</p>
+          </div>
+          <div class="tablewrap"><table class="table" id="ex-folds"></table></div>
+          <h3 class="ex-subhead">全訓練集擬合（canonical fit）</h3>
+          <dl class="facts facts--inline small" id="ex-fit"></dl>
+          <p class="small muted">CV 指標是 5 個 fold 驗證列指標的算術平均 ± 樣本標準差；每個 fold 的類別層級、基準層級（該 fold 訓練列中最先出現的層級）、one-hot 欄與 OLS 只用該 fold 的訓練列。Canonical 子集與 canonical fit 用整個訓練集。不含任何 test 資料。</p>
+          <div class="card card--flat" id="ex-lasso-card">
+            <h3>Lasso 路徑（整個訓練集） <span class="tag tag--cv">訓練 CV 的選擇依據</span></h3>
+            <p class="small" id="ex-lasso-summary"></p>
+            <div class="tablewrap"><table class="table" id="ex-lasso"></table></div>
+            <p class="small muted">Exact LARS（含 Lasso 修正）在訓練列上計算：數值欄以訓練列的平均與母體標準差標準化、one-hot 欄維持 0／1、再全部置中；目標只置中、不取 log。Group 在任一欄第一次出現非零係數時進入，entry alpha 是該節點的 alpha，由大到小排序（相同 alpha 依 CSV 欄序）。路徑遇到 active set 退化或結束時仍有 group 未進入，就停在那裡：已求得的路徑段是實際結果；未進入的 group 以 CSV 欄序列在後面，<strong>只作展示，不是實際路徑、也不構成選模依據</strong>，k 超過已進入 group 數的 Lasso 候選為無效（lasso_path_degenerate）。</p>
+          </div>
+        </div>
+      </div>
     </article>
 
     <article class="card ex-block" id="ex-predictor" aria-labelledby="ex-h-predictor" hidden>
@@ -105,7 +157,7 @@
             <div class="result__pi num" id="ex-pred-pi">—</div>
           </div>
           <div class="result__status" id="ex-pred-status"></div>
-          <div class="result__meta"><span>模型：All-in baseline 在整個訓練集上的擬合</span></div>
+          <div class="result__meta"><span id="ex-pred-model">模型：目前選取的候選在整個訓練集上的擬合</span></div>
         </aside>
       </div>
     </article>
@@ -113,6 +165,7 @@
     <article class="testzone ex-block" id="ex-test" aria-labelledby="ex-h-test" hidden>
       <h2 id="ex-h-test">探索 test（非正式評估） <span class="tag tag--explore">探索執行，非正式評估</span> <span class="tag tag--test">探索 test（非正式評估）</span></h2>
       <p class="small" id="ex-test-model"></p>
+      <p class="notice small" id="ex-test-hint" role="status" hidden></p>
       <div class="grid ex-kpi5" id="ex-kpi-test"></div>
       <div class="scatter-wrap">
         <div class="chart__toolbar">
@@ -135,6 +188,27 @@
         </div>
       </div>
       <p class="small muted">95% 預測區間 ŷ ± t(0.975, df)·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀)) 在目標的原始尺度計算，假設殘差常態、同質變異、獨立，不宣稱保證 95% 的經驗涵蓋率。Test 列在全部模型選擇固定之後才讀取，只對被選出的模型計算，不回饋任何選擇。</p>
+    </article>
+
+    <article class="card ex-block" id="ex-methods" aria-labelledby="ex-h-methods" hidden>
+      <h2 id="ex-h-methods">方法與限制 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <p class="small">探索模式與 King County 正式分析使用同一套選模語義：feature group 整組進出、Forward／Backward SFS 以 RSS、RFE 以 group 對擬合值貢獻的標準差 sd(X_g β_g)、Lasso 以 exact LARS 的進入順序、平手依 CSV 欄序、只用訓練列的編碼與 OLS 參數式預測區間。兩個 problem 在下列幾點不同：</p>
+      <div class="tablewrap">
+        <table class="table" id="ex-semantics">
+          <caption class="small muted">兩個 problem 的語義差異</caption>
+          <thead><tr><th scope="col">項目</th><th scope="col">King County（正式分析）</th><th scope="col">探索執行（50 Startups／自訂資料集）</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">目標尺度</th><td>以 ln(price) 建模，預測與區間以 exp 轉回 USD（區間不對稱）</td><td>目標原始尺度建模與報告，不取 log、不取 exp（目標可為負或零）</td></tr>
+            <tr><th scope="row">切分</th><td>以房屋 id 分組的 80／20 與分組 5-fold（同一房屋不跨訓練與 test）</td><td>固定 seed 的逐列 80／20 與逐列 5-fold，不分組</td></tr>
+            <tr><th scope="row">Lasso 退化</th><td>未進入路徑的 group 依欄序補成 k = 1…18 的子集（King County 的選模語義）</td><td>路徑退化後停止：已求得的路徑段是實際結果，之後的 group 只作展示，k 超過的候選為無效（lasso_path_degenerate）</td></tr>
+            <tr><th scope="row">派生規則</th><td>有：date 轉為日數、yr_renovated 拆成整修旗標與有效年份、zipcode 為類別、sqft_basement 不進模型</td><td>無：每個來源欄就是一個 feature group（數值欄一欄、類別欄為訓練層級的 one-hot）；沒有日期轉換或任何資料專屬規則</td></tr>
+            <tr><th scope="row">Test 的地位</th><td>正式的 Test evaluation，只做一次並記錄</td><td>探索 test：每次選取都重算、不保存，永遠不是 Test evaluation</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="ex-subhead">逐列切分的限制</h3>
+      <p class="small">探索模式的切分是逐列隨機的，沒有分組欄的概念。資料中若有<strong>重複的列</strong>、<strong>同一個實體的多筆紀錄</strong>（例如同一家公司或同一個人的多次觀測），或<strong>時間相依</strong>的資料，同一來源的資訊可能同時出現在訓練與 test（或同一 fold 的訓練與驗證）列，使 CV 與 test 指標過度樂觀。探索結果只供操作與比較，<strong>不代表正式研究結論</strong>。</p>
+      <p class="small muted">CV winner 是在多個 k 與方法中取最小 CV RMSE 選出的，CV 分數帶有樂觀的選擇偏誤；探索 test 只對 winner 計算一次作為較獨立的估計，test 排名與 CV 排名不同時也不換模型。</p>
     </article>
   </section>
 

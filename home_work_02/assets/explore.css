@@ -36,6 +36,27 @@ body.is-exploring .topnav, body.is-exploring .nav-toggle { display: none !import
 #ex-pred-form[aria-disabled="true"] .fields { display: none; }
 .explore .field > label { font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
 
+/* #75: model selection, metric vs k, winners table, Lasso path, dependency diagnostic, methods block */
+.ex-layout { margin-top: var(--space-3); }
+.ex-layout .control { position: static; }
+.ex-legend-text { color: #334155; }
+#ex-kpi-cv .ex-invalid { grid-column: 1 / -1; display: grid; gap: 6px; }
+#ex-compare th[scope="colgroup"] { text-align: center; }
+#ex-compare .ex-test-head, #ex-compare .ex-test-cell { background: #F1F5F9; }
+#ex-compare .ex-row-overall th, #ex-compare .ex-row-overall td { box-shadow: inset 0 2px 0 #86EFAC, inset 0 -2px 0 #86EFAC; }
+#ex-compare .tag { margin-left: 6px; }
+.ex-row-none td, .ex-row-none th { color: var(--c-muted); }
+#ex-folds td:nth-child(2), #ex-compare td .small { overflow-wrap: anywhere; }
+.linklike { font: inherit; color: var(--c-primary); background: none; border: 0; padding: 0; min-height: 32px; text-align: left;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-weight: 600; }
+.linklike:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.ex-deps { margin: var(--space-2) 0 0; padding-left: 1.4em; display: grid; gap: var(--space-2); }
+.ex-deps code { overflow-wrap: anywhere; }
+#ex-deps .warn { margin: var(--space-2) 0 0; }
+#ex-test-hint { margin: var(--space-2) 0; }
+#ex-semantics th[scope="row"] { color: var(--c-text); font-weight: 600; min-width: 6em; }
+#ex-semantics td { min-width: 12em; }
+
 @media (max-width: 1024px) {
   .ex-kpi5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

@@ -13,7 +13,11 @@
  * never stored (no localStorage, no URL parameter, no file).
  *
  * predictorView() and the *Text() helpers turn engine results into what the page shows; every string
- * that comes from the data stays a plain string (the page writes it as text; DA D-2). */
+ * that comes from the data stays a plain string (the page writes it as text; DA D-2). #75 adds the views
+ * of the five methods: testView() (the test block shows a winner itself, a non-winner's method winner
+ * with a hint, a method without a VALID candidate the overall winner with a hint), compareRows() (one row
+ * per method winner, training CV and exploratory test kept apart, test numbers only for winners),
+ * kSeries() (training-CV metric vs k), lassoView() and dependencyView(). */
 (function (root, factory) {
   'use strict';
   var api = factory();
@@ -53,11 +57,20 @@
     DUPLICATE_COLUMN: '有重複的欄名'
   };
   var RUN_REASON_TEXT = { ALL_CANDIDATES_INVALID: '全部候選都無效，探索執行被拒絕（ALL_CANDIDATES_INVALID）' };
+  var METHOD_ORDER = ['allin', 'forward_sfs', 'backward_sfs', 'rfe', 'lasso_path'];
+  var METHOD_LABELS = { allin: 'All-in baseline', forward_sfs: 'Forward SFS', backward_sfs: 'Backward SFS', rfe: 'RFE',
+    lasso_path: 'Lasso 路徑排序' };
+  var CAUSE_TEXT = {
+    active_set_degenerate: '要加入的欄與路徑中已有的欄線性相依（active set 退化）',
+    path_ended: '路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）'
+  };
 
   function statusText(status) { return STATUS_TEXT[status] || String(status); }
   function columnStatusText(status) { return COLUMN_STATUS_TEXT[status] || String(status); }
   function loadReasonText(reason) { return LOAD_REASON_TEXT[reason] || String(reason); }
   function runReasonText(reason) { return RUN_REASON_TEXT[reason] || String(reason); }
+  function methodLabel(m) { return METHOD_LABELS[m] || String(m); }
+  function causeText(c) { return CAUSE_TEXT[c] || String(c); }
 
   function reasonText(r) {
     var where = r.scope === 'fold' ? '第 ' + (r.fold + 1) + ' 個 fold 的訓練列' : '整個訓練集';
@@ -66,7 +79,115 @@
     }
     if (r.rule === 'df_resid_lt_3') return where + '：殘差自由度 ' + r.df_resid + ' < 3';
     if (r.rule === 'no_feature_groups') return '沒有任何 feature group（以訓練列判定後全部欄位都被排除）';
+    if (r.rule === 'lasso_path_degenerate') {
+      return where + '：Lasso 路徑只求得前 ' + r.n_groups_entered + ' 個 feature group 就停止（' + causeText(r.cause) +
+        '），k ≥ ' + (r.n_groups_entered + 1) + ' 沒有實際路徑（lasso_path_degenerate）';
+    }
     return where + '：' + String(r.rule);
+  }
+
+  /* ---- views of a COMPLETED ExploratoryResult (#75); plain strings and numbers only --------------- */
+  function candidateName(c) {
+    return c.method === 'allin' ? 'All-in baseline（全部 ' + c.k + ' 個 feature group）' : methodLabel(c.method) + ' · k = ' + c.k;
+  }
+  function candidateByKey(result, key) {
+    var list = result && result.candidates ? result.candidates : [];
+    for (var i = 0; i < list.length; i++) if (list[i].key === key) return list[i];
+    return null;
+  }
+  function defaultKey(result) { return result.winners.overall.key; }
+
+  /* The winner roles a candidate holds: its method's CV winner and / or the overall CV winner. */
+  function winnerRoles(result, key) {
+    var w = result.winners, c = candidateByKey(result, key), roles = [];
+    if (!c) return roles;
+    var mw = w.method_winners[c.method];
+    if (mw && mw.key === key) roles.push(c.method === 'allin' ? 'All-in baseline（自身即 CV winner）' : methodLabel(c.method) + ' 的 CV winner');
+    if (w.overall.key === key) roles.push('整體 CV winner');
+    return roles;
+  }
+
+  /* What the exploratory test block shows for the selected candidate. Test numbers exist only for the
+   * winners: a winner shows its own; a non-winner shows its method's CV winner with a hint; a method
+   * without a VALID candidate shows the overall CV winner with a hint (Spec V2 「評估、預測區間」). */
+  function testView(result, selectedKey) {
+    var w = result.winners;
+    var sel = candidateByKey(result, selectedKey) || candidateByKey(result, w.overall.key);
+    var mw = w.method_winners[sel.method], shownKey, hint = null;
+    if (Object.prototype.hasOwnProperty.call(w.test_key_of, sel.key)) shownKey = sel.key;
+    else if (mw) {
+      shownKey = mw.key;
+      hint = '目前選取的「' + candidateName(sel) + '」不是該方法的 CV winner；test 只對 CV winner 計算，下面展示「' +
+        methodLabel(sel.method) + '」的 CV winner（k = ' + mw.k + '）。';
+    } else {
+      shownKey = w.overall.key;
+      hint = '「' + methodLabel(sel.method) + '」沒有有效（VALID）的候選，所以沒有 CV winner；下面展示整體 CV winner。';
+    }
+    var testKey = w.test_key_of[shownKey], shown = candidateByKey(result, shownKey);
+    return { selectedKey: sel.key, shownKey: shownKey, shownName: candidateName(shown), testKey: testKey,
+      sharedWith: testKey !== shownKey ? candidateName(candidateByKey(result, testKey)) : null,
+      roles: winnerRoles(result, shownKey), hint: hint, test: result.test[testKey] };
+  }
+
+  /* One row per method: its CV winner (training CV) and that winner's exploratory test numbers. Only
+   * winners have test numbers; a method without a VALID candidate has no winner and no numbers. */
+  function compareRows(result) {
+    var w = result.winners;
+    return METHOD_ORDER.map(function (m) {
+      var mw = w.method_winners[m];
+      if (!mw) return { method: m, label: methodLabel(m), winner: null, note: '沒有有效（VALID）的候選，沒有 CV winner' };
+      var c = candidateByKey(result, mw.key), tk = w.test_key_of[mw.key], t = result.test[tk];
+      return { method: m, label: methodLabel(m), winner: mw.key, k: mw.k, groups: c.canonical_groups.slice(), cv: c.cv,
+        test: t.metrics, coverage: t.coverage, n_covered: t.n_covered, n_test: t.n_test,
+        isOverall: w.overall.key === mw.key && w.overall.method === m,
+        sharedWith: tk !== mw.key ? candidateName(candidateByKey(result, tk)) : null };
+    });
+  }
+
+  /* Training-CV metric vs k for one method (null where the candidate is not VALID). */
+  function kSeries(result, method, metric) {
+    var mw = result.winners.method_winners[method];
+    return result.candidates.filter(function (c) { return c.method === method; }).map(function (c) {
+      return { key: c.key, k: c.k, status: c.status, value: c.status === 'VALID' ? c.cv.mean[metric] : null,
+        isWinner: !!(mw && mw.key === c.key) };
+    });
+  }
+
+  function coefText(v) {
+    var a = Math.abs(v), s = String(Number(a.toPrecision(4)));
+    return (v < 0 ? '− ' : '+ ') + (s === '1' ? '' : s + '·');
+  }
+  function columnText(c) { return c.intercept ? '截距' : c.level === null ? c.group : c.group + '＝' + c.level; }
+
+  /* The dependency diagnostic as text: one relation per line, every column it involves (A-3). */
+  function dependencyView(result) {
+    var deps = result.dependencies;
+    if (!deps) return { rank: null, n_columns: null, relations: [] };
+    return { rank: deps.rank, n_columns: deps.n_columns, relations: deps.relations.map(function (r) {
+      var text = r.columns.map(function (c, i) {
+        var t = coefText(c.coef) + columnText(c);
+        return i === 0 ? t.replace(/^\+ /, '') : t;
+      }).join(' ') + ' ≈ 0';
+      return { formula: text, columns: r.columns.map(columnText), groups: r.feature_groups.slice(), includesIntercept: r.includes_intercept };
+    }) };
+  }
+
+  /* The Lasso path of the training set as rows: the actual path, then the groups shown after it. */
+  function lassoView(result) {
+    var info = result.lasso_path ? result.lasso_path.canonical : null;
+    if (!info) return null;
+    var rows = info.entries.map(function (e, i) {
+      return { position: i + 1, group: e.group, alpha: e.entry_alpha, state: '實際路徑' };
+    }).concat(info.not_entered.map(function (g) {
+      return { position: null, group: g, alpha: null, state: info.degenerate ? '未進入（退化後，只作展示）' : '未進入' };
+    }));
+    var summary = info.degenerate
+      ? '路徑在加入第 ' + (info.n_entered + 1) + ' 個 feature group 前停止（' + causeText(info.cause) + '）：只有前 ' +
+        info.n_entered + ' 個 group 是實際路徑，k ≥ ' + info.first_invalid_k + ' 的 Lasso 候選無效。'
+      : '全部 ' + info.n_entered + ' 個 feature group 都進入路徑，沒有退化。';
+    var folds = result.lasso_path.folds.filter(function (f) { return f.degenerate; }).length;
+    if (folds) summary += '另有 ' + folds + ' 個 fold 的路徑退化（見各候選的原因）。';
+    return { rows: rows, summary: summary, degenerate: info.degenerate };
   }
 
   function warningText(w) {
@@ -151,8 +272,12 @@
   return {
     PROBLEMS: PROBLEMS, PROBLEM_TITLES: PROBLEM_TITLES, EXPLORE_LABEL: EXPLORE_LABEL, CV_LABEL: CV_LABEL,
     TEST_LABEL: TEST_LABEL, CUSTOM_PLACEHOLDER: CUSTOM_PLACEHOLDER,
+    METHOD_ORDER: METHOD_ORDER, METHOD_LABELS: METHOD_LABELS,
     statusText: statusText, columnStatusText: columnStatusText, loadReasonText: loadReasonText,
-    runReasonText: runReasonText, reasonText: reasonText, warningText: warningText,
+    runReasonText: runReasonText, reasonText: reasonText, warningText: warningText, methodLabel: methodLabel,
+    causeText: causeText, candidateName: candidateName, candidateByKey: candidateByKey, defaultKey: defaultKey,
+    winnerRoles: winnerRoles, testView: testView, compareRows: compareRows, kSeries: kSeries,
+    dependencyView: dependencyView, lassoView: lassoView,
     predictorView: predictorView, createController: createController
   };
 });

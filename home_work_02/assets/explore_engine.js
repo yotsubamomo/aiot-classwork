@@ -2,7 +2,9 @@
  * 即時預測器」「Exploratory run 結果契約」). Pure functions: no page, no network, no storage; the same file
  * runs in the browser (window.HW2ExploreEngine) and in Node (module.exports).
  *
- * #74 (V2-T1) builds the All-in candidate only. The chain, in this order (Brief V2 §5.5, E-1):
+ * #74 (V2-T1) built the All-in candidate; #75 (V2-T2) adds the four path methods, the candidate states,
+ * the winners, the Lasso degeneracy (A-2) and the dependency diagnostic (A-3). The chain, in this order
+ * (Brief V2 §5.5, E-1):
  *   1. LoadResult (assets/explore_load.js): CSV structure checks only, any row.
  *   2. Fixed-seed row-wise 80/20 split, then a fixed-seed 5-fold assignment of the training rows.
  *      PRNG: mulberry32 (32-bit integer arithmetic) with Fisher-Yates; the split draws from
@@ -27,6 +29,29 @@
  *      test metrics, per-row prediction, 95% PI y_hat +/- t(0.975, df_resid) * sqrt(s2 (1 + x0'(X'X)^-1 x0))
  *      on the original target scale (no log, no exp), covered = lower <= actual <= upper, coverage.
  *
+ * Path methods (#75; the criteria of hw2/selection.py, on each fold's training rows and once on the
+ * whole training set; one feature group per step; k = 1..p):
+ *   - Forward / Backward SFS: the RSS of the OLS on the given rows, from the Gram matrix of the centred,
+ *     unit-norm encoded columns with minimum-norm solutions (hw2.selection.GroupGram).
+ *   - RFE: remove the group with the smallest sd(X_g b_g) over the given rows.
+ *   - Lasso path: exact LARS with the Lasso modification (a port of sklearn's lars_path, method "lasso",
+ *     which the formal analysis uses) on the formal standardization (numeric columns centred and scaled
+ *     by the population sd, one-hot columns 0/1, then every column centred) of the given rows; a group
+ *     enters at the knot alpha before its first non-zero coefficient; order by entry alpha, largest
+ *     first. A-2: the path stops at the first active-set degeneracy (an entering column whose residual
+ *     on the active columns is <= 1e-6 of its norm, or below sklearn's pivot limit 1e-7) or ends with
+ *     groups that never entered; the entered groups are the actual path, the others are shown after
+ *     them in CSV order only, and every k beyond is INVALID_MODEL / lasso_path_degenerate.
+ *   - Ties (relative 1e-12, hw2.selection.TIE_RTOL) follow CSV order: forward and Lasso take the
+ *     earlier group first, backward and RFE remove the later group first.
+ * Winners (hw2/models.py determine_winners): a method's CV winner is its VALID candidate with the lowest
+ * CV RMSE, ties to the smaller k (All-in is its own winner); the overall CV winner is the lowest CV RMSE
+ * among them, ties in the order All-in, Forward SFS, Backward SFS, RFE, Lasso path. Winners with the
+ * same canonical subset are one model and are scored once.
+ * A-3: the All-in design of the whole training set (intercept, then the encoded columns), equilibrated,
+ * is scanned in that order; a column within max(n, p) * eps of the span of the earlier independent
+ * columns closes one linear relation, reported with all its columns and their feature groups.
+ *
  * Metrics are MAE, MSE, RMSE and R^2 (1 - SSE/SST around the mean of the scored rows; null when SST is
  * 0) in the target's own units. Nothing here reads model_data: the formal King County analysis is a
  * different problem. Strings from the data are carried as data only (DA D-2). */
@@ -38,7 +63,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  var ENGINE_VERSION = 'explore-engine 1 (V2-T1: All-in)';
+  var ENGINE_VERSION = 'explore-engine 2 (V2-T2: five methods)';
   var SEED = 42;
   var TEST_FRACTION = 0.2;
   var N_FOLDS = 5;
@@ -48,6 +73,15 @@
   var CV_STD_DDOF = 1;
   var EPS = 2.220446049250313e-16;
   var METRICS = ['mae', 'mse', 'rmse', 'r2'];
+  var PATH_METHODS = ['forward_sfs', 'backward_sfs', 'rfe', 'lasso_path'];
+  var METHOD_ORDER = ['allin'].concat(PATH_METHODS);
+  var TIE_RTOL = 1e-12;                       /* hw2.selection.TIE_RTOL */
+  var LARS_MAX_ITER = 500;                    /* sklearn lars_path default */
+  var LARS_DEGENERATE_RTOL = 1e-6;
+  var LARS_PIVOT_ATOL = 1e-7;                 /* sklearn's own Cholesky pivot limit */
+  var TINY32 = 1.1754943508222875e-38;        /* numpy float32 tiny */
+  var EQ_TOL = 1.1920928955078125e-7;         /* numpy float32 eps (sklearn's equality_tolerance) */
+  var RELATION_ZERO = 1e-9;
 
   /* ---- PRNG, split and folds ---------------------------------------------------------------- */
   function mulberry32(seed) {
@@ -380,38 +414,61 @@
     };
   }
 
-  function evaluateCandidate(load, groups, split, method, k) {
-    var folds = [], reasons = [];
-    var key = method === 'allin' ? 'allin' : method + '_k' + (k < 10 ? '0' : '') + k;
-    var names = groups.map(function (g) { return g.name; });
-    if (!groups.length) {
-      return { key: key, method: method, k: 0, status: 'INVALID_MODEL',
-        reasons: [{ rule: 'no_feature_groups', scope: 'training_set', fold: null }],
-        folds: [], cv: null, canonical_groups: [], fit: null };
-    }
+  function modelKey(method, k) { return method === 'allin' ? 'allin' : method + '_k' + (k < 10 ? '0' : '') + k; }
+
+  function subsetGroups(groups, names) {
+    return groups.filter(function (g) { return names.indexOf(g.name) >= 0; });
+  }
+
+  function foldRows(split, f) {
+    var trainRows = [], validRows = [];
+    split.train.forEach(function (r, i) { (split.folds[i] === f ? validRows : trainRows).push(r); });
+    return { train: trainRows, valid: validRows };
+  }
+
+  /* The Lasso path of these rows stopped before reaching k groups (A-2). */
+  function missingReason(scope, fold, info) {
+    return { rule: 'lasso_path_degenerate', scope: scope, fold: fold, n_groups_entered: info.n_entered, cause: info.cause };
+  }
+
+  /* Candidate (method, k): fold f is fitted on its training rows with foldSubsets[f] (null: that fold's
+   * Lasso path stopped before k groups), the canonical fit on the whole training set with
+   * canonicalSubset. A-1 and A-2 decide the status; every reason is kept. */
+  function evaluateSubsets(load, groups, split, method, k, foldSubsets, canonicalSubset, foldLasso, canonicalLasso) {
+    var folds = [], reasons = [], key = modelKey(method, k);
     for (var f = 0; f < N_FOLDS; f++) {
-      var trainRows = [], validRows = [];
-      split.train.forEach(function (r, i) { (split.folds[i] === f ? validRows : trainRows).push(r); });
-      var enc = fitEncoding(load, groups, trainRows);
-      var fit = fitOls(encodeRows(load, enc, trainRows).X, targetOf(load, trainRows));
-      var rec = { fold: f, n_train: trainRows.length, n_valid: validRows.length, groups: names.slice(),
+      var rows = foldRows(split, f), subset = foldSubsets[f];
+      if (subset === null) {
+        folds.push({ fold: f, n_train: rows.train.length, n_valid: rows.valid.length, groups: null, levels: null,
+          n_columns: null, rank: null, df_resid: null, status: 'invalid', rule: 'lasso_path_degenerate', metrics: null });
+        reasons.push(missingReason('fold', f, foldLasso[f]));
+        continue;
+      }
+      var enc = fitEncoding(load, subsetGroups(groups, subset), rows.train);
+      var fit = fitOls(encodeRows(load, enc, rows.train).X, targetOf(load, rows.train));
+      var rec = { fold: f, n_train: rows.train.length, n_valid: rows.valid.length, groups: subset.slice(),
         levels: levelsOf(enc), n_columns: fit.n_columns, rank: fit.rank, df_resid: fit.df_resid };
       if (!fit.ok) {
         rec.status = 'invalid'; rec.rule = fit.rule; rec.metrics = null;
         reasons.push({ rule: fit.rule, scope: 'fold', fold: f, rank: fit.rank, n_columns: fit.n_columns, df_resid: fit.df_resid });
       } else {
-        var valid = encodeRows(load, enc, validRows);
+        var valid = encodeRows(load, enc, rows.valid);
         var pred = valid.X.map(function (x) { return dot([1].concat(x), fit.coef); });
         rec.status = 'ok'; rec.rule = null; rec.coef = fit.coef.slice();
-        rec.metrics = metricsOf(targetOf(load, validRows), pred);
+        rec.metrics = metricsOf(targetOf(load, rows.valid), pred);
         rec.n_valid_unseen = valid.unseenRows;
       }
       folds.push(rec);
     }
-    var cEnc = fitEncoding(load, groups, split.train);
-    var cFit = fitOls(encodeRows(load, cEnc, split.train).X, targetOf(load, split.train));
-    if (!cFit.ok) {
-      reasons.push({ rule: cFit.rule, scope: 'training_set', fold: null, rank: cFit.rank, n_columns: cFit.n_columns, df_resid: cFit.df_resid });
+    var cEnc = null, cFit = null;
+    if (canonicalSubset === null) {
+      reasons.push(missingReason('training_set', null, canonicalLasso));
+    } else {
+      cEnc = fitEncoding(load, subsetGroups(groups, canonicalSubset), split.train);
+      cFit = fitOls(encodeRows(load, cEnc, split.train).X, targetOf(load, split.train));
+      if (!cFit.ok) {
+        reasons.push({ rule: cFit.rule, scope: 'training_set', fold: null, rank: cFit.rank, n_columns: cFit.n_columns, df_resid: cFit.df_resid });
+      }
     }
     var cv = null, status = reasons.length ? 'INVALID_MODEL' : 'VALID';
     if (status === 'VALID') {
@@ -425,9 +482,535 @@
         cv.std[m] = Math.sqrt(ss / (vals.length - CV_STD_DDOF));
       });
     }
-    return { key: key, method: method, k: groups.length, status: status, reasons: reasons, folds: folds, cv: cv,
-      canonical_groups: names.slice(),
+    return { key: key, method: method, k: k, status: status, reasons: reasons, folds: folds, cv: cv,
+      canonical_groups: canonicalSubset === null ? null : canonicalSubset.slice(),
       fit: status === 'VALID' ? fitRecord(load, cEnc, split.train, cFit) : null };
+  }
+
+  /* The All-in baseline: every feature group in every fold and on the training set. */
+  function evaluateCandidate(load, groups, split) {
+    if (!groups.length) {
+      return { key: 'allin', method: 'allin', k: 0, status: 'INVALID_MODEL',
+        reasons: [{ rule: 'no_feature_groups', scope: 'training_set', fold: null }],
+        folds: [], cv: null, canonical_groups: [], fit: null };
+    }
+    var names = groups.map(function (g) { return g.name; });
+    var all = [];
+    for (var f = 0; f < N_FOLDS; f++) all.push(names);
+    return evaluateSubsets(load, groups, split, 'allin', groups.length, all, names);
+  }
+
+  /* ---- selection paths: Gram criteria (hw2.selection.GroupGram) ---------------------------------- */
+  function columnsOf(X, q) {
+    var cols = [];
+    for (var j = 0; j < q; j++) {
+      var c = new Float64Array(X.length);
+      for (var i = 0; i < X.length; i++) c[i] = X[i][j];
+      cols.push(c);
+    }
+    return cols;
+  }
+  function meanOf(v) { var s = 0; for (var i = 0; i < v.length; i++) s += v[i]; return s / v.length; }
+
+  /* Centred, unit-norm columns and centred target: G = Z'Z, b = Z'y, yy = y'y (formal constructor). */
+  function groupGram(cols, y, colGroup, nGroups) {
+    var n = y.length, q = cols.length, Z = [], j, i;
+    for (j = 0; j < q; j++) {
+      var m = meanOf(cols[j]), c = new Float64Array(n), ss = 0;
+      for (i = 0; i < n; i++) { c[i] = cols[j][i] - m; ss += c[i] * c[i]; }
+      var nrm = Math.sqrt(ss) || 1;
+      for (i = 0; i < n; i++) c[i] /= nrm;
+      Z.push(c);
+    }
+    var my = meanOf(y), yc = new Float64Array(n), yy = 0;
+    for (i = 0; i < n; i++) { yc[i] = y[i] - my; yy += yc[i] * yc[i]; }
+    var G = [], b = new Float64Array(q);
+    for (j = 0; j < q; j++) {
+      G.push(new Float64Array(q));
+      b[j] = dot(Z[j], yc);
+    }
+    for (j = 0; j < q; j++) for (var l = j; l < q; l++) { var v = dot(Z[j], Z[l]); G[j][l] = v; G[l][j] = v; }
+    var members = [];
+    for (var g = 0; g < nGroups; g++) members.push([]);
+    for (j = 0; j < q; j++) members[colGroup[j]].push(j);
+    return { n: n, G: G, b: b, yy: yy, members: members };
+  }
+
+  /* Cyclic Jacobi eigen-decomposition of a symmetric matrix (array of rows). */
+  function jacobiEigen(A) {
+    var m = A.length, a = A.map(function (r) { return Array.from(r); }), V = [], i, j, k;
+    for (i = 0; i < m; i++) { V.push(new Array(m).fill(0)); V[i][i] = 1; }
+    for (var sweep = 0; sweep < 100; sweep++) {
+      var off = 0;
+      for (i = 0; i < m; i++) for (j = i + 1; j < m; j++) off += a[i][j] * a[i][j];
+      if (off === 0) break;
+      for (i = 0; i < m - 1; i++) {
+        for (j = i + 1; j < m; j++) {
+          if (a[i][j] === 0) continue;
+          var theta = (a[j][j] - a[i][i]) / (2 * a[i][j]);
+          var t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+          var c = 1 / Math.sqrt(t * t + 1), s = t * c;
+          for (k = 0; k < m; k++) {
+            var aki = a[k][i], akj = a[k][j];
+            a[k][i] = c * aki - s * akj; a[k][j] = s * aki + c * akj;
+          }
+          for (k = 0; k < m; k++) {
+            var aik = a[i][k], ajk = a[j][k];
+            a[i][k] = c * aik - s * ajk; a[j][k] = s * aik + c * ajk;
+          }
+          for (k = 0; k < m; k++) {
+            var vki = V[k][i], vkj = V[k][j];
+            V[k][i] = c * vki - s * vkj; V[k][j] = s * vki + c * vkj;
+          }
+        }
+      }
+    }
+    var values = [];
+    for (i = 0; i < m; i++) values.push(a[i][i]);
+    return { values: values, vectors: V };
+  }
+
+  /* Minimum-norm least-squares solution of the symmetric system A x = b, as numpy.linalg.lstsq with
+   * rcond = eps * m: a Cholesky solve when the pivots are clearly positive, else the pseudo-inverse. */
+  function minNormSolve(A, b) {
+    var m = A.length, i, j, k, maxDiag = 0, ok = true;
+    for (i = 0; i < m; i++) maxDiag = Math.max(maxDiag, Math.abs(A[i][i]));
+    var L = [];
+    for (i = 0; i < m && ok; i++) {
+      L.push(new Float64Array(m));
+      for (j = 0; j <= i; j++) {
+        var s = A[i][j];
+        for (k = 0; k < j; k++) s -= L[i][k] * L[j][k];
+        if (i === j) {
+          if (!(s > 1e-8 * maxDiag)) { ok = false; break; }
+          L[i][i] = Math.sqrt(s);
+        } else L[i][j] = s / L[j][j];
+      }
+    }
+    var x = new Float64Array(m);
+    if (ok) {
+      var w = new Float64Array(m);
+      for (i = 0; i < m; i++) { var t = b[i]; for (k = 0; k < i; k++) t -= L[i][k] * w[k]; w[i] = t / L[i][i]; }
+      for (i = m - 1; i >= 0; i--) { var u = w[i]; for (k = i + 1; k < m; k++) u -= L[k][i] * x[k]; x[i] = u / L[i][i]; }
+      return x;
+    }
+    var e = jacobiEigen(A), smax = 0;
+    e.values.forEach(function (v) { smax = Math.max(smax, Math.abs(v)); });
+    var cut = EPS * m * smax;
+    for (var r = 0; r < m; r++) {
+      var lam = e.values[r];
+      if (!(Math.abs(lam) > cut)) continue;
+      var proj = 0;
+      for (i = 0; i < m; i++) proj += e.vectors[i][r] * b[i];
+      for (i = 0; i < m; i++) x[i] += e.vectors[i][r] * proj / lam;
+    }
+    return x;
+  }
+
+  function gramSolve(gram, groupIdx) {
+    var idx = [];
+    groupIdx.forEach(function (g) { idx = idx.concat(gram.members[g]); });
+    var A = idx.map(function (r) { return idx.map(function (c) { return gram.G[r][c]; }); });
+    var b = idx.map(function (r) { return gram.b[r]; });
+    return { idx: idx, beta: idx.length ? minNormSolve(A, b) : new Float64Array(0) };
+  }
+  function gramRss(gram, groupIdx) {
+    var s = gramSolve(gram, groupIdx);
+    if (!s.idx.length) return gram.yy;
+    var fit = 0;
+    for (var i = 0; i < s.idx.length; i++) fit += gram.b[s.idx[i]] * s.beta[i];
+    return Math.max(gram.yy - fit, 0);
+  }
+  /* sd over the rows of each group's contribution to the fitted values (RFE's group importance). */
+  function gramImportance(gram, groupIdx) {
+    var s = gramSolve(gram, groupIdx), out = [], start = 0;
+    groupIdx.forEach(function (g) {
+      var cols = gram.members[g], w = cols.length, v = 0;
+      for (var a = 0; a < w; a++) for (var c = 0; c < w; c++) v += s.beta[start + a] * gram.G[cols[a]][cols[c]] * s.beta[start + c];
+      out.push(w ? Math.sqrt(Math.max(v / gram.n, 0)) : 0);
+      start += w;
+    });
+    return out;
+  }
+
+  /* The group with the smallest score; ties (TIE_RTOL) by canonical (CSV) order, the later one when
+   * removing. scores: [{v, g}] with g the canonical index. */
+  function pick(scores, preferLate) {
+    var best = Infinity;
+    scores.forEach(function (s) { if (s.v < best) best = s.v; });
+    var tol = TIE_RTOL * Math.max(Math.abs(best), 1);
+    var tied = scores.filter(function (s) { return s.v <= best + tol; }).map(function (s) { return s.g; });
+    return preferLate ? Math.max.apply(null, tied) : Math.min.apply(null, tied);
+  }
+  function sortedIdx(list) { return list.slice().sort(ascending); }
+
+  function forwardPath(gram, p) {
+    var selected = [], remaining = [], subsets = [];
+    for (var g = 0; g < p; g++) remaining.push(g);
+    while (remaining.length) {
+      var scores = remaining.map(function (h) { return { v: gramRss(gram, sortedIdx(selected.concat([h]))), g: h }; });
+      var pickG = pick(scores, false);
+      selected.push(pickG);
+      remaining.splice(remaining.indexOf(pickG), 1);
+      subsets.push(sortedIdx(selected));
+    }
+    return subsets;
+  }
+  function backwardPath(gram, p) {
+    var current = [], subsets = new Array(p);
+    for (var g = 0; g < p; g++) current.push(g);
+    subsets[p - 1] = current.slice();
+    while (current.length > 1) {
+      var scores = current.map(function (h) { return { v: gramRss(gram, current.filter(function (x) { return x !== h; })), g: h }; });
+      var pickG = pick(scores, true);
+      current.splice(current.indexOf(pickG), 1);
+      subsets[current.length - 1] = current.slice();
+    }
+    return subsets;
+  }
+  function rfePath(gram, p) {
+    var current = [], subsets = new Array(p);
+    for (var g = 0; g < p; g++) current.push(g);
+    subsets[p - 1] = current.slice();
+    while (current.length > 1) {
+      var imp = gramImportance(gram, current);
+      var pickG = pick(current.map(function (h, i) { return { v: imp[i], g: h }; }), true);
+      current.splice(current.indexOf(pickG), 1);
+      subsets[current.length - 1] = current.slice();
+    }
+    return subsets;
+  }
+
+  /* ---- Lasso path: exact LARS (port of sklearn's lars_path, method "lasso", Gram=None) ----------- */
+  /* The formal Ridge/Lasso standardization on these rows, then every column centred. */
+  function lassoDesign(cols, dummy) {
+    return cols.map(function (c, j) {
+      var n = c.length, center = 0, scale = 1, i, out = new Float64Array(n);
+      if (!dummy[j]) {
+        center = meanOf(c);
+        var ss = 0;
+        for (i = 0; i < n; i++) ss += (c[i] - center) * (c[i] - center);
+        scale = Math.sqrt(ss / n);
+        if (scale === 0) scale = 1;
+      }
+      for (i = 0; i < n; i++) out[i] = (c[i] - center) / scale;
+      var m = meanOf(out);
+      for (i = 0; i < n; i++) out[i] -= m;
+      return out;
+    });
+  }
+
+  function minPos(values) {
+    var best = Number.MAX_VALUE;
+    for (var i = 0; i < values.length; i++) if (values[i] > 0 && values[i] < best) best = values[i];
+    return best;
+  }
+  function rint(v) {
+    var f = Math.floor(v), d = v - f;
+    if (d < 0.5) return f;
+    if (d > 0.5) return f + 1;
+    return f % 2 === 0 ? f : f + 1;
+  }
+  function round15(v) { return rint(v * 1e15) / 1e15; }      /* numpy around(v, 15) */
+  function sign(v) { return v > 0 ? 1 : v < 0 ? -1 : 0; }
+  /* L L' x = b for the leading m x m block of the lower-triangular L (LAPACK potrs). */
+  function cholSolve(L, m, b) {
+    var w = new Float64Array(m), x = new Float64Array(m), i, k;
+    for (i = 0; i < m; i++) { var t = b[i]; for (k = 0; k < i; k++) t -= L[i][k] * w[k]; w[i] = t / L[i][i]; }
+    for (i = m - 1; i >= 0; i--) { var u = w[i]; for (k = i + 1; k < m; k++) u -= L[k][i] * x[k]; x[i] = u / L[i][i]; }
+    return x;
+  }
+  /* BLAS drotg (reference implementation). */
+  function rotg(a, b) {
+    var roe = Math.abs(a) > Math.abs(b) ? a : b, scale = Math.abs(a) + Math.abs(b);
+    if (scale === 0) return { r: 0, z: 0, c: 1, s: 0 };
+    var r = scale * Math.sqrt((a / scale) * (a / scale) + (b / scale) * (b / scale));
+    if (roe < 0) r = -r;
+    var c = a / r, s = b / r, z = 1;
+    if (Math.abs(a) > Math.abs(b)) z = s;
+    if (Math.abs(b) >= Math.abs(a) && c !== 0) z = 1 / c;
+    return { r: r, z: z, c: c, s: s };
+  }
+  /* sklearn.utils.arrayfuncs.cholesky_delete on the leading n x n block. */
+  function choleskyDelete(L, n, goOut) {
+    var i, k, r;
+    for (i = goOut; i < n - 1; i++) for (k = 0; k < i + 2; k++) L[i][k] = L[i + 1][k];
+    for (i = goOut; i < n - 1; i++) {
+      var g = rotg(L[i][i], L[i][i + 1]), c = g.c, s = g.s;
+      L[i][i] = g.r; L[i][i + 1] = g.z;
+      if (L[i][i] < 0) { L[i][i] = Math.abs(L[i][i]); c = -c; s = -s; }
+      L[i][i + 1] = 0;
+      for (r = i + 1; r < n - 1; r++) {
+        var x = L[r][i], yv = L[r][i + 1];
+        L[r][i] = c * x + s * yv; L[r][i + 1] = c * yv - s * x;
+      }
+    }
+  }
+
+  /* Exact Lasso path by LARS on centred columns X (Float64Array each) and centred y. Returns the knot
+   * alphas and coefficients (original column order) up to the stop, and why it stopped:
+   * 'completed' (alpha reached sklearn's equality tolerance, or every column active), 'alpha_increasing'
+   * (sklearn's early stop), 'max_iter', 'active_set_degenerate' (A-2) or 'multiple_drops'. */
+  function larsLasso(cols, y) {
+    var n = y.length, p = cols.length, X = cols.slice(), i, j, k;
+    var maxFeatures = Math.min(LARS_MAX_ITER, p);
+    var Cov = [];
+    for (j = 0; j < p; j++) Cov.push(dot(X[j], y));
+    var indices = [];
+    for (j = 0; j < p; j++) indices.push(j);
+    var alphas = [], coefs = [], nIter = 0, nActive = 0, active = [], signActive = [], drop = false, idx = [];
+    var L = [];
+    for (i = 0; i < maxFeatures; i++) L.push(new Float64Array(maxFeatures));
+    var stop = { cause: 'completed', iteration: null, attempted: null };
+    while (true) {
+      var cIdx = -1, cRaw = 0, C = 0;
+      for (j = 0; j < Cov.length; j++) if (cIdx < 0 || Math.abs(Cov[j]) > C) { cIdx = j; C = Math.abs(Cov[j]); }
+      /* Ties (TIE_RTOL) go to the earliest column in CSV order (Spec: Lasso adds the earlier group first);
+       * sklearn takes the first in its internal order, which only differs for exactly tied columns. */
+      for (j = 0; j < Cov.length; j++) {
+        if (C - Math.abs(Cov[j]) <= TIE_RTOL * Math.max(C, 1) && indices[nActive + j] < indices[nActive + cIdx]) cIdx = j;
+      }
+      if (cIdx >= 0) { cRaw = Cov[cIdx]; C = Math.abs(cRaw); }
+      if (coefs.length <= nIter) coefs.push(new Float64Array(p));
+      var coef = coefs[nIter], alpha = C / n;
+      alphas[nIter] = alpha;
+      if (alpha <= EQ_TOL) break;                                 /* sklearn's early stop (alpha_min 0) */
+      if (nIter >= LARS_MAX_ITER || nActive >= p) { if (nIter >= LARS_MAX_ITER) stop.cause = 'max_iter'; break; }
+      if (!drop) {
+        signActive[nActive] = sign(cRaw);
+        var m = nActive, nn = cIdx + nActive, tmp;
+        tmp = Cov[cIdx]; Cov[cIdx] = Cov[0]; Cov[0] = tmp;
+        tmp = indices[nn]; indices[nn] = indices[m]; indices[m] = tmp;
+        Cov = Cov.slice(1);
+        tmp = X[nn]; X[nn] = X[m]; X[m] = tmp;
+        var c = dot(X[nActive], X[nActive]);
+        for (i = 0; i < nActive; i++) L[nActive][i] = dot(X[nActive], X[i]);
+        for (i = 0; i < nActive; i++) {                          /* L[:m, :m] w = L[m, :m] */
+          var t = L[nActive][i];
+          for (k = 0; k < i; k++) t -= L[i][k] * L[nActive][k];
+          L[nActive][i] = t / L[i][i];
+        }
+        var v = 0;
+        for (i = 0; i < nActive; i++) v += L[nActive][i] * L[nActive][i];
+        var diag = Math.max(Math.sqrt(Math.abs(c - v)), EPS);
+        L[nActive][nActive] = diag;
+        if (diag < LARS_PIVOT_ATOL || diag <= LARS_DEGENERATE_RTOL * Math.sqrt(c)) {
+          stop = { cause: 'active_set_degenerate', iteration: nIter, attempted: indices[nActive] };
+          break;
+        }
+        active.push(indices[nActive]);
+        nActive++;
+      }
+      if (nIter > 0 && alphas[nIter - 1] < alpha) { stop.cause = 'alpha_increasing'; break; }
+      var ls = cholSolve(L, nActive, signActive), AA, sum;
+      if (nActive === 1 && ls[0] === 0) { ls[0] = 1; AA = 1; }
+      else {
+        sum = 0;
+        for (i = 0; i < nActive; i++) sum += ls[i] * signActive[i];
+        AA = 1 / Math.sqrt(sum);
+        if (!isFinite(AA)) {
+          var reg = 0;
+          while (!isFinite(AA)) {
+            var Lr = L.map(function (row) { return Float64Array.from(row); });
+            for (i = 0; i < nActive; i++) Lr[i][i] += Math.pow(2, reg) * EPS;
+            ls = cholSolve(Lr, nActive, signActive);
+            sum = 0;
+            for (i = 0; i < nActive; i++) sum += ls[i] * signActive[i];
+            AA = 1 / Math.sqrt(Math.max(sum, EPS));
+            reg++;
+          }
+        }
+        for (i = 0; i < nActive; i++) ls[i] *= AA;
+      }
+      var eq = new Float64Array(n);
+      for (i = 0; i < nActive; i++) for (var r = 0; r < n; r++) eq[r] += X[i][r] * ls[i];
+      var corr = [];
+      for (j = nActive; j < p; j++) corr.push(round15(dot(X[j], eq)));
+      var r1 = [], r2 = [];
+      for (j = 0; j < Cov.length; j++) {
+        r1.push((C - Cov[j]) / (AA - corr[j] + TINY32));
+        r2.push((C + Cov[j]) / (AA + corr[j] + TINY32));
+      }
+      var gamma = Math.min(minPos(r1), minPos(r2), C / AA);
+      drop = false;
+      var z = active.map(function (orig, a) { return -coef[orig] / (ls[a] + TINY32); });
+      var zPos = minPos(z);
+      idx = [];
+      if (zPos < gamma) {
+        for (i = z.length - 1; i >= 0; i--) if (z[i] === zPos) idx.push(i);
+        idx.forEach(function (a) { signActive[a] = -signActive[a]; });
+        gamma = zPos;
+        drop = true;
+      }
+      nIter++;
+      var next = new Float64Array(p);
+      for (i = 0; i < active.length; i++) next[active[i]] = coef[active[i]] + gamma * ls[i];
+      coefs[nIter] = next;
+      for (j = 0; j < Cov.length; j++) Cov[j] -= gamma * corr[j];
+      if (drop) {
+        if (idx.length > 1) {                                    /* sklearn's state is undefined here: stop before */
+          nIter--;
+          stop = { cause: 'multiple_drops', iteration: nIter, attempted: null };
+          break;
+        }
+        var ii = idx[0];
+        choleskyDelete(L, nActive, ii);
+        nActive--;
+        active.splice(ii, 1);
+        for (i = ii; i < nActive; i++) {
+          tmp = X[i]; X[i] = X[i + 1]; X[i + 1] = tmp;
+          tmp = indices[i]; indices[i] = indices[i + 1]; indices[i + 1] = tmp;
+        }
+        var resid = Float64Array.from(y);
+        for (i = 0; i < nActive; i++) for (r = 0; r < n; r++) resid[r] -= X[i][r] * next[active[i]];
+        Cov = [dot(X[nActive], resid)].concat(Cov);
+        signActive.splice(ii, 1);
+        signActive.push(0);
+      }
+    }
+    return { alphas: alphas.slice(0, nIter + 1), coefs: coefs.slice(0, nIter + 1), stop: stop };
+  }
+
+  /* Groups by Lasso entry on these rows (A-2 applied): entry alpha descending, ties in CSV order. */
+  function lassoOrder(cols, y, colGroup, dummy, p) {
+    var my = meanOf(y), yc = new Float64Array(y.length);
+    for (var i = 0; i < y.length; i++) yc[i] = y[i] - my;
+    var path = larsLasso(lassoDesign(cols, dummy), yc), K = path.coefs.length;
+    var alpha = new Array(p).fill(null);
+    for (var g = 0; g < p; g++) {
+      var first = Infinity;
+      for (var j = 0; j < cols.length; j++) {
+        if (colGroup[j] !== g) continue;
+        for (var kk = 1; kk < K; kk++) if (path.coefs[kk][j] !== 0) { first = Math.min(first, kk); break; }
+      }
+      if (first !== Infinity) alpha[g] = path.alphas[first - 1];
+    }
+    var order = [];
+    for (g = 0; g < p; g++) if (alpha[g] !== null) order.push(g);
+    order.sort(function (a, b) { return alpha[b] - alpha[a] || a - b; });
+    var clustered = [], s = 0;
+    while (s < order.length) {
+      var e = s + 1;
+      while (e < order.length && alpha[order[e - 1]] - alpha[order[e]] <= TIE_RTOL * Math.max(Math.abs(alpha[order[e - 1]]), 1)) e++;
+      clustered = clustered.concat(order.slice(s, e).sort(ascending));
+      s = e;
+    }
+    var nEntered = clustered.length, notEntered = [];
+    for (g = 0; g < p; g++) if (alpha[g] === null) notEntered.push(g);
+    var cause = null;
+    if (nEntered < p) cause = path.stop.cause === 'active_set_degenerate' ? 'active_set_degenerate' : 'path_ended';
+    var subsets = [];
+    for (var k = 1; k <= p; k++) subsets.push(k <= nEntered ? sortedIdx(clustered.slice(0, k)) : null);
+    return { order: clustered, alpha: alpha, notEntered: notEntered, nEntered: nEntered, cause: cause, subsets: subsets };
+  }
+
+  /* Every path method on the given rows only: subsets[k - 1] (canonical group names) for k = 1..p. */
+  function pathsOnRows(load, groups, rows) {
+    var enc = fitEncoding(load, groups, rows);
+    var X = encodeRows(load, enc, rows).X, y = targetOf(load, rows);
+    var nameIdx = new Map();
+    groups.forEach(function (g, i) { nameIdx.set(g.name, i); });
+    var colGroup = enc.columns.map(function (c) { return nameIdx.get(c.group); });
+    var dummy = enc.columns.map(function (c) { return c.level !== null; });
+    var cols = columnsOf(X, enc.columns.length), p = groups.length;
+    var gram = groupGram(cols, y, colGroup, p);
+    var lasso = lassoOrder(cols, y, colGroup, dummy, p);
+    var names = function (sub) { return sub === null ? null : sub.map(function (g) { return groups[g].name; }); };
+    return {
+      forward_sfs: forwardPath(gram, p).map(names), backward_sfs: backwardPath(gram, p).map(names),
+      rfe: rfePath(gram, p).map(names), lasso_path: lasso.subsets.map(names),
+      lasso: {
+        entries: lasso.order.map(function (g) { return { group: groups[g].name, entry_alpha: lasso.alpha[g] }; }),
+        not_entered: lasso.notEntered.map(function (g) { return groups[g].name; }),
+        n_entered: lasso.nEntered, degenerate: lasso.nEntered < p,
+        first_invalid_k: lasso.nEntered < p ? lasso.nEntered + 1 : null, cause: lasso.cause
+      }
+    };
+  }
+
+  /* ---- winners (hw2/models.py determine_winners rules) ----------------------------------------- */
+  function determineWinners(candidates) {
+    var methodWinners = {}, byKey = new Map();
+    candidates.forEach(function (c) { byKey.set(c.key, c); });
+    METHOD_ORDER.forEach(function (m) {
+      var best = null;
+      candidates.forEach(function (c) {
+        if (c.method !== m || c.status !== 'VALID') return;
+        if (best === null || c.cv.mean.rmse < best.cv.mean.rmse || (c.cv.mean.rmse === best.cv.mean.rmse && c.k < best.k)) best = c;
+      });
+      methodWinners[m] = best === null ? null : { key: best.key, k: best.k };
+    });
+    var pool = METHOD_ORDER.filter(function (m) { return methodWinners[m] !== null; });
+    if (!pool.length) return null;
+    var om = pool[0];
+    pool.forEach(function (m) {
+      if (byKey.get(methodWinners[m].key).cv.mean.rmse < byKey.get(methodWinners[om].key).cv.mean.rmse) om = m;
+    });
+    var overall = { method: om, key: methodWinners[om].key, k: methodWinners[om].k };
+    var order = pool.map(function (m) { return methodWinners[m].key; }).concat([overall.key]);
+    var reps = [], testKeys = [], testKeyOf = {};
+    function repOf(key) {
+      var sub = JSON.stringify(byKey.get(key).canonical_groups);
+      for (var i = 0; i < reps.length; i++) if (reps[i].sub === sub) return reps[i].key;
+      reps.push({ sub: sub, key: key });
+      return key;
+    }
+    order.forEach(function (key) {
+      var rep = repOf(key);
+      if (testKeys.indexOf(rep) < 0) testKeys.push(rep);
+      testKeyOf[key] = rep;
+    });
+    return { method_winners: methodWinners, overall: overall, test_keys: testKeys, test_key_of: testKeyOf };
+  }
+
+  /* ---- A-3: linear relations among the All-in design columns on the training set ---------------- */
+  function dependencyGroups(load, groups, rows) {
+    var enc = fitEncoding(load, groups, rows), X = encodeRows(load, enc, rows).X;
+    var n = rows.length, q = enc.columns.length, p = q + 1, i, j, l;
+    var cols = [{ intercept: true, group: null, level: null }].concat(enc.columns.map(function (c) {
+      return { intercept: false, group: c.group, level: c.level };
+    }));
+    var D = [new Float64Array(n).fill(1)].concat(columnsOf(X, q));
+    var safe = D.map(function (c) { var s = Math.sqrt(dot(c, c)); return s > 0 ? s : 1; });
+    var tol = Math.max(n, p) * EPS, Q = [], R = [], basis = [], relations = [];
+    for (j = 0; j < p; j++) {
+      var v = new Float64Array(n), rj = new Array(Q.length).fill(0);
+      for (i = 0; i < n; i++) v[i] = D[j][i] / safe[j];
+      for (var pass = 0; pass < 2; pass++) {
+        for (l = 0; l < Q.length; l++) {
+          var d = dot(Q[l], v);
+          for (i = 0; i < n; i++) v[i] -= d * Q[l][i];
+          rj[l] += d;
+        }
+      }
+      var r = Math.sqrt(dot(v, v));
+      if (r > tol) {
+        for (i = 0; i < n; i++) v[i] /= r;
+        Q.push(v); R.push(rj.concat([r])); basis.push(j);
+        continue;
+      }
+      var m = basis.length, a = new Array(m).fill(0);
+      for (l = m - 1; l >= 0; l--) {                              /* R_B a = r_j (upper triangular) */
+        var t = rj[l];
+        for (var u = l + 1; u < m; u++) t -= R[u][l] * a[u];
+        a[l] = t / R[l][l];
+      }
+      var coef = new Array(p).fill(0);
+      for (l = 0; l < m; l++) coef[basis[l]] = -a[l] * safe[j] / safe[basis[l]];
+      coef[j] = 1;
+      var big = 0;
+      coef.forEach(function (x) { big = Math.max(big, Math.abs(x)); });
+      coef = coef.map(function (x) { var y = x / big; return Math.abs(y) <= RELATION_ZERO ? 0 : y; });
+      var nz = [];
+      coef.forEach(function (x, k) { if (x !== 0) nz.push(k); });
+      if (coef[nz[0]] < 0) coef = coef.map(function (x) { return x === 0 ? 0 : -x; });
+      var members = nz.map(function (k) { return { intercept: cols[k].intercept, group: cols[k].group, level: cols[k].level, coef: coef[k] }; });
+      relations.push({ columns: members,
+        feature_groups: groups.filter(function (g) { return members.some(function (c) { return c.group === g.name; }); })
+          .map(function (g) { return g.name; }),
+        includes_intercept: cols[nz[0]].intercept });
+    }
+    return { n_columns: p, rank: basis.length, relations: relations };
   }
 
   /* ---- test: only for the frozen winners' canonical fits --------------------------------------- */
@@ -476,20 +1059,39 @@
       pi_level: PI_LEVEL, max_levels: MAX_LEVELS, min_df_resid: MIN_DF_RESID, cv_std_ddof: CV_STD_DDOF,
       timing_ms: {}
     };
-    var decided = trainDecisions(load, split.train);
+    var decided = trainDecisions(load, split.train), groups = decided.groups;
     var t1 = now(options);
-    var allin = evaluateCandidate(load, decided.groups, split, 'allin');
-    var t2 = now(options);
     meta.timing_ms.decisions = t1 - t0;
-    meta.timing_ms.allin = t2 - t1;
     var result = {
       meta: meta,
       columns: decided.columns,
-      groups: decided.groups.map(function (g) { return { name: g.name, index: g.index, type: g.type }; }),
+      groups: groups.map(function (g) { return { name: g.name, index: g.index, type: g.type }; }),
       split: { train: split.train, test: split.test, folds: split.folds, n_folds: N_FOLDS,
-        prng: 'mulberry32 + Fisher-Yates (split seed, folds seed + 1)' }
+        prng: 'mulberry32 + Fisher-Yates (split seed, folds seed + 1)' },
+      dependencies: dependencyGroups(load, groups, split.train),
+      lasso_path: null
     };
+    var allin = evaluateCandidate(load, groups, split);
+    var t2 = now(options);
+    meta.timing_ms.allin = t2 - t1;
     var candidates = [allin];
+    if (groups.length) {
+      var foldPaths = [];
+      for (var f = 0; f < N_FOLDS; f++) foldPaths.push(pathsOnRows(load, groups, foldRows(split, f).train));
+      var canon = pathsOnRows(load, groups, split.train);
+      var t3 = now(options);
+      meta.timing_ms.paths = t3 - t2;
+      result.lasso_path = { canonical: canon.lasso, folds: foldPaths.map(function (fp) { return fp.lasso; }) };
+      PATH_METHODS.forEach(function (method) {
+        var tm = now(options);
+        for (var k = 1; k <= groups.length; k++) {
+          candidates.push(evaluateSubsets(load, groups, split, method, k,
+            foldPaths.map(function (fp) { return fp[method][k - 1]; }), canon[method][k - 1],
+            foldPaths.map(function (fp) { return fp.lasso; }), canon.lasso));
+        }
+        meta.timing_ms[method] = now(options) - tm;
+      });
+    }
     var valid = candidates.filter(function (c) { return c.status === 'VALID'; });
     if (!valid.length) {
       result.run = { status: 'REJECTED', reason: 'ALL_CANDIDATES_INVALID',
@@ -497,15 +1099,14 @@
       meta.timing_ms.total = now(options) - t0;
       return result;
     }
-    /* winners are fixed here (#74: the All-in baseline is the only candidate and so the overall
-     * CV winner); the test rows are read only after this point. */
-    var winners = { method_winners: {}, overall: { method: 'allin', key: allin.key, k: allin.k }, test_keys: [allin.key] };
-    var test = {};
+    /* winners are fixed here; the test rows are read only after this point, and only for them. */
+    var winners = determineWinners(candidates);
+    var test = {}, t4 = now(options);
     winners.test_keys.forEach(function (key) {
       var c = candidates.filter(function (x) { return x.key === key; })[0];
       test[key] = evaluateTest(load, c, split.test);
     });
-    meta.timing_ms.test = now(options) - t2;
+    meta.timing_ms.test = now(options) - t4;
     meta.timing_ms.total = now(options) - t0;
     result.run = { status: 'COMPLETED', reason: null };
     result.candidates = candidates.map(publicCandidate);
@@ -554,10 +1155,12 @@
   return {
     ENGINE_VERSION: ENGINE_VERSION, SEED: SEED, TEST_FRACTION: TEST_FRACTION, N_FOLDS: N_FOLDS,
     MAX_LEVELS: MAX_LEVELS, MIN_DF_RESID: MIN_DF_RESID, PI_LEVEL: PI_LEVEL, CV_STD_DDOF: CV_STD_DDOF,
+    METHOD_ORDER: METHOD_ORDER, PATH_METHODS: PATH_METHODS, TIE_RTOL: TIE_RTOL,
     mulberry32: mulberry32, shuffledIndices: shuffledIndices, makeSplit: makeSplit,
     trainDecisions: trainDecisions, fitEncoding: fitEncoding, encodeRows: encodeRows,
     fitOls: fitOls, tQuantile: tQuantile, metricsOf: metricsOf, interval: interval,
-    evaluateCandidate: evaluateCandidate, run: run,
+    evaluateCandidate: evaluateCandidate, modelKey: modelKey, determineWinners: determineWinners,
+    larsLasso: larsLasso, pathsOnRows: pathsOnRows, dependencyGroups: dependencyGroups, run: run,
     canPredict: canPredict, inputSpec: inputSpec, predict: predict
   };
 });

@@ -1,4 +1,6 @@
-/* HW2 V2 dashboard: the problem drop-down and the Exploratory run blocks on the page (#74 V2-T1).
+/* HW2 V2 dashboard: the problem drop-down and the Exploratory run blocks on the page (#74 V2-T1; #75
+ * V2-T2: the five methods, the metric vs k chart, the winners, the Lasso path and the dependency
+ * diagnostic).
  *
  * King County (the default) is the V1 dashboard exactly as assets/app.js renders it; this file never
  * changes a V1 element's content. Selecting 50 Startups or 自訂資料集 hides the V1 blocks (the
@@ -6,19 +8,30 @@
  * #explore subtree, whose ids all start with "ex-"; selecting King County again shows the V1 blocks
  * and restores #load-error to what it was. Every exploratory block is labelled 「探索執行，非正式評估」.
  *
+ * Model block (#75): a method switch (All-in, Forward SFS, Backward SFS, RFE, Lasso path), a k grid
+ * (CV winners marked, INVALID_MODEL candidates striped and still selectable with their reasons), a
+ * 「比較全部方法」 toggle, the training-CV KPIs of the selected candidate, the metric vs k chart (training
+ * CV only), the table of method winners and the overall winner (training CV and exploratory test in
+ * separate column groups; test numbers only for winners), the selected candidate's folds and canonical
+ * fit, and the Lasso path of the training set. The predictor follows the selected candidate (VALID
+ * only). The test block shows the selected candidate when it is a winner; otherwise its method's
+ * winner (or the overall winner) with a hint. The selection starts at the overall CV winner.
+ *
  * All text that may come from a dataset (column names, levels, messages) is written with textContent,
  * createTextNode, <option>.text or non-URL attributes only, never parsed as HTML (DA D-2). No network
- * access, no storage: results live in memory only. */
+ * access, no storage: results and the selection live in memory only. */
 (function () {
   'use strict';
 
   var App = window.HW2ExploreApp, Engine = window.HW2ExploreEngine, Loader = window.HW2ExploreLoad;
   var Plot = window.HW2ExplorePlot, DATA = window.HW2_STARTUPS50;
   var V1_BLOCKS = ['overview', 'model', 'predictor', 'test', 'methods'];
-  var EX_BLOCKS = ['ex-custom', 'ex-data', 'ex-model', 'ex-predictor', 'ex-test'];
+  var EX_BLOCKS = ['ex-custom', 'ex-data', 'ex-model', 'ex-predictor', 'ex-test', 'ex-methods'];
+  var METRICS = { rmse: 'RMSE', mae: 'MAE', mse: 'MSE', r2: 'R²' };
   var loadErrorWasHidden = null;
-  var scatter = null;
+  var scatter = null, kchart = null;
   var current = null;
+  var ui = { result: null, key: null, compareAll: false, metric: 'rmse' };
 
   function byId(id) { return document.getElementById(id); }
   function el(tag, attrs, children) {
@@ -46,7 +59,8 @@
   }
   function fixed(v, d) { return v === null || v === undefined || !isFinite(v) ? '—' : Number(v).toFixed(d); }
   function pct(v) { return v === null || v === undefined ? '—' : (100 * v).toFixed(1) + '%'; }
-  function tag(cls, text) { return el('span', { class: 'tag ' + cls, text: text }); }
+  function metricText(m, v) { return m === 'r2' ? fixed(v, 4) : num(v); }
+  function th(text) { return el('th', { scope: 'col', text: text }); }
 
   /* ---- showing and hiding the two worlds ------------------------------------------------------ */
   function setExploring(on) {
@@ -65,10 +79,31 @@
     box.className = 'notice explore__message' + (kind === 'error' ? ' explore__message--error' : '');
   }
 
-  /* ---- data and preprocessing ------------------------------------------------------------------- */
+  /* ---- data, preprocessing and the dependency diagnostic ----------------------------------------- */
   function facts(dl, pairs) {
     clear(dl);
     pairs.forEach(function (p) { dl.appendChild(el('dt', { text: p[0] })); dl.appendChild(el('dd', { class: p[2] || null, text: p[1] })); });
+  }
+  function renderDeps(res) {
+    var box = byId('ex-deps');
+    clear(box);
+    if (!res || !res.dependencies) return;
+    var view = App.dependencyView(res);
+    if (!view.relations.length) {
+      box.appendChild(el('p', { class: 'small', text: '沒有線性相依：All-in 設計矩陣（含截距 ' + view.n_columns + ' 欄）滿秩，rank ' + view.rank + '。' }));
+      return;
+    }
+    box.appendChild(el('p', { class: 'small warn', text: 'All-in 設計矩陣（含截距 ' + view.n_columns + ' 欄）的 rank 只有 ' + view.rank +
+      '，找到 ' + view.relations.length + ' 組線性相依的欄位：' }));
+    var list = el('ol', { class: 'small ex-deps' });
+    view.relations.forEach(function (r) {
+      list.appendChild(el('li', {}, [
+        el('div', {}, [el('strong', { text: '涉及的 feature group：' }), document.createTextNode(r.groups.join('、') + (r.includesIntercept ? '（另含截距）' : ''))]),
+        el('div', {}, [el('span', { text: '編碼欄：' + r.columns.join('、') })]),
+        el('div', {}, [el('span', { text: '關係式：' }), el('code', { text: r.formula })])
+      ]));
+    });
+    box.appendChild(list);
   }
   function renderData(run) {
     var load = run.load, res = run.result, sourceText = { builtin: '內建資料（assets/data/50_Startups.csv，取自 Avik-Jain/100-Days-Of-ML-Code，MIT 授權）',
@@ -87,9 +122,10 @@
     facts(byId('ex-facts'), pairs);
     var table = byId('ex-columns');
     clear(table);
+    renderDeps(res);
     if (!res) return;
     table.appendChild(el('caption', { class: 'small muted', text: '欄位型態（載入時逐格判定）與以訓練列決定的狀態' }));
-    table.appendChild(el('thead', {}, [el('tr', {}, ['欄位', '型態', '訓練列的相異值數', '狀態'].map(function (h) { return el('th', { scope: 'col', text: h }); }))]));
+    table.appendChild(el('thead', {}, [el('tr', {}, ['欄位', '型態', '訓練列的相異值數', '狀態'].map(th))]));
     var body = el('tbody');
     res.columns.forEach(function (c) {
       body.appendChild(el('tr', {}, [el('th', { scope: 'row', text: c.name }), el('td', { text: c.type === 'numeric' ? '數值' : '類別' }),
@@ -99,46 +135,202 @@
     table.appendChild(body);
   }
 
-  /* ---- model and training CV -------------------------------------------------------------------- */
+  /* ---- model selection and training CV ------------------------------------------------------------ */
   function kpi(label, value, sub) {
     return el('div', { class: 'kpi' }, [el('div', { class: 'kpi__label' }, [el('span', { text: label })]),
       el('div', { class: 'kpi__value num', text: value }), sub ? el('div', { class: 'kpi__sub', text: sub }) : null]);
   }
-  function renderModel(res) {
-    var c = res.candidates[0];
-    var cand = byId('ex-candidate');
-    clear(cand);
-    cand.appendChild(el('strong', { text: 'All-in baseline' }));
-    cand.appendChild(document.createTextNode('（全部 ' + c.k + ' 個 feature group 的 OLS：' + c.canonical_groups.join('、') + '）　狀態：' + App.statusText(c.status)));
+  function selected() { return App.candidateByKey(ui.result, ui.key); }
+  function select(key) { ui.key = key; renderSelection(); }
+  function methodCandidates(m) { return ui.result.candidates.filter(function (c) { return c.method === m; }); }
+
+  function renderControls() {
+    var res = ui.result, sel = selected(), w = res.winners, p = res.groups.length;
+    var seg = byId('ex-method-seg');
+    clear(seg);
+    App.METHOD_ORDER.forEach(function (m) {
+      var list = methodCandidates(m), nValid = list.filter(function (c) { return c.status === 'VALID'; }).length;
+      var meta = m === 'allin' ? 'k = ' + p + ' 固定' : p + ' 個 k' + (nValid < list.length ? '，' + (list.length - nValid) + ' 個無效' : '');
+      var b = el('button', { type: 'button', class: 'seg__btn', 'aria-pressed': String(m === sel.method), 'data-method': m },
+        [App.methodLabel(m), el('span', { class: 'meta', text: meta })]);
+      b.addEventListener('click', function () {
+        if (m === sel.method) return;
+        var mw = w.method_winners[m];
+        select(mw ? mw.key : list[0].key);
+      });
+      seg.appendChild(b);
+    });
+    var grid = byId('ex-k-grid');
+    clear(grid);
+    if (sel.method === 'allin') {
+      grid.className = 'kgrid kgrid--fixed';
+      grid.appendChild(el('div', { class: 'kfixed' }, [el('span', { class: 'kfixed__k', text: 'k = ' + p + '（固定）' }),
+        el('span', { class: 'kfixed__txt', text: 'All-in baseline 是全部 ' + p + ' 個 feature group 的單一 OLS，沒有 k 路徑。' })]));
+      byId('ex-k-help').textContent = '';
+    } else {
+      grid.className = 'kgrid';
+      var mw = w.method_winners[sel.method];
+      methodCandidates(sel.method).forEach(function (c) {
+        var win = !!(mw && mw.key === c.key), bad = c.status !== 'VALID';
+        var label = 'k = ' + c.k + (win ? '（該方法 CV winner）' : '') + (bad ? '（' + App.statusText(c.status) + '）' : '');
+        var b = el('button', { type: 'button', class: 'kbtn' + (win ? ' is-winner' : '') + (bad ? ' is-invalid' : ''),
+          'aria-pressed': String(c.key === sel.key), 'aria-label': label, title: label, text: String(c.k) });
+        b.addEventListener('click', function () { select(c.key); });
+        grid.appendChild(b);
+      });
+      byId('ex-k-help').textContent = '綠點：該方法 CV winner；紅斜紋：無效（INVALID_MODEL）候選，仍可選取並顯示原因，但沒有 CV 指標、不提供即時預測。';
+    }
+    var toggle = byId('ex-compare-all');
+    toggle.setAttribute('aria-pressed', String(ui.compareAll));
+    var box = byId('ex-selected');
+    clear(box);
+    box.appendChild(el('strong', { text: App.candidateName(sel) }));
+    var tags = App.winnerRoles(res, sel.key).map(function (r) { return el('span', { class: 'tag ' + (r === '整體 CV winner' ? 'tag--overall' : 'tag--winner'), text: r }); });
+    if (sel.status !== 'VALID') tags.push(el('span', { class: 'tag tag--invalid', text: App.statusText(sel.status) }));
+    if (tags.length) box.appendChild(el('div', { class: 'tags' }, tags));
+    box.appendChild(el('span', { class: 'small', text: 'Canonical 子集（整個訓練集上選出）：' +
+      (sel.canonical_groups ? sel.canonical_groups.join('、') : '—（Lasso 路徑在整個訓練集上沒有到達這個 k）') }));
+    if (sel.method !== 'allin') {
+      var items = sel.folds.map(function (f) {
+        var text;
+        if (!f.groups) text = '—（該 fold 的 Lasso 路徑沒有到達這個 k）';
+        else if (sel.canonical_groups && JSON.stringify(f.groups) === JSON.stringify(sel.canonical_groups)) text = '與 canonical 子集相同';
+        else text = f.groups.join('、');
+        return el('li', { text: 'Fold ' + (f.fold + 1) + '：' + text });
+      });
+      box.appendChild(el('details', { class: 'small' }, [el('summary', { text: '各 fold 的子集（只在該 fold 的訓練列上選出）' }),
+        el('ol', { class: 'folds' }, items)]));
+    }
+  }
+
+  function renderCv() {
+    var c = selected();
+    byId('ex-candidate').textContent = '目前選取：' + App.candidateName(c) + '　狀態：' + App.statusText(c.status) +
+      (c.canonical_groups ? '　canonical 子集：' + c.canonical_groups.join('、') : '');
     var box = byId('ex-kpi-cv');
     clear(box);
-    [['CV RMSE', 'rmse', num], ['CV MAE', 'mae', num], ['CV MSE', 'mse', num], ['CV R²', 'r2', function (v) { return fixed(v, 4); }]].forEach(function (m) {
-      var mean = c.cv ? c.cv.mean[m[1]] : null, sd = c.cv ? c.cv.std[m[1]] : null;
-      box.appendChild(kpi(m[0], m[2](mean), '± ' + m[2](sd) + '（5 個 fold 的平均 ± 標準差）'));
-    });
+    if (c.status !== 'VALID') {
+      box.appendChild(el('div', { class: 'kpi ex-invalid' }, [el('div', { class: 'kpi__label', text: '無訓練 CV 指標' }),
+        el('div', { class: 'warn', text: App.statusText(c.status) })].concat(c.reasons.map(function (r) {
+        return el('div', { class: 'small', text: App.reasonText(r) });
+      }))));
+    } else {
+      [['CV RMSE', 'rmse'], ['CV MAE', 'mae'], ['CV MSE', 'mse'], ['CV R²', 'r2']].forEach(function (m) {
+        box.appendChild(kpi(m[0], metricText(m[1], c.cv.mean[m[1]]), '± ' + metricText(m[1], c.cv.std[m[1]]) + '（5 個 fold 的平均 ± 標準差，訓練 CV）'));
+      });
+    }
     var table = byId('ex-folds');
     clear(table);
-    table.appendChild(el('caption', { class: 'small muted', text: '各 fold（只用該 fold 的訓練列擬合，在驗證列上計分）' }));
-    table.appendChild(el('thead', {}, [el('tr', {}, ['Fold', '訓練列', '驗證列', 'RMSE', 'MAE', 'R²', '驗證列未見層級'].map(function (h) { return el('th', { scope: 'col', text: h }); }))]));
+    table.appendChild(el('caption', { class: 'small muted', text: '各 fold（子集與 OLS 只用該 fold 的訓練列，在驗證列上計分；訓練 CV）' }));
+    table.appendChild(el('thead', {}, [el('tr', {}, ['Fold', '子集', '訓練列', '驗證列', 'RMSE', 'MAE', 'R²', '驗證列未見層級', '狀態'].map(th))]));
     var body = el('tbody');
     c.folds.forEach(function (f) {
       var m = f.metrics || {};
-      body.appendChild(el('tr', {}, [el('th', { scope: 'row', text: String(f.fold + 1) }), el('td', { class: 'num', text: String(f.n_train) }),
-        el('td', { class: 'num', text: String(f.n_valid) }), el('td', { class: 'num', text: num(m.rmse) }), el('td', { class: 'num', text: num(m.mae) }),
-        el('td', { class: 'num', text: fixed(m.r2, 4) }), el('td', { class: 'num', text: f.n_valid_unseen === undefined ? '—' : String(f.n_valid_unseen) })]));
+      body.appendChild(el('tr', {}, [el('th', { scope: 'row', text: String(f.fold + 1) }),
+        el('td', { text: f.groups ? f.groups.join('、') : '—' }),
+        el('td', { class: 'num', text: String(f.n_train) }), el('td', { class: 'num', text: String(f.n_valid) }),
+        el('td', { class: 'num', text: num(m.rmse) }), el('td', { class: 'num', text: num(m.mae) }), el('td', { class: 'num', text: fixed(m.r2, 4) }),
+        el('td', { class: 'num', text: f.n_valid_unseen === undefined ? '—' : String(f.n_valid_unseen) }),
+        el('td', { text: f.status === 'ok' ? '有效' : '無效（' + f.rule + '）' })]));
     });
     table.appendChild(body);
-    var f = c.fit;
-    facts(byId('ex-fit'), [['訓練列數', nf0.format(f.n_train), 'num'], ['設計矩陣欄數（含截距）', String(f.n_columns), 'num'],
-      ['Rank', String(f.rank), 'num'], ['殘差自由度', String(f.df_resid), 'num'], ['s²', num(f.s2), 'num'],
-      ['訓練 R²', fixed(f.r2_train, 4), 'num'], ['訓練 Adjusted R²（實際秩）', fixed(f.adj_r2_train, 4), 'num'],
-      ['t(0.975, df)', fixed(f.t_crit, 4), 'num']]);
+    var fit = c.fit;
+    if (!fit) {
+      facts(byId('ex-fit'), [['狀態', App.statusText(c.status)], ['說明', '無效的候選沒有 canonical fit，不參與 winner，也不提供預測']]);
+      return;
+    }
+    facts(byId('ex-fit'), [['訓練列數', nf0.format(fit.n_train), 'num'], ['設計矩陣欄數（含截距）', String(fit.n_columns), 'num'],
+      ['Rank', String(fit.rank), 'num'], ['殘差自由度', String(fit.df_resid), 'num'], ['s²', num(fit.s2), 'num'],
+      ['訓練 R²', fixed(fit.r2_train, 4), 'num'], ['訓練 Adjusted R²（實際秩）', fixed(fit.adj_r2_train, 4), 'num'],
+      ['t(0.975, df)', fixed(fit.t_crit, 4), 'num']]);
+  }
+
+  function renderKChart() {
+    var res = ui.result, sel = selected(), metric = ui.metric;
+    var series = ['forward_sfs', 'backward_sfs', 'rfe', 'lasso_path'].map(function (m) {
+      return { method: m, label: App.methodLabel(m), emphasized: ui.compareAll || sel.method === 'allin' || sel.method === m,
+        points: App.kSeries(res, m, metric) };
+    });
+    var allin = App.candidateByKey(res, 'allin');
+    var allinValue = allin && allin.status === 'VALID' ? allin.cv.mean[metric] : null;
+    var selValue = sel.status === 'VALID' ? sel.cv.mean[metric] : null;
+    if (!kchart) kchart = new Plot.KChart(byId('ex-kchart-canvas'));
+    var drawn = kchart.set({ p: res.groups.length, yLabel: METRICS[metric] + '（訓練 CV）', format: function (v) { return metricText(metric, v); },
+      series: series, allin: { value: allinValue, label: 'All-in baseline（k = ' + res.groups.length + ' 固定，參考線）' },
+      selected: sel.method === 'allin' ? null : { k: sel.k, value: selValue, label: App.methodLabel(sel.method), status: sel.status, isWinner: false },
+      statusLabel: App.statusText });
+    var parts = series.map(function (s) {
+      var w = s.points.filter(function (d) { return d.isWinner; })[0];
+      return s.label + ' 的 CV winner 為 ' + (w ? 'k = ' + w.k + '（' + metricText(metric, w.value) + '）' : '—（沒有有效候選）');
+    });
+    parts.push('All-in baseline ' + (allinValue === null ? '無效' : metricText(metric, allinValue)));
+    byId('ex-kchart-summary').textContent = drawn ? METRICS[metric] + '（訓練 CV）：' + parts.join('；') + '。'
+      : '找不到本機打包的 Chart.js，無法繪製指標 vs k 圖。' + parts.join('；') + '。';
+    var lg = byId('ex-kchart-legend');
+    clear(lg);
+    series.forEach(function (s) {
+      lg.appendChild(el('span', { class: 'legend__item' + (s.emphasized ? '' : ' is-dim'), style: 'color:' + Plot.KChart.colors[s.method] },
+        [el('span', { class: 'legend__line' }), el('span', { class: 'ex-legend-text', text: s.label })]));
+    });
+    lg.appendChild(el('span', { class: 'legend__item', style: 'color:' + Plot.KChart.allinColor },
+      [el('span', { class: 'legend__line legend__line--dash' }), el('span', { class: 'ex-legend-text', text: 'All-in baseline（參考線）' })]));
+    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--ring' }), '該方法 CV winner（圓環）']));
+    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--cross' }), '無效候選（叉號，沒有 CV 指標）']));
+    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--sel' }), '目前選取']));
+  }
+
+  function renderCompare() {
+    var res = ui.result, table = byId('ex-compare');
+    clear(table);
+    table.appendChild(el('caption', { class: 'small muted', text: '「訓練 CV」與「探索 test（非正式評估）」分欄呈現，不混用；test 只對 winner 計算。' }));
+    table.appendChild(el('thead', {}, [
+      el('tr', {}, [el('th', { scope: 'col', rowspan: '2', text: '方法' }), el('th', { scope: 'col', rowspan: '2', text: 'CV winner' }),
+        el('th', { scope: 'colgroup', colspan: '3', class: 'ex-cv-head', text: '訓練 CV' }),
+        el('th', { scope: 'colgroup', colspan: '4', class: 'ex-test-head', text: '探索 test（非正式評估）' })]),
+      el('tr', {}, ['RMSE', 'MAE', 'R²', 'RMSE', 'MAE', 'R²', 'PI 涵蓋率'].map(th))]));
+    var body = el('tbody');
+    App.compareRows(res).forEach(function (r) {
+      if (!r.winner) {
+        body.appendChild(el('tr', { class: 'ex-row-none' }, [el('th', { scope: 'row', text: r.label }),
+          el('td', { colspan: '8', text: r.note })]));
+        return;
+      }
+      var name = el('td', {}, [document.createTextNode(r.method === 'allin' ? 'k = ' + r.k + '（全部）' : 'k = ' + r.k),
+        r.isOverall ? el('span', { class: 'tag tag--overall', text: '整體 CV winner' }) : null,
+        el('div', { class: 'small muted', text: r.groups.join('、') + (r.sharedWith ? '（與「' + r.sharedWith + '」同一模型，test 只算一次）' : '') })]);
+      var tr = el('tr', { class: r.isOverall ? 'ex-row-overall' : null }, [el('th', { scope: 'row' }, [
+        el('button', { type: 'button', class: 'linklike', text: r.label })]), name,
+      el('td', { class: 'num', text: num(r.cv.mean.rmse) }), el('td', { class: 'num', text: num(r.cv.mean.mae) }), el('td', { class: 'num', text: fixed(r.cv.mean.r2, 4) }),
+      el('td', { class: 'num ex-test-cell', text: num(r.test.rmse) }), el('td', { class: 'num ex-test-cell', text: num(r.test.mae) }),
+      el('td', { class: 'num ex-test-cell', text: fixed(r.test.r2, 4) }),
+      el('td', { class: 'num ex-test-cell', text: pct(r.coverage) + '（' + r.n_covered + '/' + r.n_test + '）' })]);
+      tr.querySelector('button').addEventListener('click', function () { select(r.winner); });
+      body.appendChild(tr);
+    });
+    table.appendChild(body);
+  }
+
+  function renderLasso() {
+    var view = App.lassoView(ui.result), table = byId('ex-lasso');
+    clear(table);
+    byId('ex-lasso-card').hidden = !view;
+    if (!view) return;
+    byId('ex-lasso-summary').textContent = view.summary;
+    table.appendChild(el('thead', {}, [el('tr', {}, ['順序', 'Feature group', 'Entry alpha', '狀態'].map(th))]));
+    var body = el('tbody');
+    view.rows.forEach(function (r) {
+      body.appendChild(el('tr', { class: r.position === null ? 'ex-row-none' : null }, [
+        el('th', { scope: 'row', text: r.position === null ? '—' : String(r.position) }), el('td', { text: r.group }),
+        el('td', { class: 'num', text: r.alpha === null ? '—' : num(r.alpha) }), el('td', { text: r.state })]));
+    });
+    table.appendChild(body);
   }
 
   /* ---- live predictor ----------------------------------------------------------------------------- */
   function renderPredictor(candidate) {
     var fields = byId('ex-pred-fields');
     clear(fields);
+    byId('ex-pred-model').textContent = '模型：' + App.candidateName(candidate) + ' 在整個訓練集上的擬合';
     var view = App.predictorView(Engine, candidate, {});
     var status = byId('ex-pred-status');
     if (!view.enabled) {
@@ -195,9 +387,14 @@
   }
 
   /* ---- exploratory test ------------------------------------------------------------------------- */
-  function renderTest(res) {
-    var key = res.winners.overall.key, t = res.test[key];
-    byId('ex-test-model').textContent = '展示模型：All-in baseline（k = ' + res.winners.overall.k + '，整體 CV winner；本版本只有這一個候選）；test 列 ' + t.n_test + ' 筆，在全部選擇固定後才讀取。';
+  function renderTest() {
+    var res = ui.result, view = App.testView(res, ui.key), t = view.test;
+    byId('ex-test-model').textContent = '展示模型：' + view.shownName + (view.roles.length ? '（' + view.roles.join('、') + '）' : '') +
+      (view.sharedWith ? '；與「' + view.sharedWith + '」同一模型，test 只算一次' : '') +
+      '；test 列 ' + t.n_test + ' 筆，在全部選擇固定後才讀取，只對 CV winner 計算。';
+    var hint = byId('ex-test-hint');
+    hint.textContent = view.hint || '';
+    hint.hidden = !view.hint;
     var box = byId('ex-kpi-test');
     clear(box);
     [['Test RMSE', num(t.metrics.rmse)], ['Test MAE', num(t.metrics.mae)], ['Test MSE', num(t.metrics.mse)], ['Test R²', fixed(t.metrics.r2, 4)],
@@ -212,6 +409,14 @@
       return { row: row, actual: t.actual[i], predicted: t.predicted[i], lower: t.lower[i], upper: t.upper[i], covered: t.covered[i] };
     });
     scatter.setData(points, { x: '預測值（' + res.meta.target + '，線性刻度）', y: '實際值（' + res.meta.target + '，線性刻度）' });
+  }
+
+  function renderSelection() {
+    renderControls();
+    renderCv();
+    renderKChart();
+    renderPredictor(selected());
+    renderTest();
   }
 
   /* ---- render ------------------------------------------------------------------------------------- */
@@ -232,31 +437,41 @@
     var res = run.result;
     renderData(run);
     if (res.run.status !== 'COMPLETED') {
-      var lines = [App.runReasonText(res.run.reason)];
-      (res.run.invalid_candidates || []).forEach(function (c) {
-        lines.push('All-in baseline：' + App.statusText(c.status) + '。' + c.reasons.map(App.reasonText).join('；'));
-      });
+      var inv = res.run.invalid_candidates || [], lines = [App.runReasonText(res.run.reason)];
+      if (inv.length) {
+        lines.push('All-in baseline：' + App.statusText(inv[0].status) + '。' + inv[0].reasons.map(App.reasonText).join('；'));
+        if (inv.length > 1) lines.push('其餘 ' + (inv.length - 1) + ' 個候選也都無效；原因見下方共線診斷。');
+      }
       message(lines.join(' '), 'error');
-      showBlocks(['ex-data']);
+      showBlocks(['ex-data', 'ex-methods']);
       return;
     }
-    message('執行完成：' + (run.ms === null ? '' : '耗時 ' + run.ms.toFixed(1) + ' ms（瀏覽器內計算，只供參考）'));
-    showBlocks(['ex-data', 'ex-model', 'ex-predictor', 'ex-test']);
-    renderModel(res);
-    renderPredictor(res.candidates[0]);
-    renderTest(res);
+    message('執行完成：五種方法共 ' + res.candidates.length + ' 個候選' + (run.ms === null ? '' : '，耗時 ' + run.ms.toFixed(1) + ' ms（瀏覽器內計算，只供參考）'));
+    showBlocks(['ex-data', 'ex-model', 'ex-predictor', 'ex-test', 'ex-methods']);
+    ui.result = res;
+    ui.key = App.defaultKey(res);
+    renderCompare();
+    renderLasso();
+    renderSelection();
   }
 
   function init() {
-    var select = byId('problem-select');
-    if (!select || !byId('explore')) return;
-    if (!App || !Engine || !Loader || !Plot) { select.disabled = true; return; }
+    var problemSelect = byId('problem-select');
+    if (!problemSelect || !byId('explore')) return;
+    if (!App || !Engine || !Loader || !Plot) { problemSelect.disabled = true; return; }
     var controller = App.createController({ loader: Loader, engine: Engine, datasets: { startups50: DATA }, render: render,
       now: function () { return performance.now(); } });
-    window.HW2_EXPLORE = { state: controller.state, view: function () { return current; } };
-    select.value = 'king_county';             /* the default problem, even if the browser restored the form */
+    window.HW2_EXPLORE = { state: controller.state, view: function () { return current; },
+      selection: function () { return { key: ui.key, compareAll: ui.compareAll, metric: ui.metric }; } };
+    problemSelect.value = 'king_county';      /* the default problem, even if the browser restored the form */
+    byId('ex-metric').value = 'rmse';
+    byId('ex-metric').addEventListener('change', function (ev) { ui.metric = ev.target.value; if (ui.result) renderKChart(); });
+    byId('ex-compare-all').addEventListener('click', function () {
+      ui.compareAll = !ui.compareAll;
+      if (ui.result) { renderControls(); renderKChart(); }
+    });
     controller.init();
-    select.addEventListener('change', function () { controller.selectProblem(select.value); });
+    problemSelect.addEventListener('change', function () { controller.selectProblem(problemSelect.value); });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

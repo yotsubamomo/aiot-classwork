@@ -174,7 +174,7 @@ def test_every_exploratory_block_is_labelled():
     explore = next(n for n in _walk(root) if _attr(n, "id") == "explore")
     blocks = [n for n in _walk(explore) if "ex-block" in (_attr(n, "class") or "")]
     assert [_attr(b, "id") for b in blocks] == ["ex-custom", "ex-data", "ex-model", "ex-predictor",
-                                                 "ex-test"]
+                                                 "ex-test", "ex-methods"]       # ex-methods: #75
 
     def text(n):
         return "".join(c.get("text", "") if "text" in c else text(c) for c in n["children"]
@@ -187,6 +187,35 @@ def test_every_exploratory_block_is_labelled():
     test_block = next(b for b in blocks if _attr(b, "id") == "ex-test")
     assert "探索 test（非正式評估）" in text(next(n for n in _walk(test_block) if n["tag"] == "h2"))
     assert "探索執行，非正式評估" in text(next(n for n in _walk(explore) if n["tag"] == "p"))
+
+
+def test_methods_block_states_the_two_problems_and_the_row_split_limits():
+    """#75: the 「方法與限制」 block of the exploratory subtree puts the two problems side by side
+    (target scale, split, Lasso degeneracy, derivation rules; Spec V2 Further Notes) and discloses
+    the limits of the row-wise split (Spec 「切分與交叉驗證」 末條; DA G-1); the metric vs k chart is
+    training CV and the winners table separates training CV from the exploratory test."""
+    root = parse(DASHBOARD_HTML.read_text(encoding="utf-8"))
+    explore = next(n for n in _walk(root) if _attr(n, "id") == "explore")
+
+    def text(n):
+        return "".join(c.get("text", "") if "text" in c else text(c) for c in n["children"]
+                       if "comment" not in c)
+    methods = next(n for n in _walk(explore) if _attr(n, "id") == "ex-methods")
+    table = next(n for n in _walk(methods) if _attr(n, "id") == "ex-semantics")
+    rows = [text(n) for n in _walk(table) if n["tag"] == "tr"]
+    for item in ("目標尺度", "切分", "Lasso 退化", "派生規則"):
+        assert any(r.startswith(item) for r in rows), item
+    assert "ln(price)" in text(table) and "原始尺度" in text(table)
+    assert "以房屋 id 分組" in text(table) and "逐列" in text(table)
+    assert "lasso_path_degenerate" in text(table) and "補成 k = 1…18" in text(table)
+    body = text(methods)
+    for phrase in ("重複的列", "同一個實體的多筆紀錄", "時間相依", "不代表正式研究結論"):
+        assert phrase in body, phrase
+    kchart = next(n for n in _walk(explore) if _attr(n, "id") == "ex-kchart-card")
+    assert "訓練 CV" in text(next(n for n in _walk(kchart) if n["tag"] == "h3"))
+    compare = next(n for n in _walk(explore) if _attr(n, "id") == "ex-compare-card")
+    heading = text(next(n for n in _walk(compare) if n["tag"] == "h3"))
+    assert "訓練 CV" in heading and "探索 test（非正式評估）" in heading
 
 
 @pytest.mark.parametrize("rel", sorted(V1_SHA256))

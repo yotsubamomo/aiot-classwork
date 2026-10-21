@@ -1,4 +1,5 @@
-/* HW2 V2 Exploratory run: actual vs predicted with every test row's 95% PI (Spec V2 「實際 vs 預測圖」).
+/* HW2 V2 Exploratory run: actual vs predicted with every test row's 95% PI (Spec V2 「實際 vs 預測圖」),
+ * and (#75) the training-CV metric vs k chart (KChart, at the end of this file).
  *
  * V2's own drawing module (Tickets Review adjustment A): it does not reuse or change the V1 dashboard
  * script. Linear axes on the target's own units (the target may be negative or zero; no log). Every
@@ -224,5 +225,86 @@
     if (window.ResizeObserver) new ResizeObserver(function () { if (self.view) self.draw(); }).observe(c);
   };
 
-  root.HW2ExplorePlot = { Scatter: Scatter, linearTicks: linearTicks, tickLabel: tickLabel };
+  /* ---- metric vs k (#75) ------------------------------------------------------------------------
+   * One line per path method over k = 1..p (a gap where a candidate is not VALID), the All-in baseline
+   * as a dashed reference line, each method's CV winner as a ring, INVALID_MODEL candidates as red
+   * crosses on the bottom edge and the selected candidate as a large circle. Drawn with the page's
+   * bundled Chart.js (an existing chart library; Tickets Review adjustment A); all labels reach the
+   * canvas as Chart.js text (DA D-2). Without Chart.js, set() returns false and draws nothing. */
+  var METHOD_COLORS = { forward_sfs: '#1E40AF', backward_sfs: '#0E7490', rfe: '#6D28D9', lasso_path: '#C2410C' };
+  var ALLIN_COLOR = '#334155';
+  function rgba(hex, a) {
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+
+  function KChart(canvas) { this.canvas = canvas; this.chart = null; }
+  KChart.colors = METHOD_COLORS;
+  KChart.allinColor = ALLIN_COLOR;
+
+  /* spec: { p, yLabel, format, series: [{ method, label, emphasized, points: [{ k, value, status, isWinner,
+   *   key }] }], allin: { value, label } | null, selected: { k, value, label } | null, statusLabel: fn } */
+  KChart.prototype.set = function (spec) {
+    var Chart = root.Chart;
+    if (!Chart) return false;
+    var fmt = spec.format, values = [], datasets = [], p = Math.max(spec.p, 1);
+    spec.series.forEach(function (s) {
+      var color = METHOD_COLORS[s.method] || '#475569', on = s.emphasized;
+      s.points.forEach(function (d) { if (d.value !== null) values.push(d.value); });
+      datasets.push({ type: 'line', label: s.label, data: s.points.map(function (d) { return { x: d.k, y: d.value }; }),
+        spanGaps: false, order: on ? 1 : 3, borderColor: on ? color : rgba(color, 0.25), borderWidth: on ? 2.25 : 1.25,
+        pointRadius: s.points.map(function (d) { return d.isWinner ? 7 : 2.5; }),
+        pointHoverRadius: s.points.map(function (d) { return d.isWinner ? 8 : 4; }),
+        pointBorderWidth: s.points.map(function (d) { return d.isWinner ? 2.5 : 1; }),
+        pointBackgroundColor: s.points.map(function (d) { return d.isWinner ? '#FFFFFF' : (on ? color : rgba(color, 0.25)); }),
+        pointBorderColor: on ? color : rgba(color, 0.35), entries: s.points, methodLabel: s.label });
+    });
+    if (spec.allin && spec.allin.value !== null) {
+      values.push(spec.allin.value);
+      datasets.push({ type: 'line', label: spec.allin.label, data: [{ x: 0.5, y: spec.allin.value }, { x: p + 0.5, y: spec.allin.value }],
+        borderColor: ALLIN_COLOR, borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, order: 2 });
+    }
+    if (!values.length) values.push(0);
+    var lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
+    var span = (hi - lo) || Math.abs(hi) || 1;
+    lo -= span * 0.1; hi += span * 0.06;
+    var invalid = [];
+    spec.series.forEach(function (s) {
+      s.points.forEach(function (d) { if (d.status !== 'VALID') invalid.push({ x: d.k, y: lo + span * 0.04, entry: d, methodLabel: s.label }); });
+    });
+    if (invalid.length) {
+      datasets.push({ type: 'scatter', label: '無效候選', data: invalid, pointStyle: 'crossRot', pointRadius: 7, pointHoverRadius: 8,
+        pointBorderWidth: 2.5, borderColor: '#B91C1C', backgroundColor: '#B91C1C', order: 0 });
+    }
+    if (spec.selected) {
+      datasets.push({ type: 'scatter', label: '目前選取', data: [{ x: spec.selected.k, y: spec.selected.value !== null ? spec.selected.value : lo + span * 0.04,
+        entry: spec.selected, methodLabel: spec.selected.label }], pointRadius: 12, pointHoverRadius: 12, pointBorderWidth: 2.5,
+      borderColor: '#0F172A', backgroundColor: 'rgba(15,23,42,0.06)', order: 0 });
+    }
+    var options = {
+      animation: false, responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: true },
+      scales: {
+        x: { type: 'linear', min: 0.5, max: p + 0.5, title: { display: true, text: 'k（feature groups）' },
+          afterBuildTicks: function (axis) { axis.ticks = []; for (var t = 1; t <= p; t++) axis.ticks.push({ value: t }); },
+          ticks: { autoSkip: false, callback: function (v) { return Number.isInteger(v) && v >= 1 && v <= p ? String(v) : ''; } } },
+        y: { min: lo, max: hi, title: { display: true, text: spec.yLabel }, ticks: { callback: function (v) { return fmt(v); } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function (ctx) {
+          var raw = ctx.raw || {}, ds = ctx.dataset, e = raw.entry || (ds.entries ? ds.entries[ctx.dataIndex] : null);
+          if (!e) return String(ds.label) + '：' + fmt(ctx.parsed.y);
+          var head = String(raw.methodLabel || ds.methodLabel || '') + ' · k = ' + e.k;
+          if (e.status && e.status !== 'VALID') return head + '：' + spec.statusLabel(e.status);
+          return head + '：' + fmt(e.value) + (e.isWinner ? '（該方法 CV winner）' : '');
+        } } }
+      }
+    };
+    if (!this.chart) this.chart = new Chart(this.canvas, { type: 'line', data: { datasets: datasets }, options: options });
+    else { this.chart.data.datasets = datasets; this.chart.options = options; this.chart.update('none'); }
+    return true;
+  };
+
+  root.HW2ExplorePlot = { Scatter: Scatter, KChart: KChart, linearTicks: linearTicks, tickLabel: tickLabel };
 })(typeof self !== 'undefined' ? self : this);

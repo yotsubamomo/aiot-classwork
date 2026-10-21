@@ -1,12 +1,13 @@
-"""Generic Python reference for the V2 Exploratory run (Spec V2 「通用 Python 參照」; #74 V2-T1: All-in).
+"""Generic Python reference for the V2 Exploratory run (Spec V2 「通用 Python 參照」; #74 V2-T1:
+All-in; #75 V2-T2: the four path methods, winners, Lasso degeneracy and the dependency diagnostic).
 
 **Test-only.** This module produces reference results for the Node tests of the browser engine
 (``assets/explore_engine.js``, ``assets/explore_load.js``). Nothing on the formal analysis path
 imports it: not the notebook, not any other ``hw2`` module, not the report or the packaging
 (``tests/test_explore_static.py`` checks this). It never reads ``model_data`` and depends on no JS
 result: it re-implements the load contract, the split, the three-layer preprocessing boundary and
-the All-in candidate from the Spec, and reuses the formal package's group-generic mathematics
-instead of writing them again:
+the candidates from the Spec, and reuses the formal package's group-generic mathematics instead of
+writing them again:
 
 - :func:`hw2.ols.fit_ols` — OLS on ``[1, X]`` with the actual rank (column-pivoted QR of the
   column-equilibrated design), ``(XᵀX)⁻¹``, ``s²``, ``df_resid``, ``R²``, Adjusted ``R²`` with the
@@ -15,9 +16,24 @@ instead of writing them again:
   the formula on whatever scale ``y`` has; the Exploratory run models the original target (no log,
   no exp), so its output is used as is;
 - :func:`hw2.metrics.usd_metrics` and :func:`hw2.metrics.coverage_stats` — MAE, MSE, RMSE, R² and
-  the closed-interval coverage, unit-free despite the name.
+  the closed-interval coverage, unit-free despite the name;
+- :class:`hw2.selection.GroupGram` — its ``rss`` (the RSS step of Forward / Backward SFS) and
+  ``importance`` (RFE's ``sd(X_g β_g)``) methods, on a Gram object built here from any encoded
+  table (the formal constructor reads King County rows, so only the constructor is re-expressed);
+  :data:`hw2.selection.TIE_RTOL` for ties;
+- the formal Lasso path engine, :func:`sklearn.linear_model.lars_path` with ``method="lasso"`` on
+  the formal standardization rule (numeric columns centred and scaled by the population standard
+  deviation, one-hot columns 0/1, then every column centred; :func:`hw2.preprocess.fit_preprocessor`)
+  and the formal entry rule (a group enters at the knot alpha before its first non-zero coefficient;
+  :func:`hw2.selection.lasso_entry`);
+- :data:`hw2.models.METHOD_ORDER`, :data:`hw2.models.PATH_METHODS`, :func:`hw2.models.model_key`
+  and the winner rules of :func:`hw2.models.determine_winners` (method winner: lowest CV RMSE, ties
+  to the smaller k; overall: lowest CV RMSE among the method winners and All-in, ties in method
+  order; winners with the same canonical subset are one model, scored once).
 
-No King County specific function (CSV schema, derived features, ln(price), grouped split) is used.
+No King County specific function (CSV schema, derived features, ln(price), grouped split) is used;
+:func:`canonical_paths` takes a ready encoded table so that ``tests/test_explore_kc_consistency.py``
+can feed it the formal King County training table.
 
 Rules (the same as the JS files; see their headers for the full text):
 
@@ -31,24 +47,41 @@ Rules (the same as the JS files; see their headers for the full text):
    column with more than 20 distinct values → ``EXCLUDED_TOO_MANY_LEVELS``, one distinct value →
    ``EXCLUDED_CONSTANT``; kept columns in CSV order are the feature groups.
 4. **Fold layer** (:func:`fit_encoding`): levels in first-appearance order over the given rows,
-   the first one is the baseline (no column); unseen levels are the baseline and counted.
+   the first one is the baseline (no column); unseen levels are the baseline and counted. Every
+   path method runs on each fold's training rows (fold-internal selection) and once on the whole
+   training set (canonical paths); the Lasso standardization is fitted on the same rows.
 5. **A-1**: full rank and ``df_resid ≥ 3`` on every fold's training rows and on the whole training
    set, else ``INVALID_MODEL`` with the rule and the fold.
-6. **CV**: arithmetic mean of the five fold metrics, sample standard deviation (ddof
+6. **A-2**: the Lasso path stops at the first active-set degeneracy (an entering column whose
+   residual on the active columns is below :data:`LARS_DEGENERATE_RTOL` of its norm, or below
+   sklearn's own pivot limit :data:`LARS_PIVOT_ATOL`), or ends with groups that never entered; the
+   groups that entered before are the actual path, the others are shown after them in CSV order
+   only, and every k beyond the entered groups is ``INVALID_MODEL`` / ``lasso_path_degenerate``.
+7. **A-3** (:func:`dependency_groups`): the All-in design of the whole training set (intercept
+   first, then the encoded columns in canonical order), equilibrated, is scanned in that order; a
+   column within :data:`DEPENDENCY_TOL` of the span of the earlier independent columns closes one
+   linear relation, reported with every column it involves and their feature groups.
+8. **CV**: arithmetic mean of the five fold metrics, sample standard deviation (ddof
    :data:`CV_STD_DDOF`, equal to :data:`hw2.models.CV_STD_DDOF`).
-7. **Test**: read only after the winners are fixed, only for the winners' canonical fits.
+9. **Test**: read only after the winners are fixed, only for the winners' canonical fits.
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import io
 import math
 import re
+import warnings
 
 import numpy as np
+from scipy import linalg
+from sklearn.exceptions import ConvergenceWarning
+from sklearn.linear_model import lars_path
 
-from . import metrics, ols
+from . import metrics, models, ols, selection
 
-REFERENCE_VERSION = "explore-reference 1 (V2-T1: All-in)"
+REFERENCE_VERSION = "explore-reference 2 (V2-T2: five methods)"
 SEED = 42
 TEST_FRACTION = 0.2
 N_FOLDS = 5
@@ -58,6 +91,14 @@ PI_LEVEL = 0.95
 CV_STD_DDOF = 1
 LIMITS = {"max_rows": 50000, "max_columns": 60, "min_rows": 20}
 METRICS = ("mae", "mse", "rmse", "r2")
+METHOD_ORDER = models.METHOD_ORDER            # allin, forward_sfs, backward_sfs, rfe, lasso_path
+PATH_METHODS = models.PATH_METHODS
+TIE_RTOL = selection.TIE_RTOL
+LARS_MAX_ITER = 500                           # sklearn's lars_path default, as the formal call uses
+LARS_DEGENERATE_RTOL = 1e-6                   # entering column: residual / norm on the active set
+LARS_PIVOT_ATOL = 1e-7                        # sklearn's own Cholesky pivot limit (absolute)
+EPS = float(np.finfo(float).eps)
+RELATION_ZERO = 1e-9                          # a normalised relation coefficient below this is 0
 
 _NUMBER = re.compile(r"[+-]?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
 _SPACE = " \t\r\n\f\v"
@@ -369,21 +410,64 @@ def _names(enc: dict) -> list[str]:
             for c in enc["columns"]]
 
 
-def evaluate_allin(load: dict, groups, split: dict) -> dict:
-    names = [g["name"] for g in groups]
-    if not groups:
-        return {"key": "allin", "method": "allin", "k": 0, "status": "INVALID_MODEL",
-                "reasons": [{"rule": "no_feature_groups", "scope": "training_set", "fold": None}],
-                "folds": [], "cv": None, "canonical_groups": [], "fit": None}
+
+
+# ---- one candidate: CV on the folds (each with its own subset) and the canonical fit -----------
+
+def _subset_groups(groups, names) -> list:
+    chosen = set(names)
+    return [g for g in groups if g["name"] in chosen]
+
+
+def _fit_record(load: dict, c_enc: dict, train_rows, fit) -> dict:
+    inputs = {}
+    for g in c_enc["groups"]:
+        if g["type"] == "numeric":
+            v = np.asarray([load["rows"][r][g["index"]] for r in train_rows], dtype=float)
+            inputs[g["name"]] = {"min": float(v.min()), "max": float(v.max()),
+                                 "median": float(np.median(v))}
+    return {
+        "n_train": fit.n, "n_columns": fit.n_columns, "rank": fit.rank,
+        "df_resid": fit.df_resid, "s2": float(fit.s2), "r2_train": _finite(fit.r2),
+        "adj_r2_train": _finite(fit.adj_r2), "t_crit": float(fit.t_crit), "pi_level": PI_LEVEL,
+        "groups": [g["name"] for g in c_enc["groups"]],
+        "encoded_columns": c_enc["columns"],
+        "coef": [float(v) for v in fit.coef],
+        "xtx_inv": [[float(v) for v in row] for row in fit.xtx_inv],
+        "levels": _levels(c_enc), "inputs": inputs,
+        "_fit": fit, "_encoding": c_enc,
+    }
+
+
+def _missing_reason(scope: str, fold, info: dict) -> dict:
+    """The Lasso path of these rows stopped before reaching k groups (A-2)."""
+    return {"rule": "lasso_path_degenerate", "scope": scope, "fold": fold,
+            "n_groups_entered": info["n_entered"], "cause": info["cause"]}
+
+
+def evaluate_candidate(load: dict, groups, split: dict, method: str, k: int, fold_subsets,
+                       canonical_subset, fold_lasso=None, canonical_lasso=None) -> dict:
+    """Candidate (method, k): fold f is fitted on its training rows with ``fold_subsets[f]``
+    (``None``: that fold's Lasso path stopped before k groups), the canonical fit on the whole
+    training set with ``canonical_subset``. A-1 and A-2 decide the status; every reason is kept."""
+    key = models.model_key(method, k)
     folds, reasons = [], []
     for f in range(N_FOLDS):
         train_rows = [r for r, fo in zip(split["train"], split["folds"]) if fo != f]
         valid_rows = [r for r, fo in zip(split["train"], split["folds"]) if fo == f]
-        enc = fit_encoding(load, groups, train_rows)
+        subset = fold_subsets[f]
+        if subset is None:
+            folds.append({"fold": f, "n_train": len(train_rows), "n_valid": len(valid_rows),
+                          "groups": None, "levels": None, "n_columns": None, "rank": None,
+                          "df_resid": None, "status": "invalid", "rule": "lasso_path_degenerate",
+                          "metrics": None})
+            reasons.append(_missing_reason("fold", f, fold_lasso[f]))
+            continue
+        enc = fit_encoding(load, _subset_groups(groups, subset), train_rows)
         X, _, _ = encode_rows(load, enc, train_rows)
         res = _fit(X, _target(load, train_rows), _names(enc))
         rec = {"fold": f, "n_train": len(train_rows), "n_valid": len(valid_rows),
-               "groups": list(names), "levels": _levels(enc), "n_columns": res["n_columns"],
+               "groups": list(subset), "levels": _levels(enc), "n_columns": res["n_columns"],
                "rank": res["rank"], "df_resid": res["df_resid"]}
         if not res["ok"]:
             rec.update(status="invalid", rule=res["rule"], metrics=None)
@@ -395,15 +479,20 @@ def evaluate_allin(load: dict, groups, split: dict) -> dict:
             rec.update(status="ok", rule=None, coef=[float(v) for v in res["fit"].coef],
                        metrics=_metrics(_target(load, valid_rows), pred), n_valid_unseen=unseen)
         folds.append(rec)
-    c_enc = fit_encoding(load, groups, split["train"])
-    Xc, _, _ = encode_rows(load, c_enc, split["train"])
-    c_res = _fit(Xc, _target(load, split["train"]), _names(c_enc))
-    if not c_res["ok"]:
-        reasons.append({"rule": c_res["rule"], "scope": "training_set", "fold": None,
-                        "rank": c_res["rank"], "n_columns": c_res["n_columns"],
-                        "df_resid": c_res["df_resid"]})
+    fit_out = None
+    c_res = None
+    if canonical_subset is None:
+        reasons.append(_missing_reason("training_set", None, canonical_lasso))
+    else:
+        c_enc = fit_encoding(load, _subset_groups(groups, canonical_subset), split["train"])
+        Xc, _, _ = encode_rows(load, c_enc, split["train"])
+        c_res = _fit(Xc, _target(load, split["train"]), _names(c_enc))
+        if not c_res["ok"]:
+            reasons.append({"rule": c_res["rule"], "scope": "training_set", "fold": None,
+                            "rank": c_res["rank"], "n_columns": c_res["n_columns"],
+                            "df_resid": c_res["df_resid"]})
     status = "INVALID_MODEL" if reasons else "VALID"
-    cv, fit_out = None, None
+    cv = None
     if status == "VALID":
         cv = {"n_folds": N_FOLDS, "std_ddof": CV_STD_DDOF, "mean": {}, "std": {}}
         for m in METRICS:
@@ -414,27 +503,253 @@ def evaluate_allin(load: dict, groups, split: dict) -> dict:
             arr = np.asarray(vals, dtype=float)
             cv["mean"][m] = float(arr.mean())
             cv["std"][m] = float(arr.std(ddof=CV_STD_DDOF))
-        fit = c_res["fit"]
-        inputs = {}
-        for g in c_enc["groups"]:
-            if g["type"] == "numeric":
-                v = np.asarray([load["rows"][r][g["index"]] for r in split["train"]], dtype=float)
-                inputs[g["name"]] = {"min": float(v.min()), "max": float(v.max()),
-                                     "median": float(np.median(v))}
-        fit_out = {
-            "n_train": fit.n, "n_columns": fit.n_columns, "rank": fit.rank,
-            "df_resid": fit.df_resid, "s2": float(fit.s2), "r2_train": _finite(fit.r2),
-            "adj_r2_train": _finite(fit.adj_r2), "t_crit": float(fit.t_crit), "pi_level": PI_LEVEL,
-            "groups": [g["name"] for g in c_enc["groups"]],
-            "encoded_columns": c_enc["columns"],
-            "coef": [float(v) for v in fit.coef],
-            "xtx_inv": [[float(v) for v in row] for row in fit.xtx_inv],
-            "levels": _levels(c_enc), "inputs": inputs,
-            "_fit": fit, "_encoding": c_enc,
-        }
-    return {"key": "allin", "method": "allin", "k": len(groups), "status": status,
-            "reasons": reasons, "folds": folds, "cv": cv, "canonical_groups": list(names),
+        fit_out = _fit_record(load, c_enc, split["train"], c_res["fit"])
+    return {"key": key, "method": method, "k": k, "status": status, "reasons": reasons,
+            "folds": folds, "cv": cv,
+            "canonical_groups": None if canonical_subset is None else list(canonical_subset),
             "fit": fit_out}
+
+
+def evaluate_allin(load: dict, groups, split: dict) -> dict:
+    """The All-in baseline: every feature group in every fold and on the training set."""
+    if not groups:
+        return {"key": "allin", "method": "allin", "k": 0, "status": "INVALID_MODEL",
+                "reasons": [{"rule": "no_feature_groups", "scope": "training_set", "fold": None}],
+                "folds": [], "cv": None, "canonical_groups": [], "fit": None}
+    names = [g["name"] for g in groups]
+    return evaluate_candidate(load, groups, split, models.ALLIN, len(groups), [names] * N_FOLDS,
+                              names)
+
+
+# ---- the selection paths (fold-internal and canonical) ------------------------------------------
+
+def group_gram(X: np.ndarray, y: np.ndarray, column_groups, groups) -> selection.GroupGram:
+    """A :class:`hw2.selection.GroupGram` for any encoded table: the same centred, unit-norm
+    columns and centred target as the formal constructor, so that ``rss`` and ``importance`` are
+    the formal criteria."""
+    gram = object.__new__(selection.GroupGram)
+    Xc = X - X.mean(axis=0)
+    yc = y - y.mean()
+    norms = np.linalg.norm(Xc, axis=0)
+    Z = Xc / np.where(norms > 0, norms, 1.0)
+    gram.n = len(y)
+    gram.G = Z.T @ Z
+    gram.b = Z.T @ yc
+    gram.yy = float(yc @ yc)
+    gram.columns = {g: np.array([j for j, cg in enumerate(column_groups) if cg == g], dtype=int)
+                    for g in groups}
+    return gram
+
+
+def _pick(scores, rank: dict, prefer_late: bool):
+    """:func:`hw2.selection._pick` with the canonical order of these groups (the formal one is
+    bound to the 18 King County groups)."""
+    best = min(v for v, _ in scores)
+    tol = TIE_RTOL * max(abs(best), 1.0)
+    tied = [g for v, g in scores if v <= best + tol]
+    return max(tied, key=rank.get) if prefer_late else min(tied, key=rank.get)
+
+
+def _canon(names, subset) -> list:
+    chosen = set(subset)
+    return [g for g in names if g in chosen]
+
+
+def forward_path(gram, names) -> list:
+    rank = {g: i for i, g in enumerate(names)}
+    selected, remaining, subsets = [], list(names), []
+    while remaining:
+        scores = [(gram.rss(_canon(names, selected + [g])), g) for g in remaining]
+        g = _pick(scores, rank, prefer_late=False)
+        selected.append(g)
+        remaining.remove(g)
+        subsets.append(_canon(names, selected))
+    return subsets
+
+
+def backward_path(gram, names) -> list:
+    rank = {g: i for i, g in enumerate(names)}
+    current = list(names)
+    subsets = {len(names): _canon(names, current)}
+    while len(current) > 1:
+        scores = [(gram.rss([h for h in current if h != g]), g) for g in current]
+        g = _pick(scores, rank, prefer_late=True)
+        current.remove(g)
+        subsets[len(current)] = _canon(names, current)
+    return [subsets[k] for k in range(1, len(names) + 1)]
+
+
+def rfe_path(gram, names) -> list:
+    rank = {g: i for i, g in enumerate(names)}
+    current = list(names)
+    subsets = {len(names): _canon(names, current)}
+    while len(current) > 1:
+        imp = gram.importance(current)
+        g = _pick([(imp[h], h) for h in current], rank, prefer_late=True)
+        current.remove(g)
+        subsets[len(current)] = _canon(names, current)
+    return [subsets[k] for k in range(1, len(names) + 1)]
+
+
+def lasso_design(X: np.ndarray, dummy) -> np.ndarray:
+    """The formal Ridge/Lasso standardization (hw2.preprocess.fit_preprocessor(standardize=True))
+    on these rows, then every column centred (hw2.selection.lasso_entry)."""
+    dummy = np.asarray(dummy, dtype=bool)
+    center = X.mean(axis=0)
+    scale = X.std(axis=0)
+    center[dummy] = 0.0
+    scale[dummy] = 1.0
+    scale[scale == 0.0] = 1.0
+    Xs = (X - center) / scale
+    return Xs - Xs.mean(axis=0)
+
+
+_DEGENERATE_WARNING = re.compile(r"Regressors in active set degenerate.*?after (\d+) iterations",
+                                 re.S)
+
+
+def _degenerate(G: np.ndarray, active, j: int) -> bool:
+    """A-2: the column entering the active set is (numerically) in the span of the active ones."""
+    c = float(G[j, j])
+    v = 0.0
+    if active:
+        L = np.linalg.cholesky(G[np.ix_(active, active)])
+        w = linalg.solve_triangular(L, G[active, j], lower=True)
+        v = float(w @ w)
+    diag = max(math.sqrt(abs(c - v)), EPS)
+    return diag < LARS_PIVOT_ATOL or diag <= LARS_DEGENERATE_RTOL * math.sqrt(c)
+
+
+def lars_segment(Xs: np.ndarray, yc: np.ndarray) -> dict:
+    """The exact Lasso path (sklearn's lars_path, method="lasso"), cut at the first active-set
+    degeneracy (A-2). sklearn's own log (verbose=2) names every column it adds or drops, so the
+    active set before each addition is known exactly; sklearn's own pivot warning names the
+    iteration of a degeneracy it caught itself (it then skips the column, which A-2 does not)."""
+    out = io.StringIO()
+    with warnings.catch_warnings(record=True) as caught, contextlib.redirect_stdout(out):
+        warnings.simplefilter("always", ConvergenceWarning)
+        alphas, _, coefs = lars_path(Xs, yc, method="lasso", max_iter=LARS_MAX_ITER, verbose=2)
+    end, cause, attempted = len(alphas) - 1, None, None
+    for w in caught:
+        m = _DEGENERATE_WARNING.search(str(w.message))
+        if m and int(m.group(1)) < end:
+            end, cause, attempted = int(m.group(1)), "active_set_degenerate", None
+    G = Xs.T @ Xs
+    active: list[int] = []
+    for line in out.getvalue().splitlines()[1:]:          # the first line is sklearn's header
+        parts = line.split("\t\t")
+        step = int(parts[0])
+        if parts[1] != "":                                 # an addition in iteration `step`
+            if step >= end:                                # beyond the segment
+                break
+            j = int(parts[1])
+            if _degenerate(G, active, j):
+                end, cause, attempted = step, "active_set_degenerate", j
+                break
+            active.append(j)
+        else:                                              # a drop (printed after the increment)
+            for v in re.findall(r"(?:np\.int\d+\()?(\d+)", parts[2]):
+                active.remove(int(v))
+    return {"alphas": alphas[:end + 1], "coefs": coefs[:, :end + 1], "end": end, "cause": cause,
+            "attempted": attempted}
+
+
+def lasso_order(X: np.ndarray, y: np.ndarray, column_groups, dummy, names) -> dict:
+    """Groups by Lasso entry on these rows: entry alpha descending, ties (TIE_RTOL) in CSV order.
+    A group enters at the knot alpha before its first non-zero coefficient within the path segment
+    before any degeneracy (A-2)."""
+    seg = lars_segment(lasso_design(X, dummy), y - y.mean())
+    nonzero = seg["coefs"] != 0.0
+    first_col = np.where(nonzero.any(axis=1), nonzero.argmax(axis=1), -1)
+    alpha = {}
+    for g in names:
+        firsts = [int(first_col[j]) for j, cg in enumerate(column_groups)
+                  if cg == g and first_col[j] >= 1]
+        if firsts:
+            alpha[g] = float(seg["alphas"][min(firsts) - 1])
+    rank = {g: i for i, g in enumerate(names)}
+    order = sorted(alpha, key=lambda g: (-alpha[g], rank[g]))
+    clustered, i = [], 0
+    while i < len(order):                                  # tie clusters by TIE_RTOL, CSV order
+        j = i + 1
+        while j < len(order) and (alpha[order[j - 1]] - alpha[order[j]]
+                                  <= TIE_RTOL * max(abs(alpha[order[j - 1]]), 1.0)):
+            j += 1
+        clustered.extend(sorted(order[i:j], key=rank.get))
+        i = j
+    n_entered = len(clustered)
+    not_entered = [g for g in names if g not in alpha]
+    cause = seg["cause"] if n_entered < len(names) else None
+    if n_entered < len(names) and cause is None:
+        cause = "path_ended"
+    return {
+        "entries": [{"group": g, "entry_alpha": alpha[g]} for g in clustered],
+        "not_entered": not_entered,
+        "n_entered": n_entered,
+        "degenerate": n_entered < len(names),
+        "first_invalid_k": n_entered + 1 if n_entered < len(names) else None,
+        "cause": cause,
+        "subsets": [_canon(names, clustered[:k]) if k <= n_entered else None
+                    for k in range(1, len(names) + 1)],
+    }
+
+
+def paths_on_rows(load: dict, groups, rows) -> dict:
+    """Every path method on the given rows only: subsets[k - 1] for k = 1…p."""
+    names = [g["name"] for g in groups]
+    enc = fit_encoding(load, groups, rows)
+    X, _, _ = encode_rows(load, enc, rows)
+    y = _target(load, rows)
+    column_groups = [c["group"] for c in enc["columns"]]
+    dummy = [c["level"] is not None for c in enc["columns"]]
+    return canonical_paths(X, y, column_groups, dummy, names)
+
+
+def canonical_paths(X: np.ndarray, y: np.ndarray, column_groups, dummy, names) -> dict:
+    """The four paths on one encoded table (raw encoded columns, target as modelled)."""
+    gram = group_gram(np.asarray(X, dtype=float), np.asarray(y, dtype=float), column_groups, names)
+    lasso = lasso_order(np.asarray(X, dtype=float), np.asarray(y, dtype=float), column_groups,
+                        dummy, names)
+    return {"forward_sfs": forward_path(gram, names), "backward_sfs": backward_path(gram, names),
+            "rfe": rfe_path(gram, names), "lasso_path": lasso["subsets"], "_lasso": lasso}
+
+
+def _lasso_public(info: dict) -> dict:
+    return {k: v for k, v in info.items() if k != "subsets"}
+
+
+# ---- winners (hw2.models.determine_winners rules) and the frozen test ---------------------------
+
+def determine_winners(candidates) -> dict:
+    """Method CV winner: lowest CV RMSE among the method's VALID candidates, ties → smaller k
+    (All-in is its own winner). Overall: lowest CV RMSE among the method winners, ties → the order
+    of METHOD_ORDER. Winners with the same canonical subset are one model, scored once under the
+    first key in the order All-in, method winners in method order, overall winner."""
+    method_winners = {}
+    for m in METHOD_ORDER:
+        valid = [c for c in candidates if c["method"] == m and c["status"] == "VALID"]
+        if not valid:
+            method_winners[m] = None
+            continue
+        w = min(valid, key=lambda c: (c["cv"]["mean"]["rmse"], c["k"]))
+        method_winners[m] = {"key": w["key"], "k": w["k"]}
+    by_key = {c["key"]: c for c in candidates}
+    pool = [(m, w) for m, w in method_winners.items() if w is not None]
+    if not pool:
+        return None
+    m, w = min(pool, key=lambda t: (by_key[t[1]["key"]]["cv"]["mean"]["rmse"],
+                                    METHOD_ORDER.index(t[0])))
+    overall = {"method": m, "key": w["key"], "k": w["k"]}
+    order = [w["key"] for _, w in pool] + [overall["key"]]
+    representative, test_keys = {}, []
+    for key in order:
+        subset = tuple(by_key[key]["canonical_groups"])
+        rep = representative.setdefault(subset, key)
+        if rep not in test_keys:
+            test_keys.append(rep)
+    test_key_of = {key: representative[tuple(by_key[key]["canonical_groups"])] for key in order}
+    return {"method_winners": method_winners, "overall": overall, "test_keys": test_keys,
+            "test_key_of": test_key_of}
 
 
 def evaluate_test(load: dict, candidate: dict, test_rows) -> dict:
@@ -451,6 +766,64 @@ def evaluate_test(load: dict, candidate: dict, test_rows) -> dict:
             "n_unseen_rows": unseen, "n_unseen_by_group": unseen_by_group}
 
 
+# ---- A-3: linear dependencies of the All-in design on the training set --------------------------
+
+def dependency_groups(load: dict, groups, rows) -> dict:
+    """Linear relations among the columns of the All-in design (intercept + encoded columns, the
+    canonical encoding of the whole training set). The equilibrated columns are taken in canonical
+    order; a column within DEPENDENCY_TOL (= max(n, p)·eps, the rank tolerance of hw2.ols) of the
+    span of the earlier independent ones closes one relation. A relation lists every column with a
+    non-zero coefficient (normalised: largest |coefficient| 1, first non-zero positive) and the
+    feature groups of those columns; it names no single column as the cause."""
+    enc = fit_encoding(load, groups, rows)
+    X, _, _ = encode_rows(load, enc, rows)
+    D = ols.design(X)
+    n, p = D.shape
+    cols = [{"intercept": True, "group": None, "level": None}] + [
+        {"intercept": False, "group": c["group"], "level": c["level"]} for c in enc["columns"]]
+    norms = np.linalg.norm(D, axis=0)
+    safe = np.where(norms > 0, norms, 1.0)
+    Z = D / safe
+    tol = max(n, p) * EPS
+    Q, R, basis, relations = [], [], [], []
+    for j in range(p):
+        v = Z[:, j].copy()
+        rj = np.zeros(len(Q))
+        for _ in range(2):                                 # Gram–Schmidt, twice
+            for i, q in enumerate(Q):
+                d = float(q @ v)
+                v -= d * q
+                rj[i] += d
+        r = float(np.linalg.norm(v))
+        if r > tol:
+            Q.append(v / r)
+            R.append(np.append(rj, r))
+            basis.append(j)
+            continue
+        m = len(basis)
+        Rb = np.zeros((m, m))
+        for col, rc in enumerate(R):
+            Rb[:len(rc), col] = rc
+        a = linalg.solve_triangular(Rb, rj) if m else np.zeros(0)
+        coef = np.zeros(p)
+        for l, b in enumerate(basis):
+            coef[b] = -a[l] * safe[j] / safe[b]
+        coef[j] = 1.0
+        coef /= np.abs(coef).max()
+        coef[np.abs(coef) <= RELATION_ZERO] = 0.0
+        nz = np.flatnonzero(coef)
+        if coef[nz[0]] < 0:
+            coef = -coef
+        members = [{**cols[i], "coef": float(coef[i])} for i in nz]
+        feature_groups = [g["name"] for g in groups
+                          if any(c["group"] == g["name"] for c in members)]
+        relations.append({"columns": members, "feature_groups": feature_groups,
+                          "includes_intercept": bool(cols[nz[0]]["intercept"])})
+    return {"n_columns": p, "rank": len(basis), "relations": relations}
+
+
+# ---- the run ------------------------------------------------------------------------------------
+
 def run(load: dict, seed: int = SEED, split: dict | None = None, problem=None,
         source=None) -> dict:
     """LoadResult -> ExploratoryResult (deterministic part; no timing)."""
@@ -459,6 +832,7 @@ def run(load: dict, seed: int = SEED, split: dict | None = None, problem=None,
     n = len(load["rows"])
     sp = make_split(n, seed) if split is None else {k: list(split[k]) for k in ("train", "test", "folds")}
     decided = train_decisions(load, sp["train"])
+    groups = decided["groups"]
     result = {
         "meta": {"reference_version": REFERENCE_VERSION, "problem": problem, "source": source,
                  "sha256": load["sha256"], "target": load["target"]["name"],
@@ -468,21 +842,34 @@ def run(load: dict, seed: int = SEED, split: dict | None = None, problem=None,
                  "max_levels": MAX_LEVELS, "min_df_resid": MIN_DF_RESID,
                  "cv_std_ddof": CV_STD_DDOF},
         "columns": decided["columns"],
-        "groups": decided["groups"],
+        "groups": groups,
         "split": {**sp, "n_folds": N_FOLDS},
+        "dependencies": dependency_groups(load, groups, sp["train"]),
+        "lasso_path": None,
     }
-    allin = evaluate_allin(load, decided["groups"], sp)
-    candidates = [allin]
+    candidates = [evaluate_allin(load, groups, sp)]
+    if groups:
+        fold_rows = [[r for r, fo in zip(sp["train"], sp["folds"]) if fo != f]
+                     for f in range(N_FOLDS)]
+        fold_paths = [paths_on_rows(load, groups, rows) for rows in fold_rows]
+        canon = paths_on_rows(load, groups, sp["train"])
+        result["lasso_path"] = {"canonical": _lasso_public(canon["_lasso"]),
+                                "folds": [_lasso_public(fp["_lasso"]) for fp in fold_paths]}
+        for method in PATH_METHODS:
+            for k in range(1, len(groups) + 1):
+                candidates.append(evaluate_candidate(
+                    load, groups, sp, method, k,
+                    [fp[method][k - 1] for fp in fold_paths], canon[method][k - 1],
+                    [fp["_lasso"] for fp in fold_paths], canon["_lasso"]))
     if not any(c["status"] == "VALID" for c in candidates):
         result["run"] = {"status": "REJECTED", "reason": "ALL_CANDIDATES_INVALID",
                          "invalid_candidates": [{"key": c["key"], "status": c["status"],
                                                  "reasons": c["reasons"]} for c in candidates]}
         return result
     # winners fixed here; the test rows are read only after this point
-    winners = {"method_winners": {}, "overall": {"method": "allin", "key": "allin",
-                                                 "k": allin["k"]}, "test_keys": ["allin"]}
-    test = {key: evaluate_test(load, next(c for c in candidates if c["key"] == key), sp["test"])
-            for key in winners["test_keys"]}
+    winners = determine_winners(candidates)
+    by_key = {c["key"]: c for c in candidates}
+    test = {key: evaluate_test(load, by_key[key], sp["test"]) for key in winners["test_keys"]}
     result["run"] = {"status": "COMPLETED", "reason": None}
     result["candidates"] = [_public(c) for c in candidates]
     result["winners"] = winners

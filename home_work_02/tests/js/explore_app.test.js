@@ -11,6 +11,9 @@
 // out-of-range value is still computed with a warning; a categorical drop-down lists the training levels
 // (baseline included) and an unseen level is computed as the baseline with a warning; a non-VALID
 // candidate disables the predictor with its status and reason and gives no number.
+// #75 views: the test block (winner itself; non-winner -> its method winner with a hint; no VALID candidate ->
+// the overall winner with a hint), the comparison table (test numbers only for winners), metric vs k (no
+// value for an invalid candidate), the Lasso path view (shown-only groups) and the dependency formulas.
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -196,4 +199,79 @@ test('predictor: a non-number input gives a message, not a prediction', () => {
     assert.equal(v.predicted, null, bad);
     assert.match(v.error, /有效的數字/);
   }
+});
+
+/* ---- #75 views: winners, test block, comparison table, metric vs k, Lasso path, dependencies ------ */
+function startupsResult() { return E.run(L.loadCsv(startups().csv)); }
+function degenerateResult() {
+  const next = E.mulberry32(81), u = () => next() / 4294967296, rows = [];
+  for (let i = 0; i < 80; i++) {
+    const x1 = Math.round(u() * 1000) / 100, x2 = Math.round(u() * 1000) / 100, x4 = Math.round((u() - 0.5) * 20000) / 1000;
+    const dup = Math.round((u() - 0.5) * 2000) / 1000, cat = ['p', 'q', 'r'][Math.floor(u() * 3)];
+    rows.push([x1, x2, x1 + x2, x4, dup, dup, cat, Math.round((3 * x1 - 2 * x2 + 4 * x4 + { p: 0, q: 6, r: -4 }[cat] + (u() - 0.5) * 4) * 1000) / 1000]);
+  }
+  const text = 'x1,x2,x_sum,x4,dup_a,dup_b,cat,y\n' + rows.map((r) => r.join(',')).join('\n') + '\n';
+  return E.run(L.loadCsv(text));
+}
+
+test('views: the test block shows a winner itself, a non-winner\'s method winner with a hint, else the overall winner', () => {
+  const res = startupsResult();
+  assert.equal(A.defaultKey(res), res.winners.overall.key);
+  const own = A.testView(res, res.winners.overall.key);
+  assert.equal(own.shownKey, res.winners.overall.key);
+  assert.equal(own.hint, null);
+  assert.ok(own.roles.includes('整體 CV winner'));
+  assert.equal(own.test, res.test[res.winners.test_key_of[own.shownKey]]);
+  const nonWinner = res.candidates.find((c) => c.method === 'rfe' && c.key !== res.winners.method_winners.rfe.key);
+  const v = A.testView(res, nonWinner.key);
+  assert.equal(v.shownKey, res.winners.method_winners.rfe.key);
+  assert.match(v.hint, /不是該方法的 CV winner/);
+  assert.match(v.hint, /RFE/);
+  // shared model: the RFE winner has the same canonical subset as the overall winner, scored once
+  assert.equal(v.testKey, res.winners.test_key_of[v.shownKey]);
+  const deg = degenerateResult();
+  const allinView = A.testView(deg, 'allin');                   // All-in invalid: no winner in that method
+  assert.equal(allinView.shownKey, deg.winners.overall.key);
+  assert.match(allinView.hint, /沒有有效（VALID）的候選/);
+});
+
+test('views: the comparison table has one row per method and test numbers only for winners', () => {
+  const res = startupsResult();
+  const rows = A.compareRows(res);
+  assert.deepEqual(rows.map((r) => r.method), ['allin', 'forward_sfs', 'backward_sfs', 'rfe', 'lasso_path']);
+  rows.forEach((r) => {
+    assert.equal(r.winner, res.winners.method_winners[r.method].key);
+    assert.deepEqual(r.test, res.test[res.winners.test_key_of[r.winner]].metrics);
+    assert.equal(r.cv, res.candidates.find((c) => c.key === r.winner).cv);
+  });
+  assert.equal(rows.filter((r) => r.isOverall).length, 1);
+  const testKeys = Object.keys(res.test);
+  const winnerKeys = rows.map((r) => r.winner);
+  testKeys.forEach((k) => assert.ok(winnerKeys.includes(k) || Object.values(res.winners.test_key_of).includes(k)));
+  res.candidates.filter((c) => !winnerKeys.includes(c.key)).forEach((c) => assert.ok(!(c.key in res.test), c.key));
+  const deg = A.compareRows(degenerateResult());
+  assert.equal(deg[0].winner, null);
+  assert.match(deg[0].note, /沒有有效/);
+  assert.ok(!('test' in deg[0]));
+});
+
+test('views: metric vs k has no value for an invalid candidate; Lasso and dependency views', () => {
+  const deg = degenerateResult();
+  const lasso = A.kSeries(deg, 'lasso_path', 'rmse');
+  assert.equal(lasso.length, 7);
+  lasso.forEach((d) => assert.equal(d.value === null, d.status !== 'VALID'));
+  assert.ok(lasso.filter((d) => d.isWinner).length === 1);
+  const lv = A.lassoView(deg);
+  assert.equal(lv.degenerate, true);
+  const shown = lv.rows.filter((r) => r.position === null);
+  assert.ok(shown.length >= 2 && shown.every((r) => r.alpha === null && /只作展示/.test(r.state)));
+  assert.match(lv.summary, /k ≥ \d+ 的 Lasso 候選無效/);
+  const dv = A.dependencyView(deg);
+  assert.equal(dv.relations.length, 2);
+  assert.deepEqual(dv.relations[0].groups, ['x1', 'x2', 'x_sum']);
+  assert.equal(dv.relations[0].formula, 'x1 + x2 − x_sum ≈ 0');
+  assert.equal(dv.relations[1].formula, 'dup_a − dup_b ≈ 0');
+  const reason = deg.candidates.find((c) => c.key === 'lasso_path_k07').reasons.find((r) => r.scope === 'training_set');
+  assert.match(A.reasonText(reason), /lasso_path_degenerate/);
+  assert.equal(A.dependencyView(startupsResult()).relations.length, 0);
 });
