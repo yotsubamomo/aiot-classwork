@@ -1,10 +1,12 @@
-/* HW2 V2 Exploratory run engine (Spec V2 「前處理與洩漏邊界」「切分與交叉驗證」「候選有效性」「評估、預測區間與
- * 即時預測器」「Exploratory run 結果契約」). Pure functions: no page, no network, no storage; the same file
- * runs in the browser (window.HW2ExploreEngine) and in Node (module.exports).
+/* HW2 V2 Exploratory run engine (Spec V2 「前處理與洩漏邊界」「切分與交叉驗證」「候選有效性、狀態與運算預算」
+ * 「評估、預測區間與即時預測器」「Exploratory run 結果契約」「可重現性」). Pure functions: no page, no network, no
+ * storage; the same file runs in the browser (window.HW2ExploreEngine) and in Node (module.exports).
  *
- * #74 (V2-T1) built the All-in candidate; #75 (V2-T2) adds the four path methods, the candidate states,
- * the winners, the Lasso degeneracy (A-2) and the dependency diagnostic (A-3). The chain, in this order
- * (Brief V2 §5.5, E-1):
+ * #74 (V2-T1) built the All-in candidate; #75 (V2-T2) added the four path methods, the candidate states,
+ * the winners, the Lasso degeneracy (A-2) and the dependency diagnostic (A-3); #77 (V2-T4) adds the
+ * per-method computing budget, failure isolation, the stepwise run that can be cancelled at the next
+ * candidate boundary, progress events, and target-unit independent path criteria (DA
+ * decision-20261022-issue75-lasso-early-stop R4-2, R4-3, R4-4). The chain, in this order (Brief V2 §5.5, E-1):
  *   1. LoadResult (assets/explore_load.js): CSV structure checks only, any row.
  *   2. Fixed-seed row-wise 80/20 split, then a fixed-seed 5-fold assignment of the training rows.
  *      PRNG: mulberry32 (32-bit integer arithmetic) with Fisher-Yates; the split draws from
@@ -38,10 +40,20 @@
  *     which the formal analysis uses) on the formal standardization (numeric columns centred and scaled
  *     by the population sd, one-hot columns 0/1, then every column centred) of the given rows; a group
  *     enters at the knot alpha before its first non-zero coefficient; order by entry alpha, largest
- *     first. A-2: the path stops at the first active-set degeneracy (an entering column whose residual
- *     on the active columns is <= 1e-6 of its norm, or below sklearn's pivot limit 1e-7) or ends with
- *     groups that never entered; the entered groups are the actual path, the others are shown after
- *     them in CSV order only, and every k beyond is INVALID_MODEL / lasso_path_degenerate.
+ *     first. A-2 (R4-1): when the path stops with groups that never entered -- for any reason -- the
+ *     entered groups are the actual path, the others are shown after them in CSV order only, and every
+ *     k beyond is INVALID_MODEL / lasso_path_degenerate with the true stop cause (R4-2):
+ *     'active_set_degenerate' (an entering column whose residual on the active columns is <= 1e-6 of its
+ *     norm, or below sklearn's pivot limit 1e-7), 'path_ended' (the path reached its end: the other
+ *     groups' correlation with the residual is numerically zero), the numerical stops 'alpha_increasing',
+ *     'max_iter' and 'multiple_drops', or 'target_constant' (no variation of the target on those rows).
+ *   - Target units (R4-3, R4-4): every path criterion is computed on the target of the given rows
+ *     centred and divided by its root mean square on the same rows (the scale s; 0 when the target is
+ *     constant there, and then nothing is divided). Exact LARS, the RSS and sd(X_g b_g) are equivariant
+ *     to that scaling, so the orders are unchanged, but every numerical threshold (sklearn's equality
+ *     tolerance, the TIE_RTOL floors) becomes unit free: multiplying the target by any c > 0 gives the
+ *     same paths, stops, causes and states. Entry alphas are reported on the original scale (the scaled
+ *     alpha times s), i.e. sklearn's alpha of the path on the centred original target.
  *   - Ties (relative 1e-12, hw2.selection.TIE_RTOL) follow CSV order: forward and Lasso take the
  *     earlier group first, backward and RFE remove the later group first.
  * Winners (hw2/models.py determine_winners): a method's CV winner is its VALID candidate with the lowest
@@ -51,6 +63,38 @@
  * A-3: the All-in design of the whole training set (intercept, then the encoded columns), equilibrated,
  * is scanned in that order; a column within max(n, p) * eps of the span of the earlier independent
  * columns closes one linear relation, reported with all its columns and their feature groups.
+ *
+ * #77 (V2-T4; Spec V2 「候選有效性、狀態與運算預算」 SR-V2-03, 「可重現性」 SR-V2-04; Tickets Review adjustment B):
+ *   - Budget: before a path method runs, its cost is estimated as (estimated OLS solves) x (training rows)
+ *     x (encoded columns)^2, from the training-set encoding only: Forward / Backward / RFE count
+ *     p(p+1)/2 solves per row set (O(p^2)), Lasso p steps per row set (O(p)), plus one fit per candidate
+ *     and row set, on the five folds and the training set. A method whose estimate exceeds its budget
+ *     constant (BUDGETS) is SKIPPED_RESOURCE_LIMIT as a whole: none of its paths or candidates is computed,
+ *     its candidates carry the estimate and the budget. The decision uses the estimate only, never a
+ *     clock, so it is part of the deterministic result. All-in is always attempted first, never skipped.
+ *   - Resources: every matrix the run allocates is a design of a subset of the training (or test) rows by
+ *     a subset of the training-set encoded columns (plus the intercept), its Gram or (X'X)^-1, so its
+ *     size is known before the run (meta.budget); matrices are typed arrays, so a failed allocation is
+ *     an ordinary exception. Any exception inside a method (All-in or a path method) makes that whole
+ *     method FAILED, with the message and environment information; the other methods go on. FAILED and
+ *     SKIPPED_RESOURCE_LIMIT candidates have no CV metrics, no fit and no canonical subset, and are never
+ *     winners. A failure of the dependency diagnostic is reported in `dependencies.error`.
+ *   - Steps and cancellation: createRun() returns a stepper; step() runs to the next yield point (after
+ *     every fold fit, path step, LARS run, predictor-default column and, on larger data, every QR column
+ *     step, Gram row, LARS iteration, diagnostic column and block of test rows: about YIELD_CELLS
+ *     multiply-adds at most between two yields), so a page can keep its controls operable between steps. cancel() is honoured at the next candidate boundary
+ *     (before the first candidate, and after each candidate or skipped method): the run then ends as
+ *     CANCELLED, with no candidates, winners, test or other partial result -- only the counts of finished
+ *     methods and candidates. A candidate in progress is never cut in the middle. run() drives the same
+ *     stepper to the end synchronously.
+ *   - Progress: options.onProgress(event) at the start and at every candidate boundary: the method, k,
+ *     finished / total candidates and methods, the fraction and the elapsed time (non-deterministic);
+ *     phase 'diagnostic' after the last candidate (the A-3 diagnostic runs then, after every boundary).
+ *   - Deterministic part: everything but meta.timing_ms (per-method timings and the start time) and the
+ *     environment information of a FAILED reason. Same content, target, seed, engine version and budget
+ *     constants give the same values, bit for bit in the same engine.
+ *   - options.hooks (tests only): candidate(method, k), fold(method, k, f) and path(method, rowSet) are
+ *     called as the work starts; they count work and may throw to inject a failure.
  *
  * Metrics are MAE, MSE, RMSE and R^2 (1 - SSE/SST around the mean of the scored rows; null when SST is
  * 0) in the target's own units. Nothing here reads model_data: the formal King County analysis is a
@@ -63,7 +107,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  var ENGINE_VERSION = 'explore-engine 2.1 (V2-T3: column names as own keys)';
+  var ENGINE_VERSION = 'explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)';
   var SEED = 42;
   var TEST_FRACTION = 0.2;
   var N_FOLDS = 5;
@@ -82,6 +126,14 @@
   var TINY32 = 1.1754943508222875e-38;        /* numpy float32 tiny */
   var EQ_TOL = 1.1920928955078125e-7;         /* numpy float32 eps (sklearn's equality_tolerance) */
   var RELATION_ZERO = 1e-9;
+  /* #77: the per-method computing budget, in BUDGET_UNIT (measured; see doc/acceptance/ACCEPTANCE.md V2-27). */
+  var BUDGET_UNIT = 'estimated OLS solves x training rows x encoded columns^2';
+  var BUDGETS = { forward_sfs: 2e11, backward_sfs: 2e11, rfe: 2e11, lasso_path: 8e10 };
+  /* Work between two yield points, in multiply-adds: a QR column step, a Gram row, a LARS iteration, a
+   * diagnostic column or a block of test rows larger than this yields after itself (each yield is a step of
+   * the run, never a cancellation point), so that one step stays well under a frame on the reference
+   * machine. Small problems (50 Startups) never yield inside a fit. */
+  var YIELD_CELLS = 2e5;
 
   /* Objects keyed by column names (fit.levels, fit.inputs, n_unseen_by_group, predictor inputs) get
    * their keys as own data properties and are read through own properties only, so that a name such as
@@ -185,24 +237,32 @@
     return { groups: encGroups, columns: columns };
   }
 
-  /* Rows -> encoded matrix (no intercept). Unseen levels are the baseline (all zeros), counted. */
-  function encodeRows(load, enc, rows) {
-    var X = [], unseenRows = 0, unseenByGroup = {};
-    rows.forEach(function (r) {
-      var src = load.rows[r], x = [], unseen = false;
-      enc.groups.forEach(function (g) {
-        var v = src[g.index];
-        if (g.type === 'numeric') { x.push(v); return; }
+  /* Rows -> encoded columns (no intercept), one Float64Array per encoded column. Unseen levels are the
+   * baseline (all zeros), counted. */
+  function encodeCols(load, enc, rows) {
+    var n = rows.length, cols = [], unseenRows = 0, unseenByGroup = {};
+    enc.columns.forEach(function () { cols.push(new Float64Array(n)); });
+    for (var i = 0; i < n; i++) {
+      var src = load.rows[rows[i]], c = 0, unseen = false;
+      for (var gi = 0; gi < enc.groups.length; gi++) {
+        var g = enc.groups[gi], v = src[g.index];
+        if (g.type === 'numeric') { cols[c++][i] = v; continue; }
         if (g.levels.indexOf(v) < 0) {
           unseen = true;
           putOwn(unseenByGroup, g.name, (getOwn(unseenByGroup, g.name) || 0) + 1);
         }
-        for (var l = 1; l < g.levels.length; l++) x.push(v === g.levels[l] ? 1 : 0);
-      });
+        for (var l = 1; l < g.levels.length; l++) cols[c++][i] = v === g.levels[l] ? 1 : 0;
+      }
       if (unseen) unseenRows++;
-      X.push(x);
-    });
-    return { X: X, unseenRows: unseenRows, unseenByGroup: unseenByGroup };
+    }
+    return { cols: cols, n: n, unseenRows: unseenRows, unseenByGroup: unseenByGroup };
+  }
+
+  /* The design row of row i (intercept first). */
+  function designRow(cols, i) {
+    var x = [1];
+    for (var j = 0; j < cols.length; j++) x.push(cols[j][i]);
+    return x;
   }
 
   function targetOf(load, rows) { return rows.map(function (r) { return load.rows[r][load.target.index]; }); }
@@ -259,21 +319,29 @@
     return 0.5 * (lo + hi);
   }
 
+  /* ---- driving generators -------------------------------------------------------------------------- */
+  function drive(gen) {
+    var r = gen.next();
+    while (!r.done) r = gen.next();
+    return r.value;
+  }
+
   /* ---- OLS with the actual rank (pivoted Householder QR on the equilibrated design) ----------- */
-  function fitOls(X, y) {
-    var n = X.length, p = (X.length ? X[0].length : 0) + 1;
-    var D = X.map(function (row) { return [1].concat(row); });
-    if (n === 0) D = [];
-    var norms = new Float64Array(p), j, i, k;
+  /* cols: encoded columns (Float64Array each, no intercept), y: the target. A large QR yields between
+   * its column steps (a step of the run, never a cancellation point). */
+  function* olsSteps(cols, y) {
+    var n = y.length, p = cols.length + 1, j, i, k;
+    var colOf = function (jj) { return jj === 0 ? null : cols[jj - 1]; };
+    var norms = new Float64Array(p);
     for (j = 0; j < p; j++) {
-      var s = 0;
-      for (i = 0; i < n; i++) s += D[i][j] * D[i][j];
+      var s = 0, src = colOf(j);
+      for (i = 0; i < n; i++) { var dv = src === null ? 1 : src[i]; s += dv * dv; }
       norms[j] = s > 0 ? Math.sqrt(s) : 1;
     }
     var A = [];
     for (j = 0; j < p; j++) {
-      var col = new Float64Array(n);
-      for (i = 0; i < n; i++) col[i] = D[i][j] / norms[j];
+      var col = new Float64Array(n), sj = colOf(j);
+      for (i = 0; i < n; i++) col[i] = (sj === null ? 1 : sj[i]) / norms[j];
       A.push(col);
     }
     var b = Float64Array.from(y);
@@ -281,6 +349,7 @@
     for (j = 0; j < p; j++) perm.push(j);
     var kmax = Math.min(n, p), rdiag = new Float64Array(kmax);
     for (k = 0; k < kmax; k++) {
+      if (n * (p - k) > YIELD_CELLS) yield null;
       var best = k, bestN = -1;
       for (j = k; j < p; j++) {
         var ss = 0, cj = A[j];
@@ -299,9 +368,9 @@
       var v0 = x[k] - alpha, vtv = v0 * v0;
       for (i = k + 1; i < n; i++) vtv += x[i] * x[i];
       var apply = function (c) {
-        var dot = v0 * c[k];
-        for (var ii = k + 1; ii < n; ii++) dot += x[ii] * c[ii];
-        var f = 2 * dot / vtv;
+        var d = v0 * c[k];
+        for (var ii = k + 1; ii < n; ii++) d += x[ii] * c[ii];
+        var f = 2 * d / vtv;
         c[k] -= f * v0;
         for (ii = k + 1; ii < n; ii++) c[ii] -= f * x[ii];
       };
@@ -353,7 +422,7 @@
     mean /= n;
     var sst = 0;
     for (i = 0; i < n; i++) {
-      var e = y[i] - dot(D[i], coef);
+      var e = y[i] - rowDot(cols, i, coef);
       sse += e * e;
       sst += (y[i] - mean) * (y[i] - mean);
     }
@@ -363,6 +432,15 @@
       s2: sse / dfResid, r2: r2, adj_r2: r2 === null ? null : 1 - (1 - r2) * (n - 1) / dfResid,
       t_crit: tQuantile(0.5 + PI_LEVEL / 2, dfResid)
     };
+  }
+  function fitOls(cols, y) { return drive(olsSteps(cols, y)); }
+
+  /* x_i' coef with x_i = [1, cols[0][i], ...], summed in that order (the design row's dot product). */
+  function rowDot(cols, i, coef) {
+    var s = 0;
+    s += 1 * coef[0];
+    for (var j = 0; j < cols.length; j++) s += cols[j][i] * coef[j + 1];
+    return s;
   }
 
   function dot(a, b) {
@@ -404,12 +482,25 @@
     return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
   }
 
+  /* The predictor's numeric defaults are statistics of the whole training set: the same for every candidate
+   * of a run, so they are computed once per (training rows, column) and reused (a sort per column). */
+  var inputCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+  function numericInput(load, rows, index) {
+    var byIndex = inputCache ? inputCache.get(rows) : null;
+    if (inputCache && !byIndex) { byIndex = new Map(); inputCache.set(rows, byIndex); }
+    if (byIndex && byIndex.has(index)) return byIndex.get(index);
+    var v = rows.map(function (r) { return load.rows[r][index]; }), lo = Infinity, hi = -Infinity;
+    for (var i = 0; i < v.length; i++) { if (v[i] < lo) lo = v[i]; if (v[i] > hi) hi = v[i]; }
+    var info = { min: lo, max: hi, median: median(v) };
+    if (byIndex) byIndex.set(index, info);
+    return info;
+  }
   function inputsOf(load, enc, rows) {
     var out = {};
     enc.groups.forEach(function (g) {
       if (g.type !== 'numeric') return;
-      var v = rows.map(function (r) { return load.rows[r][g.index]; });
-      putOwn(out, g.name, { min: Math.min.apply(null, v), max: Math.max.apply(null, v), median: median(v) });
+      var info = numericInput(load, rows, g.index);
+      putOwn(out, g.name, { min: info.min, max: info.max, median: info.median });
     });
     return out;
   }
@@ -438,17 +529,21 @@
     return { train: trainRows, valid: validRows };
   }
 
-  /* The Lasso path of these rows stopped before reaching k groups (A-2). */
+  /* The Lasso path of these rows stopped before reaching k groups (A-2, R4-1): the true stop cause. */
   function missingReason(scope, fold, info) {
     return { rule: 'lasso_path_degenerate', scope: scope, fold: fold, n_groups_entered: info.n_entered, cause: info.cause };
   }
 
+  function callHook(hooks, name, a, b, c) { if (hooks && typeof hooks[name] === 'function') hooks[name](a, b, c); }
+
   /* Candidate (method, k): fold f is fitted on its training rows with foldSubsets[f] (null: that fold's
    * Lasso path stopped before k groups), the canonical fit on the whole training set with
-   * canonicalSubset. A-1 and A-2 decide the status; every reason is kept. */
-  function evaluateSubsets(load, groups, split, method, k, foldSubsets, canonicalSubset, foldLasso, canonicalLasso) {
+   * canonicalSubset. A-1 and A-2 decide the status; every reason is kept. Yields after every fit. */
+  function* candidateSteps(load, groups, split, method, k, foldSubsets, canonicalSubset, foldLasso, canonicalLasso, hooks) {
     var folds = [], reasons = [], key = modelKey(method, k);
+    callHook(hooks, 'candidate', method, k);
     for (var f = 0; f < N_FOLDS; f++) {
+      callHook(hooks, 'fold', method, k, f);
       var rows = foldRows(split, f), subset = foldSubsets[f];
       if (subset === null) {
         folds.push({ fold: f, n_train: rows.train.length, n_valid: rows.valid.length, groups: null, levels: null,
@@ -457,27 +552,30 @@
         continue;
       }
       var enc = fitEncoding(load, subsetGroups(groups, subset), rows.train);
-      var fit = fitOls(encodeRows(load, enc, rows.train).X, targetOf(load, rows.train));
+      var fit = yield* olsSteps(encodeCols(load, enc, rows.train).cols, targetOf(load, rows.train));
       var rec = { fold: f, n_train: rows.train.length, n_valid: rows.valid.length, groups: subset.slice(),
         levels: levelsOf(enc), n_columns: fit.n_columns, rank: fit.rank, df_resid: fit.df_resid };
       if (!fit.ok) {
         rec.status = 'invalid'; rec.rule = fit.rule; rec.metrics = null;
         reasons.push({ rule: fit.rule, scope: 'fold', fold: f, rank: fit.rank, n_columns: fit.n_columns, df_resid: fit.df_resid });
       } else {
-        var valid = encodeRows(load, enc, rows.valid);
-        var pred = valid.X.map(function (x) { return dot([1].concat(x), fit.coef); });
+        var valid = encodeCols(load, enc, rows.valid), pred = [];
+        for (var i = 0; i < valid.n; i++) pred.push(rowDot(valid.cols, i, fit.coef));
         rec.status = 'ok'; rec.rule = null; rec.coef = fit.coef.slice();
         rec.metrics = metricsOf(targetOf(load, rows.valid), pred);
         rec.n_valid_unseen = valid.unseenRows;
       }
       folds.push(rec);
+      yield null;
     }
+    callHook(hooks, 'fold', method, k, 'training_set');
     var cEnc = null, cFit = null;
     if (canonicalSubset === null) {
       reasons.push(missingReason('training_set', null, canonicalLasso));
     } else {
       cEnc = fitEncoding(load, subsetGroups(groups, canonicalSubset), split.train);
-      cFit = fitOls(encodeRows(load, cEnc, split.train).X, targetOf(load, split.train));
+      cFit = yield* olsSteps(encodeCols(load, cEnc, split.train).cols, targetOf(load, split.train));
+      yield null;
       if (!cFit.ok) {
         reasons.push({ rule: cFit.rule, scope: 'training_set', fold: null, rank: cFit.rank, n_columns: cFit.n_columns, df_resid: cFit.df_resid });
       }
@@ -500,8 +598,9 @@
   }
 
   /* The All-in baseline: every feature group in every fold and on the training set. */
-  function evaluateCandidate(load, groups, split) {
+  function* allinSteps(load, groups, split, hooks) {
     if (!groups.length) {
+      callHook(hooks, 'candidate', 'allin', 0);
       return { key: 'allin', method: 'allin', k: 0, status: 'INVALID_MODEL',
         reasons: [{ rule: 'no_feature_groups', scope: 'training_set', fold: null }],
         folds: [], cv: null, canonical_groups: [], fit: null };
@@ -509,23 +608,58 @@
     var names = groups.map(function (g) { return g.name; });
     var all = [];
     for (var f = 0; f < N_FOLDS; f++) all.push(names);
-    return evaluateSubsets(load, groups, split, 'allin', groups.length, all, names);
+    return yield* candidateSteps(load, groups, split, 'allin', groups.length, all, names, null, null, hooks);
+  }
+
+  /* SKIPPED_RESOURCE_LIMIT / FAILED: the whole method, every k; no CV metrics, fit or canonical subset. */
+  function methodCandidate(method, k, status, reason) {
+    return { key: modelKey(method, k), method: method, k: k, status: status, reasons: [reason], folds: [], cv: null,
+      canonical_groups: null, fit: null };
+  }
+
+  function environmentInfo() {
+    var env = { engine_version: ENGINE_VERSION };
+    try {
+      if (typeof navigator !== 'undefined' && navigator && navigator.userAgent) {
+        env.user_agent = String(navigator.userAgent);
+        if (navigator.hardwareConcurrency) env.hardware_concurrency = navigator.hardwareConcurrency;
+        if (navigator.deviceMemory) env.device_memory_gb = navigator.deviceMemory;
+      } else if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+        env.runtime = 'node ' + process.versions.node;
+      }
+    } catch (e) { /* environment information is best effort */ }
+    return env;
+  }
+
+  function failureReason(error, k) {
+    var name = error && error.name ? String(error.name) : 'Error';
+    var text = error && error.message !== undefined ? String(error.message) : String(error);
+    return { rule: 'unexpected_error', scope: 'method', fold: null, k: k, error: name, message: text,
+      environment: environmentInfo() };
+  }
+
+  /* ---- the computing budget (#77) --------------------------------------------------------------- */
+  /* Estimated OLS solves of a method: on the N_FOLDS fold training sets and the whole training set, the
+   * path (Forward / Backward / RFE: p(p+1)/2 solves, O(p^2); Lasso: p steps, O(p)) and one fit per k. */
+  function estimateSolves(method, p) {
+    var sets = N_FOLDS + 1, fits = sets * p;
+    if (method === 'allin') return sets;
+    if (method === 'lasso_path') return sets * p + fits;
+    return sets * p * (p + 1) / 2 + fits;
+  }
+  function resourceEstimates(nTrain, q, p) {
+    var out = {};
+    METHOD_ORDER.forEach(function (m) {
+      out[m] = m !== 'allin' && p === 0 ? 0 : estimateSolves(m, p) * nTrain * q * q;
+    });
+    return out;
   }
 
   /* ---- selection paths: Gram criteria (hw2.selection.GroupGram) ---------------------------------- */
-  function columnsOf(X, q) {
-    var cols = [];
-    for (var j = 0; j < q; j++) {
-      var c = new Float64Array(X.length);
-      for (var i = 0; i < X.length; i++) c[i] = X[i][j];
-      cols.push(c);
-    }
-    return cols;
-  }
   function meanOf(v) { var s = 0; for (var i = 0; i < v.length; i++) s += v[i]; return s / v.length; }
 
   /* Centred, unit-norm columns and centred target: G = Z'Z, b = Z'y, yy = y'y (formal constructor). */
-  function groupGram(cols, y, colGroup, nGroups) {
+  function* gramSteps(cols, y, colGroup, nGroups) {
     var n = y.length, q = cols.length, Z = [], j, i;
     for (j = 0; j < q; j++) {
       var m = meanOf(cols[j]), c = new Float64Array(n), ss = 0;
@@ -541,7 +675,10 @@
       G.push(new Float64Array(q));
       b[j] = dot(Z[j], yc);
     }
-    for (j = 0; j < q; j++) for (var l = j; l < q; l++) { var v = dot(Z[j], Z[l]); G[j][l] = v; G[l][j] = v; }
+    for (j = 0; j < q; j++) {
+      for (var l = j; l < q; l++) { var v = dot(Z[j], Z[l]); G[j][l] = v; G[l][j] = v; }
+      if (n * (q - j) > YIELD_CELLS) yield null;
+    }
     var members = [];
     for (var g = 0; g < nGroups; g++) members.push([]);
     for (j = 0; j < q; j++) members[colGroup[j]].push(j);
@@ -646,7 +783,8 @@
   }
 
   /* The group with the smallest score; ties (TIE_RTOL) by canonical (CSV) order, the later one when
-   * removing. scores: [{v, g}] with g the canonical index. */
+   * removing. scores: [{v, g}] with g the canonical index. The scores are computed on the scaled target
+   * (R4-4), so the floor max(|best|, 1) is unit free. */
   function pick(scores, preferLate) {
     var best = Infinity;
     scores.forEach(function (s) { if (s.v < best) best = s.v; });
@@ -656,7 +794,7 @@
   }
   function sortedIdx(list) { return list.slice().sort(ascending); }
 
-  function forwardPath(gram, p) {
+  function* forwardSteps(gram, p) {
     var selected = [], remaining = [], subsets = [];
     for (var g = 0; g < p; g++) remaining.push(g);
     while (remaining.length) {
@@ -665,10 +803,11 @@
       selected.push(pickG);
       remaining.splice(remaining.indexOf(pickG), 1);
       subsets.push(sortedIdx(selected));
+      yield null;
     }
     return subsets;
   }
-  function backwardPath(gram, p) {
+  function* backwardSteps(gram, p) {
     var current = [], subsets = new Array(p);
     for (var g = 0; g < p; g++) current.push(g);
     subsets[p - 1] = current.slice();
@@ -677,10 +816,11 @@
       var pickG = pick(scores, true);
       current.splice(current.indexOf(pickG), 1);
       subsets[current.length - 1] = current.slice();
+      yield null;
     }
     return subsets;
   }
-  function rfePath(gram, p) {
+  function* rfeSteps(gram, p) {
     var current = [], subsets = new Array(p);
     for (var g = 0; g < p; g++) current.push(g);
     subsets[p - 1] = current.slice();
@@ -689,6 +829,7 @@
       var pickG = pick(current.map(function (h, i) { return { v: imp[i], g: h }; }), true);
       current.splice(current.indexOf(pickG), 1);
       subsets[current.length - 1] = current.slice();
+      yield null;
     }
     return subsets;
   }
@@ -763,7 +904,7 @@
    * alphas and coefficients (original column order) up to the stop, and why it stopped:
    * 'completed' (alpha reached sklearn's equality tolerance, or every column active), 'alpha_increasing'
    * (sklearn's early stop), 'max_iter', 'active_set_degenerate' (A-2) or 'multiple_drops'. */
-  function larsLasso(cols, y) {
+  function* larsSteps(cols, y) {
     var n = y.length, p = cols.length, X = cols.slice(), i, j, k;
     var maxFeatures = Math.min(LARS_MAX_ITER, p);
     var Cov = [];
@@ -775,6 +916,7 @@
     for (i = 0; i < maxFeatures; i++) L.push(new Float64Array(maxFeatures));
     var stop = { cause: 'completed', iteration: null, attempted: null };
     while (true) {
+      if (n * p > YIELD_CELLS) yield null;
       var cIdx = -1, cRaw = 0, C = 0;
       for (j = 0; j < Cov.length; j++) if (cIdx < 0 || Math.abs(Cov[j]) > C) { cIdx = j; C = Math.abs(Cov[j]); }
       /* Ties (TIE_RTOL) go to the earliest column in CSV order (Spec: Lasso adds the earlier group first);
@@ -882,62 +1024,104 @@
     }
     return { alphas: alphas.slice(0, nIter + 1), coefs: coefs.slice(0, nIter + 1), stop: stop };
   }
+  function larsLasso(cols, y) { return drive(larsSteps(cols, y)); }
 
-  /* Groups by Lasso entry on these rows (A-2 applied): entry alpha descending, ties in CSV order. */
-  function lassoOrder(cols, y, colGroup, dummy, p) {
-    var my = meanOf(y), yc = new Float64Array(y.length);
-    for (var i = 0; i < y.length; i++) yc[i] = y[i] - my;
-    var path = larsLasso(lassoDesign(cols, dummy), yc), K = path.coefs.length;
-    var alpha = new Array(p).fill(null);
-    for (var g = 0; g < p; g++) {
-      var first = Infinity;
-      for (var j = 0; j < cols.length; j++) {
-        if (colGroup[j] !== g) continue;
-        for (var kk = 1; kk < K; kk++) if (path.coefs[kk][j] !== 0) { first = Math.min(first, kk); break; }
+  /* Groups by Lasso entry on these rows (A-2 applied): entry alpha descending, ties in CSV order. LARS
+   * runs on the scaled target (R4-3), so its stop does not depend on the target's unit; the tie clusters
+   * use the scaled alphas, and the reported entry alphas are scaled back (times s). */
+  function* lassoOrderSteps(setup, p) {
+    var scaled = new Array(p).fill(null), stopCause = null, g;
+    if (setup.scale > 0) {
+      var my = meanOf(setup.ys), yc = new Float64Array(setup.ys.length);
+      for (var i = 0; i < yc.length; i++) yc[i] = setup.ys[i] - my;
+      var path = yield* larsSteps(lassoDesign(setup.cols, setup.dummy), yc), K = path.coefs.length;
+      for (g = 0; g < p; g++) {
+        var first = Infinity;
+        for (var j = 0; j < setup.cols.length; j++) {
+          if (setup.colGroup[j] !== g) continue;
+          for (var kk = 1; kk < K; kk++) if (path.coefs[kk][j] !== 0) { first = Math.min(first, kk); break; }
+        }
+        if (first !== Infinity) scaled[g] = path.alphas[first - 1];
       }
-      if (first !== Infinity) alpha[g] = path.alphas[first - 1];
+      stopCause = path.stop.cause;
     }
     var order = [];
-    for (g = 0; g < p; g++) if (alpha[g] !== null) order.push(g);
-    order.sort(function (a, b) { return alpha[b] - alpha[a] || a - b; });
+    for (g = 0; g < p; g++) if (scaled[g] !== null) order.push(g);
+    order.sort(function (a, b) { return scaled[b] - scaled[a] || a - b; });
     var clustered = [], s = 0;
     while (s < order.length) {
       var e = s + 1;
-      while (e < order.length && alpha[order[e - 1]] - alpha[order[e]] <= TIE_RTOL * Math.max(Math.abs(alpha[order[e - 1]]), 1)) e++;
+      while (e < order.length && scaled[order[e - 1]] - scaled[order[e]] <= TIE_RTOL * Math.max(Math.abs(scaled[order[e - 1]]), 1)) e++;
       clustered = clustered.concat(order.slice(s, e).sort(ascending));
       s = e;
     }
+    var alpha = scaled.map(function (a) { return a === null ? null : a * setup.scale; });
     var nEntered = clustered.length, notEntered = [];
-    for (g = 0; g < p; g++) if (alpha[g] === null) notEntered.push(g);
+    for (g = 0; g < p; g++) if (scaled[g] === null) notEntered.push(g);
     var cause = null;
-    if (nEntered < p) cause = path.stop.cause === 'active_set_degenerate' ? 'active_set_degenerate' : 'path_ended';
+    if (nEntered < p) cause = setup.scale > 0 ? (stopCause === 'completed' ? 'path_ended' : stopCause) : 'target_constant';
     var subsets = [];
     for (var k = 1; k <= p; k++) subsets.push(k <= nEntered ? sortedIdx(clustered.slice(0, k)) : null);
     return { order: clustered, alpha: alpha, notEntered: notEntered, nEntered: nEntered, cause: cause, subsets: subsets };
   }
 
-  /* Every path method on the given rows only: subsets[k - 1] (canonical group names) for k = 1..p. */
-  function pathsOnRows(load, groups, rows) {
+  /* The rows of one path computation: encoded columns, and the target centred and divided by its root
+   * mean square on these rows (scale; 0 for a constant target, nothing divided) -- R4-3, R4-4. */
+  function rowSetup(load, groups, rows) {
     var enc = fitEncoding(load, groups, rows);
-    var X = encodeRows(load, enc, rows).X, y = targetOf(load, rows);
+    var cols = encodeCols(load, enc, rows).cols, y = targetOf(load, rows), n = y.length, i;
     var nameIdx = new Map();
-    groups.forEach(function (g, i) { nameIdx.set(g.name, i); });
-    var colGroup = enc.columns.map(function (c) { return nameIdx.get(c.group); });
-    var dummy = enc.columns.map(function (c) { return c.level !== null; });
-    var cols = columnsOf(X, enc.columns.length), p = groups.length;
-    var gram = groupGram(cols, y, colGroup, p);
-    var lasso = lassoOrder(cols, y, colGroup, dummy, p);
-    var names = function (sub) { return sub === null ? null : sub.map(function (g) { return groups[g].name; }); };
+    groups.forEach(function (g, gi) { nameIdx.set(g.name, gi); });
+    var my = meanOf(y), yc = new Float64Array(n), ss = 0;
+    for (i = 0; i < n; i++) { yc[i] = y[i] - my; ss += yc[i] * yc[i]; }
+    var scale = Math.sqrt(ss / n);
+    if (!(scale > 0) || !isFinite(scale)) scale = 0;
+    var ys = new Float64Array(n);
+    for (i = 0; i < n; i++) ys[i] = scale > 0 ? yc[i] / scale : yc[i];
+    return { cols: cols, ys: ys, scale: scale,
+      colGroup: enc.columns.map(function (c) { return nameIdx.get(c.group); }),
+      dummy: enc.columns.map(function (c) { return c.level !== null; }) };
+  }
+
+  function lassoInfo(groups, lasso, p) {
     return {
-      forward_sfs: forwardPath(gram, p).map(names), backward_sfs: backwardPath(gram, p).map(names),
-      rfe: rfePath(gram, p).map(names), lasso_path: lasso.subsets.map(names),
-      lasso: {
-        entries: lasso.order.map(function (g) { return { group: groups[g].name, entry_alpha: lasso.alpha[g] }; }),
-        not_entered: lasso.notEntered.map(function (g) { return groups[g].name; }),
-        n_entered: lasso.nEntered, degenerate: lasso.nEntered < p,
-        first_invalid_k: lasso.nEntered < p ? lasso.nEntered + 1 : null, cause: lasso.cause
-      }
+      entries: lasso.order.map(function (g) { return { group: groups[g].name, entry_alpha: lasso.alpha[g] }; }),
+      not_entered: lasso.notEntered.map(function (g) { return groups[g].name; }),
+      n_entered: lasso.nEntered, degenerate: lasso.nEntered < p,
+      first_invalid_k: lasso.nEntered < p ? lasso.nEntered + 1 : null, cause: lasso.cause
     };
+  }
+
+  /* One path method on the five fold training sets and the training set: subsets[k - 1] (canonical group
+   * names) for k = 1..p per row set, and the Lasso information. Yields after every path step. */
+  function* methodPathSteps(load, groups, split, method, hooks, gramCache) {
+    var p = groups.length, sets = [], out = { folds: [], canonical: null, lasso: null };
+    for (var f = 0; f < N_FOLDS; f++) sets.push(foldRows(split, f).train);
+    sets.push(split.train);
+    var names = function (sub) { return sub === null ? null : sub.map(function (g) { return groups[g].name; }); };
+    var lassoInfos = [];
+    for (var s = 0; s < sets.length; s++) {
+      callHook(hooks, 'path', method, s === N_FOLDS ? 'training_set' : s);
+      var subsets;
+      if (method === 'lasso_path') {
+        var lasso = yield* lassoOrderSteps(rowSetup(load, groups, sets[s]), p);
+        lassoInfos.push(lassoInfo(groups, lasso, p));
+        subsets = lasso.subsets;
+        yield null;
+      } else {
+        if (!gramCache[s]) {
+          var setup = rowSetup(load, groups, sets[s]);
+          gramCache[s] = yield* gramSteps(setup.cols, setup.ys, setup.colGroup, p);
+          yield null;
+        }
+        var steps = method === 'forward_sfs' ? forwardSteps : method === 'backward_sfs' ? backwardSteps : rfeSteps;
+        subsets = yield* steps(gramCache[s], p);
+      }
+      if (s === N_FOLDS) out.canonical = subsets.map(names);
+      else out.folds.push(subsets.map(names));
+    }
+    if (method === 'lasso_path') out.lasso = { canonical: lassoInfos[N_FOLDS], folds: lassoInfos.slice(0, N_FOLDS) };
+    return out;
   }
 
   /* ---- winners (hw2/models.py determine_winners rules) ----------------------------------------- */
@@ -976,16 +1160,17 @@
   }
 
   /* ---- A-3: linear relations among the All-in design columns on the training set ---------------- */
-  function dependencyGroups(load, groups, rows) {
-    var enc = fitEncoding(load, groups, rows), X = encodeRows(load, enc, rows).X;
+  function* dependencySteps(load, groups, rows) {
+    var enc = fitEncoding(load, groups, rows), X = encodeCols(load, enc, rows).cols;
     var n = rows.length, q = enc.columns.length, p = q + 1, i, j, l;
     var cols = [{ intercept: true, group: null, level: null }].concat(enc.columns.map(function (c) {
       return { intercept: false, group: c.group, level: c.level };
     }));
-    var D = [new Float64Array(n).fill(1)].concat(columnsOf(X, q));
+    var D = [new Float64Array(n).fill(1)].concat(X);
     var safe = D.map(function (c) { var s = Math.sqrt(dot(c, c)); return s > 0 ? s : 1; });
     var tol = Math.max(n, p) * EPS, Q = [], R = [], basis = [], relations = [];
     for (j = 0; j < p; j++) {
+      if (n * Q.length > YIELD_CELLS) yield null;
       var v = new Float64Array(n), rj = new Array(Q.length).fill(0);
       for (i = 0; i < n; i++) v[i] = D[j][i] / safe[j];
       for (var pass = 0; pass < 2; pass++) {
@@ -1024,18 +1209,21 @@
     }
     return { n_columns: p, rank: basis.length, relations: relations };
   }
+  function dependencyGroups(load, groups, rows) { return drive(dependencySteps(load, groups, rows)); }
 
   /* ---- test: only for the frozen winners' canonical fits --------------------------------------- */
-  function evaluateTest(load, candidate, testRows) {
+  function* testSteps(load, candidate, testRows) {
     var fit = candidate.fit;
-    var enc = encodeRows(load, fit.encoding, testRows);
+    var enc = encodeCols(load, fit.encoding, testRows);
     var actual = targetOf(load, testRows);
     var predicted = [], lower = [], upper = [], covered = [];
-    enc.X.forEach(function (x, i) {
-      var pi = interval(fit, [1].concat(x));
+    var block = Math.max(1, Math.floor(YIELD_CELLS / (fit.coef.length * fit.coef.length)));
+    for (var i = 0; i < enc.n; i++) {
+      if (i > 0 && i % block === 0) yield null;
+      var pi = interval(fit, designRow(enc.cols, i));
       predicted.push(pi.predicted); lower.push(pi.lower); upper.push(pi.upper);
       covered.push(pi.lower <= actual[i] && actual[i] <= pi.upper);
-    });
+    }
     var nCovered = covered.filter(Boolean).length;
     return { key: candidate.key, rows: testRows.slice(), n_test: testRows.length, actual: actual,
       predicted: predicted, lower: lower, upper: upper, covered: covered,
@@ -1055,12 +1243,20 @@
     return out;
   }
 
-  function run(load, options) {
-    options = options || {};
+  function budgetsOf(options) {
+    var b = {};
+    PATH_METHODS.forEach(function (m) {
+      var given = options.budgets && options.budgets[m];
+      b[m] = typeof given === 'number' ? given : BUDGETS[m];
+    });
+    return b;
+  }
+
+  function* runSteps(load, options, control) {
     var t0 = now(options);
     if (!load || !load.ok) throw new Error('run: needs an accepted LoadResult');
     var seed = options.seed === undefined ? SEED : options.seed;
-    var n = load.rows.length;
+    var n = load.rows.length, hooks = options.hooks || null;
     var split = options.split ? { train: options.split.train.slice(), test: options.split.test.slice(), folds: options.split.folds.slice() }
       : makeSplit(n, seed);
     checkSplit(split, n);
@@ -1069,9 +1265,26 @@
       sha256: load.sha256, target: load.target.name, n_rows_read: load.n_rows_read, n_rows: n,
       n_rows_dropped_missing: load.n_rows_dropped_missing, seed: seed, split_injected: !!options.split,
       pi_level: PI_LEVEL, max_levels: MAX_LEVELS, min_df_resid: MIN_DF_RESID, cv_std_ddof: CV_STD_DDOF,
-      timing_ms: {}
+      timing_ms: { started_at_epoch_ms: Date.now() }
     };
-    var decided = trainDecisions(load, split.train), groups = decided.groups;
+    var decided = trainDecisions(load, split.train), groups = decided.groups, p = groups.length;
+    var q = fitEncoding(load, groups, split.train).columns.length, budgets = budgetsOf(options);
+    meta.budget = { unit: BUDGET_UNIT, constants: budgets, estimates: resourceEstimates(split.train.length, q, p),
+      n_train: split.train.length, encoded_columns: q, feature_groups: p };
+    var methods = p ? METHOD_ORDER : ['allin'];
+    var progress = { candidatesDone: 0, candidatesTotal: 1 + 4 * p, methodsDone: 0, methodsTotal: methods.length };
+    function emit(phase, method, k) {
+      if (typeof options.onProgress !== 'function') return;
+      options.onProgress({ phase: phase, method: method, k: k, candidates_done: progress.candidatesDone,
+        candidates_total: progress.candidatesTotal, methods_done: progress.methodsDone, methods_total: progress.methodsTotal,
+        fraction: progress.candidatesDone / progress.candidatesTotal, elapsed_ms: now(options) - t0 });
+    }
+    function cancelled() {
+      meta.timing_ms.total = now(options) - t0;
+      return { meta: meta, run: { status: 'CANCELLED', reason: null, methods_completed: progress.methodsDone,
+        methods_total: progress.methodsTotal, candidates_completed: progress.candidatesDone,
+        candidates_total: progress.candidatesTotal } };
+    }
     var t1 = now(options);
     meta.timing_ms.decisions = t1 - t0;
     var result = {
@@ -1080,30 +1293,84 @@
       groups: groups.map(function (g) { return { name: g.name, index: g.index, type: g.type }; }),
       split: { train: split.train, test: split.test, folds: split.folds, n_folds: N_FOLDS,
         prng: 'mulberry32 + Fisher-Yates (split seed, folds seed + 1)' },
-      dependencies: dependencyGroups(load, groups, split.train),
+      dependencies: null,
       lasso_path: null
     };
-    var allin = evaluateCandidate(load, groups, split);
-    var t2 = now(options);
-    meta.timing_ms.allin = t2 - t1;
-    var candidates = [allin];
-    if (groups.length) {
-      var foldPaths = [];
-      for (var f = 0; f < N_FOLDS; f++) foldPaths.push(pathsOnRows(load, groups, foldRows(split, f).train));
-      var canon = pathsOnRows(load, groups, split.train);
-      var t3 = now(options);
-      meta.timing_ms.paths = t3 - t2;
-      result.lasso_path = { canonical: canon.lasso, folds: foldPaths.map(function (fp) { return fp.lasso; }) };
-      PATH_METHODS.forEach(function (method) {
-        var tm = now(options);
-        for (var k = 1; k <= groups.length; k++) {
-          candidates.push(evaluateSubsets(load, groups, split, method, k,
-            foldPaths.map(function (fp) { return fp[method][k - 1]; }), canon[method][k - 1],
-            foldPaths.map(function (fp) { return fp.lasso; }), canon.lasso));
-        }
-        meta.timing_ms[method] = now(options) - tm;
-      });
+    for (var gi = 0; gi < groups.length; gi++) {                 /* the predictor's defaults, one column per step */
+      if (groups[gi].type === 'numeric') { numericInput(load, split.train, groups[gi].index); yield null; }
     }
+    emit('start', null, null);
+    if (control.cancel) return cancelled();                       /* the boundary before the first candidate */
+
+    var candidates = [];
+    var tm = now(options), allin;
+    try {
+      allin = yield* allinSteps(load, groups, split, hooks);
+    } catch (e) {
+      allin = methodCandidate('allin', p, 'FAILED', failureReason(e, p));
+    }
+    meta.timing_ms.allin = now(options) - tm;
+    candidates.push(allin);
+    progress.candidatesDone++; progress.methodsDone++;
+    emit(allin.status === 'FAILED' ? 'failed' : 'candidate', 'allin', allin.k);
+    if (control.cancel) return cancelled();
+
+    var gramCache = [];
+    for (var mi = 0; mi < (p ? PATH_METHODS.length : 0); mi++) {
+      var method = PATH_METHODS[mi], base = progress.candidatesDone, k;
+      tm = now(options);
+      if (meta.budget.estimates[method] > budgets[method]) {
+        for (k = 1; k <= p; k++) {
+          candidates.push(methodCandidate(method, k, 'SKIPPED_RESOURCE_LIMIT', { rule: 'resource_limit', scope: 'method',
+            fold: null, estimate: meta.budget.estimates[method], budget: budgets[method] }));
+        }
+        progress.candidatesDone = base + p; progress.methodsDone++;
+        meta.timing_ms[method] = now(options) - tm;
+        emit('skipped', method, null);
+        if (control.cancel) return cancelled();
+        continue;
+      }
+      var list = [], paths = null, failure = null;
+      for (k = 1; k <= p; k++) {
+        var cand;
+        try {
+          if (!paths) paths = yield* methodPathSteps(load, groups, split, method, hooks, gramCache);
+          cand = yield* candidateSteps(load, groups, split, method, k,
+            paths.folds.map(function (fp) { return fp[k - 1]; }), paths.canonical[k - 1],
+            paths.lasso ? paths.lasso.folds : null, paths.lasso ? paths.lasso.canonical : null, hooks);
+        } catch (e) {
+          failure = failureReason(e, k);
+          break;
+        }
+        list.push(cand);
+        progress.candidatesDone++;
+        if (k === p) progress.methodsDone++;
+        emit('candidate', method, k);
+        if (control.cancel) return cancelled();
+      }
+      if (failure) {
+        list = [];
+        for (k = 1; k <= p; k++) list.push(methodCandidate(method, k, 'FAILED', failure));
+        progress.candidatesDone = base + p; progress.methodsDone++;
+      } else if (method === 'lasso_path') {
+        result.lasso_path = paths.lasso;
+      }
+      candidates = candidates.concat(list);
+      meta.timing_ms[method] = now(options) - tm;
+      if (failure) {
+        emit('failed', method, failure.k);
+        if (control.cancel) return cancelled();
+      }
+    }
+    /* A-3 after the last candidate boundary (it does not delay a cancellation). */
+    var td = now(options);
+    emit('diagnostic', null, null);
+    try {
+      result.dependencies = yield* dependencySteps(load, groups, split.train);
+    } catch (e) {
+      result.dependencies = { n_columns: q + 1, rank: null, relations: [], error: failureReason(e, null) };
+    }
+    meta.timing_ms.dependencies = now(options) - td;
     var valid = candidates.filter(function (c) { return c.status === 'VALID'; });
     if (!valid.length) {
       result.run = { status: 'REJECTED', reason: 'ALL_CANDIDATES_INVALID',
@@ -1114,10 +1381,10 @@
     /* winners are fixed here; the test rows are read only after this point, and only for them. */
     var winners = determineWinners(candidates);
     var test = {}, t4 = now(options);
-    winners.test_keys.forEach(function (key) {
-      var c = candidates.filter(function (x) { return x.key === key; })[0];
-      test[key] = evaluateTest(load, c, split.test);
-    });
+    for (var ti = 0; ti < winners.test_keys.length; ti++) {
+      var tkey = winners.test_keys[ti];
+      test[tkey] = yield* testSteps(load, candidates.filter(function (x) { return x.key === tkey; })[0], split.test);
+    }
     meta.timing_ms.test = now(options) - t4;
     meta.timing_ms.total = now(options) - t0;
     result.run = { status: 'COMPLETED', reason: null };
@@ -1125,6 +1392,34 @@
     result.winners = winners;
     result.test = test;
     return result;
+  }
+
+  /* A run as a stepper: step() advances to the next yield point and returns { done, result }; cancel()
+   * is honoured at the next candidate boundary. Steps are synchronous; the caller decides when to take
+   * the next one (e.g. after letting the page handle its events). */
+  function createRun(load, options) {
+    options = options || {};
+    var control = { cancel: false }, gen = runSteps(load, options, control), state = { done: false, result: null, steps: 0 };
+    return {
+      step: function () {
+        if (state.done) return state;
+        var r = gen.next();
+        state.steps++;
+        if (r.done) { state.done = true; state.result = r.value; }
+        return state;
+      },
+      cancel: function () { control.cancel = true; },
+      cancelRequested: function () { return control.cancel; },
+      isDone: function () { return state.done; },
+      result: function () { return state.result; },
+      steps: function () { return state.steps; }
+    };
+  }
+
+  function run(load, options) {
+    var r = createRun(load, options);
+    while (!r.step().done) { /* every step */ }
+    return r.result();
   }
 
   /* ---- live predictor ---------------------------------------------------------------------------- */
@@ -1168,11 +1463,13 @@
     ENGINE_VERSION: ENGINE_VERSION, SEED: SEED, TEST_FRACTION: TEST_FRACTION, N_FOLDS: N_FOLDS,
     MAX_LEVELS: MAX_LEVELS, MIN_DF_RESID: MIN_DF_RESID, PI_LEVEL: PI_LEVEL, CV_STD_DDOF: CV_STD_DDOF,
     METHOD_ORDER: METHOD_ORDER, PATH_METHODS: PATH_METHODS, TIE_RTOL: TIE_RTOL,
+    BUDGETS: BUDGETS, BUDGET_UNIT: BUDGET_UNIT, estimateSolves: estimateSolves, resourceEstimates: resourceEstimates,
     mulberry32: mulberry32, shuffledIndices: shuffledIndices, makeSplit: makeSplit,
-    trainDecisions: trainDecisions, fitEncoding: fitEncoding, encodeRows: encodeRows,
+    trainDecisions: trainDecisions, fitEncoding: fitEncoding, encodeCols: encodeCols,
     fitOls: fitOls, tQuantile: tQuantile, metricsOf: metricsOf, interval: interval,
-    evaluateCandidate: evaluateCandidate, modelKey: modelKey, determineWinners: determineWinners,
-    larsLasso: larsLasso, pathsOnRows: pathsOnRows, dependencyGroups: dependencyGroups, run: run,
+    modelKey: modelKey, determineWinners: determineWinners,
+    larsLasso: larsLasso, dependencyGroups: dependencyGroups,
+    createRun: createRun, run: run,
     canPredict: canPredict, inputSpec: inputSpec, predict: predict, putOwn: putOwn, getOwn: getOwn
   };
 });

@@ -1,5 +1,6 @@
 """Generic Python reference for the V2 Exploratory run (Spec V2 「通用 Python 參照」; #74 V2-T1:
-All-in; #75 V2-T2: the four path methods, winners, Lasso degeneracy and the dependency diagnostic).
+All-in; #75 V2-T2: the four path methods, winners, Lasso degeneracy and the dependency diagnostic;
+#77 V2-T4: the per-method computing budget and the target-unit independent path criteria).
 
 **Test-only.** This module produces reference results for the Node tests of the browser engine
 (``assets/explore_engine.js``, ``assets/explore_load.js``). Nothing on the formal analysis path
@@ -64,6 +65,22 @@ Rules (the same as the JS files; see their headers for the full text):
 8. **CV**: arithmetic mean of the five fold metrics, sample standard deviation (ddof
    :data:`CV_STD_DDOF`, equal to :data:`hw2.models.CV_STD_DDOF`).
 9. **Test**: read only after the winners are fixed, only for the winners' canonical fits.
+10. **Target units** (#77; DA ``decision-20261022-issue75-lasso-early-stop`` R4-3, R4-4): every path
+    criterion is computed on the target of the given rows centred and divided by its root mean
+    square on the same rows (the scale; a constant target is left at zero and not divided). LARS,
+    the RSS and ``sd(X_g β_g)`` are equivariant to that scaling, so the orders are those of the
+    original target, while sklearn's equality tolerance and the TIE_RTOL floors become unit free.
+    Entry alphas are reported times the scale (the alpha of the path on the centred original
+    target). A-2 applies to every early end of the path (R4-1) with its true cause (R4-2):
+    ``active_set_degenerate``, ``path_ended``, ``alpha_increasing`` (sklearn's early-stopping
+    warning), ``max_iter`` or ``target_constant``. The engine's ``multiple_drops`` stop cannot be
+    observed through sklearn and has no counterpart here.
+11. **Budget** (#77; Spec V2 「運算預算」): the estimate (OLS solves × training rows × encoded
+    columns²) of :func:`resource_estimates`, from the training-set encoding only, in the same
+    floating-point order as the engine; a path method whose estimate exceeds its constant in
+    :data:`BUDGETS` (the engine's ``BUDGETS``) is ``SKIPPED_RESOURCE_LIMIT`` for every k and is not
+    used; All-in is never skipped. ``FAILED`` and ``CANCELLED`` come from the browser run only
+    (exceptions, the user) and have no reference.
 """
 from __future__ import annotations
 
@@ -81,7 +98,7 @@ from sklearn.linear_model import lars_path
 
 from . import metrics, models, ols, selection
 
-REFERENCE_VERSION = "explore-reference 2 (V2-T2: five methods)"
+REFERENCE_VERSION = "explore-reference 3 (V2-T4: budgets, unit-free paths)"
 SEED = 42
 TEST_FRACTION = 0.2
 N_FOLDS = 5
@@ -99,6 +116,8 @@ LARS_DEGENERATE_RTOL = 1e-6                   # entering column: residual / norm
 LARS_PIVOT_ATOL = 1e-7                        # sklearn's own Cholesky pivot limit (absolute)
 EPS = float(np.finfo(float).eps)
 RELATION_ZERO = 1e-9                          # a normalised relation coefficient below this is 0
+BUDGET_UNIT = "estimated OLS solves x training rows x encoded columns^2"
+BUDGETS = {"forward_sfs": 2e11, "backward_sfs": 2e11, "rfe": 2e11, "lasso_path": 8e10}
 
 _NUMBER = re.compile(r"[+-]?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
 _SPACE = " \t\r\n\f\v"
@@ -606,6 +625,7 @@ def lasso_design(X: np.ndarray, dummy) -> np.ndarray:
 
 _DEGENERATE_WARNING = re.compile(r"Regressors in active set degenerate.*?after (\d+) iterations",
                                  re.S)
+_EARLY_STOP_WARNING = "Early stopping the lars path"
 
 
 def _degenerate(G: np.ndarray, active, j: int) -> bool:
@@ -630,6 +650,7 @@ def lars_segment(Xs: np.ndarray, yc: np.ndarray) -> dict:
         warnings.simplefilter("always", ConvergenceWarning)
         alphas, _, coefs = lars_path(Xs, yc, method="lasso", max_iter=LARS_MAX_ITER, verbose=2)
     end, cause, attempted = len(alphas) - 1, None, None
+    early = any(_EARLY_STOP_WARNING in str(w.message) for w in caught)
     for w in caught:
         m = _DEGENERATE_WARNING.search(str(w.message))
         if m and int(m.group(1)) < end:
@@ -650,40 +671,49 @@ def lars_segment(Xs: np.ndarray, yc: np.ndarray) -> dict:
         else:                                              # a drop (printed after the increment)
             for v in re.findall(r"(?:np\.int\d+\()?(\d+)", parts[2]):
                 active.remove(int(v))
+    stop = None                                            # a numerical stop of sklearn (R4-2)
+    if cause is None:
+        if early:
+            stop = "alpha_increasing"
+        elif end >= LARS_MAX_ITER:
+            stop = "max_iter"
     return {"alphas": alphas[:end + 1], "coefs": coefs[:, :end + 1], "end": end, "cause": cause,
-            "attempted": attempted}
+            "attempted": attempted, "stop": stop}
 
 
-def lasso_order(X: np.ndarray, y: np.ndarray, column_groups, dummy, names) -> dict:
+def lasso_order(X: np.ndarray, ys: np.ndarray, column_groups, dummy, names, scale: float) -> dict:
     """Groups by Lasso entry on these rows: entry alpha descending, ties (TIE_RTOL) in CSV order.
-    A group enters at the knot alpha before its first non-zero coefficient within the path segment
-    before any degeneracy (A-2)."""
-    seg = lars_segment(lasso_design(X, dummy), y - y.mean())
-    nonzero = seg["coefs"] != 0.0
-    first_col = np.where(nonzero.any(axis=1), nonzero.argmax(axis=1), -1)
-    alpha = {}
-    for g in names:
-        firsts = [int(first_col[j]) for j, cg in enumerate(column_groups)
-                  if cg == g and first_col[j] >= 1]
-        if firsts:
-            alpha[g] = float(seg["alphas"][min(firsts) - 1])
+    ``ys`` is the target of these rows centred and divided by ``scale`` (R4-3); a group enters at the
+    knot alpha before its first non-zero coefficient within the path segment before any early end
+    (A-2, R4-1); the tie clusters use the scaled alphas, the reported alphas are times ``scale``."""
+    scaled = {}
+    seg = None
+    if scale > 0:
+        seg = lars_segment(lasso_design(X, dummy), ys - ys.mean())
+        nonzero = seg["coefs"] != 0.0
+        first_col = np.where(nonzero.any(axis=1), nonzero.argmax(axis=1), -1)
+        for g in names:
+            firsts = [int(first_col[j]) for j, cg in enumerate(column_groups)
+                      if cg == g and first_col[j] >= 1]
+            if firsts:
+                scaled[g] = float(seg["alphas"][min(firsts) - 1])
     rank = {g: i for i, g in enumerate(names)}
-    order = sorted(alpha, key=lambda g: (-alpha[g], rank[g]))
+    order = sorted(scaled, key=lambda g: (-scaled[g], rank[g]))
     clustered, i = [], 0
     while i < len(order):                                  # tie clusters by TIE_RTOL, CSV order
         j = i + 1
-        while j < len(order) and (alpha[order[j - 1]] - alpha[order[j]]
-                                  <= TIE_RTOL * max(abs(alpha[order[j - 1]]), 1.0)):
+        while j < len(order) and (scaled[order[j - 1]] - scaled[order[j]]
+                                  <= TIE_RTOL * max(abs(scaled[order[j - 1]]), 1.0)):
             j += 1
         clustered.extend(sorted(order[i:j], key=rank.get))
         i = j
     n_entered = len(clustered)
-    not_entered = [g for g in names if g not in alpha]
-    cause = seg["cause"] if n_entered < len(names) else None
-    if n_entered < len(names) and cause is None:
-        cause = "path_ended"
+    not_entered = [g for g in names if g not in scaled]
+    cause = None
+    if n_entered < len(names):
+        cause = (seg["cause"] or seg["stop"] or "path_ended") if scale > 0 else "target_constant"
     return {
-        "entries": [{"group": g, "entry_alpha": alpha[g]} for g in clustered],
+        "entries": [{"group": g, "entry_alpha": scaled[g] * scale} for g in clustered],
         "not_entered": not_entered,
         "n_entered": n_entered,
         "degenerate": n_entered < len(names),
@@ -692,6 +722,17 @@ def lasso_order(X: np.ndarray, y: np.ndarray, column_groups, dummy, names) -> di
         "subsets": [_canon(names, clustered[:k]) if k <= n_entered else None
                     for k in range(1, len(names) + 1)],
     }
+
+
+def scaled_target(y: np.ndarray) -> tuple[np.ndarray, float]:
+    """R4-3: the target centred and divided by its root mean square on the same rows (scale 0 for a
+    constant target, which is then left centred at zero and not divided)."""
+    y = np.asarray(y, dtype=float)
+    yc = y - y.mean()
+    scale = float(np.sqrt(np.mean(yc * yc)))
+    if not (scale > 0 and math.isfinite(scale)):
+        return yc, 0.0
+    return yc / scale, scale
 
 
 def paths_on_rows(load: dict, groups, rows) -> dict:
@@ -706,16 +747,42 @@ def paths_on_rows(load: dict, groups, rows) -> dict:
 
 
 def canonical_paths(X: np.ndarray, y: np.ndarray, column_groups, dummy, names) -> dict:
-    """The four paths on one encoded table (raw encoded columns, target as modelled)."""
-    gram = group_gram(np.asarray(X, dtype=float), np.asarray(y, dtype=float), column_groups, names)
-    lasso = lasso_order(np.asarray(X, dtype=float), np.asarray(y, dtype=float), column_groups,
-                        dummy, names)
+    """The four paths on one encoded table (raw encoded columns, target as modelled). Every criterion
+    is computed on the scaled target of these rows (R4-3, R4-4; :func:`scaled_target`)."""
+    ys, scale = scaled_target(y)
+    gram = group_gram(np.asarray(X, dtype=float), ys, column_groups, names)
+    lasso = lasso_order(np.asarray(X, dtype=float), ys, column_groups, dummy, names, scale)
     return {"forward_sfs": forward_path(gram, names), "backward_sfs": backward_path(gram, names),
             "rfe": rfe_path(gram, names), "lasso_path": lasso["subsets"], "_lasso": lasso}
 
 
 def _lasso_public(info: dict) -> dict:
     return {k: v for k, v in info.items() if k != "subsets"}
+
+
+# ---- the computing budget (#77) ----------------------------------------------------------------
+
+def estimate_solves(method: str, p: int) -> float:
+    """Estimated OLS solves on the five fold training sets and the training set: the path (Forward /
+    Backward / RFE p(p+1)/2, Lasso p) and one fit per k; All-in one fit per row set."""
+    sets = N_FOLDS + 1
+    fits = sets * p
+    if method == models.ALLIN:
+        return float(sets)
+    if method == "lasso_path":
+        return float(sets * p + fits)
+    return float(sets * p * (p + 1) / 2 + fits)
+
+
+def resource_estimates(n_train: int, q: int, p: int) -> dict:
+    """Estimate per method in BUDGET_UNIT, multiplied in the engine's floating-point order."""
+    return {m: (0.0 if m != models.ALLIN and p == 0
+                else estimate_solves(m, p) * n_train * q * q) for m in METHOD_ORDER}
+
+
+def _method_candidate(method: str, k: int, status: str, reason: dict) -> dict:
+    return {"key": models.model_key(method, k), "method": method, "k": k, "status": status,
+            "reasons": [reason], "folds": [], "cv": None, "canonical_groups": None, "fit": None}
 
 
 # ---- winners (hw2.models.determine_winners rules) and the frozen test ---------------------------
@@ -825,7 +892,7 @@ def dependency_groups(load: dict, groups, rows) -> dict:
 # ---- the run ------------------------------------------------------------------------------------
 
 def run(load: dict, seed: int = SEED, split: dict | None = None, problem=None,
-        source=None) -> dict:
+        source=None, budgets: dict | None = None) -> dict:
     """LoadResult -> ExploratoryResult (deterministic part; no timing)."""
     if not load.get("ok"):
         raise ValueError("run needs an accepted LoadResult")
@@ -833,6 +900,10 @@ def run(load: dict, seed: int = SEED, split: dict | None = None, problem=None,
     sp = make_split(n, seed) if split is None else {k: list(split[k]) for k in ("train", "test", "folds")}
     decided = train_decisions(load, sp["train"])
     groups = decided["groups"]
+    p = len(groups)
+    q = len(fit_encoding(load, groups, sp["train"])["columns"])
+    constants = {m: float((budgets or {}).get(m, BUDGETS[m])) for m in PATH_METHODS}
+    estimates = resource_estimates(len(sp["train"]), q, p)
     result = {
         "meta": {"reference_version": REFERENCE_VERSION, "problem": problem, "source": source,
                  "sha256": load["sha256"], "target": load["target"]["name"],
@@ -840,7 +911,10 @@ def run(load: dict, seed: int = SEED, split: dict | None = None, problem=None,
                  "n_rows_dropped_missing": load["n_rows_dropped_missing"], "seed": seed,
                  "split_injected": split is not None, "pi_level": PI_LEVEL,
                  "max_levels": MAX_LEVELS, "min_df_resid": MIN_DF_RESID,
-                 "cv_std_ddof": CV_STD_DDOF},
+                 "cv_std_ddof": CV_STD_DDOF,
+                 "budget": {"unit": BUDGET_UNIT, "constants": constants, "estimates": estimates,
+                            "n_train": len(sp["train"]), "encoded_columns": q,
+                            "feature_groups": p}},
         "columns": decided["columns"],
         "groups": groups,
         "split": {**sp, "n_folds": N_FOLDS},
@@ -853,9 +927,16 @@ def run(load: dict, seed: int = SEED, split: dict | None = None, problem=None,
                      for f in range(N_FOLDS)]
         fold_paths = [paths_on_rows(load, groups, rows) for rows in fold_rows]
         canon = paths_on_rows(load, groups, sp["train"])
-        result["lasso_path"] = {"canonical": _lasso_public(canon["_lasso"]),
-                                "folds": [_lasso_public(fp["_lasso"]) for fp in fold_paths]}
         for method in PATH_METHODS:
+            if estimates[method] > constants[method]:      # skipped as a whole, never used
+                candidates.extend(_method_candidate(method, k, "SKIPPED_RESOURCE_LIMIT", {
+                    "rule": "resource_limit", "scope": "method", "fold": None,
+                    "estimate": estimates[method], "budget": constants[method]})
+                    for k in range(1, len(groups) + 1))
+                continue
+            if method == "lasso_path":
+                result["lasso_path"] = {"canonical": _lasso_public(canon["_lasso"]),
+                                        "folds": [_lasso_public(fp["_lasso"]) for fp in fold_paths]}
             for k in range(1, len(groups) + 1):
                 candidates.append(evaluate_candidate(
                     load, groups, sp, method, k,

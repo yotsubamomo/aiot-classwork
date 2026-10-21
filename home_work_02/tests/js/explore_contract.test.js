@@ -29,6 +29,9 @@
 // test only for the winners, every winner VALID, shared models scored once; REJECTED results have no
 // candidates / winners / test; Lasso k beyond its path INVALID; each test row's prediction and PI
 // recomputed from the raw CSV values, the encoding rules of `groups` / `encoded_columns` and the fit.
+// #77 (V2-T4): a case may carry injected budgets (`budgets` in the manifest) that both sides apply;
+// `meta.budget` (unit, constants, estimates, sizes) is compared exactly; SKIPPED_RESOURCE_LIMIT and FAILED
+// candidates have no CV metrics, fit or canonical subset; a skipped Lasso has no `lasso_path`.
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -135,6 +138,11 @@ function checkInvariants(result, load, where) {
     assert.equal(c.status === 'VALID', c.reasons.length === 0, `${where} ${c.key}: VALID <=> no reason`);
     assert.equal(E.canPredict(c), c.status === 'VALID', `${where} ${c.key}: predictor only for VALID`);
     c.folds.forEach((f) => { if (f.status === 'invalid') assert.equal(f.metrics, null, `${where} ${c.key} fold ${f.fold}`); });
+    if (c.status === 'SKIPPED_RESOURCE_LIMIT' || c.status === 'FAILED') {
+      assert.equal(c.canonical_groups, null, `${where} ${c.key}: ${c.status} has no canonical subset`);
+      assert.deepEqual(c.folds, [], `${where} ${c.key}: ${c.status} has no fold result`);
+      assert.equal(c.reasons.length, 1, `${where} ${c.key}: one method-level reason`);
+    }
   });
   const w = result.winners;
   const winnerKeys = Object.keys(w.method_winners).map((m) => w.method_winners[m]).filter(Boolean).map((x) => x.key).concat([w.overall.key]);
@@ -145,7 +153,11 @@ function checkInvariants(result, load, where) {
   });
   assert.deepEqual(Object.keys(result.test).sort(), w.test_keys.slice().sort(), `${where}: test only for winners`);
   assert.deepEqual(Array.from(new Set(Object.values(w.test_key_of))).sort(), w.test_keys.slice().sort(), `${where}: each model scored once`);
-  const canon = result.lasso_path.canonical;
+  const canon = result.lasso_path ? result.lasso_path.canonical : { degenerate: false };
+  if (!result.lasso_path) {
+    assert.ok(result.candidates.filter((c) => c.method === 'lasso_path').every((c) => c.status !== 'VALID' && c.status !== 'INVALID_MODEL'),
+      `${where}: no Lasso path only when Lasso did not run`);
+  }
   if (canon.degenerate) {
     for (let k = canon.first_invalid_k; k <= p; k++) {
       const c = byKey.get('lasso_path_k' + String(k).padStart(2, '0'));
@@ -196,7 +208,7 @@ if (MANIFEST) {
       const ref = JSON.parse(fs.readFileSync(path.join(DIR, c.reference), 'utf8'));
       const load = L.loadCsv(new Uint8Array(fs.readFileSync(path.join(DIR, c.csv))));
       strictEqual(load, ref.load, `${c.name} load`);
-      const raw = E.run(load, { problem: c.name });
+      const raw = E.run(load, { problem: c.name, budgets: c.budgets || undefined });
       checkInvariants(raw, load, c.name);
       const twins = c.degenerate ? twinMap(ref.result) : new Map();
       const result = mapNames(JSON.parse(JSON.stringify(raw)), twins);
@@ -208,7 +220,7 @@ if (MANIFEST) {
       strictEqual({ train: result.split.train, test: result.split.test, folds: result.split.folds, n_folds: result.split.n_folds },
         r.split, `${c.name} split`);
       for (const k of ['sha256', 'target', 'n_rows_read', 'n_rows', 'n_rows_dropped_missing', 'seed', 'split_injected',
-        'pi_level', 'max_levels', 'min_df_resid', 'cv_std_ddof']) {
+        'pi_level', 'max_levels', 'min_df_resid', 'cv_std_ddof', 'budget']) {
         assert.deepEqual(result.meta[k], r.meta[k], `${c.name} meta.${k}`);
       }
       closeTo(result.dependencies, r.dependencies, `${c.name} dependencies`);

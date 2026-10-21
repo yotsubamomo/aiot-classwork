@@ -1,6 +1,7 @@
 /* HW2 V2 dashboard: the problem drop-down and the Exploratory run blocks on the page (#74 V2-T1; #75
  * V2-T2: the five methods, the metric vs k chart, the winners, the Lasso path and the dependency
- * diagnostic; #76 V2-T3: the custom dataset's input panel).
+ * diagnostic; #76 V2-T3: the custom dataset's input panel; #77 V2-T4: the run in steps, its progress and
+ * the cancel button).
  *
  * King County (the default) is the V1 dashboard exactly as assets/app.js renders it; this file never
  * changes a V1 element's content. Selecting 50 Startups or 自訂資料集 hides the V1 blocks (the
@@ -26,6 +27,15 @@
  * only). The test block shows the selected candidate when it is a winner; otherwise its method's
  * winner (or the overall winner) with a hint. The selection starts at the overall CV winner.
  *
+ * Running (#77): the controller advances the engine in time slices and hands control back to the browser
+ * between them (a MessageChannel message, else setTimeout 0), so the drop-downs, the inputs and the
+ * #ex-run panel's 「取消執行」 button stay operable and the progress line keeps updating. While a run is in
+ * progress the result blocks are hidden (the previous result is not shown as the current one). Cancel is
+ * honoured at the next candidate boundary; a CANCELLED run shows 「已取消」 with the number of finished
+ * methods and no result block. A new selection or submission cancels the run in progress and starts
+ * from the beginning. SKIPPED_RESOURCE_LIMIT and FAILED methods are marked in the method switch, the k
+ * grid, the comparison table and the candidate's reasons; they have no CV metrics and no predictor.
+ *
  * All text that may come from a dataset (column names, levels, messages) is written with textContent,
  * createTextNode, <option>.text or non-URL attributes only, never parsed as HTML (DA D-2). No network
  * access, no storage: results and the selection live in memory only. */
@@ -36,6 +46,7 @@
   var Plot = window.HW2ExplorePlot, DATA = window.HW2_STARTUPS50;
   var V1_BLOCKS = ['overview', 'model', 'predictor', 'test', 'methods'];
   var EX_BLOCKS = ['ex-custom', 'ex-data', 'ex-model', 'ex-predictor', 'ex-test', 'ex-methods'];
+  var runPanelFor = null;            /* the run whose progress the #ex-run panel shows */
   var controller = null;
   var METRICS = { rmse: 'RMSE', mae: 'MAE', mse: 'MSE', r2: 'R²' };
   var loadErrorWasHidden = null;
@@ -81,7 +92,27 @@
     byId('explore').hidden = !on;
     document.body.classList.toggle('is-exploring', on);
   }
-  function showBlocks(ids) { EX_BLOCKS.forEach(function (id) { byId(id).hidden = ids.indexOf(id) < 0; }); }
+  function showBlocks(ids) {
+    EX_BLOCKS.forEach(function (id) { byId(id).hidden = ids.indexOf(id) < 0; });
+    if (ids.indexOf('ex-run') < 0) { byId('ex-run').hidden = true; runPanelFor = null; }
+  }
+
+  /* #77: the running panel: progress bar, progress line and the cancel button (operable while running). */
+  function showRunning(view) {
+    var panel = byId('ex-run'), bar = byId('ex-progress'), text = byId('ex-progress-text'), btn = byId('ex-cancel');
+    panel.hidden = false;
+    runPanelFor = view.id;
+    btn.disabled = false;
+    btn.textContent = '取消執行';
+    bar.value = 0;
+    text.textContent = view.waiting ? '等待前一次執行在候選邊界停止，之後從頭開始新的執行…' : App.progressText(null);
+  }
+  function showProgress(view) {
+    if (runPanelFor !== view.id || byId('ex-run').hidden) return;
+    var e = view.progress;
+    byId('ex-progress').value = e.fraction;
+    if (!byId('ex-cancel').disabled) byId('ex-progress-text').textContent = App.progressText(e);
+  }
   function message(text, kind) {
     var box = byId('ex-message');
     box.textContent = text || '';
@@ -98,6 +129,10 @@
     var box = byId('ex-deps');
     clear(box);
     if (!res || !res.dependencies) return;
+    if (res.dependencies.error) {
+      box.appendChild(el('p', { class: 'small warn', text: '共線診斷沒有完成：' + App.reasonText(res.dependencies.error) }));
+      return;
+    }
     var view = App.dependencyView(res);
     if (!view.relations.length) {
       box.appendChild(el('p', { class: 'small', text: '沒有線性相依：All-in 設計矩陣（含截距 ' + view.n_columns + ' 欄）滿秩，rank ' + view.rank + '。' }));
@@ -161,7 +196,9 @@
     clear(seg);
     App.METHOD_ORDER.forEach(function (m) {
       var list = methodCandidates(m), nValid = list.filter(function (c) { return c.status === 'VALID'; }).length;
-      var meta = m === 'allin' ? 'k = ' + p + ' 固定' : p + ' 個 k' + (nValid < list.length ? '，' + (list.length - nValid) + ' 個無效' : '');
+      var st = App.methodState(res, m);
+      var meta = st === 'SKIPPED_RESOURCE_LIMIT' ? '略過：超出運算預算' : st === 'FAILED' ? '計算失敗' :
+        m === 'allin' ? 'k = ' + p + ' 固定' : p + ' 個 k' + (nValid < list.length ? '，' + (list.length - nValid) + ' 個無效' : '');
       var b = el('button', { type: 'button', class: 'seg__btn', 'aria-pressed': String(m === sel.method), 'data-method': m },
         [App.methodLabel(m), el('span', { class: 'meta', text: meta })]);
       b.addEventListener('click', function () {
@@ -189,7 +226,7 @@
         b.addEventListener('click', function () { select(c.key); });
         grid.appendChild(b);
       });
-      byId('ex-k-help').textContent = '綠點：該方法 CV winner；紅斜紋：無效（INVALID_MODEL）候選，仍可選取並顯示原因，但沒有 CV 指標、不提供即時預測。';
+      byId('ex-k-help').textContent = '綠點：該方法 CV winner；紅斜紋：非 VALID 候選（無效、超出運算預算未執行，或計算失敗），仍可選取並顯示狀態與原因，但沒有 CV 指標、不提供即時預測。';
     }
     var toggle = byId('ex-compare-all');
     toggle.setAttribute('aria-pressed', String(ui.compareAll));
@@ -235,6 +272,10 @@
     table.appendChild(el('caption', { class: 'small muted', text: '各 fold（子集與 OLS 只用該 fold 的訓練列，在驗證列上計分；訓練 CV）' }));
     table.appendChild(el('thead', {}, [el('tr', {}, ['Fold', '子集', '訓練列', '驗證列', 'RMSE', 'MAE', 'R²', '驗證列未見層級', '狀態'].map(th))]));
     var body = el('tbody');
+    if (!c.folds.length) {
+      body.appendChild(el('tr', { class: 'ex-row-none' }, [el('td', { colspan: '9', text: c.status === 'VALID' ? '—' :
+        App.statusText(c.status) + '：沒有 fold 的計算結果。' })]));
+    }
     c.folds.forEach(function (f) {
       var m = f.metrics || {};
       body.appendChild(el('tr', {}, [el('th', { scope: 'row', text: String(f.fold + 1) }),
@@ -247,7 +288,7 @@
     table.appendChild(body);
     var fit = c.fit;
     if (!fit) {
-      facts(byId('ex-fit'), [['狀態', App.statusText(c.status)], ['說明', '無效的候選沒有 canonical fit，不參與 winner，也不提供預測']]);
+      facts(byId('ex-fit'), [['狀態', App.statusText(c.status)], ['說明', '非 VALID 的候選沒有 canonical fit，不參與 winner，也不提供預測']]);
       return;
     }
     facts(byId('ex-fit'), [['訓練列數', nf0.format(fit.n_train), 'num'], ['設計矩陣欄數（含截距）', String(fit.n_columns), 'num'],
@@ -286,7 +327,7 @@
     lg.appendChild(el('span', { class: 'legend__item', style: 'color:' + Plot.KChart.allinColor },
       [el('span', { class: 'legend__line legend__line--dash' }), el('span', { class: 'ex-legend-text', text: 'All-in baseline（參考線）' })]));
     lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--ring' }), '該方法 CV winner（圓環）']));
-    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--cross' }), '無效候選（叉號，沒有 CV 指標）']));
+    lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--cross' }), '非 VALID 候選（叉號：無效、超出運算預算或計算失敗，沒有 CV 指標）']));
     lg.appendChild(el('span', { class: 'legend__item' }, [el('span', { class: 'legend__mark legend__mark--sel' }), '目前選取']));
   }
 
@@ -478,8 +519,9 @@
 
   /* ---- render ------------------------------------------------------------------------------------- */
   function render(view) {
+    if (view.mode === 'progress') { showProgress(view); return; }
     current = view;
-    if (view.mode === 'king_county') { setExploring(false); return; }
+    if (view.mode === 'king_county') { setExploring(false); showBlocks([]); return; }
     setExploring(true);
     byId('ex-title').textContent = App.PROBLEM_TITLES[view.problem] || '探索執行';
     var isCustom = view.problem === 'custom';
@@ -488,6 +530,17 @@
     if (view.mode === 'custom') {
       message(view.notice ? view.notice.text : '', view.notice ? view.notice.kind : null);
       showBlocks(['ex-custom']);
+      return;
+    }
+    if (view.mode === 'running') {
+      message('', null);
+      showBlocks(withPanel(['ex-run']));
+      showRunning(view);
+      return;
+    }
+    if (view.mode === 'cancelled') {                /* a request that was still waiting: it never started */
+      message('已取消：等待中的執行不會開始，沒有任何結果。再次選取或提交會從頭開始執行。', null);
+      showBlocks(withPanel([]));
       return;
     }
     if (view.mode === 'error') { message(view.message, 'error'); showBlocks(withPanel([])); return; }
@@ -503,6 +556,11 @@
       return;
     }
     var res = run.result;
+    if (res.run.status === 'CANCELLED') {
+      message(App.cancelledText(res.run), null);
+      showBlocks(withPanel([]));
+      return;
+    }
     renderData(run);
     if (res.run.status !== 'COMPLETED') {
       var inv = res.run.invalid_candidates || [], lines = [App.runReasonText(res.run.reason)];
@@ -514,7 +572,8 @@
       showBlocks(withPanel(['ex-data', 'ex-methods']));
       return;
     }
-    message('執行完成：五種方法共 ' + res.candidates.length + ' 個候選' + (run.ms === null ? '' : '，耗時 ' + run.ms.toFixed(1) + ' ms（瀏覽器內計算，只供參考）'));
+    message('執行完成：五種方法共 ' + res.candidates.length + ' 個候選' + (run.ms === null ? '' : '，耗時 ' + run.ms.toFixed(1) + ' ms（瀏覽器內計算，只供參考）') +
+      '。各方法耗時：' + App.timingText(res) + '。');
     showBlocks(withPanel(['ex-data', 'ex-model', 'ex-predictor', 'ex-test', 'ex-methods']));
     ui.result = res;
     ui.key = App.defaultKey(res);
@@ -528,8 +587,8 @@
     if (!problemSelect || !byId('explore')) return;
     if (!App || !Engine || !Loader || !Plot) { problemSelect.disabled = true; return; }
     controller = App.createController({ loader: Loader, engine: Engine, datasets: { startups50: DATA }, render: render,
-      now: function () { return performance.now(); } });
-    window.HW2_EXPLORE = { state: controller.state, view: function () { return current; },
+      now: function () { return performance.now(); }, schedule: makeScheduler(), sliceMs: 12 });
+    window.HW2_EXPLORE = { state: controller.state, runState: controller.runState, view: function () { return current; },
       selection: function () { return { key: ui.key, compareAll: ui.compareAll, metric: ui.metric }; } };
     problemSelect.value = 'king_county';      /* the default problem, even if the browser restored the form */
     byId('ex-metric').value = 'rmse';
@@ -550,6 +609,13 @@
       if (ev.target.value !== '') controller.setTarget(Number(ev.target.value));
     });
     byId('ex-pred-form').addEventListener('submit', function (ev) { ev.preventDefault(); });
+    byId('ex-cancel').addEventListener('click', function () {      /* #77: honoured at the next candidate boundary */
+      if (!controller.cancel()) return;
+      var btn = byId('ex-cancel');
+      btn.disabled = true;
+      btn.textContent = '取消中…';
+      byId('ex-progress-text').textContent = '取消中：目前的候選算完後（下一個候選邊界）停止。';
+    });
     controller.init();
     problemSelect.addEventListener('change', function () {
       byId('ex-url').value = '';                   /* a new visit to the custom dataset starts empty */
@@ -557,6 +623,16 @@
       fileToken++;
       controller.selectProblem(problemSelect.value);
     });
+  }
+
+  /* #77: run a callback after the browser has handled pending events (no string evaluation, no network). */
+  function makeScheduler() {
+    if (typeof MessageChannel === 'function') {
+      var channel = new MessageChannel(), queue = [];
+      channel.port1.onmessage = function () { var fn = queue.shift(); if (fn) fn(); };
+      return function (fn) { queue.push(fn); channel.port2.postMessage(0); };
+    }
+    return function (fn) { setTimeout(fn, 0); };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

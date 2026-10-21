@@ -41,6 +41,16 @@ body.is-exploring footer.footer { display: none !important; }
 .ex-file { padding: 6px 8px; }
 .ex-custom-status { margin: var(--space-3) 0 0; overflow-wrap: anywhere; }
 #ex-pred-form[aria-disabled="true"] .fields { display: none; }
+/* #77: the running panel (progress and the cancel button stay operable while a run is in progress) */
+.explore .ex-run { margin-bottom: var(--space-4); }
+.explore .ex-run[hidden] { display: none !important; }
+.ex-progress { display: block; width: 100%; height: 12px; margin: var(--space-2) 0; accent-color: var(--c-primary); }
+.ex-progress-text { margin: 0 0 var(--space-2); overflow-wrap: anywhere; }
+.ex-run__row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-2) var(--space-3); }
+.ex-run__row .help { flex: 1 1 18rem; margin: 0; min-width: 0; }
+.ex-cancel { flex: 0 0 auto; font-weight: 600; min-height: 44px; }
+.ex-cancel:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.ex-cancel:disabled { cursor: progress; opacity: 0.7; }
 .explore .field > label { font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
 
 /* #75: model selection, metric vs k, winners table, Lasso path, dependency diagnostic, methods block */

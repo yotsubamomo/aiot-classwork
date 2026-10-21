@@ -19,6 +19,11 @@ the problem drop-down, and the V2 files' isolation rules.
   input panel (URL form, local file, target drop-down) sends no form by itself; the V1 footer is hidden
   while exploring by a V2 stylesheet rule only (DA decision-20261022-r1f3-v1-footer R3-2, R3-5); the
   「方法與限制」 table no longer says the test is recomputed on every selection (#75 R1-F3).
+- **#77 V2-T4**: the running panel (progress bar, progress line, 「取消執行」 button) is part of the
+  exploratory subtree, labelled, outside the result blocks and sends no form; the Lasso card states the
+  unit-free stop rule and the stop causes as implemented (DA ``decision-20261022-issue75-lasso-early-stop``
+  R4-2, R4-3); the 「方法與限制」 block states the budget, failure and cancellation rules; the budget
+  constants of the engine and of the Python reference are the same numbers.
 """
 import hashlib
 import json
@@ -461,3 +466,69 @@ def test_v2_files_are_on_the_page_and_parse():
         pytest.skip("node not installed")
     for rel in V2_SCRIPTS:
         subprocess.run([node, "--check", str(UNIT_DIR / rel)], check=True)
+
+
+# ---- #77 V2-T4 ----------------------------------------------------------------------------------
+
+def _text(n):
+    return "".join(c.get("text", "") if "text" in c else _text(c) for c in n["children"]
+                   if "comment" not in c)
+
+
+def test_run_panel_is_labelled_operable_and_outside_the_result_blocks():
+    """#77: progress (bar and status line) and the cancel button live in #ex-run, a labelled region of
+    the exploratory subtree that is not one of the result blocks (no result is shown while running)."""
+    root = parse(DASHBOARD_HTML.read_text(encoding="utf-8"))
+    explore = next(n for n in _walk(root) if _attr(n, "id") == "explore")
+    panel = next(n for n in _walk(explore) if _attr(n, "id") == "ex-run")
+    assert "ex-block" not in (_attr(panel, "class") or "")
+    assert ["hidden", None] in panel["attrs"]
+    heading = next(n for n in _walk(panel) if n["tag"] == "h2")
+    assert "探索執行，非正式評估" in _text(heading) and _attr(panel, "aria-labelledby") == _attr(heading, "id")
+    by_id = {_attr(n, "id"): n for n in _walk(panel) if _attr(n, "id")}
+    assert by_id["ex-progress"]["tag"] == "progress" and _attr(by_id["ex-progress"], "max") == "1"
+    assert _attr(by_id["ex-progress-text"], "role") == "status"
+    assert _attr(by_id["ex-progress-text"], "aria-live") == "polite"
+    cancel = by_id["ex-cancel"]
+    assert cancel["tag"] == "button" and _attr(cancel, "type") == "button" and _text(cancel) == "取消執行"
+    assert all(_attr(n, "name") is None for n in _walk(panel) if n["tag"] in ("input", "select", "button", "form"))
+    help_text = _text(by_id["ex-cancel-help"])
+    for phrase in ("下一個候選邊界", "已算出的部分結果不顯示", "已取消", "再次執行會從頭開始"):
+        assert phrase in help_text, phrase
+    ui = _code(ASSETS_DIR / "explore_ui.js")
+    assert "MessageChannel" in ui and "schedule: makeScheduler()" in ui
+
+
+def test_lasso_card_states_the_unit_free_stop_and_its_causes():
+    """R4-2 / R4-3: the page's description of the Lasso computation matches the engine (target centred
+    and divided by its root mean square on the same rows, alphas scaled back, any early end handled as
+    A-2 with the stop shown in the summary)."""
+    root = parse(DASHBOARD_HTML.read_text(encoding="utf-8"))
+    card = next(n for n in _walk(root) if _attr(n, "id") == "ex-lasso-card")
+    body = _text(card)
+    for phrase in ("除以其均方根", "與目標的單位無關", "乘回目標的原始尺度", "active set 退化", "路徑走到終點",
+                   "數值停止", "實際的停止原因", "lasso_path_degenerate"):
+        assert phrase in body, phrase
+    assert "目標只置中、不取 log" not in body
+    engine = _code(ASSETS_DIR / "explore_engine.js")
+    assert "scale > 0 ? yc[i] / scale" in engine
+
+
+def test_methods_block_states_budget_failure_and_cancellation():
+    root = parse(DASHBOARD_HTML.read_text(encoding="utf-8"))
+    methods = next(n for n in _walk(root) if _attr(n, "id") == "ex-methods")
+    body = _text(methods)
+    for phrase in ("預估 OLS 求解次數 × 訓練列數 × 編碼欄數²", "SKIPPED_RESOURCE_LIMIT", "All-in baseline 一律最先嘗試",
+                   "FAILED", "記憶體不足", "下一個候選邊界", "耗時可不同"):
+        assert phrase in body, phrase
+
+
+def test_budget_constants_are_the_same_in_the_engine_and_the_reference():
+    from hw2 import explore_reference as R
+    engine = (ASSETS_DIR / "explore_engine.js").read_text(encoding="utf-8")
+    m = re.search(r"var BUDGETS = \{([^}]*)\};", engine)
+    js = {k: float(v) for k, v in re.findall(r"(\w+): ([0-9.e+]+)", m.group(1))}
+    assert js == {k: float(v) for k, v in R.BUDGETS.items()}
+    assert set(js) == set(R.PATH_METHODS)
+    unit = re.search(r"var BUDGET_UNIT = '([^']*)';", engine).group(1)
+    assert unit == R.BUDGET_UNIT

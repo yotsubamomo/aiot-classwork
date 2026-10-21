@@ -1,5 +1,5 @@
 """V2 Exploratory run: the Node tests of the browser files, driven from pytest (Spec V2 Testing
-Decisions; #74 V2-T1, #75 V2-T2).
+Decisions; #74 V2-T1, #75 V2-T2, #76 V2-T3, #77 V2-T4).
 
 - 主 seam: :func:`test_node_explore_contract_matches_the_python_reference` generates the reference
   results **now**, with the generic Python reference :mod:`hw2.explore_reference`, for 50 Startups,
@@ -21,6 +21,17 @@ Decisions; #74 V2-T1, #75 V2-T2).
   ``valueOf``; ``objkey_numeric_proto``: numeric ``__proto__``) and two load cases (``proto_names``:
   accepted; ``duplicate_proto``: ``__proto__,__proto__,y`` is DUPLICATE_COLUMN) are compared Node vs
   Python like every other case, including the fits' ``levels`` and ``inputs``.
+- #77 (DA ``decision-20261022-issue75-lasso-early-stop`` R4-2, R4-3, R4-4; Spec 「運算預算」): 50 Startups
+  with the target multiplied by 1e-12, 1e-10 and 1e6 (``startups50_x…``) and the synthetic mixed data
+  with injected budgets that skip two methods (``budget_skip``; the budgets travel in the manifest)
+  are compared Node vs Python like every other case, including ``meta.budget``. The reference itself
+  shows the unit invariance (same states, subsets, entries and causes; alphas times c), the stop
+  causes of R4-2 (an exact fit whose path reaches its end; an iteration limit; a constant target) and
+  its budget skip. (The exact fit has zero-width intervals, so its ``covered`` flags are not a
+  cross-language oracle; it is checked on each side separately.)
+  ``tests/js/explore_run.test.js`` (no reference) covers the budget decision by counting, failure
+  isolation, cancellation at the next candidate boundary, one run at a time in the scheduled
+  controller, reproducibility, progress and the unit invariance on the engine side.
 - 次 seam: the load contract, the three-layer boundary, the request isolation / predictor tests, the
   #76 custom dataset tests (URL read with a mock network function, file, target, switching, no storage) and
   the #75 method tests (hand-computed aggregation, freezing, Lasso degeneracy, fold boundary of
@@ -173,6 +184,26 @@ def degenerate_mixed(n=80, seed=81) -> bytes:
     return _csv(["x1", "x2", "x_sum", "x4", "dup_a", "dup_b", "cat", "y"], rows)
 
 
+def startups50_scaled(c: float):
+    """50 Startups with Profit multiplied by c (R4-3: the result must not depend on the unit)."""
+    def make() -> bytes:
+        lines = STARTUPS_CSV.read_bytes().decode("utf-8").splitlines()
+        rows = [ln.split(",") for ln in lines[1:] if ln.strip()]
+        return _csv(lines[0].split(","), [r[:-1] + [_num(float(r[-1]) * c)] for r in rows])
+    return make
+
+
+def exact_fit(n=60, seed=84) -> bytes:
+    """R4-2: y = 2·x1 + 3 exactly, x2 unrelated: the Lasso path reaches its end (the residual is zero)
+    before x2 enters -- not a degeneracy, not a constant column."""
+    rng = np.random.default_rng(seed)
+    x1 = np.round(rng.uniform(0, 10, n), 3)
+    x2 = np.round(rng.uniform(0, 10, n), 3)
+    return _csv(["x1", "x2", "y"], [[_num(x1[i]), _num(x2[i]), _num(2 * x1[i] + 3)] for i in range(n)])
+
+
+BUDGET_SKIP = {"forward_sfs": 1.0, "lasso_path": 1.0}     # injected: Forward SFS and Lasso skipped
+
 # name -> (CSV bytes, expected run status, degenerate: compared modulo exactly tied twin columns)
 CASES = {
     "startups50": (lambda: STARTUPS_CSV.read_bytes(), "COMPLETED"),
@@ -187,7 +218,12 @@ CASES = {
     "degenerate_mixed": (degenerate_mixed, "COMPLETED"),
     "objkey_names": (objkey_names, "COMPLETED"),
     "objkey_numeric_proto": (objkey_numeric_proto, "COMPLETED"),
+    "startups50_x1e-12": (startups50_scaled(1e-12), "COMPLETED"),
+    "startups50_x1e-10": (startups50_scaled(1e-10), "COMPLETED"),
+    "startups50_x1e6": (startups50_scaled(1e6), "COMPLETED"),
+    "budget_skip": (synthetic_mixed, "COMPLETED"),
 }
+CASE_BUDGETS = {"budget_skip": BUDGET_SKIP}
 DEGENERATE = {"a1_collinear", "degenerate_mixed"}
 
 
@@ -267,12 +303,13 @@ def write_reference(out):
         (out / f"{name}.csv").write_bytes(raw)
         load = R.load_csv(raw)
         assert load["ok"], (name, load)
-        result = R.run(load, problem=name)
+        result = R.run(load, problem=name, budgets=CASE_BUDGETS.get(name))
         assert result["run"]["status"] == expected, (name, result["run"])
         (out / f"{name}.json").write_text(json.dumps(_jsonable({"load": load, "result": result})),
                                           encoding="utf-8")
         manifest["cases"].append({"name": name, "csv": f"{name}.csv", "reference": f"{name}.json",
-                                  "expected_status": expected, "degenerate": name in DEGENERATE})
+                                  "expected_status": expected, "degenerate": name in DEGENERATE,
+                                  "budgets": CASE_BUDGETS.get(name)})
     for name, text in LOAD_CASES.items():
         raw = text.encode("utf-8")
         (out / f"load_{name}.csv").write_bytes(raw)
@@ -310,7 +347,8 @@ def test_node_explore_contract_matches_the_python_reference(reference_dir):
                                     "tests/js/explore_boundary.test.js",
                                     "tests/js/explore_app.test.js",
                                     "tests/js/explore_methods.test.js",
-                                    "tests/js/explore_custom.test.js"])
+                                    "tests/js/explore_custom.test.js",
+                                    "tests/js/explore_run.test.js"])
 def test_node_explore_secondary_seams(script):
     _node(script)
 
@@ -340,9 +378,11 @@ def test_reference_cases_meet_the_contract_invariants(reference_dir):
                                     for k in range(1, p + 1)], name
         by_key = {c["key"]: c for c in res["candidates"]}
         for c in res["candidates"]:
-            assert c["status"] in ("VALID", "INVALID_MODEL")
+            assert c["status"] in ("VALID", "INVALID_MODEL", "SKIPPED_RESOURCE_LIMIT")   # #77: skipped
             assert (c["status"] == "VALID") == (c["fit"] is not None) == (c["cv"] is not None)
             assert (c["status"] == "VALID") == (not c["reasons"])
+            if c["status"] == "SKIPPED_RESOURCE_LIMIT":
+                assert c["canonical_groups"] is None and c["folds"] == []
         w = res["winners"]
         winner_keys = [v["key"] for v in w["method_winners"].values() if v] + [w["overall"]["key"]]
         assert all(by_key[k]["status"] == "VALID" for k in winner_keys)
@@ -354,6 +394,10 @@ def test_reference_cases_meet_the_contract_invariants(reference_dir):
             cov = [lo <= a <= hi for a, lo, hi in zip(t["actual"], t["lower"], t["upper"])]
             assert cov == t["covered"]
             assert t["coverage"] == sum(cov) / t["n_test"]
+        if res["lasso_path"] is None:                                   # #77: Lasso skipped
+            assert all(by_key[f"lasso_path_k{k:02d}"]["status"] == "SKIPPED_RESOURCE_LIMIT"
+                       for k in range(1, p + 1)), name
+            continue
         canon = res["lasso_path"]["canonical"]
         for k in range(1, p + 1):
             c = by_key[f"lasso_path_k{k:02d}"]
@@ -541,3 +585,90 @@ def test_reference_reuses_the_formal_constants():
     assert R.PI_LEVEL == ols.PI_LEVEL
     assert R.METHOD_ORDER == models.METHOD_ORDER and R.PATH_METHODS == models.PATH_METHODS
     assert R.TIE_RTOL == selection.TIE_RTOL
+
+
+# ---- #77: target units (R4-2, R4-3, R4-4) and the budget, on the reference side ------------------
+
+def _paths_view(res):
+    """Everything of a result that must not depend on the target's unit (R4-3): states, reasons
+    other than numbers, the subsets of every fold and of the training set, the Lasso entries' order,
+    the stops and their causes, the winners."""
+    cands = [(c["key"], c["status"], [(r["rule"], r["scope"], r["fold"], r.get("cause"),
+                                       r.get("n_groups_entered")) for r in c["reasons"]],
+              c["canonical_groups"], [f["groups"] for f in c["folds"]]) for c in res["candidates"]]
+    lasso = [(i["n_entered"], i["cause"], i["not_entered"], [e["group"] for e in i["entries"]])
+             for i in [res["lasso_path"]["canonical"]] + res["lasso_path"]["folds"]]
+    return {"candidates": cands, "lasso": lasso, "winners": res["winners"]}
+
+
+@pytest.mark.parametrize("c", [1e-12, 1e-10, 1e-9, 1e-6, 1e6])
+def test_reference_paths_do_not_depend_on_the_target_unit(c):
+    """R4-3 / R4-4 in the reference: 50 Startups with Profit × c gives the c = 1 paths, states and
+    stops; entry alphas are the c = 1 alphas times c."""
+    base = R.run(R.load_csv(STARTUPS_CSV.read_bytes()))
+    scaled = R.run(R.load_csv(startups50_scaled(c)()))
+    assert _paths_view(scaled) == _paths_view(base)
+    for a, b in zip([base["lasso_path"]["canonical"]] + base["lasso_path"]["folds"],
+                    [scaled["lasso_path"]["canonical"]] + scaled["lasso_path"]["folds"]):
+        for ea, eb in zip(a["entries"], b["entries"]):
+            assert eb["entry_alpha"] == pytest.approx(ea["entry_alpha"] * c, rel=1e-9)
+    assert {x["status"] for x in scaled["candidates"]} == {"VALID"}
+
+
+def test_reference_exact_fit_reports_the_path_end_not_a_degeneracy():
+    """R4-2: the residual is zero after x1; x2 never enters and the cause is the end of the path."""
+    res = R.run(R.load_csv(exact_fit()))
+    for info in [res["lasso_path"]["canonical"]] + res["lasso_path"]["folds"]:
+        assert info["n_entered"] == 1 and info["not_entered"] == ["x2"]
+        assert info["cause"] == "path_ended"
+    by_key = {c["key"]: c for c in res["candidates"]}
+    assert by_key["lasso_path_k01"]["status"] == "VALID"
+    assert {r["cause"] for r in by_key["lasso_path_k02"]["reasons"]} == {"path_ended"}
+
+
+def test_reference_reports_a_numerical_stop_by_its_own_name(monkeypatch):
+    """R4-2: an iteration limit is reported as max_iter (the cap is lowered here to force it)."""
+    monkeypatch.setattr(R, "LARS_MAX_ITER", 2)
+    res = R.run(R.load_csv(STARTUPS_CSV.read_bytes()))
+    info = res["lasso_path"]["canonical"]
+    assert info["n_entered"] == 2 and info["cause"] == "max_iter"
+
+
+def test_reference_target_constant_is_its_own_cause():
+    rows = [[_num(i % 7), _num((i * 3) % 5), "5"] for i in range(30)]
+    res = R.run(R.load_csv(_csv(["a", "b", "y"], rows)))
+    info = res["lasso_path"]["canonical"]
+    assert info["n_entered"] == 0 and info["cause"] == "target_constant"
+
+
+def test_reference_budget_skips_whole_methods_and_keeps_all_in():
+    load = R.load_csv(synthetic_mixed())
+    res = R.run(load, budgets=BUDGET_SKIP)
+    budget = res["meta"]["budget"]
+    assert budget["constants"]["forward_sfs"] == 1.0 and budget["constants"]["rfe"] == R.BUDGETS["rfe"]
+    by_method = {}
+    for c in res["candidates"]:
+        by_method.setdefault(c["method"], set()).add(c["status"])
+    assert by_method["forward_sfs"] == by_method["lasso_path"] == {"SKIPPED_RESOURCE_LIMIT"}
+    assert by_method["allin"] == {"VALID"} and "SKIPPED_RESOURCE_LIMIT" not in by_method["rfe"]
+    assert res["lasso_path"] is None
+    skipped = next(c for c in res["candidates"] if c["key"] == "forward_sfs_k01")
+    assert skipped["reasons"] == [{"rule": "resource_limit", "scope": "method", "fold": None,
+                                   "estimate": budget["estimates"]["forward_sfs"], "budget": 1.0}]
+    w = res["winners"]
+    assert w["method_winners"]["forward_sfs"] is None and w["method_winners"]["lasso_path"] is None
+    full = R.run(load)                                  # the executed methods are not affected
+    for c in res["candidates"]:
+        if c["status"] != "SKIPPED_RESOURCE_LIMIT":
+            other = next(x for x in full["candidates"] if x["key"] == c["key"])
+            assert _jsonable(c) == _jsonable(other), c["key"]
+
+
+def test_g4_startups50_under_the_final_budgets_runs_every_method():
+    """DA G-4: with the final budget constants 50 Startups is never SKIPPED_RESOURCE_LIMIT and its
+    17 candidate states are those of #75 (all VALID)."""
+    res = R.run(R.load_csv(STARTUPS_CSV.read_bytes()))
+    b = res["meta"]["budget"]
+    assert b["constants"] == R.BUDGETS
+    assert all(b["estimates"][m] <= b["constants"][m] for m in R.PATH_METHODS)
+    assert [c["status"] for c in res["candidates"]] == ["VALID"] * 17

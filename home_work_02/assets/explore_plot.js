@@ -227,8 +227,9 @@
 
   /* ---- metric vs k (#75) ------------------------------------------------------------------------
    * One line per path method over k = 1..p (a gap where a candidate is not VALID), the All-in baseline
-   * as a dashed reference line, each method's CV winner as a ring, INVALID_MODEL candidates as red
-   * crosses on the bottom edge and the selected candidate as a large circle. Drawn with the page's
+   * as a dashed reference line, each method's CV winner as a ring, non-VALID candidates (INVALID_MODEL;
+   * since #77 also SKIPPED_RESOURCE_LIMIT and FAILED) as red crosses on the bottom edge and the selected
+   * candidate as a large circle. Drawn with the page's
    * bundled Chart.js (an existing chart library; Tickets Review adjustment A); all labels reach the
    * canvas as Chart.js text (DA D-2). Without Chart.js, set() returns false and draws nothing. */
   var METHOD_COLORS = { forward_sfs: '#1E40AF', backward_sfs: '#0E7490', rfe: '#6D28D9', lasso_path: '#C2410C' };
@@ -273,7 +274,7 @@
       s.points.forEach(function (d) { if (d.status !== 'VALID') invalid.push({ x: d.k, y: lo + span * 0.04, entry: d, methodLabel: s.label }); });
     });
     if (invalid.length) {
-      datasets.push({ type: 'scatter', label: '無效候選', data: invalid, pointStyle: 'crossRot', pointRadius: 7, pointHoverRadius: 8,
+      datasets.push({ type: 'scatter', label: '非 VALID 候選', data: invalid, pointStyle: 'crossRot', pointRadius: 7, pointHoverRadius: 8,
         pointBorderWidth: 2.5, borderColor: '#B91C1C', backgroundColor: '#B91C1C', order: 0 });
     }
     if (spec.selected) {

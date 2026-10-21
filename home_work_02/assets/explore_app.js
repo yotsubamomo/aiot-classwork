@@ -19,6 +19,10 @@
  * a request, exactly one. Nothing here touches the page; results are never stored (no localStorage, no
  * URL parameter, no file).
  *
+ * #77 (V2-T4): runs advance step by step when the page gives a scheduler (deps.schedule), so the page stays
+ * operable; one run at a time (a new request cancels the run in progress at its next candidate boundary
+ * and starts after it); cancel(); progress views ({ mode: 'progress' }); see createController below.
+ *
  * predictorView() and the *Text() helpers turn engine results into what the page shows; every string
  * that comes from the data stays a plain string (the page writes it as text; DA D-2). #75 adds the views
  * of the five methods: testView() (the test block shows a winner itself, a non-winner's method winner
@@ -80,12 +84,47 @@
   var METHOD_ORDER = ['allin', 'forward_sfs', 'backward_sfs', 'rfe', 'lasso_path'];
   var METHOD_LABELS = { allin: 'All-in baseline', forward_sfs: 'Forward SFS', backward_sfs: 'Backward SFS', rfe: 'RFE',
     lasso_path: 'Lasso 路徑排序' };
+  /* R4-2 (DA decision-20261022-issue75-lasso-early-stop): each stop cause states only what is established. */
   var CAUSE_TEXT = {
     active_set_degenerate: '要加入的欄與路徑中已有的欄線性相依（active set 退化）',
-    path_ended: '路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）'
+    path_ended: '路徑已走到終點：其餘 feature group 與殘差的相關在數值上為零，exact LARS 不會讓它們進入（可能的情形例如：與已進入的欄線性相依、在這些列上沒有變化，或已進入的欄已完全擬合目標）',
+    alpha_increasing: '數值停止：路徑的 alpha 開始回升（殘差已很小、數值誤差超過剩餘的相關），依 sklearn 的規則提前停止；這是數值計算造成的停止，不代表資料的性質',
+    max_iter: '數值停止：LARS 的迭代次數達到上限 500，這是計算上限造成的停止，不代表資料的性質',
+    multiple_drops: '數值停止：同一步有多個欄同時離開路徑，計算在此停止；這是數值計算造成的停止，不代表資料的性質',
+    target_constant: '預測目標在這些列上沒有變化，沒有任何 feature group 進入路徑'
   };
+  var PHASE_TEXT = { start: '準備完成，開始計算候選', candidate: '完成', skipped: '超出運算預算，整個方法略過',
+    failed: '計算失敗，整個方法標為 FAILED', diagnostic: '全部候選已完成，正在計算共線診斷與探索 test' };
 
   function statusText(status) { return STATUS_TEXT[status] || String(status); }
+
+  /* #77: the progress line of a running Exploratory run (plain text). */
+  function progressText(e) {
+    if (!e) return '執行中：準備資料與切分…';
+    var where = e.method ? methodLabel(e.method) + (e.k ? ' · k = ' + e.k : '') + '：' : '';
+    var phase = PHASE_TEXT[e.phase] || String(e.phase);
+    return '執行中（' + where + phase + '）：已完成 ' + e.candidates_done + '／' + e.candidates_total + ' 個候選、' +
+      e.methods_done + '／' + e.methods_total + ' 個方法（' + Math.round(100 * e.fraction) + '%），已耗時 ' +
+      (e.elapsed_ms / 1000).toFixed(1) + ' 秒';
+  }
+
+  /* #77: what a CANCELLED run shows: 「已取消」 and the finished methods, nothing else. */
+  function cancelledText(run) {
+    return '已取消：取消在下一個候選邊界生效，停止時已完成 ' + run.methods_completed + '／' + run.methods_total + ' 個方法（' +
+      run.candidates_completed + '／' + run.candidates_total + ' 個候選）。已算出的部分結果不顯示；再次執行會從頭開始。';
+  }
+
+  /* #77: per-method timings and the methods that were skipped or failed, for the completion message. */
+  function timingText(result) {
+    var t = result.meta.timing_ms || {}, parts = [];
+    METHOD_ORDER.forEach(function (m) {
+      if (typeof t[m] !== 'number') return;
+      var st = methodState(result, m);
+      var tag = st === 'SKIPPED_RESOURCE_LIMIT' ? '（略過：超出運算預算）' : st === 'FAILED' ? '（計算失敗）' : '';
+      parts.push(methodLabel(m) + ' ' + t[m].toFixed(1) + ' ms' + tag);
+    });
+    return parts.join('、');
+  }
   function columnStatusText(status) { return COLUMN_STATUS_TEXT[status] || String(status); }
   function loadReasonText(reason) { return LOAD_REASON_TEXT[reason] || String(reason); }
   function urlCauseText(cause) { return URL_CAUSE_TEXT[cause] || String(cause); }
@@ -135,7 +174,29 @@
   function methodLabel(m) { return METHOD_LABELS[m] || String(m); }
   function causeText(c) { return CAUSE_TEXT[c] || String(c); }
 
+  function sci(v) { return Number(v).toExponential(2); }
+
+  /* The environment information of a FAILED reason, in one line (plain text). */
+  function environmentText(env) {
+    if (!env) return '';
+    var parts = [];
+    if (env.user_agent) parts.push('瀏覽器 ' + env.user_agent);
+    if (env.runtime) parts.push(env.runtime);
+    if (env.hardware_concurrency) parts.push(env.hardware_concurrency + ' 個邏輯處理器');
+    if (env.device_memory_gb) parts.push('約 ' + env.device_memory_gb + ' GB 記憶體');
+    if (env.engine_version) parts.push(env.engine_version);
+    return parts.join('；');
+  }
+
   function reasonText(r) {
+    if (r.rule === 'resource_limit') {
+      return '運算預算：預估量 ' + sci(r.estimate) + ' 超過此方法的預算 ' + sci(r.budget) +
+        '（預估 OLS 求解次數 × 訓練列數 × 編碼欄數²，只依資料大小在執行前判定），整個方法未執行（SKIPPED_RESOURCE_LIMIT）';
+    }
+    if (r.rule === 'unexpected_error') {
+      return '計算失敗（FAILED' + (r.k ? '，在 k = ' + r.k + ' 時' : '') + '）：' + r.error + '：' + r.message +
+        '。整個方法不參與 winner；其他方法照常完成。環境：' + environmentText(r.environment);
+    }
     var where = r.scope === 'fold' ? '第 ' + (r.fold + 1) + ' 個 fold 的訓練列' : '整個訓練集';
     if (r.rule === 'rank_deficient') {
       return where + '：設計矩陣（含截距）秩不足，rank ' + r.rank + ' < ' + r.n_columns + ' 欄';
@@ -143,7 +204,7 @@
     if (r.rule === 'df_resid_lt_3') return where + '：殘差自由度 ' + r.df_resid + ' < 3';
     if (r.rule === 'no_feature_groups') return '沒有任何 feature group（以訓練列判定後全部欄位都被排除）';
     if (r.rule === 'lasso_path_degenerate') {
-      return where + '：Lasso 路徑只求得前 ' + r.n_groups_entered + ' 個 feature group 就停止（' + causeText(r.cause) +
+      return where + '：Lasso 路徑只求得前 ' + r.n_groups_entered + ' 個 feature group（停止原因：' + causeText(r.cause) +
         '），k ≥ ' + (r.n_groups_entered + 1) + ' 沒有實際路徑（lasso_path_degenerate）';
     }
     return where + '：' + String(r.rule);
@@ -184,12 +245,33 @@
         methodLabel(sel.method) + '」的 CV winner（k = ' + mw.k + '）。';
     } else {
       shownKey = w.overall.key;
-      hint = '「' + methodLabel(sel.method) + '」沒有有效（VALID）的候選，所以沒有 CV winner；下面展示整體 CV winner。';
+      hint = '「' + methodLabel(sel.method) + '」' + noWinnerText(result, sel.method) + '；下面展示整體 CV winner。';
     }
     var testKey = w.test_key_of[shownKey], shown = candidateByKey(result, shownKey);
     return { selectedKey: sel.key, shownKey: shownKey, shownName: candidateName(shown), testKey: testKey,
       sharedWith: testKey !== shownKey ? candidateName(candidateByKey(result, testKey)) : null,
       roles: winnerRoles(result, shownKey), hint: hint, test: result.test[testKey] };
+  }
+
+  /* Why a method has no CV winner: no VALID candidate, skipped by the budget, or failed (#77). */
+  function noWinnerText(result, method) {
+    var list = (result.candidates || []).filter(function (c) { return c.method === method; });
+    if (list.length && list.every(function (c) { return c.status === 'SKIPPED_RESOURCE_LIMIT'; })) {
+      return '超出運算預算、整個方法未執行（SKIPPED_RESOURCE_LIMIT），沒有 CV winner';
+    }
+    if (list.length && list.every(function (c) { return c.status === 'FAILED'; })) {
+      return '計算失敗（FAILED），沒有 CV winner';
+    }
+    return '沒有有效（VALID）的候選，所以沒有 CV winner';
+  }
+
+  /* The status of a whole method for the method switch and the summary: VALID count or the method state. */
+  function methodState(result, method) {
+    var list = (result.candidates || []).filter(function (c) { return c.method === method; });
+    var count = function (st) { return list.filter(function (c) { return c.status === st; }).length; };
+    if (list.length && count('SKIPPED_RESOURCE_LIMIT') === list.length) return 'SKIPPED_RESOURCE_LIMIT';
+    if (list.length && count('FAILED') === list.length) return 'FAILED';
+    return count('VALID') ? 'RAN' : 'NO_VALID';
   }
 
   /* One row per method: its CV winner (training CV) and that winner's exploratory test numbers. Only
@@ -198,7 +280,7 @@
     var w = result.winners;
     return METHOD_ORDER.map(function (m) {
       var mw = w.method_winners[m];
-      if (!mw) return { method: m, label: methodLabel(m), winner: null, note: '沒有有效（VALID）的候選，沒有 CV winner' };
+      if (!mw) return { method: m, label: methodLabel(m), winner: null, note: noWinnerText(result, m) };
       var c = candidateByKey(result, mw.key), tk = w.test_key_of[mw.key], t = result.test[tk];
       return { method: m, label: methodLabel(m), winner: mw.key, k: mw.k, groups: c.canonical_groups.slice(), cv: c.cv,
         test: t.metrics, coverage: t.coverage, n_covered: t.n_covered, n_test: t.n_test,
@@ -245,7 +327,7 @@
       return { position: null, group: g, alpha: null, state: info.degenerate ? '未進入（退化後，只作展示）' : '未進入' };
     }));
     var summary = info.degenerate
-      ? '路徑在加入第 ' + (info.n_entered + 1) + ' 個 feature group 前停止（' + causeText(info.cause) + '）：只有前 ' +
+      ? '路徑只求得前 ' + info.n_entered + ' 個 feature group 就停止（停止原因：' + causeText(info.cause) + '）：只有這 ' +
         info.n_entered + ' 個 group 是實際路徑，k ≥ ' + info.first_invalid_k + ' 的 Lasso 候選無效。'
       : '全部 ' + info.n_entered + ' 個 feature group 都進入路徑，沒有退化。';
     var folds = result.lasso_path.folds.filter(function (f) { return f.degenerate; }).length;
@@ -286,11 +368,26 @@
     }
   }
 
+  /* #77: the controller drives the engine's stepper. With deps.schedule (the page: a function that runs a
+   * callback after the browser has handled its events) a run advances in time slices of deps.sliceMs and
+   * the page stays operable; without it (Node tests of #74–#76) a run completes inside the call, as before.
+   * Only one run is in progress at a time: a new request (a selection, a submission, another target)
+   * first cancels the run in progress -- honoured at its next candidate boundary, so it ends CANCELLED --
+   * and starts only after that run has ended; of several waiting requests only the latest starts.
+   * cancel() (the page's 「取消執行」 button) cancels the run in progress; its CANCELLED result is shown with
+   * the number of finished methods and nothing else. A new run always starts from the beginning.
+   * deps.trace (tests) receives { type: 'start' | 'cancel' | 'end', id, problem, status }. */
   function createController(deps) {
     var now = deps.now || function () { return Date.now(); };
+    var schedule = typeof deps.schedule === 'function' ? deps.schedule : null;
+    var sliceMs = deps.sliceMs > 0 ? deps.sliceMs : 12;
+    var trace = typeof deps.trace === 'function' ? deps.trace : function () {};
     var state = { problem: 'king_county', lastExplore: null, runs: 0 };
     var custom = null;      /* this visit's custom dataset: content, target, a URL read in progress */
     var generation = 0;     /* bumped by every selection and submission; an older read's late answer is dropped */
+    var active = null;      /* the run in progress (scheduled mode) */
+    var waiting = null;     /* the request that starts when the active run has ended (the latest one) */
+    var nextId = 0;
 
     function emptyCustom() {
       return { source: null, label: null, input: null, columns: null, target: null, busy: false, cancel: null };
@@ -311,16 +408,75 @@
       return { load: deps.loader.loadCsv(input, options), columns: null };
     }
 
-    function runInput(input, source, problem, target) {
-      var t0 = now();
-      var inspected = inspect(input, target);
-      var load = inspected.load;
-      var out = { problem: problem, source: source, load: load, result: null, ms: null };
-      if (load.ok) out.result = deps.engine.run(load, { problem: problem, source: source, now: deps.now });
-      out.ms = now() - t0;
-      state.runs++;
-      return { run: out, columns: inspected.columns };
+    /* Ask the run in progress to stop at its next candidate boundary. */
+    function cancelActive() {
+      if (!active || active.stepper.cancelRequested()) return;
+      active.stepper.cancel();
+      trace({ type: 'cancel', id: active.id, problem: active.out.problem });
     }
+
+    /* Run `input` (load + engine) and call done(out, columns) with the finished run; inspected(columns)
+     * as soon as the columns are known (the target drop-down is usable while the engine runs). Returns
+     * the run (immediate mode) or a Promise of it (scheduled mode). */
+    function execute(input, source, problem, target, done, inspected0) {
+      var t0 = now(), inspected = inspect(input, target), load = inspected.load;
+      if (inspected0) inspected0(inspected.columns);
+      var out = { problem: problem, source: source, load: load, result: null, ms: null, id: ++nextId };
+      state.runs++;
+      if (!load.ok) {
+        out.ms = now() - t0;
+        done(out, inspected.columns);
+        return schedule ? Promise.resolve(out) : out;
+      }
+      var job = { id: out.id, out: out, gen: generation, columns: inspected.columns, done: done, resolve: null };
+      job.stepper = deps.engine.createRun(load, { problem: problem, source: source, now: deps.now,
+        onProgress: function (event) {
+          if (schedule && active === job && job.gen === generation) deps.render({ mode: 'progress', problem: problem, id: job.id, progress: event });
+        } });
+      trace({ type: 'start', id: job.id, problem: problem });
+      function finish() {
+        out.result = job.stepper.result();
+        out.ms = now() - t0;
+        trace({ type: 'end', id: job.id, problem: problem, status: out.result.run.status });
+        done(out, inspected.columns, job);
+      }
+      if (!schedule) {
+        while (!job.stepper.step().done) { /* immediate mode: to the end */ }
+        finish();
+        return out;
+      }
+      active = job;
+      deps.render({ mode: 'running', problem: problem, id: job.id, progress: null, custom: problem === 'custom' ? panelView() : undefined });
+      return new Promise(function (resolve) {
+        job.resolve = resolve;
+        function pump() {
+          if (active !== job) return;
+          var deadline = now() + sliceMs, st;
+          do { st = job.stepper.step(); } while (!st.done && now() < deadline);
+          if (!st.done) { schedule(pump); return; }
+          active = null;
+          finish();
+          resolve(job.gen === generation ? out : null);
+          var next = waiting;
+          waiting = null;
+          if (next) next.start();
+        }
+        schedule(pump);
+      });
+    }
+
+    /* Start a run now, or -- when one is in progress -- cancel that one and start this one after it has
+     * ended. Returns what execute() returns (a Promise in scheduled mode; null if superseded). */
+    function request(startFn) {
+      if (!schedule || !active) return startFn();
+      cancelActive();
+      if (waiting) waiting.resolve(null);
+      return new Promise(function (resolve) {
+        waiting = { resolve: resolve, start: function () { Promise.resolve(startFn()).then(resolve); } };
+      });
+    }
+
+    function shown(out, job) { return !job || job.gen === generation; }
 
     /* Leaving the custom dataset (or replacing its submission): abort a read in progress and forget
      * the content; nothing of it is kept anywhere. */
@@ -332,6 +488,8 @@
 
     function init() {
       leaveCustom();
+      cancelActive();
+      if (waiting) { waiting.resolve(null); waiting = null; }
       state.problem = 'king_county';
       deps.render({ mode: 'king_county', problem: 'king_county' });
     }
@@ -339,6 +497,8 @@
     function selectProblem(problem) {
       if (PROBLEMS.indexOf(problem) < 0) throw new Error('unknown problem ' + problem);
       leaveCustom();
+      cancelActive();
+      if (waiting) { waiting.resolve(null); waiting = null; }
       state.problem = problem;
       if (problem === 'king_county') { deps.render({ mode: 'king_county', problem: problem }); return null; }
       if (problem === 'custom') {
@@ -351,19 +511,31 @@
         deps.render({ mode: 'error', problem: problem, message: '找不到內建的 50 Startups 資料（assets/data/startups50.js）。' });
         return null;
       }
-      var run = runInput(ds.csv, 'builtin', problem, null).run;
-      state.lastExplore = run;
-      if (state.problem === problem) deps.render({ mode: 'explore', problem: problem, run: run });
-      return run;
+      var gen = generation;
+      if (schedule && active) deps.render({ mode: 'running', problem: problem, id: null, progress: null, waiting: true });
+      return request(function () {
+        if (gen !== generation) return null;
+        return execute(ds.csv, 'builtin', problem, null, function (out, columns, job) {
+          if (!shown(out, job) || state.problem !== problem) return;
+          state.lastExplore = out;
+          deps.render({ mode: 'explore', problem: problem, run: out });
+        });
+      });
     }
 
     function runCustom() {
-      var out = runInput(custom.input, custom.source, 'custom', custom.target);
-      if (out.columns) custom.columns = out.columns;
-      out.run.label = custom.label;
-      state.lastExplore = out.run;
-      deps.render({ mode: 'explore', problem: 'custom', run: out.run, custom: panelView() });
-      return out.run;
+      var c = custom, gen = generation;
+      if (schedule && active) deps.render({ mode: 'running', problem: 'custom', id: null, progress: null, waiting: true, custom: panelView() });
+      return request(function () {
+        if (gen !== generation || custom !== c) return null;
+        return execute(c.input, c.source, 'custom', c.target, function (out, columns, job) {
+          if (columns) c.columns = columns;
+          out.label = c.label;
+          if (!shown(out, job) || custom !== c) return;
+          state.lastExplore = out;
+          deps.render({ mode: 'explore', problem: 'custom', run: out, custom: panelView() });
+        }, function (columns) { if (columns) c.columns = columns; });
+      });
     }
 
     /* A local file's content (bytes or text): no network. */
@@ -385,8 +557,25 @@
       if (state.problem !== 'custom' || !custom || custom.input === null || custom.busy) return null;
       var i = Number(index);
       if (!custom.columns || Math.floor(i) !== i || i < 0 || i >= custom.columns.length) return null;
+      generation++;                       /* the run of the previous target, if any, is superseded */
       custom.target = i;
       return runCustom();
+    }
+
+    /* The page's 「取消執行」: the run in progress stops at its next candidate boundary (CANCELLED). A request
+     * still waiting for the previous run to stop never starts; the page shows that at once. */
+    function cancel() {
+      if (waiting) {
+        waiting.resolve(null);
+        waiting = null;
+        generation++;                     /* nothing of the run still stopping is shown */
+        cancelActive();
+        deps.render({ mode: 'cancelled', problem: state.problem, custom: state.problem === 'custom' ? panelView() : undefined });
+        return true;
+      }
+      if (!active) return false;
+      cancelActive();
+      return true;
     }
 
     /* The URL entrance: one read of the submitted URL (the loader's fetchCsvBytes; DA D-1). Returns a
@@ -394,9 +583,10 @@
      * after the user had moved on. */
     function submitUrl(text) {
       leaveCustom();
+      cancelActive();
       state.problem = 'custom';
       custom = emptyCustom();
-      var gen = generation;
+      var gen = generation, c = custom;
       var checked = deps.loader.checkUrl(text);
       if (!checked.ok) {
         deps.render({ mode: 'custom', problem: 'custom', custom: panelView(),
@@ -412,7 +602,7 @@
         notice: { kind: 'info', text: '讀取中：對這個 URL 發出一次 GET（不帶憑證、不跟隨重新導向、不重試）。' } });
       return deps.loader.fetchCsvBytes(checked.url, { fetchImpl: deps.fetchImpl, signal: abort ? abort.signal : null,
         timeoutMs: deps.urlTimeoutMs }).then(function (got) {
-        if (gen !== generation || state.problem !== 'custom' || !custom) return null;   /* superseded: dropped */
+        if (gen !== generation || state.problem !== 'custom' || custom !== c) return null;   /* superseded: dropped */
         custom.busy = false;
         custom.cancel = null;
         if (!got.ok && (got.cancelled || got.input_error)) {
@@ -432,8 +622,11 @@
     }
 
     return { init: init, selectProblem: selectProblem, loadText: loadText, submitData: submitData,
-      submitUrl: submitUrl, setTarget: setTarget, custom: panelView,
-      state: function () { return { problem: state.problem, runs: state.runs, hasResult: !!state.lastExplore }; } };
+      submitUrl: submitUrl, setTarget: setTarget, cancel: cancel, custom: panelView,
+      state: function () { return { problem: state.problem, runs: state.runs, hasResult: !!state.lastExplore }; },
+      runState: function () {
+        return { running: active ? active.id : null, cancelling: !!(active && active.stepper.cancelRequested()), waiting: !!waiting };
+      } };
   }
 
   return {
@@ -444,6 +637,8 @@
     loadFailureText: loadFailureText, urlCauseText: urlCauseText, urlInputText: urlInputText,
     runReasonText: runReasonText, reasonText: reasonText, warningText: warningText, methodLabel: methodLabel,
     causeText: causeText, candidateName: candidateName, candidateByKey: candidateByKey, defaultKey: defaultKey,
+    progressText: progressText, cancelledText: cancelledText, timingText: timingText, noWinnerText: noWinnerText,
+    methodState: methodState, environmentText: environmentText,
     winnerRoles: winnerRoles, testView: testView, compareRows: compareRows, kSeries: kSeries,
     dependencyView: dependencyView, lassoView: lassoView,
     predictorView: predictorView, createController: createController
