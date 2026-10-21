@@ -1,0 +1,854 @@
+{
+  "label": "chrome_subject",
+  "mode": "heavy",
+  "browserPid": 39312,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "heavy_cancel": {
+      "run_panel_shown_after_ms": 463,
+      "progress_text_8s": "執行中（準備完成，開始計算候選）：已完成 0／237 個候選、0／5 個方法（0%），已耗時 0.2 秒",
+      "typed": "typing during the long All-in",
+      "measures_before_cancel": {
+        "inputs": [
+          {
+            "type": "input",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "change",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "mousedown",
+            "id": "problem-select",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "focusin",
+            "id": "problem-select",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "problem-select",
+            "lat_ms": 6.3
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-url",
+            "lat_ms": 12.2
+          },
+          {
+            "type": "focusin",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "click",
+            "id": "ex-url",
+            "lat_ms": 1.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.3
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.3
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.4
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          }
+        ],
+        "max_input_latency_ms": 12.3,
+        "frames": 735,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 12.7,
+        "frame_gap_max_ms": 437.5,
+        "long_tasks": 2,
+        "long_task_max_ms": 434,
+        "long_error": null
+      },
+      "cancel_ack": true,
+      "cancel_ack_ms": 88,
+      "cancel_to_end_ms": 268792,
+      "run": {
+        "status": "CANCELLED",
+        "reason": null,
+        "methods_completed": 1,
+        "methods_total": 5,
+        "candidates_completed": 1,
+        "candidates_total": 237
+      },
+      "message": "已取消：取消在下一個候選邊界生效，停止時已完成 1／5 個方法（1／237 個候選）。已算出的部分結果不顯示；再次執行會從頭開始。",
+      "measures_whole": {
+        "inputs": [
+          {
+            "type": "input",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "change",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "mousedown",
+            "id": "problem-select",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "focusin",
+            "id": "problem-select",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "problem-select",
+            "lat_ms": 6.3
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-url",
+            "lat_ms": 12.2
+          },
+          {
+            "type": "focusin",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "click",
+            "id": "ex-url",
+            "lat_ms": 1.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.3
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.3
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.4
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-cancel",
+            "lat_ms": 12
+          },
+          {
+            "type": "change",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "focusin",
+            "id": "ex-cancel",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "click",
+            "id": "ex-cancel",
+            "lat_ms": 12
+          }
+        ],
+        "max_input_latency_ms": 12.3,
+        "frames": 22514,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 12.7,
+        "frame_gap_max_ms": 437.5,
+        "long_tasks": 14,
+        "long_task_max_ms": 434,
+        "long_error": null
+      }
+    },
+    "kc_while_background": {
+      "interactions": [
+        {
+          "type": "method",
+          "ms": 22.2,
+          "handler_ms": 10.1
+        },
+        {
+          "type": "method",
+          "ms": 16.7,
+          "handler_ms": 4.6
+        }
+      ],
+      "measures": {
+        "inputs": [
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 11.8
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 11.8
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 12.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 12.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 12.1
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 11.8
+          },
+          {
+            "type": "mousedown",
+            "id": "zoom-reset",
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": "zoom-reset",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 12
+          }
+        ],
+        "max_input_latency_ms": 12.1,
+        "frames": 220,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 12.6,
+        "frame_gap_max_ms": 25,
+        "long_tasks": 0,
+        "long_task_max_ms": 0,
+        "long_error": null
+      },
+      "run_state": {
+        "running": 2,
+        "cancelling": true,
+        "waiting": false
+      },
+      "seconds": 2.401,
+      "v1Visible": true
+    },
+    "kc_after_background": {
+      "background_ended": true,
+      "view": {
+        "mode": "king_county",
+        "status": null
+      },
+      "kc_still_shown": true
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85",
+  "csv": {
+    "file": "heavy.csv",
+    "bytes": 10670877
+  }
+}
