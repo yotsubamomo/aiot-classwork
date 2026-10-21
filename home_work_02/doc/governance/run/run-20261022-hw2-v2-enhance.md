@@ -190,7 +190,7 @@ Tracked items for dispatch packs（更新）：
 | 11→ | 2026-10-22 | #76 R1 c1 | agentId `ad730583783ecd443` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **BLOCKING**（R1-F1：`explore_ui.js` 預測器輸入以一般物件收集，`__proto__` 欄的輸入被忽略；#74 R1-F2 的剩餘部分）；record `audit/issue-76-c1-r1.md`；觀測 `('claude-opus-5-5','xhigh')` 155 則 → 採用。Routing：R1-F1 → Executor targeted correction（續派 `acd62ed3a70012296`）→ R2；R1-F2（Low）→ Spec Integration Audit pack；O-1 → #77（已分配）；O-3：Reviewer 執行 `chrome.exe --version` 以 acceptor 預設 profile 開啟一次 Chrome，已以 PID 停止 → 告知 acceptor；之後派工 pack 加「不得以預設 profile 啟動瀏覽器」 |
 | 12 | 2026-10-22 | #76 correction（R1-F1） | agentId `acd62ed3a70012296`（續派） | `gov-executor` | Opus 5.5／`high` | DONE；subject `c4256f5`（`explore_ui.js`、`tests/test_explore_static.py`）＋`9ac8499`（records）；觀測 `('claude-opus-5-5','high')` 262 則（全 transcript）→ 採用 |
 | 13 | 2026-10-22 | #76 R2 c1 | agentId `ad730583783ecd443`（續派，重讀修正後 diff） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `9ac8499` |
-| 13→ | 2026-10-22 | #76 R2 c1 | agentId `ad730583783ecd443` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/issue-76-c1-r2.md`；觀測 `('claude-opus-5-5','xhigh')` 188 則（R1＋R2 全 transcript）→ 採用 |
+| 13→ | 2026-10-22 | #76 R2 c1 | agentId `ad730583783ecd443` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/issue-76-c1-r2.md`；觀測 `('claude-opus-5-5','xhigh')` 192 則（R1＋R2 全 transcript，Orchestrator 核對）→ 採用 |
 
 ### #76 結案核對（orch-default §7）
 
@@ -207,3 +207,6 @@ Tracked items for dispatch packs（更新）：
 | P9 | phase 層 | 待 #78 後 |
 
 **#76：已結案**（closed subject `9ac8499cef2af446bfb31e9b5421c7a0836cc2a2`）。#74 R1-F2 由 #76 R2 確認於頁面路徑解決。Frontier：#77（READY）。
+| 14 | 2026-10-22 | #77 | agentId `a7b3c024fa9b13368` | `gov-executor` | Opus 5.5／`high`（O-1） | DONE_WITH_CONCERNS；subject `99e9d42`、`8087083`、`5219f89`（實作，final＝`5219f89`）＋`9d5a840`（records）；觀測 `('claude-opus-5-5','high')` 324 則 → 採用。Machine gates：diff 全在 `home_work_02/`、無 `doc/requirement/`；V1 保護檔自 `d7f02d4` 無 diff；`hw2/` 只有 `explore_reference.py`、`offline_scan.py`；#77 未動 `d7f02d4` 既有測試。Concerns：C-1（載入上限 50,000×60 下 All-in 最壞約 4.5 分、期間取消需等該候選）、C-2（#76 O-1 讀取無位元組上限，新增 `TOO_LARGE` 屬契約決定）→ 均指名 Design Authority，依 §2.4 直接派 DA（與 R1 並行：DA 是契約語義，R1 是審查，彼此不預判） |
+| 15 | 2026-10-22 | #77 R1 c1 | （fresh） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `9d5a840`，BASE `4bd6a59` |
+| 16 | 2026-10-22 | #77 C-1／C-2 | （fresh） | `gov-design-authority` | Opus 5.5／`high` | 進行中 |
