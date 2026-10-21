@@ -214,3 +214,30 @@ Tracked items for dispatch packs（更新）：
 | 15→ | 2026-10-22 | #77 R1 c1 | agentId `ab93f858531ba9d08` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **BLOCKING**（R1-F1 進度非即時、R1-F2 大型輸入原因不實、R1-F3 最後候選後的取消被接受卻忽略）；record `audit/issue-77-c1-r1.md`；Reviewer 已套用 DA C-1／C-2 裁決（中途送達，subject 不變 `9d5a840`）。Routing：R1-F3 指名 DA（契約在無剩餘邊界時沉默）→ 先派 DA（續派 `ac84eb317f169a98b`）；之後 R1-F1～F3 與 DA rework 一併 targeted correction（續派 Executor `a7b3c024fa9b13368`）→ R2 |
 | 17 | 2026-10-22 | #77 R1-F3 | agentId `ac84eb317f169a98b`（續派） | `gov-design-authority` | Opus 5.5／`high` | 裁決 `decisions/decision-20261022-issue77-cancel-final-phase.md`：尾段取消在下一個步驟邊界生效、`CANCELLED`、不顯示結果；不改變 accepted 語義；無 acceptor 待決項 |
 | 18 | 2026-10-22 | #77 correction（R1-F1～F3＋DA rework） | agentId `a7b3c024fa9b13368`（續派） | `gov-executor` | Opus 5.5／`high` | 進行中；BASE 為本 commit |
+| 18→ | 2026-10-22 | #77 correction | agentId `a7b3c024fa9b13368` | `gov-executor` | Opus 5.5／`high` | DONE；subject `1514005`＋`64b2dfd`（實作）＋`31a2255`（records）；觀測 `('claude-opus-5-5','high')` 434 則（全 transcript）→ 採用。Scope：全在 `home_work_02/`，未動 run record、V1 保護檔、`hw2/selection.py` |
+| 19 | 2026-10-22 | #77 R2 c1 | agentId `ab93f858531ba9d08`（續派，重讀修正後 diff） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `31a2255` |
+| 19→ | 2026-10-22 | #77 R2 c1 | agentId `ab93f858531ba9d08` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/issue-77-c1-r2.md`；觀測 `('claude-opus-5-5','xhigh')` 255 則（R1＋R2 全 transcript）→ 採用。O-R2-1、O-R2-2 → #78 與 Spec Integration Audit pack；O-R2-3 best effort |
+
+### #77 結案核對（orch-default §7）
+
+| Predicate | 證據 | 結果 |
+| --- | --- | --- |
+| P1 | #75、#76 已結案 | 成立 |
+| P2 | OC §5／§5.2；`derivation-SPEC-V2.md`；#77 → #73 → OC §5 | 成立 |
+| P3 | `worklog/issue-77.md` §1–§10；R2 自行重跑 pytest 470 passed、0 skipped，Node、offline_scan、瀏覽器 | 引用存在 |
+| P4 | `audit/issue-77-c1-r1.md`（BLOCKING：R1-F1～F3）→ `audit/issue-77-c1-r2.md`（CLOSURE） | 成立 |
+| P5 | 無未處置 blocking；O-R2-1～3 non-blocking，去向如上 | 成立 |
+| P6 | C-1／C-2 → `decision-20261022-issue77-resource-limits.md`；R1-F3 → `decision-20261022-issue77-cancel-final-phase.md` | 成立 |
+| P7 | 受審 subject `31a2255`（實作 `64b2dfd`）；其後只有 record-only commit | 成立 |
+| P8 | `worklog/issue-77.md` §10 | 成立 |
+| P9 | phase 層 | 待 #78 後 |
+
+**#77：已結案**（closed subject `31a2255`）。Frontier：#78（READY）。
+
+## 10. Checkpoint：acceptor 暫停（2026-10-22）
+
+- Acceptor 原文逐字：「可以等等先暫停 我會中斷一下」
+- 暫停點：#74–#77 已結案；#78 **尚未派工**；沒有進行中的 assignment。
+- #78 派工 pack 待列項：R3-6（README 陳述）、#75 R1-F4（截圖不得作 50 Startups 證據）、R4 後的報告／README Lasso 文字、resource-limits 裁決的 #78 揭露（取消／改選在候選邊界生效、無檔案大小上限）、cancel-final-phase 的取消描述、#77 O-R2-1／O-R2-2、B-10 Pages NOT TESTED（pending merge）、操作規則（只停自己啟動的程序；不用預設 profile）。
+- Spec Integration Audit pack 待列項：#75 R1-F2、#76 R1-F2、R4-1～R4-4、resource-limits 與 cancel-final-phase 的要求、#77 O-R2-1／O-R2-2、B-10。
+- 續行方式：acceptor 指示繼續後，Orchestrator（本 session 或 successor 以同一 run identity）從本 run record re-ground、核對自身 binding，派 #78。Push 仍未授權。
