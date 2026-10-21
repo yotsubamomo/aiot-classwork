@@ -2,8 +2,8 @@
 
 - **Work item**：GitHub issue #76（V2-T3），Formal lane，run `run-20261022-hw2-v2-enhance`（Orchestrator＝root session `37216426-f292-44f9-bad1-e2d862e7b8f1`）。
 - **執行角色**：Executor（治理 §2.1；`gov-executor`，有效 mapping `claude-opus-5-5`／`high`，Bindings b5 §3.1 O-1）。
-- **Subject**：branch `home_work_02-v2-enhance`（未 push）。BASE `450bcff1c8457252194d95fa1003da4edfdcf3af`（#75 結案後）；實作 commit `e405bf16a5fb008bbf8e3c4a626c9b6f650b1dfd`；之後的紀錄 commit 只改 `doc/`（本 worklog、`doc/acceptance/ACCEPTANCE.md` 的 V2-18～V2-26 與 V2-7、V2-9 的兩處指向、`doc/screenshots/v2-issue76/` 的證據），沒有程式、資料或測試的變更。
-- **狀態**：實作與 self-verification 完成，待 independent audit（R1）。
+- **Subject**：branch `home_work_02-v2-enhance`（未 push）。BASE `450bcff1c8457252194d95fa1003da4edfdcf3af`（#75 結案後）；實作 commit `e405bf16a5fb008bbf8e3c4a626c9b6f650b1dfd`；之後的紀錄 commit 只改 `doc/`（本 worklog、`doc/acceptance/ACCEPTANCE.md` 的 V2-18～V2-26 與 V2-7、V2-9 的兩處指向、`doc/screenshots/v2-issue76/` 的證據），沒有程式、資料或測試的變更。**Cycle 1 targeted correction（R1-F1）**：BASE `ce97221`（含 R1 record `audit/issue-76-c1-r1.md`）；修正 commit `c4256f54a8ece52ef71aff93a719f7d8db1604b6`（只改 `assets/explore_ui.js` 與 `tests/test_explore_static.py`）；之後的紀錄 commit 只改 `doc/`（見 §10）。
+- **狀態**：R1（`audit/issue-76-c1-r1.md`）BLOCKING on R1-F1；targeted correction 與其 self-verification 完成（§10），待 R2。
 
 ## 1. Contract reference
 
@@ -32,7 +32,7 @@
 1. **讀取與基準**：Bindings b5、`gov-executor.md`、Implementation Profile §3–§5、§9、治理 §3.5、§3.7、§3.8；OC §5／§5.2；`gh issue view 76`；Spec V2、DA derivation（#76 列、B-2、D-1、D-2、I-1、I-2、I-5、G-5、§7）、R1-F3 decision、Lasso early-stop decision（知悉）、run record；#74／#75 的 worklog 與 R1 records（R1-F2、R1-F3）；`assets/explore_*.js`、`index.html` 探索子樹、`explore.css`、`hw2/offline_scan.py`、V2 測試。BASE `450bcff` 的 `python -m pytest -q -rs`：442 passed。
 2. **載入模組** `assets/explore_load.js`：`inspectCsv()`（`LoadResult`＋欄位清單，讓目標欄下拉在預設目標被拒時仍可重選；`loadCsv()` 的輸出不變）；重複欄名檢查改用 `Map`（R1-F2）；URL 入口 `checkUrl()`、`requestInit()`、`fetchCsvBytes()`——單元內唯一的 `fetch(` 在 `defaultFetch()`，`fetchImpl` 可注入。
 3. **引擎** `assets/explore_engine.js`（R1-F2）：`fit.levels`、`fit.inputs`、`n_unseen_by_group` 以 `Object.defineProperty` 寫成自有屬性、以 `hasOwnProperty` 讀取（`putOwn`／`getOwn`）；`inputSpec()`、`predict()` 只讀自有屬性（或 `Map`）。物件仍是一般物件，結果契約的序列化不變。`ENGINE_VERSION` 改為 `explore-engine 2.1 (V2-T3: column names as own keys)`（只有欄名是 `Object.prototype` 成員時輸出不同）。
-4. **控制器** `assets/explore_app.js`：`submitUrl()`、`submitData()`、`setTarget()`、`custom()`；離開自訂資料集或新提交時中止進行中的讀取並丟棄晚到的回應；每個拒絕原因與 URL 失敗的 zh-TW 訊息（`loadFailureText()`），URL 失敗附「下載後以本機 CSV 檔案載入」指引；`predictorView()` 以自有屬性傳值（R1-F2）。
+4. **控制器** `assets/explore_app.js`：`submitUrl()`、`submitData()`、`setTarget()`、`custom()`；離開自訂資料集或新提交時中止進行中的讀取並丟棄晚到的回應；每個拒絕原因與 URL 失敗的 zh-TW 訊息（`loadFailureText()`），URL 失敗附「下載後以本機 CSV 檔案載入」指引；`predictorView()` 以自有屬性傳值（R1-F2）。**更正（R1-F1）**：本點原本隱含 R1-F2 在頁面上已處理，並不成立——`e405bf1` 的頁面預測器在 `assets/explore_ui.js` 以一般物件指派收集輸入（`raw[x.spec.name] = …`），名為 `__proto__` 的欄的使用者輸入被靜默忽略；在 `c4256f5` 修正，見 §10。
 5. **頁面**：`index.html` 的 `#ex-custom` 由佔位改為 URL 表單（「載入 URL」）、本機 CSV 檔案、預測目標欄下拉與狀態列；探索橫幅與「方法與限制」表的 Test 列改字（#75 R1-F3）。`assets/explore_ui.js`：面板呈現、`File.arrayBuffer()` 讀檔、表單 `submit` 一律 `preventDefault`、切換 problem 清空輸入。`assets/explore.css`：`body.is-exploring footer.footer { display: none !important; }`（R3-2、R3-5）與面板版面；移除不再使用的佔位樣式。
 6. **靜態掃描** `hw2/offline_scan.py`：`FETCH_ALLOWED_FILE = "assets/explore_load.js"`；只有該路徑的 `fetch(` 不記 finding，其他網路 API、external-url 等規則照舊適用於該檔；`ALLOWED_DATA_URLS`、`DATA_FILES` 不變。
 7. **測試**：新增 `tests/js/explore_custom.test.js`（16 項）；延伸 `tests/test_node_explore.py`（R1-F2 的兩個完整 case、兩個載入 case、Python 端斷言、登錄新 Node 檔）、`tests/test_explore_static.py`（`fetch(` 例外的掃描案例、唯一呼叫點、面板、頁尾規則、R1-F3 用語；原本「沒有 `fetch(`」的斷言改為排除載入模組，§4 D-9）。
@@ -52,7 +52,7 @@
 | D-5 | 目標欄下拉列出全部欄位並標示數值／類別，預設最後一欄；選到類別欄得到 `TARGET_NOT_NUMERIC` 與重選提示且不執行；改選以記憶體中同一份內容重新執行，不重新讀取 URL。目標以欄序（index）指定，避免欄名比對 | Spec「目標：預設最後一欄；可指定任一欄…UI 以此提示使用者重選」；#76 AC「目標欄」 |
 | D-6 | 自訂資料集的內容只留在控制器的記憶體中，離開自訂資料集即清除（中止讀取、清空輸入欄與檔案選擇）；再選自訂資料集是空白面板，需重新提交。讀取中切換 problem 或再次提交時，舊讀取被中止、其回應被丟棄，不會覆蓋目前的畫面 | Spec「再切回探索 problem 時…要求重新提交（自訂）」「探索結果不寫入任何儲存」；DA G-5；D-1 第 3 點（新的提交是新的一次讀取） |
 | D-7 | 頁尾以 `explore.css` 的 `body.is-exploring footer.footer` 規則隱藏，不改頁尾 DOM／文字，`explore_ui.js` 不碰頁尾；切回 King County 移除 class 即還原 | DA R3-2、R3-5（「或 `explore.css` 中以 `body.is-exploring` 為前提的規則，與既有的導覽處理相同」） |
-| D-8 | R1-F2 的修正方式：一般物件＋`Object.defineProperty` 自有屬性＋`hasOwnProperty` 讀取（而非 `Object.create(null)`），讓結果契約仍是原型為 `Object.prototype` 的一般物件、JSON 序列化與 Node 對 Python 的比較方式不變；載入的重複欄名檢查改用 `Map` | `audit/issue-74-c1-r1.md` §7 R1-F2 disposition（「以 `Map`、`Object.create(null)` 或自有屬性檢查取代一般物件鍵」） |
+| D-8 | R1-F2 的修正方式：一般物件＋`Object.defineProperty` 自有屬性＋`hasOwnProperty` 讀取（而非 `Object.create(null)`），讓結果契約仍是原型為 `Object.prototype` 的一般物件、JSON 序列化與 Node 對 Python 的比較方式不變；載入的重複欄名檢查改用 `Map`。`e405bf1` 漏了頁面預測器的輸入收集（R1-F1）；`c4256f5` 改用 `Map`，`predict()`／`predictorView()` 本來就接受 `Map` | `audit/issue-74-c1-r1.md` §7 R1-F2 disposition（「以 `Map`、`Object.create(null)` 或自有屬性檢查取代一般物件鍵」） |
 | D-9 | `tests/test_explore_static.py`（#74 的 V2 測試）原有斷言「V2 腳本沒有 `fetch(`」改為「除 `assets/explore_load.js` 外沒有」，並新增「全頁恰一處 `fetch(`、在載入模組、選項為 D-1」的測試。這是 #76 AC 要求的例外，不是放寬：其他檔案的檢查照舊，且多了唯一性與選項的檢查 | #76 AC「靜態掃描」；run designation（V2 測試可延伸）；DA I-5（V1 既有測試未改） |
 | D-10 | 即時預測器的 `<form>` 加上 `submit` 的 `preventDefault`：所選候選只有一個數值輸入時，按 Enter 會觸發瀏覽器的隱式送出，使網址變成 `index.html?` 並重新載入回到 King County（`450bcff` 以 Chrome 155 實測，`predictor_enter_base_vs_subject.jsonl`）。這是 V2 UI 的修正，關係到本票 AC「探索結果不寫入 URL 參數」與「切換」；V1 的表單與程式未改 | #76 AC「不儲存」「切換」；Spec「探索結果不寫入任何儲存（…URL 參數…）」 |
 | D-11 | #75 R1-F3：「方法與限制」Test 列改為「探索 test：每次執行探索時只對 CV winner 計算一次（選取候選或切換方法不會重算）、不保存，永遠不是 Test evaluation」；同一用語也出現在探索橫幅（「每次選取都在瀏覽器內重新計算」），一併改為「每次執行探索（選取 50 Startups，或提交自訂資料集）都在瀏覽器內重新計算」 | `audit/issue-75-c1-r1.md` R1-F3 與 §6 disposition；Spec「UI 的任何操作都不重算 test」 |
@@ -123,7 +123,7 @@
 ## 8. Remaining work and concerns
 
 - **本票範圍內**：無未完成項目。GitHub Pages 上貼 URL 的檢查依 DA I-1／B-10 屬合併後的 item，ACCEPTANCE V2-18 記 NOT TESTED（pending merge）。
-- **R1-F2、R3-5、#75 R1-F3**：已在本票處理（§4 D-7、D-8、D-11），待 #76 R1 核對。
+- **R3-5、#75 R1-F3**：已在本票處理（§4 D-7、D-11）。**#74 R1-F2**：原寫「已在本票處理」，在 `e405bf1` 並不完整（頁面預測器的輸入收集仍用一般物件鍵，#76 R1-F1）；R1-F1 的修正在 `c4256f5` 完成，證據見 §10，待 R2 核對。
 - **觀察（給 Orchestrator／Reviewer／後續票，不需決定）**：
   1. 讀取的大小沒有位元組上限：載入上限（列、欄）在讀完之後才檢查；極大的 URL 回應或本機檔案會先整份讀入記憶體（URL 有 20 秒逾時）。資源保護屬 #77（Spec「資源保護」），本票未加新的拒絕條件。
   2. D-4 的輸入檢查（非 http(s) 完整網址不發請求）與 D-3 的 `not_text` 判定（NUL 位元組）是 Spec 未明定處的實作選擇，列出以便 R1 核對其與 D-1、H-5 的一致性。
@@ -135,3 +135,22 @@
 
 - 開始：2026-10-22 03:58（+08:00）；實作 commit `e405bf1`：約 04:14；最終瀏覽器檢查、ACCEPTANCE 與本 worklog：至約 04:30。
 - 主要耗時：測試 `pytest` 每次約 54 s；瀏覽器檢查每個瀏覽器約 60 s（含 20 秒逾時案例）；mutation 檢查 14 項約 2 分鐘。
+
+## 10. Cycle 1 targeted correction — R1-F1（2026-10-22）
+
+- **來源**：`audit/issue-76-c1-r1.md` §6 R1-F1（Medium，blocking）與其要求的 targeted correction 1–4；Orchestrator 派工（同一 worklog identity、同一 Executor agentId `acd62ed3a70012296`），BASE `ce97221`。R1-F2 與 O-1～O-3 依派工不處理。
+- **問題（我自己重現）**：`e405bf1` 的 `assets/explore_ui.js` `renderPredictor` → `update()` 以 `var raw = {}; raw[x.spec.name] = x.input.value;` 收集輸入；欄名為 `__proto__` 時呼叫的是 `Object.prototype.__proto__` 的 setter，字串值被丟棄，`predictorView()` 以 `getOwn` 讀到 `undefined` 而改用預設值（訓練中位數／基準層級），沒有任何警告。我的 Node 測試只以 `putOwn`／`Map` 建 `raw`，沒有走頁面的收集方式；我的瀏覽器探測沒有使用 `__proto__` 欄名。所以原本 V2-26 與 §3 第 4 點、§8 的 R1-F2 陳述超出了證據。
+- **修正**（`c4256f54a8ece52ef71aff93a719f7d8db1604b6`，2 個檔案 +14／−2，`git diff --stat ce97221 c4256f5`）：
+  - `assets/explore_ui.js`：`var raw = new Map(); inputs.forEach(function (x) { raw.set(x.spec.name, x.input.value); });`（`predictorView()` 與 `predict()` 已接受 `Map`）。我 grep 全部 V2 頁面腳本的 `obj[…] =` 寫入：這是唯一以使用者欄名作鍵的一般物件寫入；其餘的鍵都是陣列索引、候選鍵（如 `allin`、`forward_sfs_k01`）或方法名。
+  - `tests/test_explore_static.py::test_exploratory_files_never_assign_a_computed_key_on_a_plain_object`（6 個 V2 腳本參數化）：鍵的運算式提到 name／group／level／header／column／target 的方括號寫入即失敗。對 `ce97221` 的 `explore_ui.js` 執行 → 1 failed（`raw[x.spec.name] =`）；`c4256f5` → 6 passed。這是靜態的防回歸，不是新 AC、不是新 seam。
+  - 沒有其他修改：引擎、載入、控制器、`index.html`、CSS、`offline_scan.py`、其他測試未動。
+- **Closure 與回歸證據（真實頁面路徑）**：scratchpad 的 `r1f1_page.js` 以 DevTools Protocol 驅動 headless Chrome 155.0.8059.85 與 Edge 155.0.4283.62（全新 scratchpad `--user-data-dir`），頁面由 `http://127.0.0.1:8761` 提供 `git archive c4256f5`（修正後）與 `git archive a4b6c76`（修正前）的匯出。流程：選自訂資料集 → 以檔案選擇（`DOM.setFileInputFiles`）載入 CSV → 按頁面的 All-in 方法按鈕 → 在預測器**自己的** `<input>`／`<select>` 改值並觸發 `input`／`change` 事件 → 讀頁面顯示的點預測與 PI。對照兩個參考值：(a) 同一頁的引擎以 `Map` 呼叫 `predictorView`，以頁面相同的數字格式化；(b) Node 以同一 CSV 位元組獨立執行載入＋引擎，以 `Map` 計算（相對 1e-9）。
+  - 資料：`r1f1_numeric.csv`（數值 `__proto__`、`constructor`，y ≈ 4·`__proto__` + 10·`constructor`）、`r1f1_categorical.csv`（類別 `__proto__` = base／high／low，效果 0／+50／−50，與數值 `x`）；兩份都是合成資料，已放入證據目錄。
+  - **修正後（`c4256f5`）**，Chrome 與 Edge 相同（`r1f1_chrome_fixed.json`、`r1f1_edge_fixed.json`）：數值 `__proto__` = 9 → 40.27（PI 39.7～40.83），= −9 → −31.31（−31.87～−30.74），之後 `constructor` = 0.9 → −26.9，`__proto__` = 2.5 → 18.83；9 與 −9 超出訓練範圍時顯示「__proto__ 的輸入超出訓練範圍…」警告（自有鍵被讀到的另一個跡象）。類別 `__proto__` = high → 59.72（58.52～60.91），low → −40.69，base → 9.48；`x` = 3 → 6.07。每一步頁面顯示＝(a)＝(b)；`__proto__` 每次改值，顯示都跟著改變。請求 0、例外 0。
+  - **修正前（`a4b6c76`）**，Chrome（`r1f1_chrome_before.json`）：數值 `__proto__` = 9 與 −9 都顯示 3.47（2.96～3.98），參考值是 40.27 與 −31.31；類別 high／low 都顯示 9.48（基準層級的值），參考值是 59.72 與 −40.69；沒有警告。R1-F1 在頁面上重現，同一檢查在修正後通過。
+- **測試與不變量**（工作目錄＝`c4256f5`）：`.venv/Scripts/python -m pytest -q -rs` **455 passed，0 skipped**（449＋新靜態測試 6 個參數）；Node 直接執行：`explore_load` 15、`explore_boundary` 7、`explore_app` 12、`explore_methods` 7、`explore_custom` 16 pass，皆 0 fail、0 skipped（`explore_contract` 與 `core` 由 pytest 驅動，包含在 455 中）；`python -m hw2.offline_scan`：13 files PASS（0 findings）。`git show c4256f5:<path> | sha256sum`：`app.js` `c1ab3f21…`、`hw2core.js` `e75c5d48…`、`model_data.js` `6cf0c11e…`、`results/model_data.json` `69dc1465…`、`style.css` `60a27016…`，與 A-3 相同；`git diff --stat ce97221 c4256f5` 只有上列兩個檔案，都在 `home_work_02/` 內。
+- **紀錄的更正**（record-only，本次紀錄 commit）：ACCEPTANCE V2-26 的狀態改為以 `c4256f5` 為核對 subject，寫明 `e405bf1` 的 R1-F2 陳述只在 Node 路徑成立、頁面路徑在 R1-F1 修正後才成立，並加上頁面路徑證據；本 worklog 的檔頭、§3 第 4 點、§4 D-8、§8 加上更正。證據檔：`doc/screenshots/v2-issue76/r1f1_chrome_fixed.json`、`r1f1_edge_fixed.json`、`r1f1_chrome_before.json`、`r1f1_numeric.csv`、`r1f1_categorical.csv`（不含本機路徑；只有 `127.0.0.1` 網址）。
+- **程序**：本機伺服器（PID 20112）與每個瀏覽器都只以我啟動的 PID 結束；瀏覽器一律使用 scratchpad 的全新 profile，沒有在 acceptor 的預設 profile 上啟動任何瀏覽器；結束後核對沒有殘留的監聽埠或我的 profile 的瀏覽器程序。
+- **Binding**：agentId `acd62ed3a70012296`，`('claude-opus-5-5', 'high')`：256 則（截至寫入本節；單一元素；return 前由派工者全程核對）。
+- **Audit status**：R1 BLOCKING（R1-F1）→ 本 correction → 待 R2（同一 Reviewer）。本節是 Executor self-verification，不是 closure。
+- **時間**：約 04:35～04:55（+08:00）。
