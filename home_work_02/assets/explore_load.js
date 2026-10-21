@@ -60,6 +60,22 @@
  * 'not_text' (the body contains a NUL byte: binary data, not text). A body that is text but not UTF-8
  * goes on to loadCsv and is ENCODING there, exactly as the same bytes from a local file.
  *
+ * Large inputs (#77; DA decision-20261022-issue77-resource-limits C2-R3): there is no byte limit (C2-R2).
+ * When the bytes are in hand but cannot be decoded into one string (a JS engine refuses strings longer
+ * than about 2^29 characters, i.e. an input larger than about 512 MiB, or the memory runs out), the same
+ * checks are made on the bytes instead (inspectBytes): strict UTF-8 in chunks, U+FFFD / NUL, the RFC 4180
+ * records counted byte by byte with the same rules and order as readRecords, the header record decoded on
+ * its own, the record lengths. So an input over the row or column limit is TOO_LARGE whatever its size,
+ * and every other reason is the one the text path would give. Only when all of these pass -- the input
+ * is within the limits but this browser cannot hold it as text -- the result is not a LoadResult reason
+ * but `{ ok: false, reason: null, environment_error: { stage, error, message, bytes } }`: the size made the
+ * browser fail, which is reported as such (no new reason code; never ENCODING or a network cause). An
+ * input that the text path can decode gets exactly the LoadResult it got before. options.decode (tests
+ * only) replaces the decoder, to force this path on small inputs. In the URL entrance a body that the
+ * browser cannot hold in memory (a RangeError from response.arrayBuffer()) is the same environment_error,
+ * not URL_FETCH_FAILED / network: the response did arrive. SHA-256 is computed block by block from the
+ * bytes, without a padded copy of the whole input.
+ *
  * It works in the browser (window.HW2ExploreLoad) and in Node (module.exports). Strings from the CSV,
  * the URL and the server are data only: nothing here writes to the page or stores anything. */
 (function (root, factory) {
@@ -106,19 +122,13 @@
     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
 
+  /* SHA-256 of the bytes, block by block (no padded copy of the whole input; #77 large inputs). */
   function sha256Hex(bytes) {
     var n = bytes.length;
-    var total = ((n + 9 + 63) >> 6) << 6;
-    var m = new Uint8Array(total);
-    m.set(bytes);
-    m[n] = 0x80;
-    var bitsHi = Math.floor(n / 0x20000000), bitsLo = (n * 8) >>> 0;
-    m[total - 8] = bitsHi >>> 24; m[total - 7] = (bitsHi >>> 16) & 255; m[total - 6] = (bitsHi >>> 8) & 255; m[total - 5] = bitsHi & 255;
-    m[total - 4] = bitsLo >>> 24; m[total - 3] = (bitsLo >>> 16) & 255; m[total - 2] = (bitsLo >>> 8) & 255; m[total - 1] = bitsLo & 255;
     var h = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
     var w = new Array(64);
     function rotr(x, r) { return (x >>> r) | (x << (32 - r)); }
-    for (var off = 0; off < total; off += 64) {
+    function block(m, off) {
       for (var t = 0; t < 16; t++) {
         var j = off + 4 * t;
         w[t] = ((m[j] << 24) | (m[j + 1] << 16) | (m[j + 2] << 8) | m[j + 3]) >>> 0;
@@ -141,6 +151,15 @@
       h[0] = (h[0] + a) >>> 0; h[1] = (h[1] + b) >>> 0; h[2] = (h[2] + c) >>> 0; h[3] = (h[3] + d) >>> 0;
       h[4] = (h[4] + e) >>> 0; h[5] = (h[5] + f) >>> 0; h[6] = (h[6] + g) >>> 0; h[7] = (h[7] + hh) >>> 0;
     }
+    var full = n - (n % 64);
+    for (var off = 0; off < full; off += 64) block(bytes, off);
+    var restLen = n - full, tailLen = restLen + 9 <= 64 ? 64 : 128, tail = new Uint8Array(tailLen);
+    for (var i = 0; i < restLen; i++) tail[i] = bytes[full + i];
+    tail[restLen] = 0x80;
+    var bitsHi = Math.floor(n / 0x20000000), bitsLo = (n * 8) >>> 0;
+    tail[tailLen - 8] = bitsHi >>> 24; tail[tailLen - 7] = (bitsHi >>> 16) & 255; tail[tailLen - 6] = (bitsHi >>> 8) & 255; tail[tailLen - 5] = bitsHi & 255;
+    tail[tailLen - 4] = bitsLo >>> 24; tail[tailLen - 3] = (bitsLo >>> 16) & 255; tail[tailLen - 2] = (bitsLo >>> 8) & 255; tail[tailLen - 1] = bitsLo & 255;
+    for (off = 0; off < tailLen; off += 64) block(tail, off);
     return h.map(function (x) { return ('00000000' + x.toString(16)).slice(-8); }).join('');
   }
 
@@ -210,6 +229,108 @@
     return idx;
   }
 
+  /* The header checks, in order: NOT_CSV (one column), TOO_LARGE (columns), NO_HEADER, DUPLICATE_COLUMN. */
+  function headerReason(header, limits, sha) {
+    var ncol = header.length;
+    if (ncol < 2) return reject('NOT_CSV', { problem: 'fewer_than_two_columns', columns: ncol }, sha);
+    if (ncol > limits.maxColumns) return reject('TOO_LARGE', { columns: ncol, max_columns: limits.maxColumns }, sha);
+    var emptyAt = header.indexOf('');
+    if (emptyAt >= 0) return reject('NO_HEADER', { problem: 'empty_column_name', column: emptyAt }, sha);
+    if (header.every(isNumberLiteral)) return reject('NO_HEADER', { problem: 'numeric_header' }, sha);
+    var seen = new Map();                         /* a Map: any name, `__proto__` included, is a plain key */
+    for (var c = 0; c < ncol; c++) {
+      if (seen.has(header[c])) return reject('DUPLICATE_COLUMN', { name: header[c], columns: [seen.get(header[c]), c] }, sha);
+      seen.set(header[c], c);
+    }
+    return null;
+  }
+
+  var CHUNK = 1 << 24;                            /* 16 MiB: decoded strings in the byte path stay small */
+  function isSpaceByte(b) { return b === 0x20 || b === 0x09 || b === 0x0d || b === 0x0a || b === 0x0c || b === 0x0b; }
+
+  /* The byte path (#77, C2-R3): the checks of the text path on bytes that could not be decoded into one
+   * string; `error` is why decoding failed. Same reasons, details and order as the text path; when they all
+   * pass, an environment_error (the input is within the limits but too large for this browser as text). */
+  function inspectBytes(bytes, limits, error) {
+    var sha = sha256Hex(bytes), n = bytes.length, i, b;
+    var decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }), hasNul = false, hasFffd = false;
+    try {
+      for (i = 0; i < n; i += CHUNK) {
+        var piece = decoder.decode(bytes.subarray(i, Math.min(n, i + CHUNK)), { stream: true });
+        if (!hasNul && piece.indexOf('\u0000') >= 0) hasNul = true;
+        if (!hasFffd && piece.indexOf('\ufffd') >= 0) hasFffd = true;
+      }
+      var last = decoder.decode();
+      if (last.indexOf('\u0000') >= 0) hasNul = true;
+      if (last.indexOf('\ufffd') >= 0) hasFffd = true;
+    } catch (e) {
+      return reject('ENCODING', { problem: 'not_utf8' }, sha);
+    }
+    var start = n >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf ? 3 : 0;
+    if (hasNul || hasFffd) return reject('ENCODING', { problem: hasNul ? 'nul_character' : 'replacement_character' }, sha);
+    var allSpace = true;
+    for (i = start; i < n && allSpace; i++) if (!isSpaceByte(bytes[i])) allSpace = false;
+    if (allSpace) return reject('NOT_CSV', { problem: 'empty' }, sha);
+    /* readRecords on bytes: the structural characters are ASCII, which never occur inside a multi-byte
+     * UTF-8 sequence; `unit` counts UTF-16 code units after the BOM, for the NOT_CSV offset. */
+    var maxRows = limits.maxRows, nonBlank = 0, quoted = false, afterQuote = false, atFieldStart = true;
+    var fields = 0, fieldLen = 0, fieldSpace = true, unit = 0;
+    var hdrFrom = -1, hdrTo = -1, recStart = start, ncol = -1, ragged = null;
+    function endField() { fields++; fieldLen = 0; fieldSpace = true; quoted = false; atFieldStart = true; afterQuote = false; }
+    function endRecord(endAt) {
+      var onlyField = fields === 0;               /* the field being closed is the record's first */
+      var blank = onlyField && !quoted && fieldSpace;
+      endField();
+      if (!blank) {
+        nonBlank++;
+        if (nonBlank === 1) { hdrFrom = recStart; hdrTo = endAt; ncol = fields; }
+        else if (ragged === null && fields !== ncol) ragged = { record: nonBlank - 1, found: fields };
+      }
+      fields = 0;
+      return nonBlank - 1 > maxRows;
+    }
+    for (i = start; i < n;) {
+      b = bytes[i];
+      if (quoted && !afterQuote) {
+        if (b === 0x22) {
+          if (bytes[i + 1] === 0x22) { fieldLen++; i += 2; unit += 2; continue; }
+          afterQuote = true; i++; unit++; continue;
+        }
+        fieldLen++; i++; unit += (b & 0xc0) !== 0x80 ? (b >= 0xf0 ? 2 : 1) : 0; continue;
+      }
+      if (b === 0x2c) { endField(); i++; unit++; continue; }
+      if (b === 0x0d || b === 0x0a) {
+        var endAt = i;
+        if (b === 0x0d && bytes[i + 1] === 0x0a) { i++; unit++; }
+        i++; unit++;
+        if (endRecord(endAt)) return reject('TOO_LARGE', { rows_over: maxRows }, sha);
+        recStart = i;
+        continue;
+      }
+      if (afterQuote) {
+        if (b === 0x20 || b === 0x09) { i++; unit++; continue; }
+        return reject('NOT_CSV', { problem: 'text_after_closing_quote', offset: unit }, sha);
+      }
+      if (atFieldStart && b === 0x22) { quoted = true; atFieldStart = false; i++; unit++; continue; }
+      atFieldStart = false;
+      if (!(b === 0x20 || b === 0x09 || b === 0x0c || b === 0x0b)) fieldSpace = false;
+      fieldLen++; i++; unit += (b & 0xc0) !== 0x80 ? (b >= 0xf0 ? 2 : 1) : 0;
+    }
+    if (quoted && !afterQuote) return reject('NOT_CSV', { problem: 'unterminated_quoted_field' }, sha);
+    if (fieldLen > 0 || quoted || fields > 0) {
+      if (endRecord(n)) return reject('TOO_LARGE', { rows_over: maxRows }, sha);
+    }
+    if (nonBlank === 0) return reject('NOT_CSV', { problem: 'empty' }, sha);
+    var headerText = new TextDecoder('utf-8', { ignoreBOM: true }).decode(bytes.subarray(hdrFrom, hdrTo));
+    var header = readRecords(headerText, 1).records[0].map(trimCell);
+    var bad = headerReason(header, limits, sha);
+    if (bad) return bad;
+    if (ragged) return reject('RAGGED_ROWS', { record: ragged.record, expected: ncol, found: ragged.found }, sha);
+    return { ok: false, reason: null, sha256: sha, detail: {},
+      environment_error: { stage: 'decode', error: error && error.name ? String(error.name) : 'Error',
+        message: error && error.message !== undefined ? String(error.message) : String(error), bytes: n } };
+  }
+
   /* CSV text (string) or UTF-8 bytes (Uint8Array / ArrayBuffer) -> { load: LoadResult, columns }.
    * `columns` (name, index, type) is set once the header, the record lengths and the column types are
    * known (every reason from TOO_FEW_ROWS on); otherwise it is null. */
@@ -223,8 +344,10 @@
       bytes = utf8Bytes(text);
     } else {
       bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
-      try { text = decodeUtf8Strict(bytes); } catch (e) {
-        return out(reject('ENCODING', { problem: 'not_utf8' }, sha256Hex(bytes)));
+      try { text = (options.decode || decodeUtf8Strict)(bytes); } catch (e) {
+        /* invalid UTF-8 is a TypeError; anything else is the input's size (string length, memory) */
+        if (e && e.name === 'TypeError') return out(reject('ENCODING', { problem: 'not_utf8' }, sha256Hex(bytes)));
+        return out(inspectBytes(bytes, limits, e));
       }
     }
     var sha = sha256Hex(bytes);
@@ -239,18 +362,8 @@
     if (!records.length) return out(reject('NOT_CSV', { problem: 'empty' }, sha));
     var header = records[0].map(trimCell);
     var ncol = header.length;
-    if (ncol < 2) return out(reject('NOT_CSV', { problem: 'fewer_than_two_columns', columns: ncol }, sha));
-    if (ncol > limits.maxColumns) return out(reject('TOO_LARGE', { columns: ncol, max_columns: limits.maxColumns }, sha));
-    var emptyAt = header.indexOf('');
-    if (emptyAt >= 0) return out(reject('NO_HEADER', { problem: 'empty_column_name', column: emptyAt }, sha));
-    if (header.every(isNumberLiteral)) return out(reject('NO_HEADER', { problem: 'numeric_header' }, sha));
-    var seen = new Map();                         /* a Map: any name, `__proto__` included, is a plain key */
-    for (var c = 0; c < ncol; c++) {
-      if (seen.has(header[c])) {
-        return out(reject('DUPLICATE_COLUMN', { name: header[c], columns: [seen.get(header[c]), c] }, sha));
-      }
-      seen.set(header[c], c);
-    }
+    var bad = headerReason(header, limits, sha), c;
+    if (bad) return out(bad);
     var data = records.slice(1);
     for (var r = 0; r < data.length; r++) {
       if (data[r].length !== ncol) {
@@ -373,6 +486,14 @@
           var bytes = new Uint8Array(buffer);
           if (hasNulByte(bytes)) done(urlFailure('not_text', { bytes: bytes.length }));
           else done({ ok: true, url: checked.url, bytes: bytes, status: Number(response.status) || 0 });
+        }, function (e) {
+          /* the response arrived; the browser could not hold its body (C2-R3 (b)): not a network cause */
+          if (e && e.name === 'RangeError') {
+            done({ ok: false, reason: null, sha256: null, detail: {}, environment_error: { stage: 'read_body', error: 'RangeError',
+              message: e.message !== undefined ? String(e.message) : '', status: Number(response.status) || 0 } });
+            return;
+          }
+          throw e;
         });
       }).then(null, function () { done(urlFailure('network')); });
     });
@@ -392,6 +513,7 @@
     isNumberLiteral: isNumberLiteral,
     trimCell: trimCell,
     sha256Hex: sha256Hex,
+    inspectBytes: inspectBytes,
     utf8Bytes: utf8Bytes
   };
 });

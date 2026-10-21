@@ -11,6 +11,10 @@
 // the order of runs, cancellations and results is observable event by event (deps.trace). These are
 // tests of the result contract and of the controller; that the page itself stays operable is checked in
 // the browser (ACCEPTANCE V2-29), not here.
+// #77 cycle 1 targeted correction (R1-F1, R1-F2, R1-F3; DA decision-20261022-issue77-resource-limits C1-R3,
+// C2-R3; DA decision-20261022-issue77-cancel-final-phase CF-1): cancellation in the final phase (diagnostic,
+// test) at the next step boundary, the controller's live heartbeat (running, cancelling, waiting), and the
+// truthful reports of size failures (the loader's byte path, a URL body that cannot be held).
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -238,7 +242,7 @@ test('progress: an event at the start and at every candidate boundary; counts mo
   }
   assert.deepEqual(events.filter((e) => e.phase === 'skipped').map((e) => e.method), ['rfe']);
   assert.equal(events.filter((e) => e.phase === 'candidate').length, total - 4);   // rfe's 4 come in one 'skipped'
-  assert.equal(events.at(-1).phase, 'diagnostic');
+  assert.deepEqual(events.slice(-2).map((e) => e.phase), ['diagnostic', 'test']);   // the final phase (CF-1): diagnostic, then test
   assert.equal(events.at(-1).fraction, 1);
   assert.equal(events.at(-1).methods_done, 5);
   assert.ok(events.filter((e) => e.phase === 'candidate').every((e) => typeof e.method === 'string' && e.k >= 1));
@@ -481,4 +485,182 @@ test('scheduled: the three entrances give the same deterministic part (shared ca
   const strip = (r) => { const d = det(r.result); delete d.meta.problem; delete d.meta.source; return d; };
   assert.deepStrictEqual(strip(runs[1]), strip(runs[0]));
   assert.deepStrictEqual(strip(runs[2]), strip(runs[0]));
+});
+
+/* ---- #77 R1-F3 / CF-1: a cancellation in the final phase ends the run as CANCELLED ----------------------- */
+const BIG_MIXED = load(csvOf(MIXED, mixedRows(80, 4000)));    // a final phase with several steps
+test('CF-1: cancel at the start of the final phase (diagnostic) -> CANCELLED after the diagnostic step, no result', () => {
+  const { counts, hooks } = counter();
+  const tails = [];
+  hooks.tail = (stage, key) => tails.push(stage + (key ? ':' + key : ''));
+  const run = E.createRun(MIXED_LOAD, { hooks, onProgress: (e) => { if (e.phase === 'diagnostic') run.cancel(); } });
+  const res = drive(run);
+  assert.equal(res.run.status, 'CANCELLED');
+  assert.equal(res.run.candidates_completed, res.run.candidates_total);
+  assert.equal(res.run.methods_completed, 5);
+  assert.deepEqual(tails, ['diagnostic']);                        // stopped at the step boundary after it
+  for (const k of ['candidates', 'winners', 'test', 'dependencies', 'columns', 'groups', 'split', 'lasso_path']) assert.ok(!(k in res), k);
+  assert.equal(counts.candidate.length, res.run.candidates_total);
+  assert.match(A.cancelledText(res.run), /全部候選完成後、進行中的步驟完成時生效/);
+  const again = E.run(MIXED_LOAD);
+  assert.equal(again.run.status, 'COMPLETED');                   // a rerun is a full run again
+});
+
+test('CF-1: cancel during the exploratory test -> stops when that winner\'s test is complete; rerun equals an uncancelled run', () => {
+  const full = E.run(BIG_MIXED);
+  const tails = [];
+  const run = E.createRun(BIG_MIXED, { hooks: { tail: (stage, key) => { tails.push(stage + (key ? ':' + key : '')); if (stage === 'test') run.cancel(); } } });
+  const res = drive(run);
+  assert.equal(res.run.status, 'CANCELLED');
+  assert.deepEqual(tails, ['diagnostic', 'test:' + full.winners.test_keys[0]]);   // the first test step finished, no second one
+  for (const k of ['candidates', 'winners', 'test', 'dependencies']) assert.ok(!(k in res), k);
+  assert.deepEqual(det(E.run(BIG_MIXED)), det(full));
+});
+
+test('CF-1: a cancellation in the final phase wins over REJECTED (all candidates invalid)', () => {
+  const rows = [];
+  for (let i = 0; i < 30; i++) rows.push([1, i * 1.5]);
+  const ld = load(csvOf(['k', 'y'], rows));
+  assert.equal(E.run(ld).run.status, 'REJECTED');
+  const run = E.createRun(ld, { onProgress: (e) => { if (e.phase === 'diagnostic') run.cancel(); } });
+  const res = drive(run);
+  assert.equal(res.run.status, 'CANCELLED');
+  assert.ok(!('dependencies' in res) && !('candidates' in res));
+});
+
+function finalPhaseHarness(seed) {
+  return scheduledHarness({ datasets: { startups50: { csv: csvOf(MIXED, mixedRows(seed || 80, 4000)) } }, heartbeatMs: 1 });
+}
+function pumpToFinalPhase(h) {
+  let guard = 0;
+  while (!['diagnostic', 'test'].includes(h.controller.runState().phase) && guard++ < 1e6 && h.queue.length) h.pump(1);
+}
+test('CF-1 scheduled: 取消執行 in the final phase -> CANCELLED shown with no result; the text names the step, not a candidate', async () => {
+  const h = finalPhaseHarness();
+  const pending = h.controller.selectProblem('startups50');
+  pumpToFinalPhase(h);
+  assert.ok(h.controller.runState().running !== null, 'still running in the final phase');
+  assert.equal(h.controller.cancel(), true);
+  const live = h.controller.live();
+  assert.equal(live.cancelling, true);
+  assert.match(A.liveText(live), /全部候選已完成，正在進行的共線診斷或探索 test 步驟完成後停止/);
+  assert.doesNotMatch(A.liveText(live), /目前的候選算完後/);
+  await settle(h);
+  const run = await pending;
+  assert.equal(run.result.run.status, 'CANCELLED');
+  assert.equal(h.views.at(-1).mode, 'explore');
+  assert.equal(h.views.at(-1).run.result.run.status, 'CANCELLED');
+  assert.ok(!('candidates' in run.result) && !('test' in run.result));
+  assert.deepEqual(h.trace.map((e) => [e.type, e.status || null]), [['start', null], ['cancel', null], ['end', 'CANCELLED']]);
+});
+
+test('CF-1 scheduled: a new submission in the final phase cancels the run there and starts after it (one run at a time)', async () => {
+  const h = finalPhaseHarness();
+  const first = h.controller.selectProblem('startups50');
+  pumpToFinalPhase(h);
+  const second = h.controller.submitData(CSV_BYTES, { source: 'file', label: '50_Startups.csv' });
+  await settle(h);
+  assert.equal(await first, null);
+  assert.equal((await second).result.run.status, 'COMPLETED');
+  assert.deepEqual(h.trace.map((e) => [e.type, e.id, e.status || null]),
+    [['start', 1, null], ['cancel', 1, null], ['end', 1, 'CANCELLED'], ['start', 2, null], ['end', 2, 'COMPLETED']]);
+  neverTwoAtOnce(h.trace);
+});
+
+/* ---- #77 R1-F1 / C1-R3: the progress line stays live ------------------------------------------------------ */
+test('C1-R3: heartbeats keep the elapsed time moving between progress events, while cancelling and while waiting', async () => {
+  const h = finalPhaseHarness(81);
+  h.controller.selectProblem('startups50');
+  h.pump(40);
+  const beats = h.views.filter((v) => v.mode === 'heartbeat');
+  assert.ok(beats.length >= 30, 'a heartbeat on (almost) every time slice: ' + beats.length);
+  const elapsed = beats.map((v) => v.live.elapsed_ms);
+  assert.ok(elapsed.every((t, i) => i === 0 || t > elapsed[i - 1]), 'elapsed strictly increasing');
+  assert.ok(beats.length > h.views.filter((v) => v.mode === 'progress').length, 'more live updates than candidate events');
+  assert.match(A.liveText(beats.at(-1).live), /已耗時 \d+\.\d 秒$/);
+  // cancelling inside a candidate: still live, with the cancelling text
+  // cancel right after All-in: Forward's first candidate (its paths and fits) is then finished while cancelling
+  let guard = 0;
+  while (!h.views.some((v) => v.mode === 'progress' && v.progress.method === 'allin') && guard++ < 1e5) h.pump(1);
+  h.controller.cancel();
+  const before = h.views.length;
+  h.pump(15);
+  const cancelBeats = h.views.slice(before).filter((v) => v.mode === 'heartbeat');
+  assert.ok(cancelBeats.length >= 3 && cancelBeats.every((v) => v.live.cancelling), 'live while cancelling: ' + cancelBeats.length);
+  assert.ok(cancelBeats.at(-1).live.elapsed_ms > cancelBeats[0].live.elapsed_ms);
+  assert.match(A.liveText(cancelBeats.at(-1).live), /^取消中：目前的候選算完後（下一個候選邊界）停止/);
+  await settle(h);
+  assert.equal(h.views.at(-1).run.result.run.status, 'CANCELLED');
+  // waiting: a new request waits for a run that is stopping; the waiting line is live too
+  const w = finalPhaseHarness(82);
+  w.controller.selectProblem('startups50');
+  w.pump(10);
+  w.controller.selectProblem('startups50');
+  assert.equal(w.controller.runState().waiting, true);
+  const mark = w.views.length;
+  w.pump(10);
+  const waitBeats = w.views.slice(mark).filter((v) => v.mode === 'heartbeat' && v.live.kind === 'waiting');
+  assert.ok(waitBeats.length > 5);
+  assert.ok(waitBeats.at(-1).live.elapsed_ms > waitBeats[0].live.elapsed_ms);
+  assert.match(A.liveText(waitBeats.at(-1).live), /^等待前一次執行停止.*已等待 \d+\.\d 秒$/);
+  await settle(w);
+  const lastResult = w.views.map((v) => v.mode).lastIndexOf('explore');
+  assert.ok(!w.views.slice(lastResult).some((v) => v.mode === 'heartbeat'), 'no heartbeat after the result');
+});
+
+/* ---- #77 R1-F2 / C2-R3: size failures are reported truthfully ---------------------------------------------- */
+const FAIL_DECODE = () => { throw new RangeError('Invalid string length'); };
+test('C2-R3 (a): an input over the row or column limit is TOO_LARGE also when it cannot be decoded as one string', () => {
+  const over = new TextEncoder().encode('a,b,y\n' + Array.from({ length: 80 }, (_, i) => i + ',x,' + i).join('\n') + '\n');
+  const lim = { maxRows: 50 };
+  const text = L.inspectCsv(over, { limits: lim }).load, bytes = L.inspectCsv(over, { limits: lim, decode: FAIL_DECODE }).load;
+  assert.equal(text.reason, 'TOO_LARGE');
+  assert.deepEqual(bytes, text);
+  const wide = new TextEncoder().encode(Array.from({ length: 70 }, (_, j) => 'c' + j).join(',') + '\n');
+  assert.deepEqual(L.inspectCsv(wide, { decode: FAIL_DECODE }).load, L.inspectCsv(wide).load);
+  assert.equal(L.inspectCsv(wide, { decode: FAIL_DECODE }).load.reason, 'TOO_LARGE');
+  // every reason the text path gives up to RAGGED_ROWS is the same on the byte path
+  for (const t of ['a,y\n"x,1\n2,3', 'a,y\n"q"z,1\n', '1,2\n3,4\n', 'a,a,y\n1,2,3\n', 'only\n1\n', 'a,b,y\n1,2\n', 'a,b\n1,\u00002\n', '﻿ \r\n']) {
+    const b = new TextEncoder().encode(t);
+    assert.deepEqual(L.inspectCsv(b, { decode: FAIL_DECODE }).load, L.inspectCsv(b).load, JSON.stringify(t));
+  }
+});
+
+test('C2-R3 (b): an input within the limits that cannot be decoded is an environment failure, never ENCODING', () => {
+  const res = L.inspectCsv(CSV_BYTES, { decode: FAIL_DECODE }).load;
+  assert.equal(res.ok, false);
+  assert.equal(res.reason, null);
+  assert.deepEqual(res.environment_error, { stage: 'decode', error: 'RangeError', message: 'Invalid string length', bytes: CSV_BYTES.length });
+  assert.equal(res.sha256, L.loadCsv(CSV_BYTES).sha256);
+  const text = A.loadFailureText(res);
+  assert.match(text, /瀏覽器無法處理這份輸入/);
+  assert.doesNotMatch(text, /ENCODING|URL_FETCH_FAILED|網路/);
+  const bad = new Uint8Array([0x61, 0x2c, 0x62, 0x0a, 0xff, 0x2c, 0x31, 0x0a]);
+  assert.equal(L.inspectCsv(bad).load.reason, 'ENCODING');            // invalid UTF-8 is still ENCODING
+  assert.equal(L.inspectCsv(bad, { decode: FAIL_DECODE }).load.reason, 'ENCODING');
+});
+
+test('C2-R3 (b): a URL body the browser cannot hold is reported as such, not as a network failure; one request', async () => {
+  const big = Object.assign(function (url, init) { big.calls.push({ url, init }); return Promise.resolve({ ok: true, status: 200, statusText: 'OK',
+    arrayBuffer: () => Promise.reject(new RangeError('Array buffer allocation failed')) }); }, { calls: [] });
+  const got = await L.fetchCsvBytes('https://example.org/huge.csv', { fetchImpl: big });
+  assert.equal(got.ok, false);
+  assert.notEqual(got.reason, 'URL_FETCH_FAILED');
+  assert.deepEqual(got.environment_error, { stage: 'read_body', error: 'RangeError', message: 'Array buffer allocation failed', status: 200 });
+  assert.equal(big.calls.length, 1);
+  const text = A.loadFailureText(got);
+  assert.match(text, /瀏覽器收到了這個 URL 的回應（HTTP 200）/);
+  assert.match(text, /這不是網路或跨來源限制/);
+  const drop = Object.assign(function () { drop.calls.push(1); return Promise.resolve({ ok: true, status: 200, statusText: 'OK',
+    arrayBuffer: () => Promise.reject(new TypeError('network error')) }); }, { calls: [] });
+  const g2 = await L.fetchCsvBytes('https://example.org/x.csv', { fetchImpl: drop });
+  assert.equal(g2.reason, 'URL_FETCH_FAILED');                   // a dropped connection is still a network failure
+  assert.equal(g2.detail.cause, 'network');
+  const views = [];
+  const c = A.createController({ loader: L, engine: E, datasets: {}, render: (v) => views.push(v), fetchImpl: big });
+  c.selectProblem('custom');
+  const run = await c.submitUrl('https://example.org/huge.csv');
+  assert.equal(run.load.environment_error.stage, 'read_body');
+  assert.equal(views.at(-1).mode, 'explore');
+  assert.equal(big.calls.length, 2);                             // one request for this submission
 });

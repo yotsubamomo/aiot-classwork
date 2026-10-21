@@ -82,19 +82,23 @@
  *   - Steps and cancellation: createRun() returns a stepper; step() runs to the next yield point (after
  *     every fold fit, path step, LARS run, predictor-default column and, on larger data, every QR column
  *     step, Gram row, LARS iteration, diagnostic column and block of test rows: about YIELD_CELLS
- *     multiply-adds at most between two yields), so a page can keep its controls operable between steps. cancel() is honoured at the next candidate boundary
- *     (before the first candidate, and after each candidate or skipped method): the run then ends as
- *     CANCELLED, with no candidates, winners, test or other partial result -- only the counts of finished
- *     methods and candidates. A candidate in progress is never cut in the middle. run() drives the same
- *     stepper to the end synchronously.
+ *     multiply-adds at most between two yields), so a page can keep its controls operable between steps.
+ *     cancel() is honoured at the next candidate boundary (before the first candidate, and after each
+ *     candidate or skipped method); after the last candidate -- the final phase: the A-3 diagnostic and
+ *     the exploratory test of the winners -- at the next step boundary (the diagnostic complete, each
+ *     winner's test complete; DA decision-20261022-issue77-cancel-final-phase CF-1). The run then ends as
+ *     CANCELLED, with no candidates, winners, test, dependencies or other partial result -- only the counts
+ *     of finished methods and candidates. A candidate or final-phase step in progress is never cut in the
+ *     middle. run() drives the same stepper to the end synchronously.
  *   - Progress: options.onProgress(event) at the start and at every candidate boundary: the method, k,
  *     finished / total candidates and methods, the fraction and the elapsed time (non-deterministic);
- *     phase 'diagnostic' after the last candidate (the A-3 diagnostic runs then, after every boundary).
+ *     phase 'diagnostic' and then 'test' in the final phase. (The page keeps the elapsed time live between
+ *     events; assets/explore_app.js.)
  *   - Deterministic part: everything but meta.timing_ms (per-method timings and the start time) and the
  *     environment information of a FAILED reason. Same content, target, seed, engine version and budget
  *     constants give the same values, bit for bit in the same engine.
- *   - options.hooks (tests only): candidate(method, k), fold(method, k, f) and path(method, rowSet) are
- *     called as the work starts; they count work and may throw to inject a failure.
+ *   - options.hooks (tests only): candidate(method, k), fold(method, k, f), path(method, rowSet) and
+ *     tail('diagnostic' | 'test', key) are called as the work starts; they count work and may throw to inject a failure.
  *
  * Metrics are MAE, MSE, RMSE and R^2 (1 - SSE/SST around the mean of the scored rows; null when SST is
  * 0) in the target's own units. Nothing here reads model_data: the formal King County analysis is a
@@ -107,7 +111,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  var ENGINE_VERSION = 'explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)';
+  var ENGINE_VERSION = 'explore-engine 3.1 (V2-T4: budgets, cancellation incl. the final phase, unit-free paths)';
   var SEED = 42;
   var TEST_FRACTION = 0.2;
   var N_FOLDS = 5;
@@ -1382,15 +1386,21 @@
         if (control.cancel) return cancelled();
       }
     }
-    /* A-3 after the last candidate boundary (it does not delay a cancellation). */
+    /* The final phase (DA decision-20261022-issue77-cancel-final-phase CF-1): the A-3 diagnostic, then the
+     * exploratory test of the frozen winners. It has no candidate boundary; a cancellation requested here
+     * takes effect at the next step boundary -- when the diagnostic or a winner's test evaluation is
+     * complete, at the latest before the result is returned -- and ends the run as CANCELLED like any other
+     * (no partial result), even if it would have been REJECTED or COMPLETED. */
     var td = now(options);
     emit('diagnostic', null, null);
+    callHook(hooks, 'tail', 'diagnostic');
     try {
       result.dependencies = yield* dependencySteps(load, groups, split.train);
     } catch (e) {
       result.dependencies = { n_columns: q + 1, rank: null, relations: [], error: failureReason(e, null) };
     }
     meta.timing_ms.dependencies = now(options) - td;
+    if (control.cancel) return cancelled();                       /* step boundary: diagnostic complete */
     var valid = candidates.filter(function (c) { return c.status === 'VALID'; });
     if (!valid.length) {
       result.run = { status: 'REJECTED', reason: 'ALL_CANDIDATES_INVALID',
@@ -1401,9 +1411,12 @@
     /* winners are fixed here; the test rows are read only after this point, and only for them. */
     var winners = determineWinners(candidates);
     var test = {}, t4 = now(options);
+    emit('test', null, null);
     for (var ti = 0; ti < winners.test_keys.length; ti++) {
       var tkey = winners.test_keys[ti];
+      callHook(hooks, 'tail', 'test', tkey);
       test[tkey] = yield* testSteps(load, candidates.filter(function (x) { return x.key === tkey; })[0], split.test);
+      if (control.cancel) return cancelled();                     /* step boundary: one winner's test complete */
     }
     meta.timing_ms.test = now(options) - t4;
     meta.timing_ms.total = now(options) - t0;
@@ -1415,7 +1428,7 @@
   }
 
   /* A run as a stepper: step() advances to the next yield point and returns { done, result }; cancel()
-   * is honoured at the next candidate boundary. Steps are synchronous; the caller decides when to take
+   * is honoured at the next candidate boundary, or in the final phase at the next step boundary. Steps are synchronous; the caller decides when to take
    * the next one (e.g. after letting the page handle its events). */
   function createRun(load, options) {
     options = options || {};

@@ -29,10 +29,15 @@
  *
  * Running (#77): the controller advances the engine in time slices and hands control back to the browser
  * between them (a MessageChannel message, else setTimeout 0), so the drop-downs, the inputs and the
- * #ex-run panel's 「取消執行」 button stay operable and the progress line keeps updating. While a run is in
- * progress the result blocks are hidden (the previous result is not shown as the current one). Cancel is
- * honoured at the next candidate boundary; a CANCELLED run shows 「已取消」 with the number of finished
- * methods and no result block. A new selection or submission cancels the run in progress and starts
+ * #ex-run panel's 「取消執行」 button stay operable. The progress line is live (DA
+ * decision-20261022-issue77-resource-limits C1-R3): the controller sends a heartbeat view about every
+ * 200 ms between steps, so the elapsed time keeps moving during a long candidate, while cancelling and
+ * while a new request waits for the previous run to stop; the counts change at candidate boundaries.
+ * While a run is in progress the result blocks are hidden (the previous result is not shown as the
+ * current one). Cancel is honoured at the next candidate boundary, and after the last candidate (the
+ * diagnostic and the exploratory test) when the step in progress is complete (DA
+ * decision-20261022-issue77-cancel-final-phase CF-1); the cancelling text says which. A CANCELLED run
+ * shows 「已取消」 with the number of finished methods and no result block. A new selection or submission cancels the run in progress and starts
  * from the beginning. SKIPPED_RESOURCE_LIMIT and FAILED methods are marked in the method switch, the k
  * grid, the comparison table and the candidate's reasons; they have no CV metrics and no predictor.
  *
@@ -105,13 +110,20 @@
     btn.disabled = false;
     btn.textContent = '取消執行';
     bar.value = 0;
-    text.textContent = view.waiting ? '等待前一次執行在候選邊界停止，之後從頭開始新的執行…' : App.progressText(null);
+    text.textContent = App.liveText(view.waiting ? { kind: 'waiting', elapsed_ms: 0 } : { kind: 'running', elapsed_ms: 0, progress: null });
   }
   function showProgress(view) {
     if (runPanelFor !== view.id || byId('ex-run').hidden) return;
     var e = view.progress;
     byId('ex-progress').value = e.fraction;
     if (!byId('ex-cancel').disabled) byId('ex-progress-text').textContent = App.progressText(e);
+  }
+  /* C1-R3: the live line between progress events (running, cancelling or waiting). */
+  function showHeartbeat(view) {
+    var live = view.live;
+    if (!live || byId('ex-run').hidden || (live.kind === 'running' && live.id !== runPanelFor)) return;
+    if (live.progress) byId('ex-progress').value = live.progress.fraction;
+    byId('ex-progress-text').textContent = App.liveText(live);
   }
   function message(text, kind) {
     var box = byId('ex-message');
@@ -510,9 +522,15 @@
       /* dropped if the user has moved to another problem or chosen another file meanwhile */
       if (token !== fileToken || byId('problem-select').value !== 'custom') return;
       controller.submitData(new Uint8Array(buffer), { source: 'file', label: file.name });
-    }, function () {
+    }, function (err) {
       input.value = '';
       if (token !== fileToken || byId('problem-select').value !== 'custom') return;
+      /* DA C2-R3 (b): a failure caused by the size is reported as such, not as a CSV or encoding problem */
+      if (err && err.name === 'RangeError') {
+        message('瀏覽器無法把這個本機檔案讀入記憶體（約 ' + (file.size / 1048576).toFixed(0) +
+          ' MB）：檔案超過這個瀏覽器分頁能處理的大小或記憶體。這不是 CSV 格式或編碼的問題；沒有執行分析。', 'error');
+        return;
+      }
       message('無法讀取這個本機檔案（瀏覽器拒絕讀取）。請重新選擇檔案。', 'error');
     });
   }
@@ -520,6 +538,7 @@
   /* ---- render ------------------------------------------------------------------------------------- */
   function render(view) {
     if (view.mode === 'progress') { showProgress(view); return; }
+    if (view.mode === 'heartbeat') { showHeartbeat(view); return; }
     current = view;
     if (view.mode === 'king_county') { setExploring(false); showBlocks([]); return; }
     setExploring(true);
@@ -609,12 +628,13 @@
       if (ev.target.value !== '') controller.setTarget(Number(ev.target.value));
     });
     byId('ex-pred-form').addEventListener('submit', function (ev) { ev.preventDefault(); });
-    byId('ex-cancel').addEventListener('click', function () {      /* #77: honoured at the next candidate boundary */
+    byId('ex-cancel').addEventListener('click', function () {      /* #77: the next candidate or final-phase step boundary */
       if (!controller.cancel()) return;
       var btn = byId('ex-cancel');
       btn.disabled = true;
       btn.textContent = '取消中…';
-      byId('ex-progress-text').textContent = '取消中：目前的候選算完後（下一個候選邊界）停止。';
+      var live = controller.live();
+      if (live && !byId('ex-run').hidden) byId('ex-progress-text').textContent = App.liveText(live);
     });
     controller.init();
     problemSelect.addEventListener('change', function () {

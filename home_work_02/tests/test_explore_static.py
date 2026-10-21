@@ -493,7 +493,8 @@ def test_run_panel_is_labelled_operable_and_outside_the_result_blocks():
     assert cancel["tag"] == "button" and _attr(cancel, "type") == "button" and _text(cancel) == "取消執行"
     assert all(_attr(n, "name") is None for n in _walk(panel) if n["tag"] in ("input", "select", "button", "form"))
     help_text = _text(by_id["ex-cancel-help"])
-    for phrase in ("下一個候選邊界", "已算出的部分結果不顯示", "已取消", "再次執行會從頭開始"):
+    for phrase in ("下一個候選邊界", "已算出的部分結果不顯示", "已取消", "再次執行會從頭開始",
+                   "全部候選完成後", "進行中的步驟完成時生效", "「已耗時」持續更新"):   # CF-1, C1-R3
         assert phrase in help_text, phrase
     ui = _code(ASSETS_DIR / "explore_ui.js")
     assert "MessageChannel" in ui and "schedule: makeScheduler()" in ui
@@ -519,7 +520,8 @@ def test_methods_block_states_budget_failure_and_cancellation():
     methods = next(n for n in _walk(root) if _attr(n, "id") == "ex-methods")
     body = _text(methods)
     for phrase in ("預估 OLS 求解次數 × 訓練列數 × 編碼欄數²", "SKIPPED_RESOURCE_LIMIT", "All-in baseline 一律最先嘗試",
-                   "FAILED", "記憶體不足", "下一個候選邊界", "耗時可不同"):
+                   "FAILED", "記憶體不足", "下一個候選邊界", "耗時可不同",
+                   "全部候選完成後則在進行中的共線診斷或探索 test 步驟完成時生效"):   # CF-1
         assert phrase in body, phrase
 
 

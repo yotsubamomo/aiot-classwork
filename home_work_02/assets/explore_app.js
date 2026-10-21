@@ -94,23 +94,48 @@
     target_constant: '預測目標在這些列上沒有變化，沒有任何 feature group 進入路徑'
   };
   var PHASE_TEXT = { start: '準備完成，開始計算候選', candidate: '完成', skipped: '超出運算預算，整個方法略過',
-    failed: '計算失敗，整個方法標為 FAILED', diagnostic: '全部候選已完成，正在計算共線診斷與探索 test' };
+    failed: '計算失敗，整個方法標為 FAILED', diagnostic: '全部候選已完成，正在計算共線診斷',
+    test: '全部候選已完成，正在計算探索 test' };
 
   function statusText(status) { return STATUS_TEXT[status] || String(status); }
 
   /* #77: the progress line of a running Exploratory run (plain text). */
-  function progressText(e) {
-    if (!e) return '執行中：準備資料與切分…';
+  function seconds(ms) { return (Math.max(ms, 0) / 1000).toFixed(1) + ' 秒'; }
+
+  /* #77: the progress line of a running Exploratory run (plain text). elapsedMs (the live elapsed time,
+   * DA decision-20261022-issue77-resource-limits C1-R3) overrides the time of the last event. */
+  function progressText(e, elapsedMs) {
+    var elapsed = typeof elapsedMs === 'number' ? elapsedMs : e ? e.elapsed_ms : 0;
+    if (!e) return '執行中：準備資料與切分…，已耗時 ' + seconds(elapsed);
     var where = e.method ? methodLabel(e.method) + (e.k ? ' · k = ' + e.k : '') + '：' : '';
     var phase = PHASE_TEXT[e.phase] || String(e.phase);
     return '執行中（' + where + phase + '）：已完成 ' + e.candidates_done + '／' + e.candidates_total + ' 個候選、' +
-      e.methods_done + '／' + e.methods_total + ' 個方法（' + Math.round(100 * e.fraction) + '%），已耗時 ' +
-      (e.elapsed_ms / 1000).toFixed(1) + ' 秒';
+      e.methods_done + '／' + e.methods_total + ' 個方法（' + Math.round(100 * e.fraction) + '%），已耗時 ' + seconds(elapsed);
+  }
+
+  function isFinalPhase(e) { return !!(e && (e.phase === 'diagnostic' || e.phase === 'test')); }
+
+  /* #77: the live line of the running panel: running, cancelling (in a candidate, or in the final phase)
+   * or waiting for the previous run to stop. Counts change at boundaries; the elapsed time is live. */
+  function liveText(live) {
+    if (!live) return '';
+    if (live.kind === 'waiting') {
+      return '等待前一次執行停止（在它的下一個候選邊界，全部候選完成後則在進行中的步驟完成時），之後從頭開始新的執行…已等待 ' +
+        seconds(live.elapsed_ms);
+    }
+    if (live.cancelling) {
+      return (isFinalPhase(live.progress)
+        ? '取消中：全部候選已完成，正在進行的共線診斷或探索 test 步驟完成後停止，不顯示任何結果'
+        : '取消中：目前的候選算完後（下一個候選邊界）停止，不顯示任何結果') + '。已耗時 ' + seconds(live.elapsed_ms);
+    }
+    return progressText(live.progress, live.elapsed_ms);
   }
 
   /* #77: what a CANCELLED run shows: 「已取消」 and the finished methods, nothing else. */
   function cancelledText(run) {
-    return '已取消：取消在下一個候選邊界生效，停止時已完成 ' + run.methods_completed + '／' + run.methods_total + ' 個方法（' +
+    var when = run.candidates_completed === run.candidates_total
+      ? '取消在全部候選完成後、進行中的步驟完成時生效' : '取消在下一個候選邊界生效';
+    return '已取消：' + when + '，停止時已完成 ' + run.methods_completed + '／' + run.methods_total + ' 個方法（' +
       run.candidates_completed + '／' + run.candidates_total + ' 個候選）。已算出的部分結果不顯示；再次執行會從頭開始。';
   }
 
@@ -135,6 +160,19 @@
    * Names from the data are quoted as plain text (the page writes this string with textContent). */
   function loadFailureText(load) {
     var d = load.detail || {}, r = load.reason, text;
+    /* #77 (DA C2-R3 (b)): the browser could not hold the input -- the size, not the CSV, the encoding or
+     * the network. No reason code: the environment failure is reported as it happened. */
+    var env = load.environment_error;
+    if (env && env.stage === 'read_body') {
+      return '瀏覽器收到了這個 URL 的回應' + (env.status ? '（HTTP ' + env.status + '）' : '') +
+        '，但無法把回應內容讀入記憶體（' + env.error + (env.message ? '：' + env.message : '') +
+        '）：內容超過這個瀏覽器分頁能處理的大小。這不是網路或跨來源限制，也不是 CSV 格式的問題；沒有執行分析。';
+    }
+    if (env) {
+      return '瀏覽器無法處理這份輸入（約 ' + (env.bytes / 1048576).toFixed(0) + ' MB）：它是有效的 UTF-8，列數與欄數都在載入上限內，' +
+        '但超過這個瀏覽器分頁能以文字處理的大小或記憶體（' + env.error + (env.message ? '：' + env.message : '') +
+        '）。這不是 CSV 格式或編碼的問題；沒有執行分析。';
+    }
     if (r === 'URL_FETCH_FAILED') {
       text = urlCauseText(d.cause);
       if (d.cause === 'http_status') text += '：HTTP ' + d.status + (d.status_text ? ' ' + d.status_text : '');
@@ -388,6 +426,24 @@
     var active = null;      /* the run in progress (scheduled mode) */
     var waiting = null;     /* the request that starts when the active run has ended (the latest one) */
     var nextId = 0;
+    var heartbeatMs = deps.heartbeatMs > 0 ? deps.heartbeatMs : 200;
+    /* What the running panel shows (scheduled mode): a run (its id, start, last progress event) or a request
+     * waiting for the previous run to stop. Kept live between progress events (C1-R3). */
+    var live = null, lastBeat = 0;
+    function render(view) {
+      if (view.mode !== 'running' && view.mode !== 'progress' && view.mode !== 'heartbeat') live = null;
+      deps.render(view);
+    }
+    function liveView() {
+      if (!live) return null;
+      return { kind: live.kind, id: live.id, elapsed_ms: now() - live.since, progress: live.event,
+        cancelling: live.kind === 'running' && !!active && active.id === live.id && active.stepper.cancelRequested() };
+    }
+    function beat(force) {
+      if (!live || (!force && now() - lastBeat < heartbeatMs)) return;
+      lastBeat = now();
+      deps.render({ mode: 'heartbeat', problem: state.problem, live: liveView() });
+    }
 
     function emptyCustom() {
       return { source: null, label: null, input: null, columns: null, target: null, busy: false, cancel: null };
@@ -431,7 +487,10 @@
       var job = { id: out.id, out: out, gen: generation, columns: inspected.columns, done: done, resolve: null };
       job.stepper = deps.engine.createRun(load, { problem: problem, source: source, now: deps.now,
         onProgress: function (event) {
-          if (schedule && active === job && job.gen === generation) deps.render({ mode: 'progress', problem: problem, id: job.id, progress: event });
+          job.phase = event.phase;
+          if (!(schedule && active === job && job.gen === generation)) return;
+          if (live && live.id === job.id) live.event = event;
+          render({ mode: 'progress', problem: problem, id: job.id, progress: event });
         } });
       trace({ type: 'start', id: job.id, problem: problem });
       function finish() {
@@ -446,14 +505,15 @@
         return out;
       }
       active = job;
-      deps.render({ mode: 'running', problem: problem, id: job.id, progress: null, custom: problem === 'custom' ? panelView() : undefined });
+      live = { kind: 'running', id: job.id, since: t0, event: null };
+      render({ mode: 'running', problem: problem, id: job.id, progress: null, custom: problem === 'custom' ? panelView() : undefined });
       return new Promise(function (resolve) {
         job.resolve = resolve;
         function pump() {
           if (active !== job) return;
           var deadline = now() + sliceMs, st;
           do { st = job.stepper.step(); } while (!st.done && now() < deadline);
-          if (!st.done) { schedule(pump); return; }
+          if (!st.done) { beat(false); schedule(pump); return; }
           active = null;
           finish();
           resolve(job.gen === generation ? out : null);
@@ -491,7 +551,7 @@
       cancelActive();
       if (waiting) { waiting.resolve(null); waiting = null; }
       state.problem = 'king_county';
-      deps.render({ mode: 'king_county', problem: 'king_county' });
+      render({ mode: 'king_county', problem: 'king_county' });
     }
 
     function selectProblem(problem) {
@@ -500,32 +560,38 @@
       cancelActive();
       if (waiting) { waiting.resolve(null); waiting = null; }
       state.problem = problem;
-      if (problem === 'king_county') { deps.render({ mode: 'king_county', problem: problem }); return null; }
+      if (problem === 'king_county') { render({ mode: 'king_county', problem: problem }); return null; }
       if (problem === 'custom') {
         custom = emptyCustom();
-        deps.render({ mode: 'custom', problem: problem, custom: panelView() });
+        render({ mode: 'custom', problem: problem, custom: panelView() });
         return null;
       }
       var ds = deps.datasets && deps.datasets.startups50;
       if (!ds || typeof ds.csv !== 'string') {
-        deps.render({ mode: 'error', problem: problem, message: '找不到內建的 50 Startups 資料（assets/data/startups50.js）。' });
+        render({ mode: 'error', problem: problem, message: '找不到內建的 50 Startups 資料（assets/data/startups50.js）。' });
         return null;
       }
       var gen = generation;
-      if (schedule && active) deps.render({ mode: 'running', problem: problem, id: null, progress: null, waiting: true });
+      if (schedule && active) {
+        live = { kind: 'waiting', id: null, since: now(), event: null };
+        render({ mode: 'running', problem: problem, id: null, progress: null, waiting: true });
+      }
       return request(function () {
         if (gen !== generation) return null;
         return execute(ds.csv, 'builtin', problem, null, function (out, columns, job) {
           if (!shown(out, job) || state.problem !== problem) return;
           state.lastExplore = out;
-          deps.render({ mode: 'explore', problem: problem, run: out });
+          render({ mode: 'explore', problem: problem, run: out });
         });
       });
     }
 
     function runCustom() {
       var c = custom, gen = generation;
-      if (schedule && active) deps.render({ mode: 'running', problem: 'custom', id: null, progress: null, waiting: true, custom: panelView() });
+      if (schedule && active) {
+        live = { kind: 'waiting', id: null, since: now(), event: null };
+        render({ mode: 'running', problem: 'custom', id: null, progress: null, waiting: true, custom: panelView() });
+      }
       return request(function () {
         if (gen !== generation || custom !== c) return null;
         return execute(c.input, c.source, 'custom', c.target, function (out, columns, job) {
@@ -533,7 +599,7 @@
           out.label = c.label;
           if (!shown(out, job) || custom !== c) return;
           state.lastExplore = out;
-          deps.render({ mode: 'explore', problem: 'custom', run: out, custom: panelView() });
+          render({ mode: 'explore', problem: 'custom', run: out, custom: panelView() });
         }, function (columns) { if (columns) c.columns = columns; });
       });
     }
@@ -570,11 +636,12 @@
         waiting = null;
         generation++;                     /* nothing of the run still stopping is shown */
         cancelActive();
-        deps.render({ mode: 'cancelled', problem: state.problem, custom: state.problem === 'custom' ? panelView() : undefined });
+        render({ mode: 'cancelled', problem: state.problem, custom: state.problem === 'custom' ? panelView() : undefined });
         return true;
       }
       if (!active) return false;
       cancelActive();
+      beat(true);
       return true;
     }
 
@@ -589,7 +656,7 @@
       var gen = generation, c = custom;
       var checked = deps.loader.checkUrl(text);
       if (!checked.ok) {
-        deps.render({ mode: 'custom', problem: 'custom', custom: panelView(),
+        render({ mode: 'custom', problem: 'custom', custom: panelView(),
           notice: { kind: 'error', text: urlInputText(checked.problem) } });
         return Promise.resolve(null);
       }
@@ -598,7 +665,7 @@
       custom.label = checked.url;
       custom.busy = true;
       custom.cancel = function () { if (abort) abort.abort(); };
-      deps.render({ mode: 'custom', problem: 'custom', custom: panelView(),
+      render({ mode: 'custom', problem: 'custom', custom: panelView(),
         notice: { kind: 'info', text: '讀取中：對這個 URL 發出一次 GET（不帶憑證、不跟隨重新導向、不重試）。' } });
       return deps.loader.fetchCsvBytes(checked.url, { fetchImpl: deps.fetchImpl, signal: abort ? abort.signal : null,
         timeoutMs: deps.urlTimeoutMs }).then(function (got) {
@@ -606,14 +673,14 @@
         custom.busy = false;
         custom.cancel = null;
         if (!got.ok && (got.cancelled || got.input_error)) {
-          deps.render({ mode: 'custom', problem: 'custom', custom: panelView(),
+          render({ mode: 'custom', problem: 'custom', custom: panelView(),
             notice: got.input_error ? { kind: 'error', text: urlInputText(got.input_error) } : null });
           return null;
         }
         if (!got.ok) {
           var run = { problem: 'custom', source: 'url', label: custom.label, load: got, result: null, ms: null };
           state.lastExplore = run;
-          deps.render({ mode: 'explore', problem: 'custom', run: run, custom: panelView() });
+          render({ mode: 'explore', problem: 'custom', run: run, custom: panelView() });
           return run;
         }
         custom.input = got.bytes;
@@ -625,8 +692,10 @@
       submitUrl: submitUrl, setTarget: setTarget, cancel: cancel, custom: panelView,
       state: function () { return { problem: state.problem, runs: state.runs, hasResult: !!state.lastExplore }; },
       runState: function () {
-        return { running: active ? active.id : null, cancelling: !!(active && active.stepper.cancelRequested()), waiting: !!waiting };
-      } };
+        return { running: active ? active.id : null, cancelling: !!(active && active.stepper.cancelRequested()), waiting: !!waiting,
+          phase: active ? active.phase || null : null };
+      },
+      live: liveView };
   }
 
   return {
@@ -637,7 +706,7 @@
     loadFailureText: loadFailureText, urlCauseText: urlCauseText, urlInputText: urlInputText,
     runReasonText: runReasonText, reasonText: reasonText, warningText: warningText, methodLabel: methodLabel,
     causeText: causeText, candidateName: candidateName, candidateByKey: candidateByKey, defaultKey: defaultKey,
-    progressText: progressText, cancelledText: cancelledText, timingText: timingText, noWinnerText: noWinnerText,
+    progressText: progressText, liveText: liveText, cancelledText: cancelledText, timingText: timingText, noWinnerText: noWinnerText,
     methodState: methodState, environmentText: environmentText,
     winnerRoles: winnerRoles, testView: testView, compareRows: compareRows, kSeries: kSeries,
     dependencyView: dependencyView, lassoView: lassoView,

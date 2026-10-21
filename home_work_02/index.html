@@ -92,7 +92,7 @@
       <p class="small ex-progress-text" id="ex-progress-text" role="status" aria-live="polite"></p>
       <div class="ex-run__row">
         <button class="btn ex-cancel" type="button" id="ex-cancel" aria-describedby="ex-cancel-help">取消執行</button>
-        <p class="help" id="ex-cancel-help">取消在目前的候選算完後（下一個候選邊界）生效：已算出的部分結果不顯示，只顯示「已取消」與已完成的方法數；再次執行會從頭開始。執行中仍可切換問題、改選目標欄或輸入 URL；新的選取或提交會先取消目前的執行。</p>
+        <p class="help" id="ex-cancel-help">取消在目前的候選算完後（下一個候選邊界）生效；全部候選完成後（計算共線診斷與探索 test 時）則在進行中的步驟完成時生效。取消後已算出的部分結果不顯示，只顯示「已取消」與已完成的方法數；再次執行會從頭開始。等待期間「已耗時」持續更新。執行中仍可切換問題、改選目標欄或輸入 URL；新的選取或提交會先取消目前的執行。</p>
       </div>
     </div>
 
@@ -233,7 +233,7 @@
         </table>
       </div>
       <h3 class="ex-subhead">運算預算、失敗與取消</h3>
-      <p class="small">Forward SFS、Backward SFS、RFE 與 Lasso 路徑在執行前各自估計運算量（預估 OLS 求解次數 × 訓練列數 × 編碼欄數²，只依資料大小，不依耗時）；超過該方法的預算時整個方法標「超出運算限制，未執行（SKIPPED_RESOURCE_LIMIT）」，其他方法照常執行。All-in baseline 一律最先嘗試。任一方法發生非預期的計算錯誤（含記憶體不足）時，只有該方法標為「計算失敗（FAILED）」並附訊息與環境資訊。這兩種狀態都沒有訓練 CV 指標、不會成為 winner，也不提供即時預測。執行中可取消，取消在下一個候選邊界生效；同一份資料、同一目標欄與同一版本重跑，顯示的結果相同（耗時可不同）。</p>
+      <p class="small">Forward SFS、Backward SFS、RFE 與 Lasso 路徑在執行前各自估計運算量（預估 OLS 求解次數 × 訓練列數 × 編碼欄數²，只依資料大小，不依耗時）；超過該方法的預算時整個方法標「超出運算限制，未執行（SKIPPED_RESOURCE_LIMIT）」，其他方法照常執行。All-in baseline 一律最先嘗試。任一方法發生非預期的計算錯誤（含記憶體不足）時，只有該方法標為「計算失敗（FAILED）」並附訊息與環境資訊。這兩種狀態都沒有訓練 CV 指標、不會成為 winner，也不提供即時預測。執行中可取消：取消在下一個候選邊界生效，全部候選完成後則在進行中的共線診斷或探索 test 步驟完成時生效，取消後不顯示任何結果；同一份資料、同一目標欄與同一版本重跑，顯示的結果相同（耗時可不同）。</p>
       <h3 class="ex-subhead">逐列切分的限制</h3>
       <p class="small">探索模式的切分是逐列隨機的，沒有分組欄的概念。資料中若有<strong>重複的列</strong>、<strong>同一個實體的多筆紀錄</strong>（例如同一家公司或同一個人的多次觀測），或<strong>時間相依</strong>的資料，同一來源的資訊可能同時出現在訓練與 test（或同一 fold 的訓練與驗證）列，使 CV 與 test 指標過度樂觀。探索結果只供操作與比較，<strong>不代表正式研究結論</strong>。</p>
       <p class="small muted">CV winner 是在多個 k 與方法中取最小 CV RMSE 選出的，CV 分數帶有樂觀的選擇偏誤；探索 test 只對 winner 計算一次作為較獨立的估計，test 排名與 CV 排名不同時也不換模型。</p>
