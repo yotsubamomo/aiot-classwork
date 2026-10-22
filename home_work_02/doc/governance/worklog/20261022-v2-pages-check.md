@@ -133,3 +133,8 @@ Chrome 與 Edge 的功能結果完全相同（`verdict.txt`；`kc_blocks`、`d3_
 - Independent audit：**required → closed**。`../audit/20261022-v2-pages-check-c1-r1.md`：`VERDICT: CLOSURE`（Primary Reviewer agentId `ab740f9146544c1f3`，`gov-primary-reviewer`，主 session 核對 `('claude-opus-5-5','xhigh')` 210 則，單一元素）。C-1～C-3 經 Reviewer 判定無須處理；F-1（Low，§6 的檔名描述）non-blocking，未修改，留作紀錄。
 - Executor binding（主 session 核對）：agentId `a95b90b7c9ec3a748`，`('claude-opus-5-5','high')` 129 則，單一元素。
 - 結果：WI-V2-PAGES-1 完成；OI-V2-1（derivation B-10）結案。
+
+## Push 與 PR（acceptor 授權，2026-10-22）
+
+- Acceptor 原文逐字：「授權推送 home_work_02-v2-pages-check（推送前重跑學號檢查）並開 PR 到 main；不合併。」
+- 依 SA-1、SA-2 執行；合併屬 RB-1，未授權。學號檢查與 PR 連結由派工的主 session 於推送後回報（PR 描述與對話）。
