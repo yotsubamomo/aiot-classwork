@@ -132,3 +132,19 @@
 
 - 開始：2026-10-22 09:33（+08:00）；BASE pytest 09:33–09:35；README、報告與測試至約 09:43（commit `f56461b`）；打包 09:44:33–09:44:48；瀏覽器檢查 09:48–09:54（每個瀏覽器約 35～40 s）；ACCEPTANCE 與本 worklog 至約 10:05。
 - 收尾（約 10:10）：提交紀錄 commit 後全部 pytest 再跑一次 478 passed、0 skipped；刪除 scratchpad 的解壓 ZIP 與瀏覽器 profile（中型資料 2.8 MB 與腳本保留在 scratchpad，不進 repo）。
+
+## 10. Contract-internal rework — SIA-F1、SIA-F2（2026-10-22）
+
+- **來源與 authority**：Spec Integration Audit `audit/spec-SPEC-V2-c1-r1.md`（CLOSURE）的 SIA-F1、SIA-F2；DA `decisions/decision-20261022-sia-f1-dashboard-wording.md`（S1-1～S1-6；不改變 accepted 語義）。Orchestrator 派工，BASE `cec4c93`，同一 worklog identity；SIA-F2 由 Orchestrator 依 S1-6 納入本次派工。
+- **修改**（commit `69f8e0794ec0fb5b4f1fcda7a1f62bc74912a89d`；`git diff --name-status cec4c93 69f8e07`：`M README.md`、`M report/report.md`，+3／−2 行）：
+  - 報告 12.5 新增一條（S1-2，採 DA 的參考文字）：C-1 前面各章依舊版作業頁、保留原文；C-2 更新後的作業頁（SRC-4）主要繳交「跟 DIC2 一樣github and web」，本專案的 web 交付是 Pages 上的這個 dashboard（主詞是本專案），前言／對照表／第 7.1 節／第九章的「課堂口頭」標示只描述舊版，標示類別仍是老師要求；C-3 特徵數 `>13`（code span），第 1.2 節依舊版，不寫數字；C-4 舊版「補充」段新版未載明、不推定已刪除。形式：沒有手打數字、沒有新 placeholder、12.5 既有兩條保留、沒有「講義」、沒有超出 SRC-4 原文的說法。
+  - README「Lasso 路徑的停止」與報告 12.3 同一段（S1-6，兩處只改兩點）：停止原因加入「同一步有多個 group 同時離開路徑」「預測目標在這些列上沒有變化」；尺度改為「目標在同一批列上置中後除以其均方根」。
+  - 未改：第 12 章以外的模板、測試、`index.html`、`assets/`、`hw2/`、`results/`、notebook、建置與打包程式。
+- **自動測試**（working tree＝`69f8e07`）：`python -m pytest -q -rs` **478 passed、0 skipped**（114 s）；Node 探索模式 6 檔 **88 pass、0 fail、0 skipped**；`core.test.js` 單獨 9 pass、0 fail、3 skipped（fixture 案例由 pytest 執行，同 §6.1）；`offline_scan` 13 files PASS。`test_explore_docs.py` 與 `test_report.py` 未改且通過（第 12 章以外與 `d7f02d4` 相同；第 12 章唯一的 placeholder 仍是 `k_range`）。
+- **報告與 ZIP**（S1-4、SIA-F3）：打包前比對 working copy 與 `69f8e07` 的 blob：`index.html` 與 `assets/` 17 檔相同（前次寫回的 LF 位元組仍在），不需改寫，`git status` 乾淨。`python -m hw2.package`（11:10:55–11:11:13，exit 0）：`dist/<學號>_hw2.zip` **sha256 `8a51fc1ca26d176f3edb075f7f8aeda7a0dc659531484c10e695bc3800d08f8d`**，81,624,097 bytes，67 個項目；報告 PDF 152 頁，sha256 `ba56dc5bbb466dc3f9d7ea77ca6b464a2d5fc3374d912180c767307bfdf7f9fe`，建置後的 Markdown 含 12.5 新條目與 12.3 的新文字。讀回：`testzip()` 無錯；ZIP 內 `index.html` 與 `assets/` 17 檔與 `69f8e07` 的 blob 逐位元相同。與舊 ZIP `57e1e4a4…bcd11` 的清單逐項比對：項目名稱與順序相同，sha256 不同的只有 `hw2_report.pdf` 與 `README.md`（S1-6 的 README 修改；DA S1-4 第 3 點預期只有 PDF，是因為 S1-6 也被採用）。notebook `2e2f8afc…ff64`、ChatGPT PDF `0a5d29e3…a194` 照舊。新清單：`doc/screenshots/v2-issue78/zip_manifest_rework_69f8e07.txt`（舊的 `zip_manifest.txt` 保留）。
+- **A-4 學號**：以 `.local/packaging.json` 的值 `git grep -F` 0 個檔案、`git log --all --format=%B` 0、新清單 0（不印出值）。
+- **ACCEPTANCE**：V2-35、V2-36、V2-37、V2-41 加上 rework 註（新 subject、新 ZIP 與 PDF 的 sha256、新舊 ZIP 的對應）。
+- **程序**：本次沒有直接啟動瀏覽器；報告建置由 `hw2.report` 在系統暫存的全新 profile 啟動 headless Chrome（用完自動刪除）。事後以命令列核對：含本 session scratchpad 路徑或 `hw2-report-browser` 的 chrome／msedge／node 程序 0 個，暫存 profile 目錄 0 個。
+- **Binding**：agentId `acc8906c845bfc14f`（`gov-executor`），`('claude-opus-5-5', 'high')`：243 則，單一元素（return 前由派工者全程核對）。
+- **Audit status**：依 DA S1-5，由 Spec Integration Audit cycle 1 R2（`audit/spec-SPEC-V2-c1-r2.md`）審查本 rework；本節是 Executor self-verification。
+- **剩餘**：無需要 authority 的事項。`index.html` `#ex-lasso-card` 的停止原因列舉仍不完整（DA S1-6 明定不在本次範圍）。時間：約 11:00～11:20（+08:00）。
