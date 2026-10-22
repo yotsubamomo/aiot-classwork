@@ -269,3 +269,5 @@ Tracked items for dispatch packs（更新）：
 | P9 | phase 層：Spec Integration Audit（下一步） | 進行 |
 
 **#78：已結案**（closed subject `3745e9cb4b265e15538576e9b95cd64738e9de35`）。**#74–#78 全部結案。** 下一步：Spec V2 的 Spec Integration Audit（fresh `gov-primary-reviewer`，subject＝整合後最終 subject `3745e9c`；不適用單 Ticket fast path）。
+| 22 | 2026-10-22 | Spec V2 Spec Integration Audit c1 R1 | agentId `aa43e1e2fb1e18487` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**（無 blocking）；record `audit/spec-SPEC-V2-c1-r1.md`；subject `3745e9c`；§1 逐項聲明五個範圍（Orchestrator 核對存在：§1 涵蓋表、§2 跨票 invariants、§3 Spec AC 35 條＋§3.2 全部 derived Specs 分配、§4 整合行為、§5 subject coverage、§6 traceability）；觀測 `('claude-opus-5-5','xhigh')` 222 則 → 採用。SIA-F1（Low）→ Design Authority（record 已指明）；SIA-F2～F5（Low）→ tracked items，owner Orchestrator；B-10 open item（Pages，pending merge） |
+| 23 | 2026-10-22 | SIA-F1 ＋ DA phase acceptance | （fresh） | `gov-design-authority` | Opus 5.5／`high` | 進行中 |
