@@ -127,3 +127,9 @@ Chrome 與 Edge 的功能結果完全相同（`verdict.txt`；`kc_blocks`、`d3_
   - **C-2**（給 audit 核對）：G.1 第 3 列的狀態是 V2-42 的鏡像，所以一併更新（§7）。若 reviewer 認為它超出派工範圍，還原這一列是 record-only 的修改。
   - **C-3**（只記錄）：Vercel `Production` 7245413394 為 success。Bindings §5 的 SA-3 合併後驗證（對 `home_work_01` production 跑 smoke）只適用於依 SA-3 的合併；這次是 acceptor 依 RB-1 指示的合併，所以本 work item 沒有執行 smoke。
 - **Remaining work**：independent audit（R1）的派工與 closure（主 session）；之後 OI-V2-1 才能結案。本 branch 未 push（SA-1 的 push 由派工者決定），合併屬 RB-1，繳交屬 RB-2（OI-V2-10）。
+
+## Audit status（派工的無角色主 session 轉錄，2026-10-22）
+
+- Independent audit：**required → closed**。`../audit/20261022-v2-pages-check-c1-r1.md`：`VERDICT: CLOSURE`（Primary Reviewer agentId `ab740f9146544c1f3`，`gov-primary-reviewer`，主 session 核對 `('claude-opus-5-5','xhigh')` 210 則，單一元素）。C-1～C-3 經 Reviewer 判定無須處理；F-1（Low，§6 的檔名描述）non-blocking，未修改，留作紀錄。
+- Executor binding（主 session 核對）：agentId `a95b90b7c9ec3a748`，`('claude-opus-5-5','high')` 129 則，單一元素。
+- 結果：WI-V2-PAGES-1 完成；OI-V2-1（derivation B-10）結案。
