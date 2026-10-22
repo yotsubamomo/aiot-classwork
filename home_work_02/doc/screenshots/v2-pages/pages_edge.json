@@ -1,0 +1,2593 @@
+{
+ "label": "edge",
+ "browser": "Edg/155.0.4283.62",
+ "started": "2026-10-22T06:36:51.832Z",
+ "pages": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/",
+ "checks": {
+  "first_load": {
+   "firstDrawMs": 1503,
+   "nPoints": 4323,
+   "nTestPoints": 4323,
+   "href": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/",
+   "title": "King County 房價多元線性回歸分析 — HW2 Dashboard",
+   "lang": "zh-Hant-TW",
+   "problemOptions": [
+    {
+     "value": "king_county",
+     "text": "King County 房價（正式分析）",
+     "selected": true
+    },
+    {
+     "value": "startups50",
+     "text": "50 Startups 利潤（探索）",
+     "selected": false
+    },
+    {
+     "value": "custom",
+     "text": "自訂資料集（探索）",
+     "selected": false
+    }
+   ],
+   "exploreHidden": true
+  },
+  "kc_blocks": {
+   "methodButtons": 5,
+   "methods": [
+    "allin",
+    "forward_sfs",
+    "backward_sfs",
+    "rfe",
+    "lasso_path"
+   ],
+   "kButtons": 0,
+   "kfixed": true,
+   "kpiCv": 4,
+   "kchart": true,
+   "chartInstances": 1,
+   "predFields": 18,
+   "predInputs": 19,
+   "predPrice": "US$503,564",
+   "predPi": "US$351,404 – US$721,610",
+   "dateInputs": 1,
+   "zipSelect": 1,
+   "renovNone": 1,
+   "testBodyVisible": true,
+   "methodsVisible": true,
+   "overviewVisible": true,
+   "loadErrorHidden": true,
+   "kpiCvTags": [
+    "訓練 CV（USD）",
+    "訓練 CV（USD）",
+    "訓練 CV（USD）",
+    "訓練 CV（USD）"
+   ],
+   "testTags": [
+    "Test 評估（USD）",
+    "Test 評估（USD）",
+    "Test 評估（USD）",
+    "Test 評估（USD）"
+   ],
+   "testModel": "All-in baseline · k = 18（與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）",
+   "fitFacts": "R²（log 尺度）0.8791Adjusted R²（log 尺度，以實際 rank）0.8785n_train17,290design matrix 欄數／rank88／88df_resid17,202s²（log 尺度）0.033503t(0.975, df)1.9601",
+   "selected": "All-in baseline · k = 18All-in baselineCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot155／5 個 fold 的子集與 canonical subset 相同與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次。",
+   "noticeHidden": true
+  },
+  "kc_ref_fresh": {
+   "perf": "首次繪製：1503 ms（自 navigation start，4,323 筆）",
+   "overview": {
+    "hidden": false,
+    "text": "A · 概覽\nKing County House Sales 房價分析\n資料集\n\nHouse Sales in King County, USA（Kaggle harlfoxem/housesalesprediction）\n\n授權\nCC0: Public Domain (CC0-1.0)\n交易筆數\n21,613 筆（21,436 棟房屋，177 筆重複交易）\nCSV sha256\nd0875baa0251b21d4bdc9d2ae940a4fe0bb6009824f23dd0e2a5b2bf04557b7e\n特徵數\nSource features\n19（編碼前計數，不含 id 與 price）\n建模 feature groups\n18（sqft_basement 不進模型）\n特徵數條件\n作業正文 10–20 與補充 14–39 的交集 14–20\n\n不進模型：sqft_basement（sqft_living = sqft_above + sqft_basement，三欄完全共線）\n\n切分與交叉驗證\n切分\n以房屋 id 分組的 80/20：訓練 17,290 筆、Test 4,323 筆\n交叉驗證\n訓練集內 5 個分組 fold（每折 3,454／3,462／3,461／3,456／3,457 筆）\nSeed\n42\n\n模型選擇只用訓練集；Test 在全部選擇固定後只評估一次。\n\n重現條件\n套件版本\npython 3.11.2、numpy 2.4.6、pandas 3.0.6、scipy 1.17.1、scikit-learn 1.9.1、matplotlib 3.11.2\n計算耗時\ndata_load_validate 0.03 秒、split_and_folds 0.02 秒、allin_cv 0.45 秒、allin_canonical_fit 0.07 秒、path_forward_sfs 8.16 秒、path_backward_sfs 8.18 秒、path_rfe 7.06 秒、path_lasso_path 4.02 秒、ridge_total 1.80 秒、lasso_total 0.85 秒、pvalue_backward_total 1.08 秒、test_load_test_rows 0.03 秒、test_score 0.14 秒\n產生時間（UTC）\n2026-10-19T08:12:01+00:00\n已匯出的區段\nmeta、preprocess、inputs、methods、baselines.allin、baselines.ridge、baselines.lasso、baselines.pvalue_backward、winners、test_inputs、test",
+    "raw": "A · 概覽\nKing County House Sales 房價分析\n資料集\n\nHouse Sales in King County, USA（Kaggle harlfoxem/housesalesprediction）\n\n授權\nCC0: Public Domain (CC0-1.0)\n交易筆數\n21,613 筆（21,436 棟房屋，177 筆重複交易）\nCSV sha256\nd0875baa0251b21d4bdc9d2ae940a4fe0bb6009824f23dd0e2a5b2bf04557b7e\n特徵數\nSource features\n19（編碼前計數，不含 id 與 price）\n建模 feature groups\n18（sqft_basement 不進模型）\n特徵數條件\n作業正文 10–20 與補充 14–39 的交集 14–20\n\n不進模型：sqft_basement（sqft_living = sqft_above + sqft_basement，三欄完全共線）\n\n切分與交叉驗證\n切分\n以房屋 id 分組的 80/20：訓練 17,290 筆、Test 4,323 筆\n交叉驗證\n訓練集內 5 個分組 fold（每折 3,454／3,462／3,461／3,456／3,457 筆）\nSeed\n42\n\n模型選擇只用訓練集；Test 在全部選擇固定後只評估一次。\n\n重現條件\n套件版本\npython 3.11.2、numpy 2.4.6、pandas 3.0.6、scipy 1.17.1、scikit-learn 1.9.1、matplotlib 3.11.2\n計算耗時\ndata_load_validate 0.03 秒、split_and_folds 0.02 秒、allin_cv 0.45 秒、allin_canonical_fit 0.07 秒、path_forward_sfs 8.16 秒、path_backward_sfs 8.18 秒、path_rfe 7.06 秒、path_lasso_path 4.02 秒、ridge_total 1.80 秒、lasso_total 0.85 秒、pvalue_backward_total 1.08 秒、test_load_test_rows 0.03 秒、test_score 0.14 秒\n產生時間（UTC）\n2026-10-19T08:12:01+00:00\n已匯出的區段\nmeta、preprocess、inputs、methods、baselines.allin、baselines.ridge、baselines.lasso、baselines.pvalue_backward、winners、test_inputs、test"
+   },
+   "model": {
+    "hidden": false,
+    "text": "B · 模型選擇 ／ C · 訓練 CV 表現\n模型選擇與訓練 CV 表現\n特徵選擇方法\nAll-in baseline\nk = 18 固定\nForward SFS\n18 個 k\nBackward SFS\n18 個 k\nRFE\n18 個 k\nLasso 路徑排序\n18 個 k\n特徵數 k（feature groups）\nk = 18（固定）\nAll-in baseline 是全部 18 個 feature group 的單一 OLS，沒有 k 路徑。\n\n比較全部方法\nAll-in baseline · k = 18\nAll-in baseline\nCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot15\n5／5 個 fold 的子集與 canonical subset 相同\n與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次。\n訓練 CV 指標 訓練 CV（USD）\n\n來源：所選模型的 cv（訓練集內 5 個分組 fold 的平均 ± 標準差）；不含任何 Test 資料。\n\nCV RMSE\n訓練 CV（USD）\nUS$158,154\n± US$35,930（5 折標準差）\nCV MAE\n訓練 CV（USD）\nUS$75,658\n± US$1,070\nCV MSE（USD²）\n訓練 CV（USD）\n2.605 × 10^10\n± 1.222 × 10^10\nCV R²（USD 尺度）\n訓練 CV（USD）\n0.8010\n± 0.0862\n指標 vs k 訓練 CV（USD）\n指標\nRMSE（USD）\nMAE（USD）\nMSE（USD²）\nR²（USD 尺度）\n\nCV RMSE（USD）：Forward SFS 的 CV winner 為 k = 17（US$158,098）；Backward SFS 的 CV winner 為 k = 17（US$158,098）；RFE 的 CV winner 為 k = 18（US$158,154）；Lasso 路徑排序 的 CV winner 為 k = 17（US$157,254）；All-in baseline US$158,154；Ridge（alpha 1.0e-4）US$158,154；Lasso（alpha 1.0e-8）US$158,155。\n\nForward SFS\nBackward SFS\nRFE\nLasso 路徑排序\nAll-in baseline（參考線）\nRidge（參考線，metric-only）\nLasso（參考線，metric-only）\nCV winner（圓環）\ninvalid 候選（叉號，沒有 CV 指標）\n目前選取\n\n來源：methods[].cv、baselines.allin.cv 與 Ridge／Lasso 的 baselines.*.cv（5 個分組 fold 的平均；Ridge／Lasso 為全部 18 group、以訓練 CV 選定的 alpha）。每個 fold 的子集只在該 fold 的訓練列上選出；CV 指標估計的是「方法在 k 下的程序」，不是 canonical subset 本身。不含任何 Test 資料。\n\n全訓練集擬合 全訓練集擬合，R²／Adjusted R² 為 log 尺度\nR²（log 尺度）\n0.8791\nAdjusted R²（log 尺度，以實際 rank）\n0.8785\nn_train\n17,290\ndesign matrix 欄數／rank\n88／88\ndf_resid\n17,202\ns²（log 尺度）\n0.033503\nt(0.975, df)\n1.9601\n係數表（選配）\n全訓練集擬合，R²／Adjusted R² 為 log 尺度\n\n這些是訓練集內分組交叉驗證的指標（以 exp(log 預測) 回轉到 USD 計算），不是 Test 結果。Adjusted R² 對 CV 聚合值不適用：它只對全訓練集擬合的 OLS 子集模型在 log 尺度計算（見「全訓練集擬合」）。",
+    "raw": "B · 模型選擇 ／ C · 訓練 CV 表現\n模型選擇與訓練 CV 表現\n特徵選擇方法\nAll-in baseline\nk = 18 固定\nForward SFS\n18 個 k\nBackward SFS\n18 個 k\nRFE\n18 個 k\nLasso 路徑排序\n18 個 k\n特徵數 k（feature groups）\nk = 18（固定）\nAll-in baseline 是全部 18 個 feature group 的單一 OLS，沒有 k 路徑。\n\n比較全部方法\nAll-in baseline · k = 18\nAll-in baseline\nCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot15\n5／5 個 fold 的子集與 canonical subset 相同\n與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次。\n訓練 CV 指標 訓練 CV（USD）\n\n來源：所選模型的 cv（訓練集內 5 個分組 fold 的平均 ± 標準差）；不含任何 Test 資料。\n\nCV RMSE\n訓練 CV（USD）\nUS$158,154\n± US$35,930（5 折標準差）\nCV MAE\n訓練 CV（USD）\nUS$75,658\n± US$1,070\nCV MSE（USD²）\n訓練 CV（USD）\n2.605 × 10^10\n± 1.222 × 10^10\nCV R²（USD 尺度）\n訓練 CV（USD）\n0.8010\n± 0.0862\n指標 vs k 訓練 CV（USD）\n指標\nRMSE（USD）\nMAE（USD）\nMSE（USD²）\nR²（USD 尺度）\n\nCV RMSE（USD）：Forward SFS 的 CV winner 為 k = 17（US$158,098）；Backward SFS 的 CV winner 為 k = 17（US$158,098）；RFE 的 CV winner 為 k = 18（US$158,154）；Lasso 路徑排序 的 CV winner 為 k = 17（US$157,254）；All-in baseline US$158,154；Ridge（alpha 1.0e-4）US$158,154；Lasso（alpha 1.0e-8）US$158,155。\n\nForward SFS\nBackward SFS\nRFE\nLasso 路徑排序\nAll-in baseline（參考線）\nRidge（參考線，metric-only）\nLasso（參考線，metric-only）\nCV winner（圓環）\ninvalid 候選（叉號，沒有 CV 指標）\n目前選取\n\n來源：methods[].cv、baselines.allin.cv 與 Ridge／Lasso 的 baselines.*.cv（5 個分組 fold 的平均；Ridge／Lasso 為全部 18 group、以訓練 CV 選定的 alpha）。每個 fold 的子集只在該 fold 的訓練列上選出；CV 指標估計的是「方法在 k 下的程序」，不是 canonical subset 本身。不含任何 Test 資料。\n\n全訓練集擬合 全訓練集擬合，R²／Adjusted R² 為 log 尺度\nR²（log 尺度）\n0.8791\nAdjusted R²（log 尺度，以實際 rank）\n0.8785\nn_train\n17,290\ndesign matrix 欄數／rank\n88／88\ndf_resid\n17,202\ns²（log 尺度）\n0.033503\nt(0.975, df)\n1.9601\n係數表（選配）\n全訓練集擬合，R²／Adjusted R² 為 log 尺度\n\n這些是訓練集內分組交叉驗證的指標（以 exp(log 預測) 回轉到 USD 計算），不是 Test 結果。Adjusted R² 對 CV 聚合值不適用：它只對全訓練集擬合的 OLS 子集模型在 log 尺度計算（見「全訓練集擬合」）。"
+   },
+   "predictor": {
+    "hidden": false,
+    "text": "D · 即時預測\n即時房價預測\n\n只列出這個模型用到的 source feature（共 18 項），輸入原始值；預設為 training set 的中位數（zipcode 為最常見的類別）。超出 training 範圍時會警告，但仍照常計算。\n\n交易日期\ntraining 範圍 2014-05-02–2015-05-27；中位數 2014-10-17\n臥室數\ntraining 範圍 0–33；中位數 3\n浴室數\ntraining 範圍 0–8；中位數 2.25\n室內面積（sqft）\ntraining 範圍 290–13540；中位數 1910\n土地面積（sqft）\ntraining 範圍 520–1164794；中位數 7620\n樓層數\ntraining 範圍 1–3.5；中位數 1.5\n臨水（0／1）\ntraining 範圍 0–1；中位數 0\n景觀評分（0–4）\ntraining 範圍 0–4；中位數 0\n屋況（1–5）\ntraining 範圍 1–5；中位數 3\n建築等級（1–13）\ntraining 範圍 1–13；中位數 7\n地上面積（sqft）\ntraining 範圍 290–9410；中位數 1560\n建造年\ntraining 範圍 1900–2015；中位數 1975\n整修年\n未整修\n有整修時 training 範圍 1940–2015；未整修請勾選\nZipcode\n98001（基準類別）\n98002\n98003\n98004\n98005\n98006\n98007\n98008\n98010\n98011\n98014\n98019\n98022\n98023\n98024\n98027\n98028\n98029\n98030\n98031\n98032\n98033\n98034\n98038\n98039\n98040\n98042\n98045\n98052\n98053\n98055\n98056\n98058\n98059\n98065\n98070\n98072\n98074\n98075\n98077\n98092\n98102\n98103\n98105\n98106\n98107\n98108\n98109\n98112\n98115\n98116\n98117\n98118\n98119\n98122\n98125\n98126\n98133\n98136\n98144\n98146\n98148\n98155\n98166\n98168\n98177\n98178\n98188\n98198\n98199\ntraining 類別 70 個；基準類別 98001\n緯度\ntraining 範圍 47.1559–47.7776；中位數 47.5709\n經度\ntraining 範圍 -122.519–-121.315；中位數 -122.229\n鄰近 15 戶室內面積（sqft）\ntraining 範圍 399–6210；中位數 1840\n鄰近 15 戶土地面積（sqft）\ntraining 範圍 651–871200；中位數 7632\n預測結果\n點預測（USD；exp(log 預測)，估計的是條件中位數，不是條件平均）\nUS$503,564\n95% 預測區間（參數式 OLS PI，在 log 尺度計算後轉回 USD，不對稱）\nUS$351,404 – US$721,610\n模型：All-in baseline · k = 18\n來源：所選模型的 fit（在整個 training set 上擬合）\nRidge／Lasso 對照模型不提供即時預測與區間。",
+    "raw": "D · 即時預測\n即時房價預測\n\n只列出這個模型用到的 source feature（共 18 項），輸入原始值；預設為 training set 的中位數（zipcode 為最常見的類別）。超出 training 範圍時會警告，但仍照常計算。\n\n交易日期\ntraining 範圍 2014-05-02–2015-05-27；中位數 2014-10-17\n臥室數\ntraining 範圍 0–33；中位數 3\n浴室數\ntraining 範圍 0–8；中位數 2.25\n室內面積（sqft）\ntraining 範圍 290–13540；中位數 1910\n土地面積（sqft）\ntraining 範圍 520–1164794；中位數 7620\n樓層數\ntraining 範圍 1–3.5；中位數 1.5\n臨水（0／1）\ntraining 範圍 0–1；中位數 0\n景觀評分（0–4）\ntraining 範圍 0–4；中位數 0\n屋況（1–5）\ntraining 範圍 1–5；中位數 3\n建築等級（1–13）\ntraining 範圍 1–13；中位數 7\n地上面積（sqft）\ntraining 範圍 290–9410；中位數 1560\n建造年\ntraining 範圍 1900–2015；中位數 1975\n整修年\n未整修\n有整修時 training 範圍 1940–2015；未整修請勾選\nZipcode\n98001（基準類別）\n98002\n98003\n98004\n98005\n98006\n98007\n98008\n98010\n98011\n98014\n98019\n98022\n98023\n98024\n98027\n98028\n98029\n98030\n98031\n98032\n98033\n98034\n98038\n98039\n98040\n98042\n98045\n98052\n98053\n98055\n98056\n98058\n98059\n98065\n98070\n98072\n98074\n98075\n98077\n98092\n98102\n98103\n98105\n98106\n98107\n98108\n98109\n98112\n98115\n98116\n98117\n98118\n98119\n98122\n98125\n98126\n98133\n98136\n98144\n98146\n98148\n98155\n98166\n98168\n98177\n98178\n98188\n98198\n98199\ntraining 類別 70 個；基準類別 98001\n緯度\ntraining 範圍 47.1559–47.7776；中位數 47.5709\n經度\ntraining 範圍 -122.519–-121.315；中位數 -122.229\n鄰近 15 戶室內面積（sqft）\ntraining 範圍 399–6210；中位數 1840\n鄰近 15 戶土地面積（sqft）\ntraining 範圍 651–871200；中位數 7632\n預測結果\n點預測（USD；exp(log 預測)，估計的是條件中位數，不是條件平均）\nUS$503,564\n95% 預測區間（參數式 OLS PI，在 log 尺度計算後轉回 USD，不對稱）\nUS$351,404 – US$721,610\n模型：All-in baseline · k = 18\n來源：所選模型的 fit（在整個 training set 上擬合）\nRidge／Lasso 對照模型不提供即時預測與區間。"
+   },
+   "test": {
+    "hidden": false,
+    "text": "E · 保留 TEST 集評估\n保留 Test 集評估\nTest 評估（USD）\n展示模型：All-in baseline · k = 18（與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）\nAll-in baseline\n\n來源：test[kind=ols_subset]；只對被授權評估的模型，每個模型只評估一次。本頁的任何操作都不會觸發新的 Test 評估。\n\nTest RMSE\nTest 評估（USD）\nUS$183,597\nAll-in baseline · k = 18・n_test 4,323\nTest MAE\nTest 評估（USD）\nUS$78,114\nAll-in baseline · k = 18・n_test 4,323\nTest MSE（USD²）\nTest 評估（USD）\n3.371 × 10^10\nAll-in baseline · k = 18・n_test 4,323\nTest R²（USD 尺度）\nTest 評估（USD）\n0.7828\nAll-in baseline · k = 18・n_test 4,323\n實際 vs 預測（log 刻度，逐筆 95% PI）\n＋\n－\n重設檢視\n落入 PI（圓點）\n未落入 PI（方塊）\ny = x\n滾輪縮放、拖曳平移、游標停留讀取單筆；鍵盤：方向鍵平移、＋／－ 縮放、0 重設。全部 Test 樣本逐筆繪製，不抽樣、不聚合。\n\n<scatter-perf>\n\n經驗涵蓋率\n94.43%\n名目 95%\n涵蓋筆數\n4,082／4,323\n閉區間 lower ≤ 實際 ≤ upper\n平均區間寬度\nUS$401,087\nUSD\n二項近似 ±\n± 0.68%\n假設各筆獨立（見下方說明）\nTest 房屋／重複交易\n4,287／36\n同一房屋的多筆交易\n未見 zipcode\n0\n以基準類別計算的筆數\n\n涵蓋率的不確定性是假設各筆涵蓋事件獨立的二項近似（1.96·√(p(1−p)/n_test)）。Test set 含同一房屋的重複交易，涵蓋事件不保證獨立，這個近似的準確度未經估計，本頁不陳述偏差的方向或幅度。\n\n預測區間假設殘差常態、同質變異、獨立；特徵選擇後的推論與模型誤設都會影響名目涵蓋率，不宣稱保證 95% 的經驗涵蓋率。經驗涵蓋率偏離 95% 時需要分析原因，不自動判定失敗。",
+    "raw": "E · 保留 TEST 集評估\n保留 Test 集評估\nTest 評估（USD）\n展示模型：All-in baseline · k = 18（與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）\nAll-in baseline\n\n來源：test[kind=ols_subset]；只對被授權評估的模型，每個模型只評估一次。本頁的任何操作都不會觸發新的 Test 評估。\n\nTest RMSE\nTest 評估（USD）\nUS$183,597\nAll-in baseline · k = 18・n_test 4,323\nTest MAE\nTest 評估（USD）\nUS$78,114\nAll-in baseline · k = 18・n_test 4,323\nTest MSE（USD²）\nTest 評估（USD）\n3.371 × 10^10\nAll-in baseline · k = 18・n_test 4,323\nTest R²（USD 尺度）\nTest 評估（USD）\n0.7828\nAll-in baseline · k = 18・n_test 4,323\n實際 vs 預測（log 刻度，逐筆 95% PI）\n＋\n－\n重設檢視\n落入 PI（圓點）\n未落入 PI（方塊）\ny = x\n滾輪縮放、拖曳平移、游標停留讀取單筆；鍵盤：方向鍵平移、＋／－ 縮放、0 重設。全部 Test 樣本逐筆繪製，不抽樣、不聚合。\n\n首次繪製：1503 ms（自 navigation start，4,323 筆）\n\n經驗涵蓋率\n94.43%\n名目 95%\n涵蓋筆數\n4,082／4,323\n閉區間 lower ≤ 實際 ≤ upper\n平均區間寬度\nUS$401,087\nUSD\n二項近似 ±\n± 0.68%\n假設各筆獨立（見下方說明）\nTest 房屋／重複交易\n4,287／36\n同一房屋的多筆交易\n未見 zipcode\n0\n以基準類別計算的筆數\n\n涵蓋率的不確定性是假設各筆涵蓋事件獨立的二項近似（1.96·√(p(1−p)/n_test)）。Test set 含同一房屋的重複交易，涵蓋事件不保證獨立，這個近似的準確度未經估計，本頁不陳述偏差的方向或幅度。\n\n預測區間假設殘差常態、同質變異、獨立；特徵選擇後的推論與模型誤設都會影響名目涵蓋率，不宣稱保證 95% 的經驗涵蓋率。經驗涵蓋率偏離 95% 時需要分析原因，不自動判定失敗。"
+   },
+   "methods": {
+    "hidden": false,
+    "text": "F · 方法與限制\n方法與限制\n\n標示：\n老師要求\n作業頁正文的要求；\n依老師補充建議\n作業頁「補充」段的建議，本專案採用；\n專案延伸\n本專案自行加入的設計，不是老師的要求。\n\n特徵選擇方法\n老師要求\n\n作業要求必做特徵選擇。本專案以 feature group 為選擇單位（同一個 source feature 的 encoded 欄位同進同出，例如 zipcode 的全部 one-hot 欄），比較四種有 k = 1…18 路徑的方法：Forward SFS、Backward SFS、RFE、Lasso 路徑排序取前 k 個；另以單一的 All-in baseline（全部 18 個 group 的 OLS，等於路徑在 k = 18 的端點）作為基準。每個方法的子集在每個 CV fold 的訓練列上重新計算（fold-internal selection），驗證列不參與選擇；另在整個 training set 上計算一次 canonical subset，作為本頁顯示的 groups、即時預測與 Test 評估的模型。\n\nRidge／Lasso 是依老師補充建議加入的 metric-only 對照（alpha 只以訓練 CV 選，不參與 CV winner，不提供預測與區間）；講義的 p-value backward elimination 只列為對照，不參與 CV winner，也不在 Test 上評估。\n\n訓練 CV／Test 協定\n專案延伸\n\n模型評估是老師的要求；下面的評估協定是本專案的設計。資料以房屋 id 分組切成 80／20 的 training 與 Test，training 內再以 id 分組成 5 個 fold，所有方法與 k 共用同一組 fold。每個方法取 CV RMSE（USD）最小的 k 為該方法的 CV winner，再從各方法 CV winner 與 All-in 中取最小者為整體 CV winner。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤。\n\n全部選擇固定之後，Test 只對各方法 CV winner、All-in 與整體 CV winner（同一模型只評估一次）以及 Ridge／Lasso 各評估一次；Test 排名與 CV 排名不同時也不換模型。本頁的 KPI 與「指標 vs k」圖是訓練 CV，Test 區塊與比較表的 Test 欄只讀取匯出的結果，任何操作都不會觸發新的 Test 評估。\n\n預測區間的統計假設\n老師要求\n\n作業要求預測圖加上信賴區間或預測區間。本專案對 OLS 子集模型在 ln(price) 尺度計算參數式 95% 預測區間 ŷ ± t·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))，再以 exp 轉回 USD，所以區間不對稱；點預測 exp(log 預測) 估計的是條件中位數，不是條件平均。\n\n區間假設殘差常態、同質變異、彼此獨立，而且沒有把特徵選擇的不確定性與可能的模型誤設算進去，所以不宣稱保證 95% 的經驗涵蓋率；Test 上的經驗涵蓋率是對它的檢驗，偏離 95% 時分析原因，不自動判定失敗。涵蓋率的不確定性是假設各筆獨立的二項近似，Test 含同一房屋的重複交易，這個近似的準確度未經估計。\n\n限制與非因果解讀\n依老師補充建議\n\n五大回歸假設的診斷與模型解釋是依老師補充建議加入（見主程式 notebook 5.6 與第 6 章，只用 training set）。古典回歸假設的診斷與預測區間的假設分開看：training 殘差的診斷不能證明或否定區間的 95% 涵蓋。\n\n適用範圍：King County 的房屋交易，training set 的交易日期 2014-05-02 至 2015-05-27；其他地區或時期不適用。超出 training 範圍的輸入仍會計算但屬於外推，未見過的 zipcode 以基準類別計算。同一房屋重複交易的誤差可能相關（notebook 5.6.2），誤差獨立的假設對這些交易不一定成立。\n\n係數、係數表與重要性描述的是資料中的關聯，不是因果效果：不能用來推論「改變某個特徵會讓價格改變多少」。Ridge／Lasso 只是 metric-only 對照，不提供預測。",
+    "raw": "F · 方法與限制\n方法與限制\n\n標示：\n老師要求\n作業頁正文的要求；\n依老師補充建議\n作業頁「補充」段的建議，本專案採用；\n專案延伸\n本專案自行加入的設計，不是老師的要求。\n\n特徵選擇方法\n老師要求\n\n作業要求必做特徵選擇。本專案以 feature group 為選擇單位（同一個 source feature 的 encoded 欄位同進同出，例如 zipcode 的全部 one-hot 欄），比較四種有 k = 1…18 路徑的方法：Forward SFS、Backward SFS、RFE、Lasso 路徑排序取前 k 個；另以單一的 All-in baseline（全部 18 個 group 的 OLS，等於路徑在 k = 18 的端點）作為基準。每個方法的子集在每個 CV fold 的訓練列上重新計算（fold-internal selection），驗證列不參與選擇；另在整個 training set 上計算一次 canonical subset，作為本頁顯示的 groups、即時預測與 Test 評估的模型。\n\nRidge／Lasso 是依老師補充建議加入的 metric-only 對照（alpha 只以訓練 CV 選，不參與 CV winner，不提供預測與區間）；講義的 p-value backward elimination 只列為對照，不參與 CV winner，也不在 Test 上評估。\n\n訓練 CV／Test 協定\n專案延伸\n\n模型評估是老師的要求；下面的評估協定是本專案的設計。資料以房屋 id 分組切成 80／20 的 training 與 Test，training 內再以 id 分組成 5 個 fold，所有方法與 k 共用同一組 fold。每個方法取 CV RMSE（USD）最小的 k 為該方法的 CV winner，再從各方法 CV winner 與 All-in 中取最小者為整體 CV winner。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤。\n\n全部選擇固定之後，Test 只對各方法 CV winner、All-in 與整體 CV winner（同一模型只評估一次）以及 Ridge／Lasso 各評估一次；Test 排名與 CV 排名不同時也不換模型。本頁的 KPI 與「指標 vs k」圖是訓練 CV，Test 區塊與比較表的 Test 欄只讀取匯出的結果，任何操作都不會觸發新的 Test 評估。\n\n預測區間的統計假設\n老師要求\n\n作業要求預測圖加上信賴區間或預測區間。本專案對 OLS 子集模型在 ln(price) 尺度計算參數式 95% 預測區間 ŷ ± t·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))，再以 exp 轉回 USD，所以區間不對稱；點預測 exp(log 預測) 估計的是條件中位數，不是條件平均。\n\n區間假設殘差常態、同質變異、彼此獨立，而且沒有把特徵選擇的不確定性與可能的模型誤設算進去，所以不宣稱保證 95% 的經驗涵蓋率；Test 上的經驗涵蓋率是對它的檢驗，偏離 95% 時分析原因，不自動判定失敗。涵蓋率的不確定性是假設各筆獨立的二項近似，Test 含同一房屋的重複交易，這個近似的準確度未經估計。\n\n限制與非因果解讀\n依老師補充建議\n\n五大回歸假設的診斷與模型解釋是依老師補充建議加入（見主程式 notebook 5.6 與第 6 章，只用 training set）。古典回歸假設的診斷與預測區間的假設分開看：training 殘差的診斷不能證明或否定區間的 95% 涵蓋。\n\n適用範圍：King County 的房屋交易，training set 的交易日期 2014-05-02 至 2015-05-27；其他地區或時期不適用。超出 training 範圍的輸入仍會計算但屬於外推，未見過的 zipcode 以基準類別計算。同一房屋重複交易的誤差可能相關（notebook 5.6.2），誤差獨立的假設對這些交易不一定成立。\n\n係數、係數表與重要性描述的是資料中的關聯，不是因果效果：不能用來推論「改變某個特徵會讓價格改變多少」。Ridge／Lasso 只是 metric-only 對照，不提供預測。"
+   },
+   "footer": {
+    "hidden": false,
+    "text": "本頁讀取主程式 hw2.ipynb 匯出的 model_data；所有資料與程式庫都在本機，不發出任何對外請求。圖表程式庫：Chart.js 4.4.1（本機打包）。"
+   },
+   "explore_hidden": true
+  },
+  "d3_states": {
+   "forward_sfs": {
+    "selected": "Forward SFS · k = 17該方法 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living154／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：多 sqft_lot15；少 bedroomsFold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$158,098 | US$75,655 | 2.601 × 10^10 | 0.8015",
+    "k": 18,
+    "kfixed": false,
+    "pred": 17,
+    "price": "US$503,700",
+    "testModel": "Forward SFS · k = 17（與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": ""
+   },
+   "forward_sfs_k1": {
+    "selected": "Forward SFS · k = 1Canonical subset（整個 training set 上計算）：zipcode5／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$282,383 | US$155,167 | 8.026 × 10^10 | 0.3840",
+    "k": 18,
+    "kfixed": false,
+    "pred": 1,
+    "price": "US$555,655",
+    "testModel": "Forward SFS · k = 17（與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Forward SFS · k = 1 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Forward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "forward_sfs_k9": {
+    "selected": "Forward SFS · k = 9Canonical subset（整個 training set 上計算）：date、sqft_living、sqft_lot、waterfront、view、condition、grade、zipcode、sqft_living155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$161,720 | US$77,780 | 2.764 × 10^10 | 0.7884",
+    "k": 18,
+    "kfixed": false,
+    "pred": 9,
+    "price": "US$556,111",
+    "testModel": "Forward SFS · k = 17（與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Forward SFS · k = 9 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Forward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "forward_sfs_k17": {
+    "selected": "Forward SFS · k = 17該方法 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living154／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：多 sqft_lot15；少 bedroomsFold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$158,098 | US$75,655 | 2.601 × 10^10 | 0.8015",
+    "k": 18,
+    "kfixed": false,
+    "pred": 17,
+    "price": "US$503,700",
+    "testModel": "Forward SFS · k = 17（與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 Forward SFS · k = 9 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Forward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "forward_sfs_k18": {
+    "selected": "Forward SFS · k = 18Canonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$158,154 | US$75,658 | 2.605 × 10^10 | 0.8010",
+    "k": 18,
+    "kfixed": false,
+    "pred": 18,
+    "price": "US$503,564",
+    "testModel": "Forward SFS · k = 17（與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Forward SFS · k = 18 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Forward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "backward_sfs": {
+    "selected": "Backward SFS · k = 17該方法 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living154／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：多 sqft_lot15；少 bedroomsFold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$158,098 | US$75,655 | 2.601 × 10^10 | 0.8015",
+    "k": 18,
+    "kfixed": false,
+    "pred": 17,
+    "price": "US$503,700",
+    "testModel": "Backward SFS · k = 17（與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 Forward SFS · k = 18 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Forward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "backward_sfs_k1": {
+    "selected": "Backward SFS · k = 1Canonical subset（整個 training set 上計算）：zipcode5／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$282,383 | US$155,167 | 8.026 × 10^10 | 0.3840",
+    "k": 18,
+    "kfixed": false,
+    "pred": 1,
+    "price": "US$555,655",
+    "testModel": "Backward SFS · k = 17（與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Backward SFS · k = 1 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Backward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "backward_sfs_k9": {
+    "selected": "Backward SFS · k = 9Canonical subset（整個 training set 上計算）：date、sqft_living、sqft_lot、waterfront、view、condition、grade、zipcode、sqft_living155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$161,720 | US$77,780 | 2.764 × 10^10 | 0.7884",
+    "k": 18,
+    "kfixed": false,
+    "pred": 9,
+    "price": "US$556,111",
+    "testModel": "Backward SFS · k = 17（與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Backward SFS · k = 9 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Backward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "backward_sfs_k17": {
+    "selected": "Backward SFS · k = 17該方法 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living154／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：多 sqft_lot15；少 bedroomsFold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$158,098 | US$75,655 | 2.601 × 10^10 | 0.8015",
+    "k": 18,
+    "kfixed": false,
+    "pred": 17,
+    "price": "US$503,700",
+    "testModel": "Backward SFS · k = 17（與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 Backward SFS · k = 9 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Backward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "backward_sfs_k18": {
+    "selected": "Backward SFS · k = 18Canonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$158,154 | US$75,658 | 2.605 × 10^10 | 0.8010",
+    "k": 18,
+    "kfixed": false,
+    "pred": 18,
+    "price": "US$503,564",
+    "testModel": "Backward SFS · k = 17（與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Backward SFS · k = 18 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Backward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "rfe": {
+    "selected": "RFE · k = 18該方法 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 All-in baseline · k = 18 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$158,154 | US$75,658 | 2.605 × 10^10 | 0.8010",
+    "k": 18,
+    "kfixed": false,
+    "pred": 18,
+    "price": "US$503,564",
+    "testModel": "RFE · k = 18（與 All-in baseline · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 Backward SFS · k = 18 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Backward SFS · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "rfe_k1": {
+    "selected": "RFE · k = 1Canonical subset（整個 training set 上計算）：sqft_living4／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：多 zipcode；少 sqft_livingFold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$370,575 | US$165,991 | 1.756 × 10^11 | -0.3372",
+    "k": 18,
+    "kfixed": false,
+    "pred": 1,
+    "price": "US$433,498",
+    "testModel": "RFE · k = 18（與 All-in baseline · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 RFE · k = 1 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：RFE · k = 18。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "rfe_k9": {
+    "selected": "RFE · k = 9Canonical subset（整個 training set 上計算）：sqft_living、view、condition、grade、sqft_above、zipcode、lat、long、sqft_living153／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：多 waterfront；少 sqft_aboveFold 4：多 waterfront；少 condition",
+    "kpi": "US$160,603 | US$79,694 | 2.670 × 10^10 | 0.7960",
+    "k": 18,
+    "kfixed": false,
+    "pred": 9,
+    "price": "US$502,465",
+    "testModel": "RFE · k = 18（與 All-in baseline · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 RFE · k = 9 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：RFE · k = 18。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "rfe_k17": {
+    "selected": "RFE · k = 17Canonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living153／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：多 sqft_lot15；少 bedroomsFold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：多 sqft_lot15；少 bedroomsFold 4：與 canonical subset 相同",
+    "kpi": "US$158,775 | US$75,679 | 2.630 × 10^10 | 0.7993",
+    "k": 18,
+    "kfixed": false,
+    "pred": 17,
+    "price": "US$503,700",
+    "testModel": "RFE · k = 18（與 All-in baseline · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 RFE · k = 17 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：RFE · k = 18。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "rfe_k18": {
+    "selected": "RFE · k = 18該方法 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 All-in baseline · k = 18 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$158,154 | US$75,658 | 2.605 × 10^10 | 0.8010",
+    "k": 18,
+    "kfixed": false,
+    "pred": 18,
+    "price": "US$503,564",
+    "testModel": "RFE · k = 18（與 All-in baseline · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 RFE · k = 17 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：RFE · k = 18。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "lasso_path": {
+    "selected": "Lasso 路徑排序 · k = 17該方法 CV winner整體 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living154／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：多 sqft_lot15；少 sqft_aboveFold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 Forward SFS · k = 17、Backward SFS · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$157,254 | US$75,670 | 2.574 × 10^10 | 0.8034",
+    "k": 18,
+    "kfixed": false,
+    "pred": 17,
+    "price": "US$503,700",
+    "testModel": "Lasso 路徑排序 · k = 17（與 Forward SFS · k = 17、Backward SFS · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 RFE · k = 17 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：RFE · k = 18。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "lasso_path_k1": {
+    "selected": "Lasso 路徑排序 · k = 1Canonical subset（整個 training set 上計算）：grade5／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$256,471 | US$158,527 | 6.590 × 10^10 | 0.4897",
+    "k": 18,
+    "kfixed": false,
+    "pred": 1,
+    "price": "US$377,054",
+    "testModel": "Lasso 路徑排序 · k = 17（與 Forward SFS · k = 17、Backward SFS · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Lasso 路徑排序 · k = 1 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Lasso 路徑排序 · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "lasso_path_k9": {
+    "selected": "Lasso 路徑排序 · k = 9Canonical subset（整個 training set 上計算）：bathrooms、sqft_living、waterfront、view、condition、grade、yr_built、lat、sqft_living155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$204,212 | US$112,845 | 4.236 × 10^10 | 0.6726",
+    "k": 18,
+    "kfixed": false,
+    "pred": 9,
+    "price": "US$388,784",
+    "testModel": "Lasso 路徑排序 · k = 17（與 Forward SFS · k = 17、Backward SFS · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Lasso 路徑排序 · k = 9 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Lasso 路徑排序 · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "lasso_path_k17": {
+    "selected": "Lasso 路徑排序 · k = 17該方法 CV winner整體 CV winnerCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living154／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：多 sqft_lot15；少 sqft_aboveFold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同與 Forward SFS · k = 17、Backward SFS · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$157,254 | US$75,670 | 2.574 × 10^10 | 0.8034",
+    "k": 18,
+    "kfixed": false,
+    "pred": 17,
+    "price": "US$503,700",
+    "testModel": "Lasso 路徑排序 · k = 17（與 Forward SFS · k = 17、Backward SFS · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 Lasso 路徑排序 · k = 9 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Lasso 路徑排序 · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "lasso_path_k18": {
+    "selected": "Lasso 路徑排序 · k = 18Canonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot155／5 個 fold 的子集與 canonical subset 相同各 fold 的子集（只在該 fold 的訓練列上選出）Fold 0：與 canonical subset 相同Fold 1：與 canonical subset 相同Fold 2：與 canonical subset 相同Fold 3：與 canonical subset 相同Fold 4：與 canonical subset 相同",
+    "kpi": "US$158,154 | US$75,658 | 2.605 × 10^10 | 0.8010",
+    "k": 18,
+    "kfixed": false,
+    "pred": 18,
+    "price": "US$503,564",
+    "testModel": "Lasso 路徑排序 · k = 17（與 Forward SFS · k = 17、Backward SFS · k = 17 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": false,
+    "notice": "目前選取的 Lasso 路徑排序 · k = 18 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Lasso 路徑排序 · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   },
+   "allin": {
+    "selected": "All-in baseline · k = 18All-in baselineCanonical subset（整個 training set 上計算）：date、bedrooms、bathrooms、sqft_living、sqft_lot、floors、waterfront、view、condition、grade、sqft_above、yr_built、yr_renovated、zipcode、lat、long、sqft_living15、sqft_lot155／5 個 fold 的子集與 canonical subset 相同與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次。",
+    "kpi": "US$158,154 | US$75,658 | 2.605 × 10^10 | 0.8010",
+    "k": 0,
+    "kfixed": true,
+    "pred": 18,
+    "price": "US$503,564",
+    "testModel": "All-in baseline · k = 18（與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次）",
+    "noticeHidden": true,
+    "notice": "目前選取的 Lasso 路徑排序 · k = 18 不是該方法的 CV winner。Test 區塊展示的是該方法的 CV winner：Lasso 路徑排序 · k = 17。Test 只對被授權的模型各評估一次，切換選取不會產生新的 Test 評估。"
+   }
+  },
+  "d4_on": {
+   "pressed": "true",
+   "cardHidden": false,
+   "rows": 8,
+   "headers": "模型 | k | 訓練 CV（USD） | Adjusted R²（log 尺度，全訓練集擬合） | Test 評估（USD） | RMSE（± 標準差） | MAE | MSE（USD²） | R²（USD 尺度） | RMSE | MAE | MSE（USD²） | R²（USD 尺度） | PI 涵蓋率 | All-in baseline 與 RFE · k = 18 為同一模型（canonical subset 相同），Test 只評估一次。 | Forward SFS（CV winner） 與 Backward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。 | Backward SFS（CV winner） 與 Forward SFS · k = 17、Lasso 路徑排序 · k = 17 為同一模型（canonical subset 相同），Test 只評估一次。 | RFE（CV winner） 與 All-in baseline · k = 18 為同一模型（canoni",
+   "datasets": [
+    8
+   ]
+  },
+  "d4_off": {
+   "pressed": "false",
+   "cardHidden": true
+  },
+  "d5_default": {
+   "price": "US$503,564",
+   "pi": "US$351,404 – US$721,610"
+  },
+  "d5_out_of_range": {
+   "price": "US$23,893,098,807",
+   "pi": "US$10,109,178,007 – US$56,471,472,775",
+   "warn": "超出 training 範圍（290–13540），仍照常計算，屬於外推。",
+   "warnHidden": false
+  },
+  "d5_renov_none": {
+   "checkedAfter": false,
+   "numDisabled": false,
+   "before": "US$23,893,098,807",
+   "after": "US$25,868,246,108"
+  },
+  "d5_date": {
+   "id": "in-date",
+   "v0": "2014-10-17",
+   "before": "US$23,893,098,807",
+   "after": "US$24,951,869,823"
+  },
+  "d5_zip_select": {
+   "options": 70,
+   "value": "98103"
+  },
+  "d5_unseen_zip": {
+   "warnHidden": false,
+   "warn": "此 zipcode 不在模型的訓練類別中，已以基準類別計算（輸入值：00000）",
+   "price": "US$281,166"
+  },
+  "sr09_b": {
+   "byType": {
+    "method": {
+     "n": 6,
+     "max": 22.7
+    },
+    "k": {
+     "n": 4,
+     "max": 14
+    },
+    "wheel-zoom": {
+     "n": 10,
+     "max": 9.8
+    },
+    "drag-pan": {
+     "n": 3,
+     "max": 2.7
+    },
+    "button-zoom-in": {
+     "n": 3,
+     "max": 5.2
+    },
+    "button-zoom-out": {
+     "n": 1,
+     "max": 6.7
+    },
+    "button-reset": {
+     "n": 1,
+     "max": 4.9
+    }
+   },
+   "maxAll": 22.7,
+   "longtasks": []
+  },
+  "sr09_e_tooltip": "第 5,148 列（房屋 7203220130）\n預測 US$987,306\n實際 US$994,900\n95% PI US$689,162 – US$1,414,434\n落入區間",
+  "sr09_g": {
+   "firstDrawPoints": 4323,
+   "nTestPoints": 4323
+  },
+  "kc_ref": {
+   "footerVisible": true,
+   "exploreHidden": true,
+   "v1Visible": true,
+   "perf": "首次繪製：73 ms（自 navigation start，4,323 筆）"
+  },
+  "startups50": {
+   "problem": "startups50",
+   "mode": "explore",
+   "source": "builtin",
+   "status": "COMPLETED",
+   "reason": null,
+   "sha256": "c6075ca5a7551243b31193bad9228f0a1b9468cdde2475c6586c56dcfac5630d",
+   "target": "Profit",
+   "candidates": 17,
+   "statuses": {
+    "VALID": 17
+   },
+   "methodButtons": 5,
+   "methods": [
+    "All-in baselinek = 4 固定",
+    "Forward SFS4 個 k",
+    "Backward SFS4 個 k",
+    "RFE4 個 k",
+    "Lasso 路徑排序4 個 k"
+   ],
+   "compareRows": 5,
+   "testKpi": "Test RMSE 9,850 Test MAE 8,351 Test MSE 97,026,682 Test R² 0.9399 PI 涵蓋率 100.0% 10 / 10 筆落入 95% PI",
+   "cvKpi": "CV RMSE 8,917 ± 4,027（5 個 fold 的平均 ± 標準差，訓練 CV） CV MAE 6,825 ± 2,300（5 個 fold 的平均 ± 標準差，訓練 CV） CV MSE 92,489,893 ± 77,374,220（5 個 fold 的平均 ± 標準差，訓練 CV） CV R² 0.9425 ± 0.0360（5 個 fold 的平均 ± 標準差，訓練 CV）",
+   "predFields": 1,
+   "predValue": "112,274",
+   "predPi": "93,156 ～ 131,391",
+   "scatterDrawn": true,
+   "kchartDrawn": true,
+   "blocks": [
+    {
+     "id": "ex-data",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-model",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-predictor",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-test",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-methods",
+     "shown": true,
+     "labelled": true
+    }
+   ],
+   "v1Hidden": true,
+   "footerHidden": true,
+   "ms_from_key": 703,
+   "longtasks": [
+    67
+   ],
+   "network": 0
+  },
+  "custom_empty": {
+   "problem": "custom",
+   "panel": true,
+   "status": "尚未載入資料：請以 URL 或本機 CSV 檔案提交。",
+   "results": [],
+   "v1Hidden": true,
+   "footerHidden": true,
+   "network": 0
+  },
+  "three_way": {
+   "order": "king_county→startups50→custom→king_county",
+   "problem": "king_county",
+   "v1_identical": true,
+   "diff": {},
+   "footerVisible": true,
+   "exploreHidden": true,
+   "network": 0
+  },
+  "custom_teacher_url": {
+   "problem": "custom",
+   "mode": "explore",
+   "source": "url",
+   "status": "COMPLETED",
+   "reason": null,
+   "sha256": "c6075ca5a7551243b31193bad9228f0a1b9468cdde2475c6586c56dcfac5630d",
+   "target": "Profit",
+   "candidates": 17,
+   "statuses": {
+    "VALID": 17
+   },
+   "methodButtons": 5,
+   "methods": [
+    "All-in baselinek = 4 固定",
+    "Forward SFS4 個 k",
+    "Backward SFS4 個 k",
+    "RFE4 個 k",
+    "Lasso 路徑排序4 個 k"
+   ],
+   "compareRows": 5,
+   "testKpi": "Test RMSE 9,850 Test MAE 8,351 Test MSE 97,026,682 Test R² 0.9399 PI 涵蓋率 100.0% 10 / 10 筆落入 95% PI",
+   "cvKpi": "CV RMSE 8,917 ± 4,027（5 個 fold 的平均 ± 標準差，訓練 CV） CV MAE 6,825 ± 2,300（5 個 fold 的平均 ± 標準差，訓練 CV） CV MSE 92,489,893 ± 77,374,220（5 個 fold 的平均 ± 標準差，訓練 CV） CV R² 0.9425 ± 0.0360（5 個 fold 的平均 ± 標準差，訓練 CV）",
+   "predFields": 1,
+   "predValue": "112,274",
+   "predPi": "93,156 ～ 131,391",
+   "scatterDrawn": true,
+   "kchartDrawn": true,
+   "blocks": [
+    {
+     "id": "ex-data",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-model",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-predictor",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-test",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-methods",
+     "shown": true,
+     "labelled": true
+    }
+   ],
+   "v1Hidden": true,
+   "footerHidden": true,
+   "messages": {
+    "message": "執行完成：五種方法共 17 個候選，耗時 22.3 ms（瀏覽器內計算，只供參考）。各方法耗時：All-in baseline 1.1 ms、Forward SFS 3.4 ms、Backward SFS 2.7 ms、RFE 3.0 ms、Lasso 路徑排序 3.8 ms。",
+    "status": "目前的資料：URL https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv"
+   },
+   "requests": [
+    {
+     "phase": "custom_teacher_url",
+     "requestId": "14736.122",
+     "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+     "method": "GET",
+     "type": "Fetch",
+     "redirectFrom": null,
+     "headerNames": [
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "user-agent"
+     ],
+     "status": 200,
+     "extraHeaderNames": [
+      ":authority",
+      ":method",
+      ":path",
+      ":scheme",
+      "accept",
+      "accept-encoding",
+      "accept-language",
+      "origin",
+      "priority",
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "sec-fetch-dest",
+      "sec-fetch-mode",
+      "sec-fetch-site",
+      "user-agent"
+     ],
+     "cookies": 0,
+     "failed": null,
+     "fromCache": false
+    }
+   ],
+   "teacher_requests": 1,
+   "same_as_builtin": true
+  },
+  "kc_after_teacher_url": {
+   "v1_identical": true,
+   "diff": {},
+   "footerVisible": true,
+   "network": 0
+  },
+  "url_redirect_failure": {
+   "messages": {
+    "message": "無法載入資料：URL 讀取失敗（URL_FETCH_FAILED，network）：網路或跨來源限制：沒有取得回應。可能是網路中斷、對方伺服器不允許跨來源讀取（CORS），或該網址會重新導向（本頁不跟隨重新導向）。請用瀏覽器下載該 CSV，再以下方的「本機 CSV 檔案」載入（本機讀取，不發出請求）。",
+    "status": "沒有載入任何資料（URL 讀取失敗）：https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data"
+   },
+   "requests": [
+    {
+     "phase": "custom_url_redirect",
+     "requestId": "14736.123",
+     "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data",
+     "method": "GET",
+     "type": "Fetch",
+     "redirectFrom": null,
+     "headerNames": [
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "user-agent"
+     ],
+     "status": null,
+     "extraHeaderNames": [
+      ":authority",
+      ":method",
+      ":path",
+      ":scheme",
+      "accept",
+      "accept-encoding",
+      "accept-language",
+      "priority",
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "sec-fetch-dest",
+      "sec-fetch-mode",
+      "sec-fetch-site",
+      "user-agent"
+     ],
+     "cookies": 0,
+     "failed": "net::ERR_FAILED"
+    }
+   ],
+   "results": []
+  },
+  "url_404_failure": {
+   "messages": {
+    "message": "無法載入資料：URL 讀取失敗（URL_FETCH_FAILED，http_status）：伺服器回應錯誤的 HTTP 狀態：HTTP 404。請用瀏覽器下載該 CSV，再以下方的「本機 CSV 檔案」載入（本機讀取，不發出請求）。",
+    "status": "沒有載入任何資料（URL 讀取失敗）：https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/no-such-file.csv"
+   },
+   "requests": [
+    {
+     "phase": "custom_url_404",
+     "requestId": "14736.124",
+     "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/no-such-file.csv",
+     "method": "GET",
+     "type": "Fetch",
+     "redirectFrom": null,
+     "headerNames": [
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "user-agent"
+     ],
+     "status": 404,
+     "extraHeaderNames": [
+      ":authority",
+      ":method",
+      ":path",
+      ":scheme",
+      "accept",
+      "accept-encoding",
+      "accept-language",
+      "priority",
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "sec-fetch-dest",
+      "sec-fetch-mode",
+      "sec-fetch-site",
+      "user-agent"
+     ],
+     "cookies": 0,
+     "failed": null,
+     "fromCache": false
+    }
+   ],
+   "results": []
+  },
+  "custom_file_after_url_failure": {
+   "problem": "custom",
+   "mode": "explore",
+   "source": "file",
+   "status": "COMPLETED",
+   "reason": null,
+   "sha256": "c6075ca5a7551243b31193bad9228f0a1b9468cdde2475c6586c56dcfac5630d",
+   "target": "Profit",
+   "candidates": 17,
+   "statuses": {
+    "VALID": 17
+   },
+   "methodButtons": 5,
+   "methods": [
+    "All-in baselinek = 4 固定",
+    "Forward SFS4 個 k",
+    "Backward SFS4 個 k",
+    "RFE4 個 k",
+    "Lasso 路徑排序4 個 k"
+   ],
+   "compareRows": 5,
+   "testKpi": "Test RMSE 9,850 Test MAE 8,351 Test MSE 97,026,682 Test R² 0.9399 PI 涵蓋率 100.0% 10 / 10 筆落入 95% PI",
+   "cvKpi": "CV RMSE 8,917 ± 4,027（5 個 fold 的平均 ± 標準差，訓練 CV） CV MAE 6,825 ± 2,300（5 個 fold 的平均 ± 標準差，訓練 CV） CV MSE 92,489,893 ± 77,374,220（5 個 fold 的平均 ± 標準差，訓練 CV） CV R² 0.9425 ± 0.0360（5 個 fold 的平均 ± 標準差，訓練 CV）",
+   "predFields": 1,
+   "predValue": "112,274",
+   "predPi": "93,156 ～ 131,391",
+   "scatterDrawn": true,
+   "kchartDrawn": true,
+   "blocks": [
+    {
+     "id": "ex-data",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-model",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-predictor",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-test",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-methods",
+     "shown": true,
+     "labelled": true
+    }
+   ],
+   "v1Hidden": true,
+   "footerHidden": true,
+   "network": 0,
+   "same_as_builtin": true
+  },
+  "kc_final": {
+   "v1_identical": true,
+   "diff": {},
+   "footerVisible": true,
+   "exploreHidden": true,
+   "network": 0
+  },
+  "v1_vs_v2": {
+   "v1_title": "King County 房價多元線性回歸分析 — HW2 Dashboard",
+   "v2_fresh_vs_v1_identical": true,
+   "diff": {},
+   "v2_ref_vs_v1_identical": true,
+   "raw_equal_except_perf": [
+    "test"
+   ],
+   "v1_perf": "首次繪製：422 ms（自 navigation start，4,323 筆）",
+   "v2_perf": "首次繪製：73 ms（自 navigation start，4,323 筆）"
+  },
+  "network_summary": {
+   "total": 69,
+   "hosts": [
+    "yotsubamomo.github.io",
+    "raw.githubusercontent.com"
+   ],
+   "nonPagesNonTeacher": [],
+   "teacherUrlRequests": [
+    {
+     "phase": "custom_teacher_url",
+     "method": "GET",
+     "type": "Fetch",
+     "status": 200,
+     "redirectFrom": null,
+     "headerNames": [
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "user-agent"
+     ],
+     "extraHeaderNames": [
+      ":authority",
+      ":method",
+      ":path",
+      ":scheme",
+      "accept",
+      "accept-encoding",
+      "accept-language",
+      "origin",
+      "priority",
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "sec-fetch-dest",
+      "sec-fetch-mode",
+      "sec-fetch-site",
+      "user-agent"
+     ],
+     "cookies": 0,
+     "failed": null
+    }
+   ],
+   "pagesNon200": [
+    {
+     "phase": "kc_load",
+     "url": "https://yotsubamomo.github.io/favicon.ico",
+     "status": 404,
+     "redirectFrom": null,
+     "failed": null
+    },
+    {
+     "phase": "custom_url_redirect",
+     "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data",
+     "status": null,
+     "redirectFrom": null,
+     "failed": "net::ERR_FAILED"
+    },
+    {
+     "phase": "custom_url_404",
+     "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/no-such-file.csv",
+     "status": 404,
+     "redirectFrom": null,
+     "failed": null
+    }
+   ],
+   "redirectsFollowed": [],
+   "failed": [
+    {
+     "phase": "custom_url_redirect",
+     "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data",
+     "failed": "net::ERR_FAILED"
+    }
+   ]
+  }
+ },
+ "requests": [
+  {
+   "phase": "kc_load",
+   "requestId": "BCB5499C25A43AC06829B24B9DD6E7E9",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/",
+   "method": "GET",
+   "type": "Document",
+   "redirectFrom": null,
+   "headerNames": [
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "upgrade-insecure-requests",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "sec-fetch-user",
+    "upgrade-insecure-requests",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.2",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/style.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.3",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.6",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/vendor/chart.umd.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.8",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/model_data.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.9",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/hw2core.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.10",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.11",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/startups50.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.12",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_load.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.13",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_engine.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.14",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_plot.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.15",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.16",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_ui.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.26",
+   "url": "data:",
+   "method": "GET",
+   "type": "Image",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_load",
+   "requestId": "14736.27",
+   "url": "https://yotsubamomo.github.io/favicon.ico",
+   "method": "GET",
+   "type": "Other",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 404,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "B9B486D98193B46E15062165AC303DDE",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/",
+   "method": "GET",
+   "type": "Document",
+   "redirectFrom": null,
+   "headerNames": [
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "upgrade-insecure-requests",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": true
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.29",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/style.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.30",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.31",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/vendor/chart.umd.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.32",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/model_data.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.33",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/hw2core.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.34",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.35",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/startups50.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.36",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_load.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.37",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_engine.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.38",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_plot.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.39",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.40",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_ui.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.53",
+   "url": "data:",
+   "method": "GET",
+   "type": "Image",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "5EAEB028513E8AEFB78DBA30B99AE1CA",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/?zipcode=00000",
+   "method": "GET",
+   "type": "Document",
+   "redirectFrom": null,
+   "headerNames": [
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "upgrade-insecure-requests",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "sec-fetch-user",
+    "upgrade-insecure-requests",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.55",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/style.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.56",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.59",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/vendor/chart.umd.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.60",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/model_data.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.61",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/hw2core.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.62",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.63",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/startups50.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.64",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_load.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.65",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_engine.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.66",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_plot.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.67",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.68",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_ui.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_d5",
+   "requestId": "14736.69",
+   "url": "data:",
+   "method": "GET",
+   "type": "Image",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "B48A4F318EFC4B3FC8FC09BFE3AE709D",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/",
+   "method": "GET",
+   "type": "Document",
+   "redirectFrom": null,
+   "headerNames": [
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "upgrade-insecure-requests",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": true
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.71",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/style.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.72",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.73",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/vendor/chart.umd.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.74",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/model_data.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.75",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/hw2core.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.76",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.77",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/startups50.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.78",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_load.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.79",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_engine.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.80",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_plot.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.81",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.82",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_ui.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_sr09",
+   "requestId": "14736.95",
+   "url": "data:",
+   "method": "GET",
+   "type": "Image",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "BBD899CB6C13BC2BE4EFAB2EF638EBE3",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/",
+   "method": "GET",
+   "type": "Document",
+   "redirectFrom": null,
+   "headerNames": [
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "upgrade-insecure-requests",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": true
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.97",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/style.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.98",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.99",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/vendor/chart.umd.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.100",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/model_data.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.101",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/hw2core.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.102",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.103",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/startups50.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.104",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_load.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.105",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_engine.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.106",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_plot.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.107",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.108",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/explore_ui.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "kc_ref",
+   "requestId": "14736.121",
+   "url": "data:",
+   "method": "GET",
+   "type": "Image",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "custom_teacher_url",
+   "requestId": "14736.122",
+   "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+   "method": "GET",
+   "type": "Fetch",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "origin",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "custom_url_redirect",
+   "requestId": "14736.123",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data",
+   "method": "GET",
+   "type": "Fetch",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": null,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": "net::ERR_FAILED"
+  },
+  {
+   "phase": "custom_url_404",
+   "requestId": "14736.124",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/no-such-file.csv",
+   "method": "GET",
+   "type": "Fetch",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "user-agent"
+   ],
+   "status": 404,
+   "extraHeaderNames": [
+    ":authority",
+    ":method",
+    ":path",
+    ":scheme",
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "priority",
+    "referer",
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform",
+    "sec-fetch-dest",
+    "sec-fetch-mode",
+    "sec-fetch-site",
+    "user-agent"
+   ],
+   "cookies": 0,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "v1_reference",
+   "requestId": "A3563A2204AAE0B19779E4B68A080E54",
+   "url": "file:index.html",
+   "method": "GET",
+   "type": "Document",
+   "redirectFrom": null,
+   "headerNames": [
+    "sec-ch-ua",
+    "sec-ch-ua-mobile",
+    "sec-ch-ua-platform"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "v1_reference",
+   "requestId": "37548.2",
+   "url": "file:style.css",
+   "method": "GET",
+   "type": "Stylesheet",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "v1_reference",
+   "requestId": "37548.3",
+   "url": "file:chart.umd.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "v1_reference",
+   "requestId": "37548.4",
+   "url": "file:model_data.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "v1_reference",
+   "requestId": "37548.5",
+   "url": "file:hw2core.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "v1_reference",
+   "requestId": "37548.6",
+   "url": "file:app.js",
+   "method": "GET",
+   "type": "Script",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  },
+  {
+   "phase": "v1_reference",
+   "requestId": "37548.12",
+   "url": "data:",
+   "method": "GET",
+   "type": "Image",
+   "redirectFrom": null,
+   "headerNames": [
+    "referer",
+    "user-agent"
+   ],
+   "status": 200,
+   "extraHeaderNames": null,
+   "cookies": null,
+   "failed": null,
+   "fromCache": false
+  }
+ ],
+ "console": [
+  {
+   "phase": "kc_load",
+   "type": "log-error",
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 ()",
+   "url": "https://yotsubamomo.github.io/favicon.ico"
+  },
+  {
+   "phase": "custom_url_redirect",
+   "type": "log-error",
+   "source": "network",
+   "text": "Failed to load resource: net::ERR_FAILED",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/"
+  },
+  {
+   "phase": "custom_url_404",
+   "type": "log-error",
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 ()",
+   "url": "https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/no-such-file.csv"
+  }
+ ],
+ "exceptions": [],
+ "dialogs": 0,
+ "pid": 21456,
+ "elapsed_s": 96
+}

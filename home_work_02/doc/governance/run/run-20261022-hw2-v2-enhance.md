@@ -323,3 +323,6 @@ Root session 核對：`('claude-opus-5-5','medium')` 276 則，單一元素（�
 - Acceptor 原文逐字：「推送 bb4362c → 合併 → 檢查 Pages」
 - 解讀（依原文的三個動作）：(1) 推送 `bb4362c`（SA-1，一般 push）；(2) 合併 PR #79 進 `main`——RB-1 的逐次明確授權（不是 SA-3；以 merge commit，不 squash、不 rebase，不刪 branch）；(3) Pages 檢查＝OI-V2-1／B-10，依 Bindings §4 作為合併後的 Lightweight work item，以本原文為其 Outcome Contract，觸及 H-2、H-5 → 需 independent audit。
 - 繳交（RB-2）不在本授權內。
+- 推送：`origin/home_work_02-v2-enhance`＝`62d392a`（含 `bb4362c` 與本節的紀錄 commit）；學號檢查 44 commits 0 命中；無追蹤 `.env`。
+- 合併：PR #79 以 merge commit `062e8a45c83a4be390c79352833559b218ffbeab` 合併（`--match-head-commit 62d392a`），未刪 branch。合併時新 head 的 Vercel preview（home_work_01 專案）仍 pending；前一 head `1210821` 該檢查已通過，delta 只有紀錄。合併後部署：`github-pages` success、Vercel `Production` success。
+- Pages 檢查：Lightweight WI-V2-PAGES-1，branch `home_work_02-v2-pages-check`（自 `062e8a4`），worklog `worklog/20261022-v2-pages-check.md`，audit `audit/20261022-v2-pages-check-c1-r1.md` **CLOSURE** → **OI-V2-1 結案**，V2 的 acceptance boundary 全部滿足。該 branch 未 push、未合併。

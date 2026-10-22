@@ -1,0 +1,22 @@
+# Pages files (fetched 2026-10-22T06:29:18Z) vs the dashboard entries of dist/<學號>_hw2.zip, read in memory; the ZIP file name is not printed
+zip_count 1
+zip_sha256 8a51fc1ca26d176f3edb075f7f8aeda7a0dc659531484c10e695bc3800d08f8d
+entries 67
+assets/app.js SAME
+assets/data/50_Startups.csv SAME
+assets/data/50_Startups.LICENSE.md SAME
+assets/data/50_Startups.SOURCE.md SAME
+assets/data/startups50.js SAME
+assets/explore.css SAME
+assets/explore_app.js SAME
+assets/explore_engine.js SAME
+assets/explore_load.js SAME
+assets/explore_plot.js SAME
+assets/explore_ui.js SAME
+assets/hw2core.js SAME
+assets/model_data.js SAME
+assets/style.css SAME
+assets/vendor/chart.js.LICENSE.md SAME
+assets/vendor/chart.umd.js SAME
+index.html SAME
+same 17 diff 0 missing 0
