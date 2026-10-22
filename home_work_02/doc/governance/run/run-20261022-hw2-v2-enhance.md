@@ -307,3 +307,9 @@ Root session 核對：`('claude-opus-5-5','medium')` 276 則，單一元素（�
 | Acceptor actions | push（OI-V2-8；push 前重跑學號檢查）；合併 RB-1（OI-V2-9）；iLearning 繳交 RB-2（OI-V2-10；建議合併與 Pages 檢查之後）；啟動 B-10 item；optional：向老師確認「兩種 problem」（OI-V2-13）、更新基準的過時狀態文字（OI-V2-14）；OI-V2-3～5 若要處理需接受為新工作 |
 | Recovery／replacement／rollover | 無 replacement、無 escalation、無 rollover；acceptor 暫停一次（§10）後於同一 session 續行（§11） |
 | Process incidents（repo 外） | #75 Executor 以 `taskkill /IM chrome.exe` 關閉全部 Chrome；#76 Reviewer 以預設 profile 開啟一次 Chrome（已以 PID 停止）；之後派工 pack 加入程序規則，未再發生涉及 acceptor 環境的事件 |
+
+## 13. Terminus 後的 acceptor 授權：push 與 PR（2026-10-22）
+
+- Acceptor 原文逐字：「授權將 home_work_02-v2-enhance 以一般 fast-forward push 推送至 origin（push 前重跑學號檢查），並開 PR 到 main；不合併。」
+- 依據：SA-1（push topic branch）、SA-2（開 PR）；合併仍屬 RB-1，未授權。
+- 學號檢查與 push／PR 結果見下（push 前寫入，隨本 commit 一併推送）。
