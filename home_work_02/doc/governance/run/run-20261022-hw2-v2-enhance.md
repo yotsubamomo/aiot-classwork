@@ -273,3 +273,10 @@ Tracked items for dispatch packs（更新）：
 | 23 | 2026-10-22 | SIA-F1 ＋ DA phase acceptance | （fresh） | `gov-design-authority` | Opus 5.5／`high` | 進行中 |
 | 23→ | 2026-10-22 | SIA-F1 ＋ phase acceptance | agentId `a67436700d54c6ca4` | `gov-design-authority` | Opus 5.5／`high` | `decisions/decision-20261022-sia-f1-dashboard-wording.md`：SIA-F1 需 rework（report §12.5 新增說明 C-1～C-4；不改變 accepted 語義）；**phase acceptance 延後**至 rework → Executor binding → SIA c1 R2 CLOSURE → P7 → 重派 DA。SIA-F2 可併入同次派工（R4-5）→ Orchestrator 採用併入。無 acceptor 待決項 |
 | 24 | 2026-10-22 | #78 rework（SIA-F1＋SIA-F2） | agentId `acc8906c845bfc14f`（續派，同一 worklog） | `gov-executor` | Opus 5.5／`high` | 進行中 |
+| 24→ | 2026-10-22 | #78 rework | agentId `acc8906c845bfc14f` | `gov-executor` | Opus 5.5／`high` | DONE；subject `69f8e07`（README、report.md）＋`17f10a7`（records）；新 ZIP sha256 `8a51fc1c…8f8d`（未追蹤）；觀測 `('claude-opus-5-5','high')` 248 則（全 transcript）→ 採用。Concerns → SIA R2（README 亦在 ZIP 內改變；OV-1／SR-09 舊證據是否仍適用）；`#ex-lasso-card` 停止原因列表 → tracked（DA 判為範圍外） |
+| 25 | 2026-10-22 | Spec V2 SIA c1 R2 | agentId `aa43e1e2fb1e18487`（續派，重讀 delta） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `17f10a7`（實作 `69f8e07`） |
+| 25→ | 2026-10-22 | Spec V2 SIA c1 R2 | agentId `aa43e1e2fb1e18487` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/spec-SPEC-V2-c1-r2.md`；最終整合 subject `17f10a7c1626bd334bee82c93202822d0e9f6976`（實作 `69f8e07`）；觀測 `('claude-opus-5-5','xhigh')` 270 則（R1＋R2 全 transcript）→ 採用 |
+
+P7（Orchestrator 核對）：`git diff --name-only 17f10a7 HEAD` 只有 `home_work_02/doc/governance/**`（run record、audit record）→ record-only（Bindings §7）。#78 的 closed subject 依此更新為 `17f10a7`（rework 屬同一 worklog identity，已由 SIA R2 涵蓋）。
+
+| 26 | 2026-10-22 | DA phase acceptance（Spec V2） | （fresh） | `gov-design-authority` | Opus 5.5／`high` | 進行中 |
