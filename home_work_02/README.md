@@ -145,7 +145,7 @@
 - **特徵選擇**：一個來源欄＝一個 feature group，整組進出。Forward／Backward SFS 以 RSS、RFE 以 group 對擬合值貢獻的標準差 sd(X_g β_g)、Lasso 路徑以 exact LARS 的進入順序，平手依 CSV 欄序；另有 All-in baseline。這些準則與 King County 正式分析相同。
 - **候選與 winner**：每個 (方法, k) 候選只有一個狀態——`VALID`、`INVALID_MODEL`（任一 fold 或整個訓練集上設計矩陣秩不足或殘差自由度不足，或 Lasso 路徑停止後的 k）、`SKIPPED_RESOURCE_LIMIT`（超出運算預算，未執行）、`FAILED`（非預期的計算錯誤，只影響該方法）。各方法與整體 CV winner 只從 `VALID` 候選中以 CV RMSE 選出；全部候選都無效時整個執行拒絕，並顯示共線診斷（哪些欄位線性相依、對應哪些 feature group，不指認單一問題欄）。
 - **評估**：指標 vs k 圖與 KPI 只用訓練 CV；探索 test 只對各方法與整體 CV winner 計算一次（MAE、MSE、RMSE、R²、逐筆 95% OLS 參數式預測區間與涵蓋率），不回饋任何選擇。即時預測器只對目前選取的 `VALID` 候選提供預測。
-- **Lasso 路徑的停止**：路徑結束時若仍有 group 未進入——active set 退化、路徑走到終點時其餘 group 與殘差的相關在數值上為零，或數值停止（alpha 回升、迭代達上限）——一律同樣處理：已求得的路徑段是實際結果；未進入的 group 只依 CSV 欄序列出作展示，不是實際路徑、也不構成選模依據；k 超過已進入 group 數的 Lasso 候選為 `INVALID_MODEL`（`lasso_path_degenerate`）。畫面寫出實際的停止原因，只陳述已確立的事實（例如「走到終點」不代表一定共線）。停止與平手的數值判定在「目標除以它在同一批列上的均方根」的尺度上計算，所以把目標換單位（乘上任何正常數）不改變進入順序、停止點與候選狀態；entry alpha 以目標的原始尺度回報。
+- **Lasso 路徑的停止**：路徑結束時若仍有 group 未進入——active set 退化、路徑走到終點時其餘 group 與殘差的相關在數值上為零、同一步有多個 group 同時離開路徑、預測目標在這些列上沒有變化，或數值停止（alpha 回升、迭代達上限）——一律同樣處理：已求得的路徑段是實際結果；未進入的 group 只依 CSV 欄序列出作展示，不是實際路徑、也不構成選模依據；k 超過已進入 group 數的 Lasso 候選為 `INVALID_MODEL`（`lasso_path_degenerate`）。畫面寫出實際的停止原因，只陳述已確立的事實（例如「走到終點」不代表一定共線）。停止與平手的數值判定在「目標在同一批列上置中後除以其均方根」的尺度上計算，所以把目標換單位（乘上任何正常數）不改變進入順序、停止點與候選狀態；entry alpha 以目標的原始尺度回報。
 - **數值驗證**：pytest 即時產生通用 Python 參照（[`hw2/explore_reference.py`](hw2/explore_reference.py)，只供測試，正式分析不使用它）的結果，Node 測試逐值比對瀏覽器端的引擎；同一份資料、同一目標欄與同一版本重跑，結果相同。
 
 ### 與正式分析的差異
