@@ -138,3 +138,4 @@ Chrome 與 Edge 的功能結果完全相同（`verdict.txt`；`kc_blocks`、`d3_
 
 - Acceptor 原文逐字：「授權推送 home_work_02-v2-pages-check（推送前重跑學號檢查）並開 PR 到 main；不合併。」
 - 依 SA-1、SA-2 執行；合併屬 RB-1，未授權。學號檢查與 PR 連結由派工的主 session 於推送後回報（PR 描述與對話）。
+- Acceptor 追加原文逐字（同日，推送進行中送達）：「做完後merge」——取代上一則的「不合併」：推送與開 PR 完成後，以 merge commit 合併該 PR 進 `main`（RB-1 的逐次明確授權；不 squash、不 rebase、不刪 branch）。
