@@ -317,3 +317,9 @@ Root session 核對：`('claude-opus-5-5','medium')` 276 則，單一元素（�
 - Push：一般 push（新 branch，無 force），`origin/home_work_02-v2-enhance`＝`1210821041596ee0aad4953871558819a9b3d6ba`＝本機 HEAD。
 - PR：<https://github.com/yotsubamomo/aiot-classwork/pull/79>（base `main`，head `home_work_02-v2-enhance`），diff 162 個檔案全部在 `home_work_02/` 內。開立時 checks：1 passing、1 pending。**未合併**（RB-1）。
 - 本段在 push 後以本機 record-only commit 寫入，尚未 push（acceptor 的授權範圍是 push 當時的 branch；之後的 push 依下一次指示）。
+
+## 14. Acceptor 授權：推送、合併、Pages 檢查（2026-10-22）
+
+- Acceptor 原文逐字：「推送 bb4362c → 合併 → 檢查 Pages」
+- 解讀（依原文的三個動作）：(1) 推送 `bb4362c`（SA-1，一般 push）；(2) 合併 PR #79 進 `main`——RB-1 的逐次明確授權（不是 SA-3；以 merge commit，不 squash、不 rebase，不刪 branch）；(3) Pages 檢查＝OI-V2-1／B-10，依 Bindings §4 作為合併後的 Lightweight work item，以本原文為其 Outcome Contract，觸及 H-2、H-5 → 需 independent audit。
+- 繳交（RB-2）不在本授權內。
