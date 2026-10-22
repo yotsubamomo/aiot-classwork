@@ -1,0 +1,943 @@
+{
+ "label": "chrome",
+ "browser": "Chrome/155.0.8059.85",
+ "started": "2026-10-22T01:51:39.859Z",
+ "checks": {
+  "loads": [
+   {
+    "firstDraw": 265.1000000089407,
+    "nPoints": 4323,
+    "nTestPoints": 4323,
+    "longtasks": [
+     171
+    ],
+    "problem": "king_county",
+    "exploreHidden": true
+   },
+   {
+    "firstDraw": 88.3999999910593,
+    "nPoints": 4323,
+    "nTestPoints": 4323,
+    "longtasks": [],
+    "problem": "king_county",
+    "exploreHidden": true
+   },
+   {
+    "firstDraw": 90,
+    "nPoints": 4323,
+    "nTestPoints": 4323,
+    "longtasks": [],
+    "problem": "king_county",
+    "exploreHidden": true
+   },
+   {
+    "firstDraw": 87.19999998807907,
+    "nPoints": 4323,
+    "nTestPoints": 4323,
+    "longtasks": [],
+    "problem": "king_county",
+    "exploreHidden": true
+   },
+   {
+    "firstDraw": 93.90000000596046,
+    "nPoints": 4323,
+    "nTestPoints": 4323,
+    "longtasks": [],
+    "problem": "king_county",
+    "exploreHidden": true
+   }
+  ],
+  "kc_blocks": {
+   "methods": 5,
+   "kButtons": 0,
+   "kpiCv": 4,
+   "kchart": true,
+   "predFields": 19,
+   "predPrice": "US$503,564",
+   "predPi": "US$351,404 – US$721,610",
+   "testKpi": "Test RMSE\nTest 評估（USD）\nUS$183,597\nAll-in baseline · k = 18・n_test 4,323\nTest MAE\nTest 評估（USD）\nUS$78,114\nAll-in baseline · k = 18・n_test 4,323\nTest MSE（USD²）\nTest 評估（USD）\n3.371 × 10^10\nAll-in baseline · k = 18・n_test 4,323\nTest R²（USD 尺度）\nTest 評估（USD）\n0.7828\nAll-in baseline · k = 18・n_test 4,323",
+   "methodsBlock": true,
+   "overview": true,
+   "title": "King County 房價多元線性回歸分析 — HW2 Dashboard",
+   "lang": "zh-Hant-TW"
+  },
+  "sr09_b": {
+   "byType": {
+    "method": {
+     "n": 7,
+     "max": 12.2,
+     "values": [
+      5.2,
+      12.2,
+      5.2,
+      8.8,
+      10.6,
+      9,
+      9.2
+     ]
+    },
+    "k": {
+     "n": 4,
+     "max": 4.8,
+     "values": [
+      4.7,
+      4,
+      3.7,
+      4.8
+     ]
+    },
+    "wheel-zoom": {
+     "n": 10,
+     "max": 9.4,
+     "values": [
+      6.5,
+      5.1,
+      3.8,
+      4.5,
+      7.1,
+      8.4,
+      3,
+      9.4,
+      5,
+      5.4
+     ]
+    },
+    "drag-pan": {
+     "n": 3,
+     "max": 1.4,
+     "values": [
+      1.4,
+      1.3,
+      1.3
+     ]
+    },
+    "button-zoom-in": {
+     "n": 3,
+     "max": 1.5,
+     "values": [
+      1.3,
+      1.5,
+      1.5
+     ]
+    },
+    "button-zoom-out": {
+     "n": 1,
+     "max": 1.4,
+     "values": [
+      1.4
+     ]
+    },
+    "button-reset": {
+     "n": 1,
+     "max": 1.4,
+     "values": [
+      1.4
+     ]
+    }
+   },
+   "longtasks": [],
+   "visibility": [
+    "visible"
+   ]
+  },
+  "sr09_e_tooltip": "第 5,148 列（房屋 7203220130）\n預測 US$987,306\n實際 US$994,900\n95% PI US$689,162 – US$1,414,434\n落入區間",
+  "sr09_g": {
+   "firstDrawPoints": 4323,
+   "nTestPoints": 4323
+  },
+  "kc_ref": {
+   "footerVisible": true,
+   "exploreHidden": true,
+   "v1Visible": true
+  },
+  "startups50": {
+   "problem": "startups50",
+   "status": "COMPLETED",
+   "engine": "explore-engine 3.1 (V2-T4: budgets, cancellation incl. the final phase, unit-free paths)",
+   "sha256": "c6075ca5a7551243b31193bad9228f0a1b9468cdde2475c6586c56dcfac5630d",
+   "candidates": 17,
+   "statuses": {
+    "VALID": 17
+   },
+   "methodButtons": 5,
+   "compareRows": 5,
+   "testKpi": "Test RMSE 9,850 Test MAE 8,351 Test MSE 97,026,682 Test R² 0.9399 PI 涵蓋率 100.0% 10 / 10 筆落入 95% PI",
+   "cvKpi": "CV RMSE 8,917 ± 4,027（5 個 fold 的平均 ± 標準差，訓練 CV） CV MAE 6,825 ± 2,300（5 個 fold 的平均 ± 標準差，訓練 CV） CV MSE 92,489,893 ± 77,374,220（5 個 fold 的平均 ± 標準差，訓練 CV） CV R² 0.9425 ± 0.0360（5 個 fold 的平均 ± 標準差，訓練 CV）",
+   "predFields": 1,
+   "predValue": "112,274",
+   "predPi": "93,156 ～ 131,391",
+   "scatterDrawn": true,
+   "kchartDrawn": true,
+   "blocks": [
+    {
+     "id": "ex-data",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-model",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-predictor",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-test",
+     "shown": true,
+     "labelled": true
+    },
+    {
+     "id": "ex-methods",
+     "shown": true,
+     "labelled": true
+    }
+   ],
+   "v1Hidden": true,
+   "footerHidden": true,
+   "timing": {
+    "started_at_epoch_ms": 1792633909315,
+    "decisions": 0.4000000059604645,
+    "allin": 1.699999988079071,
+    "forward_sfs": 3.2000000029802322,
+    "backward_sfs": 1.5,
+    "rfe": 0.8999999910593033,
+    "lasso_path": 1.6000000089406967,
+    "dependencies": 0.19999998807907104,
+    "test": 0.09999999403953552,
+    "total": 10
+   },
+   "change_to_result_ms": 56.3,
+   "longtasks": [],
+   "external": 0
+  },
+  "startups50_again": {
+   "testKpi": "Test RMSE 9,850 Test MAE 8,351 Test MSE 97,026,682 Test R² 0.9399 PI 涵蓋率 100.0% 10 / 10 筆落入 95% PI",
+   "cvKpi": "CV RMSE 8,917 ± 4,027（5 個 fold 的平均 ± 標準差，訓練 CV） CV MAE 6,825 ± 2,300（5 個 fold 的平均 ± 標準差，訓練 CV） CV MSE 92,489,893 ± 77,374,220（5 個 fold 的平均 ± 標準差，訓練 CV） CV R² 0.9425 ± 0.0360（5 個 fold 的平均 ± 標準差，訓練 CV）",
+   "timing": {
+    "started_at_epoch_ms": 1792633909960,
+    "decisions": 0.20000000298023224,
+    "allin": 0.5,
+    "forward_sfs": 1.2999999970197678,
+    "backward_sfs": 1,
+    "rfe": 0.7000000029802322,
+    "lasso_path": 1.0999999940395355,
+    "dependencies": 0.10000000894069672,
+    "test": 0,
+    "total": 5
+   },
+   "same_display": true
+  },
+  "custom_empty": {
+   "problem": "custom",
+   "panel": true,
+   "status": "尚未載入資料：請以 URL 或本機 CSV 檔案提交。",
+   "results": [],
+   "v1Hidden": true,
+   "footerHidden": true,
+   "external": 0
+  },
+  "three_way": {
+   "order": "king_county→startups50→custom→king_county",
+   "problem": "king_county",
+   "v1_identical": true,
+   "footerVisible": true,
+   "exploreHidden": true,
+   "external": 0
+  },
+  "custom_url_failure": {
+   "message": "無法載入資料：URL 讀取失敗（URL_FETCH_FAILED，network）：網路或跨來源限制：沒有取得回應。可能是網路中斷、對方伺服器不允許跨來源讀取（CORS），或該網址會重新導向（本頁不跟隨重新導向）。請用瀏覽器下載該 CSV，再以下方的「本機 CSV 檔案」載入（本機讀取，不發出請求）。 | 沒有載入任何資料（URL 讀取失敗）：https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+   "requests": [
+    {
+     "phase": "custom_url",
+     "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+     "method": "GET"
+    }
+   ],
+   "hasFileGuide": true,
+   "results": []
+  },
+  "kc_after_failure": {
+   "v1_identical": true,
+   "footerVisible": true,
+   "external": 0
+  },
+  "custom_file_after_url_failure": {
+   "status": "COMPLETED",
+   "sha256": "c6075ca5a7551243b31193bad9228f0a1b9468cdde2475c6586c56dcfac5630d",
+   "source": "file",
+   "testKpi": "Test RMSE 9,850 Test MAE 8,351 Test MSE 97,026,682 Test R² 0.9399 PI 涵蓋率 100.0% 10 / 10 筆落入 95% PI",
+   "cvKpi": "CV RMSE 8,917 ± 4,027（5 個 fold 的平均 ± 標準差，訓練 CV） CV MAE 6,825 ± 2,300（5 個 fold 的平均 ± 標準差，訓練 CV） CV MSE 92,489,893 ± 77,374,220（5 個 fold 的平均 ± 標準差，訓練 CV） CV R² 0.9425 ± 0.0360（5 個 fold 的平均 ± 標準差，訓練 CV）",
+   "same_as_builtin": true,
+   "requests_added": 0
+  },
+  "custom_target_failure": {
+   "target": "State（類別）",
+   "message": "無法載入資料：預測目標欄「State」不是數值欄（TARGET_NOT_NUMERIC），沒有執行分析。請在「預測目標欄」下拉改選數值欄；改選後以同一份資料重新執行。 | 目前的資料：本機 CSV 檔案 50_Startups.csv",
+   "results": [
+    "ex-data"
+   ]
+  },
+  "kc_after_target_failure": {
+   "v1_identical": true,
+   "footerVisible": true,
+   "external": 0
+  },
+  "ov2_overflow_px": {
+   "375": {
+    "king_county": 0,
+    "startups50": 0,
+    "custom_empty": 0,
+    "custom_loaded": 0
+   },
+   "768": {
+    "king_county": 0,
+    "startups50": 0,
+    "custom_empty": 0,
+    "custom_loaded": 0
+   }
+  },
+  "ov4": {
+   "tabOrder": [
+    {
+     "id": "a",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "a",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "a",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "a",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "a",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "a",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "problem-select",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "meta-dataset-link",
+     "outline": "solid 3px"
+    },
+    {
+     "id": "button",
+     "outline": "solid 3px"
+    }
+   ],
+   "problemSelectTab": 7,
+   "names": [
+    {
+     "id": "problem-select",
+     "name": "分析問題（Problem）",
+     "pressed": null
+    },
+    {
+     "id": "ex-url",
+     "name": "CSV 的 URL",
+     "pressed": null
+    },
+    {
+     "id": "ex-url-load",
+     "name": "載入 URL",
+     "pressed": null
+    },
+    {
+     "id": "ex-file",
+     "name": "本機 CSV 檔案",
+     "pressed": null
+    },
+    {
+     "id": "ex-target",
+     "name": "預測目標欄",
+     "pressed": null
+    },
+    {
+     "id": "ex-cancel",
+     "name": "取消執行",
+     "pressed": null
+    },
+    {
+     "id": "ex-compare-all",
+     "name": "比較全部方法",
+     "pressed": "false"
+    },
+    {
+     "id": "ex-metric",
+     "name": "指標",
+     "pressed": null
+    },
+    {
+     "id": "ex-zoom-in",
+     "name": "放大",
+     "pressed": null
+    },
+    {
+     "id": "ex-zoom-out",
+     "name": "縮小",
+     "pressed": null
+    },
+    {
+     "id": "ex-zoom-reset",
+     "name": "重設檢視",
+     "pressed": null
+    },
+    {
+     "id": "ex-scatter-canvas",
+     "name": "散佈圖：x 軸為預測值、y 軸為實際值，皆為線性刻度；每筆 test 樣本有一條垂直的 95% 預測區間線段，落入區間為圓點、未落入為方塊；含 y = x 參考線。",
+     "pressed": null
+    },
+    {
+     "id": "ex-method-seg",
+     "name": "特徵選擇方法",
+     "pressed": null
+    },
+    {
+     "id": "ex-k-grid",
+     "name": "特徵數 k（feature groups）",
+     "pressed": null
+    }
+   ],
+   "compareToggle": [
+    "true",
+    "false"
+   ],
+   "navToggleAria": "false"
+  },
+  "ov5": {
+   "startups50": {
+    "n": 349,
+    "min": 6.49,
+    "below": [],
+    "nBelow": 0
+   },
+   "custom_empty": {
+    "n": 17,
+    "min": 6.74,
+    "below": [],
+    "nBelow": 0
+   }
+  },
+  "medium": {
+   "mode": "explore",
+   "status": "COMPLETED",
+   "sha256": "acd13ce2730b350f08ace31f6b83efc6c0b543252e32fa91d7f90aff406795a7",
+   "rows": 20000,
+   "candidates": 101,
+   "statuses": {
+    "VALID": 101
+   },
+   "timing": {
+    "started_at_epoch_ms": 1792633920659,
+    "decisions": 52.79999999701977,
+    "allin": 924.5999999940395,
+    "forward_sfs": 5817.5999999940395,
+    "backward_sfs": 3111.2000000029802,
+    "rfe": 2781.5,
+    "lasso_path": 4263.5999999940395,
+    "dependencies": 213.70000000298023,
+    "test": 160.79999999701977,
+    "total": 17438.20000000298
+   },
+   "groups": 25,
+   "budget": {
+    "allin": 405600000,
+    "forward_sfs": 141960000000,
+    "backward_sfs": 141960000000,
+    "rfe": 141960000000,
+    "lasso_path": 20280000000
+   },
+   "wall_ms": 18381,
+   "progress_samples": [
+    "執行中（全部候選已完成，正在計算探索 test）：已完成 17／17 個候選、5／5 個方法（100%），已耗時 0.0 秒",
+    "執行中（Forward SFS · k = 18：完成）：已完成 19／101 個候選、1／5 個方法（19%），已耗時 3.0 秒",
+    "執行中（Forward SFS · k = 23：完成）：已完成 24／101 個候選、1／5 個方法（24%），已耗時 6.1 秒",
+    "執行中（Backward SFS · k = 22：完成）：已完成 48／101 個候選、2／5 個方法（48%），已耗時 9.1 秒",
+    "執行中（RFE · k = 23：完成）：已完成 74／101 個候選、3／5 個方法（73%），已耗時 12.2 秒",
+    "執行中（Lasso 路徑排序 · k = 19：完成）：已完成 95／101 個候選、4／5 個方法（94%），已耗時 14.9 秒",
+    "執行中（全部候選已完成，正在計算探索 test）：已完成 101／101 個候選、5／5 個方法（100%），已耗時 17.6 秒"
+   ],
+   "typed_during_run": "typing-check",
+   "longtasks": [
+    223,
+    62
+   ]
+  },
+  "external_total": [
+   {
+    "phase": "custom_url",
+    "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+    "method": "GET"
+   },
+   {
+    "phase": "custom_file",
+    "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+    "method": "GET"
+   }
+  ],
+  "file_requests": [
+   "file:index.html",
+   "file:style.css",
+   "file:explore.css",
+   "file:chart.umd.js",
+   "file:model_data.js",
+   "file:hw2core.js",
+   "file:app.js",
+   "file:startups50.js",
+   "file:explore_load.js",
+   "file:explore_engine.js",
+   "file:explore_plot.js",
+   "file:explore_app.js",
+   "file:explore_ui.js"
+  ]
+ },
+ "requests": [
+  {
+   "phase": "kc_load",
+   "url": "file:index.html",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:style.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:chart.umd.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:model_data.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:hw2core.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:startups50.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_load.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_engine.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_plot.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_ui.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:index.html",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:style.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:chart.umd.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:model_data.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:hw2core.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:startups50.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_load.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_engine.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_plot.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_ui.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:index.html",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:style.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:chart.umd.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:model_data.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:hw2core.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:startups50.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_load.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_engine.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_plot.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_ui.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:index.html",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:style.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:chart.umd.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:model_data.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:hw2core.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:startups50.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_load.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_engine.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_plot.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_ui.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:index.html",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:style.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore.css",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:chart.umd.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:model_data.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:hw2core.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:startups50.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_load.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_engine.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_plot.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "file:explore_ui.js",
+   "method": "GET"
+  },
+  {
+   "phase": "kc_load",
+   "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+   "method": "GET"
+  },
+  {
+   "phase": "custom_url",
+   "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+   "method": "GET"
+  },
+  {
+   "phase": "custom_file",
+   "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:index.html",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:style.css",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:explore.css",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:chart.umd.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:model_data.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:hw2core.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:startups50.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:explore_load.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:explore_engine.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:explore_plot.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:explore_app.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "file:explore_ui.js",
+   "method": "GET"
+  },
+  {
+   "phase": "ov4",
+   "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+   "method": "GET"
+  }
+ ],
+ "exceptions": [],
+ "dialogs": 0,
+ "pid": 33588,
+ "elapsed_s": 39
+}

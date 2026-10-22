@@ -1,0 +1,538 @@
+TAP version 13
+# Subtest: request isolation: init, King County, 50 Startups and local text make no request
+ok 1 - request isolation: init, King County, 50 Startups and local text make no request
+  ---
+  duration_ms: 25.761
+  type: 'test'
+  ...
+# Subtest: the problem switch: 50 Startups runs on every selection; King County keeps the result in memory only
+ok 2 - the problem switch: 50 Startups runs on every selection; King County keeps the result in memory only
+  ---
+  duration_ms: 14.5949
+  type: 'test'
+  ...
+# Subtest: loading the browser files as the page does requests nothing
+ok 3 - loading the browser files as the page does requests nothing
+  ---
+  duration_ms: 146.8614
+  type: 'test'
+  ...
+# Subtest: predictor: inputs are the canonical fit's groups; numbers default to the training median
+ok 4 - predictor: inputs are the canonical fit's groups; numbers default to the training median
+  ---
+  duration_ms: 9.0938
+  type: 'test'
+  ...
+# Subtest: predictor: an out-of-range number is still computed, with a warning
+ok 5 - predictor: an out-of-range number is still computed, with a warning
+  ---
+  duration_ms: 4.8375
+  type: 'test'
+  ...
+# Subtest: predictor: the drop-down lists the training levels and the baseline; an unseen level is the baseline, with a warning
+ok 6 - predictor: the drop-down lists the training levels and the baseline; an unseen level is the baseline, with a warning
+  ---
+  duration_ms: 4.701
+  type: 'test'
+  ...
+# Subtest: predictor: the point and the PI follow the fit (y_hat +/- t * sqrt(s2 (1 + x'(X'X)^-1 x)))
+ok 7 - predictor: the point and the PI follow the fit (y_hat +/- t * sqrt(s2 (1 + x'(X'X)^-1 x)))
+  ---
+  duration_ms: 4.3337
+  type: 'test'
+  ...
+# Subtest: predictor: a non-VALID candidate disables it with the status and the reason, and gives no number
+ok 8 - predictor: a non-VALID candidate disables it with the status and the reason, and gives no number
+  ---
+  duration_ms: 4.266
+  type: 'test'
+  ...
+# Subtest: predictor: a non-number input gives a message, not a prediction
+ok 9 - predictor: a non-number input gives a message, not a prediction
+  ---
+  duration_ms: 4.3581
+  type: 'test'
+  ...
+# Subtest: views: the test block shows a winner itself, a non-winner's method winner with a hint, else the overall winner
+ok 10 - views: the test block shows a winner itself, a non-winner's method winner with a hint, else the overall winner
+  ---
+  duration_ms: 39.5119
+  type: 'test'
+  ...
+# Subtest: views: the comparison table has one row per method and test numbers only for winners
+ok 11 - views: the comparison table has one row per method and test numbers only for winners
+  ---
+  duration_ms: 24.2122
+  type: 'test'
+  ...
+# Subtest: views: metric vs k has no value for an invalid candidate; Lasso and dependency views
+ok 12 - views: metric vs k has no value for an invalid candidate; Lasso and dependency views
+  ---
+  duration_ms: 24.4735
+  type: 'test'
+  ...
+# Subtest: layer 2: the 20 / 21 level limit and the constant rule are counted on the training rows
+ok 13 - layer 2: the 20 / 21 level limit and the constant rule are counted on the training rows
+  ---
+  duration_ms: 55.2712
+  type: 'test'
+  ...
+# Subtest: layer 2 and canonical: changing test rows changes no decision, no canonical fit and no predictor level
+ok 14 - layer 2 and canonical: changing test rows changes no decision, no canonical fit and no predictor level
+  ---
+  duration_ms: 52.3006
+  type: 'test'
+  ...
+# Subtest: layer 2: changing training rows does change the decisions
+ok 15 - layer 2: changing training rows does change the decisions
+  ---
+  duration_ms: 17.2512
+  type: 'test'
+  ...
+# Subtest: layer 3: a fold's levels, baseline and fit ignore its validation rows and follow its training rows
+ok 16 - layer 3: a fold's levels, baseline and fit ignore its validation rows and follow its training rows
+  ---
+  duration_ms: 48.249
+  type: 'test'
+  ...
+# Subtest: layer 3: changing one training row of a fold changes that fold, not the fold where the row is validation
+ok 17 - layer 3: changing one training row of a fold changes that fold, not the fold where the row is validation
+  ---
+  duration_ms: 43.6472
+  type: 'test'
+  ...
+# Subtest: the baseline is the first level in the training rows; one-hot columns follow first appearance
+ok 18 - the baseline is the first level in the training rows; one-hot columns follow first appearance
+  ---
+  duration_ms: 19.5803
+  type: 'test'
+  ...
+# Subtest: the split is reproducible and the folds cover the training rows evenly
+ok 19 - the split is reproducible and the folds cover the training rows evenly
+  ---
+  duration_ms: 0.3359
+  type: 'test'
+  ...
+# Subtest: request isolation, fifth path: a submitted URL gets exactly one GET, without credentials, redirects or headers
+ok 20 - request isolation, fifth path: a submitted URL gets exactly one GET, without credentials, redirects or headers
+  ---
+  duration_ms: 76.8631
+  type: 'test'
+  ...
+# Subtest: the loader's request init is exactly the D-1 options
+ok 21 - the loader's request init is exactly the D-1 options
+  ---
+  duration_ms: 0.2448
+  type: 'test'
+  ...
+# Subtest: URL failure, network (cross-origin refusal, network error or a refused redirect): URL_FETCH_FAILED with its cause, one request, nothing sent again
+ok 22 - URL failure, network (cross-origin refusal, network error or a refused redirect): URL_FETCH_FAILED with its cause, one request, nothing sent again
+  ---
+  duration_ms: 51.8883
+  type: 'test'
+  ...
+# Subtest: URL failure, HTTP status: URL_FETCH_FAILED with its cause, one request, nothing sent again
+ok 23 - URL failure, HTTP status: URL_FETCH_FAILED with its cause, one request, nothing sent again
+  ---
+  duration_ms: 45.3601
+  type: 'test'
+  ...
+# Subtest: URL failure, not text: URL_FETCH_FAILED with its cause, one request, nothing sent again
+ok 24 - URL failure, not text: URL_FETCH_FAILED with its cause, one request, nothing sent again
+  ---
+  duration_ms: 47.0243
+  type: 'test'
+  ...
+# Subtest: URL failure, the network function throws: URL_FETCH_FAILED with its cause, one request, nothing sent again
+ok 25 - URL failure, the network function throws: URL_FETCH_FAILED with its cause, one request, nothing sent again
+  ---
+  duration_ms: 44.7127
+  type: 'test'
+  ...
+# Subtest: URL failure, timeout: the read is aborted after the time limit and not sent again
+ok 26 - URL failure, timeout: the read is aborted after the time limit and not sent again
+  ---
+  duration_ms: 138.0872
+  type: 'test'
+  ...
+# Subtest: a body that is text but not UTF-8 is ENCODING, exactly as the same bytes from a local file
+ok 27 - a body that is text but not UTF-8 is ENCODING, exactly as the same bytes from a local file
+  ---
+  duration_ms: 0.7347
+  type: 'test'
+  ...
+# Subtest: input that is not an absolute http(s) URL is refused before any request
+ok 28 - input that is not an absolute http(s) URL is refused before any request
+  ---
+  duration_ms: 0.4349
+  type: 'test'
+  ...
+# Subtest: target column: default last; a categorical target is TARGET_NOT_NUMERIC and does not run; another target runs again
+ok 29 - target column: default last; a categorical target is TARGET_NOT_NUMERIC and does not run; another target runs again
+  ---
+  duration_ms: 11.0564
+  type: 'test'
+  ...
+# Subtest: every load rejection has its own zh-TW message
+ok 30 - every load rejection has its own zh-TW message
+  ---
+  duration_ms: 10.0319
+  type: 'test'
+  ...
+# Subtest: the URL, file and built-in entrances give the same deterministic result for the same content
+ok 31 - the URL, file and built-in entrances give the same deterministic result for the same content
+  ---
+  duration_ms: 20.2193
+  type: 'test'
+  ...
+# Subtest: switching King County -> 50 Startups -> custom -> King County; a pending read is aborted and dropped
+ok 32 - switching King County -> 50 Startups -> custom -> King County; a pending read is aborted and dropped
+  ---
+  duration_ms: 12.0486
+  type: 'test'
+  ...
+# Subtest: a new submission replaces a pending one: one request per submission, the older answer dropped
+ok 33 - a new submission replaces a pending one: one request per submission, the older answer dropped
+  ---
+  duration_ms: 8.0815
+  type: 'test'
+  ...
+# Subtest: nothing is stored: storage, history, cookie and the address are never touched (vm, traps)
+ok 34 - nothing is stored: storage, history, cookie and the address are never touched (vm, traps)
+  ---
+  duration_ms: 295.5131
+  type: 'test'
+  ...
+# Subtest: \#74 R1-F2: `__proto__`, `constructor`, `toString` are ordinary column names for the loader, the engine and the predictor
+ok 35 - \#74 R1-F2: `__proto__`, `constructor`, `toString` are ordinary column names for the loader, the engine and the predictor
+  ---
+  duration_ms: 3.1621
+  type: 'test'
+  ...
+# Subtest: a well-formed CSV is accepted with column types, target and row counts
+ok 36 - a well-formed CSV is accepted with column types, target and row counts
+  ---
+  duration_ms: 2.6968
+  type: 'test'
+  ...
+# Subtest: SR-V2-01: the LoadResult has no kept / excluded state and no distribution of any column
+ok 37 - SR-V2-01: the LoadResult has no kept / excluded state and no distribution of any column
+  ---
+  duration_ms: 0.541
+  type: 'test'
+  ...
+# Subtest: NOT_CSV: empty text, a single column, an unterminated quote, text after a closing quote
+ok 38 - NOT_CSV: empty text, a single column, an unterminated quote, text after a closing quote
+  ---
+  duration_ms: 1.1064
+  type: 'test'
+  ...
+# Subtest: NO_HEADER: an empty column name, or a header that is all numbers
+ok 39 - NO_HEADER: an empty column name, or a header that is all numbers
+  ---
+  duration_ms: 0.4456
+  type: 'test'
+  ...
+# Subtest: RAGGED_ROWS: a data row with a different number of fields
+ok 40 - RAGGED_ROWS: a data row with a different number of fields
+  ---
+  duration_ms: 0.6976
+  type: 'test'
+  ...
+# Subtest: ENCODING: bytes that are not UTF-8, the replacement character, a NUL character
+ok 41 - ENCODING: bytes that are not UTF-8, the replacement character, a NUL character
+  ---
+  duration_ms: 0.4601
+  type: 'test'
+  ...
+# Subtest: TOO_LARGE: more rows or more columns than the load limits (never truncated)
+ok 42 - TOO_LARGE: more rows or more columns than the load limits (never truncated)
+  ---
+  duration_ms: 0.5605
+  type: 'test'
+  ...
+# Subtest: TOO_FEW_ROWS: fewer than 20 rows, also after the rows with a missing value are dropped
+ok 43 - TOO_FEW_ROWS: fewer than 20 rows, also after the rows with a missing value are dropped
+  ---
+  duration_ms: 0.5583
+  type: 'test'
+  ...
+# Subtest: TARGET_NOT_NUMERIC: the default (last) or the chosen target must be numeric
+ok 44 - TARGET_NOT_NUMERIC: the default (last) or the chosen target must be numeric
+  ---
+  duration_ms: 0.6746
+  type: 'test'
+  ...
+# Subtest: DUPLICATE_COLUMN: a repeated column name (after trimming)
+ok 45 - DUPLICATE_COLUMN: a repeated column name (after trimming)
+  ---
+  duration_ms: 0.4215
+  type: 'test'
+  ...
+# Subtest: cells: BOM, quotes, white space, scientific notation, negative numbers, empty cells
+ok 46 - cells: BOM, quotes, white space, scientific notation, negative numbers, empty cells
+  ---
+  duration_ms: 0.5781
+  type: 'test'
+  ...
+# Subtest: only literal decimal numbers make a numeric column (no hex, Infinity, NaN, separators, expressions)
+ok 47 - only literal decimal numbers make a numeric column (no hex, Infinity, NaN, separators, expressions)
+  ---
+  duration_ms: 0.4541
+  type: 'test'
+  ...
+# Subtest: a quote inside an unquoted field is literal; quoted fields may hold line ends
+ok 48 - a quote inside an unquoted field is literal; quoted fields may hold line ends
+  ---
+  duration_ms: 0.1785
+  type: 'test'
+  ...
+# Subtest: the same content as text or as bytes gives the same result and the file sha256
+ok 49 - the same content as text or as bytes gives the same result and the file sha256
+  ---
+  duration_ms: 4.3314
+  type: 'test'
+  ...
+# Subtest: sha256 matches node:crypto on assorted inputs
+ok 50 - sha256 matches node:crypto on assorted inputs
+  ---
+  duration_ms: 0.791
+  type: 'test'
+  ...
+# Subtest: CV metrics are the arithmetic mean (and sample sd) of fold metrics computed by hand
+ok 51 - CV metrics are the arithmetic mean (and sample sd) of fold metrics computed by hand
+  ---
+  duration_ms: 11.2495
+  type: 'test'
+  ...
+# Subtest: freezing: changing the target of the test rows moves only the test numbers
+ok 52 - freezing: changing the target of the test rows moves only the test numbers
+  ---
+  duration_ms: 27.996
+  type: 'test'
+  ...
+# Subtest: A-2: Lasso candidates beyond the path are INVALID_MODEL / lasso_path_degenerate everywhere
+ok 53 - A-2: Lasso candidates beyond the path are INVALID_MODEL / lasso_path_degenerate everywhere
+  ---
+  duration_ms: 40.3532
+  type: 'test'
+  ...
+# Subtest: A-2: an entering column that is an exact twin of an active one stops the path (active_set_degenerate)
+ok 54 - A-2: an entering column that is an exact twin of an active one stops the path (active_set_degenerate)
+  ---
+  duration_ms: 4.3397
+  type: 'test'
+  ...
+# Subtest: LARS: on a non-degenerate path every group enters, ordered by entry alpha
+ok 55 - LARS: on a non-degenerate path every group enters, ordered by entry alpha
+  ---
+  duration_ms: 6.2846
+  type: 'test'
+  ...
+# Subtest: layer 3 / canonical: subsets ignore the fold's validation rows and the test rows
+ok 56 - layer 3 / canonical: subsets ignore the fold's validation rows and the test rows
+  ---
+  duration_ms: 25.053
+  type: 'test'
+  ...
+# Subtest: winners: equal CV RMSE in a method -> smaller k; between methods -> method order; shared models once
+ok 57 - winners: equal CV RMSE in a method -> smaller k; between methods -> method order; shared models once
+  ---
+  duration_ms: 0.297
+  type: 'test'
+  ...
+# Subtest: budget: an injected small budget skips whole methods before they run (counted); All-in and the others run
+ok 58 - budget: an injected small budget skips whole methods before they run (counted); All-in and the others run
+  ---
+  duration_ms: 23.2514
+  type: 'test'
+  ...
+# Subtest: budget: the decision uses the estimate only -- the same with any clock, and > budget (not >=) skips
+ok 59 - budget: the decision uses the estimate only -- the same with any clock, and > budget (not >=) skips
+  ---
+  duration_ms: 29.1267
+  type: 'test'
+  ...
+# Subtest: G-4: under the final budget constants 50 Startups runs all five methods; every candidate VALID
+ok 60 - G-4: under the final budget constants 50 Startups runs all five methods; every candidate VALID
+  ---
+  duration_ms: 4.3884
+  type: 'test'
+  ...
+# Subtest: failure: an exception in one candidate makes that whole method FAILED with its message; the others complete
+ok 61 - failure: an exception in one candidate makes that whole method FAILED with its message; the others complete
+  ---
+  duration_ms: 11.7093
+  type: 'test'
+  ...
+# Subtest: failure: in a path computation, in All-in, and in every method (then the run is rejected)
+ok 62 - failure: in a path computation, in All-in, and in every method (then the run is rejected)
+  ---
+  duration_ms: 9.7688
+  type: 'test'
+  ...
+# Subtest: cancel after the n-th candidate: the run stops at that boundary, CANCELLED, no partial result (counted)
+ok 63 - cancel after the n-th candidate: the run stops at that boundary, CANCELLED, no partial result (counted)
+  ---
+  duration_ms: 10.2396
+  type: 'test'
+  ...
+# Subtest: cancel requested in the middle of a candidate: that candidate is finished, then the run stops (never cut)
+ok 64 - cancel requested in the middle of a candidate: that candidate is finished, then the run stops (never cut)
+  ---
+  duration_ms: 1.9496
+  type: 'test'
+  ...
+# Subtest: a rerun after a cancellation starts from the beginning and equals an uncancelled run (deterministic part)
+ok 65 - a rerun after a cancellation starts from the beginning and equals an uncancelled run (deterministic part)
+  ---
+  duration_ms: 10.2215
+  type: 'test'
+  ...
+# Subtest: progress: an event at the start and at every candidate boundary; counts monotone; ends at 1
+ok 66 - progress: an event at the start and at every candidate boundary; counts monotone; ends at 1
+  ---
+  duration_ms: 3.6428
+  type: 'test'
+  ...
+# Subtest: reproducibility: the same input twice gives bit-identical deterministic parts; timings are outside it
+ok 67 - reproducibility: the same input twice gives bit-identical deterministic parts; timings are outside it
+  ---
+  duration_ms: 25.854
+  type: 'test'
+  ...
+# Subtest: R4-3 / R4-4: multiplying the target by c > 0 leaves every path, stop, cause, state and winner unchanged
+ok 68 - R4-3 / R4-4: multiplying the target by c > 0 leaves every path, stop, cause, state and winner unchanged
+  ---
+  duration_ms: 49.9261
+  type: 'test'
+  ...
+# Subtest: R4-2: an exact fit ends the path with the true cause (path_ended), and the page text claims no collinearity
+ok 69 - R4-2: an exact fit ends the path with the true cause (path_ended), and the page text claims no collinearity
+  ---
+  duration_ms: 2.3779
+  type: 'test'
+  ...
+# Subtest: R4-2: a constant target on the rows has its own cause; nothing is divided by zero
+ok 70 - R4-2: a constant target on the rows has its own cause; nothing is divided by zero
+  ---
+  duration_ms: 1.7878
+  type: 'test'
+  ...
+# Subtest: scheduled: the run advances in steps; the controller hands control back between them
+ok 71 - scheduled: the run advances in steps; the controller hands control back between them
+  ---
+  duration_ms: 10.793
+  type: 'test'
+  ...
+# Subtest: scheduled: a new submission cancels the run in progress at its next boundary, then starts from the beginning
+ok 72 - scheduled: a new submission cancels the run in progress at its next boundary, then starts from the beginning
+  ---
+  duration_ms: 17.9061
+  type: 'test'
+  ...
+# Subtest: scheduled: several requests while one runs -- only the latest starts; each URL submission reads once
+ok 73 - scheduled: several requests while one runs -- only the latest starts; each URL submission reads once
+  ---
+  duration_ms: 6.8227
+  type: 'test'
+  ...
+# Subtest: scheduled: 取消執行 shows CANCELLED with the finished methods and nothing else; a rerun is complete
+ok 74 - scheduled: 取消執行 shows CANCELLED with the finished methods and nothing else; a rerun is complete
+  ---
+  duration_ms: 12.7927
+  type: 'test'
+  ...
+# Subtest: scheduled: 取消執行 while a new request waits for the previous run: the waiting one never starts
+ok 75 - scheduled: 取消執行 while a new request waits for the previous run: the waiting one never starts
+  ---
+  duration_ms: 1.8927
+  type: 'test'
+  ...
+# Subtest: scheduled: switching to King County during a run cancels it; nothing exploratory is shown afterwards
+ok 76 - scheduled: switching to King County during a run cancels it; nothing exploratory is shown afterwards
+  ---
+  duration_ms: 1.7735
+  type: 'test'
+  ...
+# Subtest: scheduled: the target drop-down during a run cancels it and runs the new target from the beginning (no new read)
+ok 77 - scheduled: the target drop-down during a run cancels it and runs the new target from the beginning (no new read)
+  ---
+  duration_ms: 6.1369
+  type: 'test'
+  ...
+# Subtest: scheduled: the three entrances give the same deterministic part (shared case with V2-T3)
+ok 78 - scheduled: the three entrances give the same deterministic part (shared case with V2-T3)
+  ---
+  duration_ms: 12.4384
+  type: 'test'
+  ...
+# Subtest: CF-1: cancel at the start of the final phase (diagnostic) -> CANCELLED after the diagnostic step, no result
+ok 79 - CF-1: cancel at the start of the final phase (diagnostic) -> CANCELLED after the diagnostic step, no result
+  ---
+  duration_ms: 7.7356
+  type: 'test'
+  ...
+# Subtest: CF-1: cancel during the exploratory test -> stops when that winner's test is complete; rerun equals an uncancelled run
+ok 80 - CF-1: cancel during the exploratory test -> stops when that winner's test is complete; rerun equals an uncancelled run
+  ---
+  duration_ms: 158.8403
+  type: 'test'
+  ...
+# Subtest: CF-1: a cancellation in the final phase wins over REJECTED (all candidates invalid)
+ok 81 - CF-1: a cancellation in the final phase wins over REJECTED (all candidates invalid)
+  ---
+  duration_ms: 0.3082
+  type: 'test'
+  ...
+# Subtest: CF-1 scheduled: 取消執行 in the final phase -> CANCELLED shown with no result; the text names the step, not a candidate
+ok 82 - CF-1 scheduled: 取消執行 in the final phase -> CANCELLED shown with no result; the text names the step, not a candidate
+  ---
+  duration_ms: 60.7846
+  type: 'test'
+  ...
+# Subtest: CF-1 scheduled: a new submission in the final phase cancels the run there and starts after it (one run at a time)
+ok 83 - CF-1 scheduled: a new submission in the final phase cancels the run there and starts after it (one run at a time)
+  ---
+  duration_ms: 65.6297
+  type: 'test'
+  ...
+# Subtest: C1-R3: heartbeats keep the elapsed time moving between progress events, while cancelling and while waiting
+ok 84 - C1-R3: heartbeats keep the elapsed time moving between progress events, while cancelling and while waiting
+  ---
+  duration_ms: 91.7971
+  type: 'test'
+  ...
+# Subtest: C2-R3 (a): an input over the row or column limit is TOO_LARGE also when it cannot be decoded as one string
+ok 85 - C2-R3 (a): an input over the row or column limit is TOO_LARGE also when it cannot be decoded as one string
+  ---
+  duration_ms: 1.1663
+  type: 'test'
+  ...
+# Subtest: C2-R3 (b): an input within the limits that cannot be decoded is an environment failure, never ENCODING
+ok 86 - C2-R3 (b): an input within the limits that cannot be decoded is an environment failure, never ENCODING
+  ---
+  duration_ms: 0.8768
+  type: 'test'
+  ...
+# Subtest: C2-R3 (b): a URL body the browser cannot hold is reported as such, not as a network failure; one request
+ok 87 - C2-R3 (b): a URL body the browser cannot hold is reported as such, not as a network failure; one request
+  ---
+  duration_ms: 0.7295
+  type: 'test'
+  ...
+# Subtest: C2-R3: a decoder that silently returns a short or empty string for a large input is detected as a size failure
+ok 88 - C2-R3: a decoder that silently returns a short or empty string for a large input is detected as a size failure
+  ---
+  duration_ms: 0.4966
+  type: 'test'
+  ...
+1..88
+# tests 88
+# suites 0
+# pass 88
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 867.1129
