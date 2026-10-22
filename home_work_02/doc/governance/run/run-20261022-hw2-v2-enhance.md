@@ -241,3 +241,31 @@ Tracked items for dispatch packs（更新）：
 - #78 派工 pack 待列項：R3-6（README 陳述）、#75 R1-F4（截圖不得作 50 Startups 證據）、R4 後的報告／README Lasso 文字、resource-limits 裁決的 #78 揭露（取消／改選在候選邊界生效、無檔案大小上限）、cancel-final-phase 的取消描述、#77 O-R2-1／O-R2-2、B-10 Pages NOT TESTED（pending merge）、操作規則（只停自己啟動的程序；不用預設 profile）。
 - Spec Integration Audit pack 待列項：#75 R1-F2、#76 R1-F2、R4-1～R4-4、resource-limits 與 cancel-final-phase 的要求、#77 O-R2-1／O-R2-2、B-10。
 - 續行方式：acceptor 指示繼續後，Orchestrator（本 session 或 successor 以同一 run identity）從本 run record re-ground、核對自身 binding，派 #78。Push 仍未授權。
+
+## 11. 續行（2026-10-22）
+
+- Acceptor 原文逐字：「繼續 run，派工 #78。」
+- Re-ground：本 run record §10；HEAD `2b658b3`、branch `home_work_02-v2-enhance`、`origin/main`＝`392e9df` 未動。Root session 核對 `('claude-opus-5-5','medium')` 225 則，單一元素（同一 session，無 rollover）。
+
+| # | 時間 | Work item | Assignment | Definition | 有效 mapping | 結果 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 20 | 2026-10-22 | #78 | agentId `acc8906c845bfc14f` | `gov-executor` | Opus 5.5／`high`（O-1） | 進行中；BASE `2b658b3`；pack 含 §10 全部 #78 待列項 |
+| 20→ | 2026-10-22 | #78 | agentId `acc8906c845bfc14f` | `gov-executor` | Opus 5.5／`high` | DONE_WITH_CONCERNS；subject `f56461b`（實作；ZIP 由此 commit 打包，未追蹤 `dist/`，sha256 `57e1e4a4…bcd11`）＋`460d248`、`3745e9c`（records）；觀測 `('claude-opus-5-5','high')` 227 則 → 採用。Machine gates：diff 全在 `home_work_02/`、無 `doc/requirement/`、未動 run record；V1 保護檔、`hw2/selection.py`、`hw2/package.py` 自 `d7f02d4` 無 diff；`dist/` 未追蹤。Concerns：#1 一個 Edge 程序樹（Executor 自己的 scratchpad profile）未被 PID tree kill 停止，事後以 PID 停止 → 告知 acceptor，之後 pack 加「kill 後以 command line 確認無殘留」；#2 ZIP 位元組一致需手動 LF 步驟 → Reviewer／Spec Integration Audit；#3 README 解讀 → Reviewer；#4 → 流程內 |
+| 21 | 2026-10-22 | #78 R1 c1 | （fresh） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `3745e9c`，BASE `2b658b3` |
+| 21→ | 2026-10-22 | #78 R1 c1 | agentId `a1f8b04c1327ec029` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**（無 blocking）；record `audit/issue-78-c1-r1.md`；觀測 `('claude-opus-5-5','xhigh')` 223 則 → 採用。F1～F3（Low，owner Orchestrator）→ Spec Integration Audit pack（F1 若處理屬 DA 問題）；process note：`460d248` 動到 `doc/acceptance`、`doc/screenshots`，不屬 Bindings §7 的 record-only paths，但已含於受審 subject `3745e9c`，無影響 |
+
+### #78 結案核對（orch-default §7）
+
+| Predicate | 證據 | 結果 |
+| --- | --- | --- |
+| P1 | #77 已結案 | 成立 |
+| P2 | OC §5／§5.2；`derivation-SPEC-V2.md`；#78 → #73 → OC §5 | 成立 |
+| P3 | `worklog/issue-78.md`；R1 自行重跑 pytest 478 passed、0 skipped、Node 88、offline_scan、ZIP 核對、瀏覽器 | 引用存在 |
+| P4 | `audit/issue-78-c1-r1.md` CLOSURE | 成立 |
+| P5 | 無 blocking；F1～F3 disposition 在 R1 record | 成立 |
+| P6 | 無新的 routed design question（F1 只在被處理時才 route DA） | 成立 |
+| P7 | 受審 subject `3745e9c`；其後只有 run record／audit record commit | 成立 |
+| P8 | `worklog/issue-78.md` | 成立 |
+| P9 | phase 層：Spec Integration Audit（下一步） | 進行 |
+
+**#78：已結案**（closed subject `3745e9cb4b265e15538576e9b95cd64738e9de35`）。**#74–#78 全部結案。** 下一步：Spec V2 的 Spec Integration Audit（fresh `gov-primary-reviewer`，subject＝整合後最終 subject `3745e9c`；不適用單 Ticket fast path）。
