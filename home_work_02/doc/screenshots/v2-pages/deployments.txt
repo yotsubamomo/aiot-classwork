@@ -1,0 +1,15 @@
+# queried 2026-10-22T06:40:14Z
+## deployments?sha=062e8a45c83a4be390c79352833559b218ffbeab
+[{"created_at":"2026-10-22T06:28:23Z","creator":"vercel[bot]","environment":"Production","id":7245413394,"ref":"062e8a45c83a4be390c79352833559b218ffbeab","sha":"062e8a45c83a4be390c79352833559b218ffbeab"},{"created_at":"2026-10-22T06:28:10Z","creator":"yotsubamomo","environment":"github-pages","id":7245410085,"ref":"main","sha":"062e8a45c83a4be390c79352833559b218ffbeab"}]
+## deployments/7245410085/statuses
+[{"created_at":"2026-10-22T06:28:24Z","environment_url":"https://yotsubamomo.github.io/aiot-classwork/","state":"success"},{"created_at":"2026-10-22T06:28:14Z","environment_url":"","state":"in_progress"},{"created_at":"2026-10-22T06:28:11Z","environment_url":"","state":"queued"},{"created_at":"2026-10-22T06:28:11Z","environment_url":"","state":"waiting"}]
+## deployments/7245413394/statuses
+[{"created_at":"2026-10-22T06:28:24Z","environment_url":"https://aiot-hw01-weather-r7mycv00b-nchu-aiot-class.vercel.app","state":"success"}]
+## pages
+{"html_url":"https://yotsubamomo.github.io/aiot-classwork/","public":true,"source":{"branch":"main","path":"/"},"status":"built"}
+## pages/builds/latest
+{"commit":"062e8a45c83a4be390c79352833559b218ffbeab","created_at":"2026-10-22T06:27:19Z","error":{"message":null},"status":"built","updated_at":"2026-10-22T06:28:21Z"}
+## actions runs for the commit
+[{"conclusion":"success","createdAt":"2026-10-22T06:27:20Z","databaseId":39734033528,"name":"pages build and deployment","status":"completed","updatedAt":"2026-10-22T06:28:24Z"}]
+## origin/main
+062e8a45c83a4be390c79352833559b218ffbeab	refs/heads/main

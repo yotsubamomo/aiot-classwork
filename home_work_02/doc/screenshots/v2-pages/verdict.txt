@@ -1,0 +1,40 @@
+browser: chrome='Chrome/155.0.8059.85' | edge='Edg/155.0.4283.62'
+error: chrome=None | edge=None
+dropdown_3_options: chrome=True | edge=True
+D1_blocks: chrome=True | edge=True
+D3_switch: chrome=True | edge=True
+D4_compare: chrome=True | edge=True
+D5_pred: chrome=True | edge=True
+D6D7_labels: chrome=True | edge=True
+D8_notice_shown_for: chrome=['forward_sfs_k1', 'forward_sfs_k9', 'forward_sfs_k18', 'backward_sfs_k1', 'backward_sfs_k9', 'backward_sfs_k18', 'rfe_k1', 'rfe_k9', 'rfe_k17', 'lasso_path_k1', 'lasso_path_k9', 'lasso_path_k18'] | edge=['forward_sfs_k1', 'forward_sfs_k9', 'forward_sfs_k18', 'backward_sfs_k1', 'backward_sfs_k9', 'backward_sfs_k18', 'rfe_k1', 'rfe_k9', 'rfe_k17', 'lasso_path_k1', 'lasso_path_k9', 'lasso_path_k18']
+D8_notice_hidden_for: chrome=['forward_sfs', 'forward_sfs_k17', 'backward_sfs', 'backward_sfs_k17', 'rfe', 'rfe_k18', 'lasso_path', 'lasso_path_k17', 'allin'] | edge=['forward_sfs', 'forward_sfs_k17', 'backward_sfs', 'backward_sfs_k17', 'rfe', 'rfe_k18', 'lasso_path', 'lasso_path_k17', 'allin']
+SR09_b_maxms: chrome=27.7 | edge=22.7
+SR09_b_types: chrome={'method': 6, 'k': 4, 'wheel-zoom': 10, 'drag-pan': 3, 'button-zoom-in': 3, 'button-zoom-out': 1, 'button-reset': 1} | edge={'method': 6, 'k': 4, 'wheel-zoom': 10, 'drag-pan': 3, 'button-zoom-in': 3, 'button-zoom-out': 1, 'button-reset': 1}
+SR09_b_longtasks: chrome=[] | edge=[]
+SR09_e_tooltip: chrome=True | edge=True
+SR09_g: chrome=True | edge=True
+S50_complete: chrome=True | edge=True
+footer_hidden_exploring: chrome=True | edge=True
+KC_unchanged_after_switch: chrome=[True, True, True] | edge=[True, True, True]
+KC_footer_back: chrome=[True, True, True] | edge=[True, True, True]
+KC_vs_V1_masked_identical: chrome=[True, True] | edge=[True, True]
+KC_vs_V1_raw_diff_blocks: chrome=['test'] | edge=['test']
+URL_one_GET: chrome=True | edge=True
+URL_no_credentials: chrome=True | edge=True
+URL_same_as_builtin: chrome=True | edge=True
+redirect_not_followed: chrome=True | edge=True
+url_404_failure: chrome=True | edge=True
+file_after_url_failure: chrome=True | edge=True
+hosts: chrome=['yotsubamomo.github.io', 'raw.githubusercontent.com'] | edge=['yotsubamomo.github.io', 'raw.githubusercontent.com']
+other_hosts: chrome=[] | edge=[]
+net_total: chrome=69 | edge=69
+pagesNon200: chrome=[('kc_load', '/favicon.ico', 404, None), ('custom_url_redirect', '/aiot-classwork/home_work_02/assets/data', None, 'net::ERR_FAILED'), ('custom_url_404', '/aiot-classwork/home_work_02/assets/data/no-such-file.csv', 404, None)] | edge=[('kc_load', '/favicon.ico', 404, None), ('custom_url_redirect', '/aiot-classwork/home_work_02/assets/data', None, 'net::ERR_FAILED'), ('custom_url_404', '/aiot-classwork/home_work_02/assets/data/no-such-file.csv', 404, None)]
+console: chrome=[('kc_load', 'log-error', 'network', 'https://yotsubamomo.github.io/favicon.ico'), ('custom_url_redirect', 'log-error', 'network', 'https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/'), ('custom_url_404', 'log-error', 'network', 'https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/no-such-file.csv')] | edge=[('kc_load', 'log-error', 'network', 'https://yotsubamomo.github.io/favicon.ico'), ('custom_url_redirect', 'log-error', 'network', 'https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/'), ('custom_url_404', 'log-error', 'network', 'https://yotsubamomo.github.io/aiot-classwork/home_work_02/assets/data/no-such-file.csv')]
+console_api_errors: chrome=[] | edge=[]
+exceptions: chrome=0 | edge=0
+dialogs: chrome=0 | edge=0
+firstDrawMs: chrome=3561 | edge=1503
+s50_ms_from_key: chrome=687 | edge=703
+s50_longtasks: chrome=[84] | edge=[67]
+identical_functional_sections: {'kc_blocks': True, 'd3_states': True, 'd4_on': True, 'd5_default': True, 'd5_out_of_range': True, 'd5_unseen_zip': True, 'sr09_e_tooltip': True, 'custom_teacher_url': False, 'custom_file_after_url_failure': True}
+s50 equal except timing: {'testKpi': True, 'cvKpi': True, 'predValue': True, 'predPi': True, 'statuses': True, 'methods': True}
