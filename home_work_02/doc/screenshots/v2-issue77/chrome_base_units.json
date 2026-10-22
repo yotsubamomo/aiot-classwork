@@ -1,0 +1,105 @@
+{
+  "label": "chrome_base",
+  "mode": "units",
+  "browserPid": 16180,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 2.1 (V2-T3: column names as own keys)"
+    },
+    "files": [
+      {
+        "run": {
+          "status": "COMPLETED",
+          "reason": null
+        },
+        "statuses": {
+          "allin": {
+            "VALID": 1
+          },
+          "forward_sfs": {
+            "VALID": 4
+          },
+          "backward_sfs": {
+            "VALID": 4
+          },
+          "rfe": {
+            "VALID": 4
+          },
+          "lasso_path": {
+            "VALID": 2,
+            "INVALID_MODEL": 2
+          }
+        },
+        "lasso_summary": "路徑在加入第 3 個 feature group 前停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化））：只有前 2 個 group 是實際路徑，k ≥ 3 的 Lasso 候選無效。另有 5 個 fold 的路徑退化（見各候選的原因）。",
+        "lasso_rows": [
+          "1R&D Spend3.854e-6實際路徑",
+          "2Marketing Spend5.149e-7實際路徑",
+          "—Administration—未進入（退化後，只作展示）",
+          "—State—未進入（退化後，只作展示）"
+        ],
+        "message": "執行完成：五種方法共 17 個候選，耗時 10.1 ms（瀏覽器內計算，只供參考）",
+        "engine": "explore-engine 2.1 (V2-T3: column names as own keys)",
+        "lasso_k_last_reason": [
+          "path_ended",
+          "path_ended",
+          "path_ended",
+          "path_ended",
+          "path_ended",
+          "path_ended"
+        ],
+        "markup_in_explore": 0,
+        "title": "King County 房價多元線性回歸分析 — HW2 Dashboard",
+        "file": "s50_x1e-10.csv"
+      },
+      {
+        "run": {
+          "status": "COMPLETED",
+          "reason": null
+        },
+        "statuses": {
+          "allin": {
+            "VALID": 1
+          },
+          "forward_sfs": {
+            "VALID": 2
+          },
+          "backward_sfs": {
+            "VALID": 2
+          },
+          "rfe": {
+            "VALID": 2
+          },
+          "lasso_path": {
+            "VALID": 1,
+            "INVALID_MODEL": 1
+          }
+        },
+        "lasso_summary": "路徑在加入第 2 個 feature group 前停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化））：只有前 1 個 group 是實際路徑，k ≥ 2 的 Lasso 候選無效。另有 5 個 fold 的路徑退化（見各候選的原因）。",
+        "lasso_rows": [
+          "1x15.89實際路徑",
+          "—x2—未進入（退化後，只作展示）"
+        ],
+        "message": "執行完成：五種方法共 9 個候選，耗時 2.6 ms（瀏覽器內計算，只供參考）",
+        "engine": "explore-engine 2.1 (V2-T3: column names as own keys)",
+        "lasso_k_last_reason": [
+          "path_ended",
+          "path_ended",
+          "path_ended",
+          "path_ended",
+          "path_ended",
+          "path_ended"
+        ],
+        "markup_in_explore": 0,
+        "title": "King County 房價多元線性回歸分析 — HW2 Dashboard",
+        "file": "exact_fit.csv"
+      }
+    ],
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85"
+}

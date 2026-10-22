@@ -1,0 +1,4238 @@
+{
+ "description": "Structural snapshot of the V1 dashboard blocks (DOM tags, attributes, static text, comments) of home_work_02/index.html before #74, used by tests/test_explore_static.py (King County unchanged; Spec V2 static seam). Generated once from the accepted baseline; do not edit by hand.",
+ "source": {
+  "commit": "d7f02d4179d2cb5c2ecf0c39a4643a6ef8287907",
+  "path": "home_work_02/index.html",
+  "sha256": "1d124102bf78099700c4016ab2f6325f31ba807b32c99b0e6bc018278ca358f5"
+ },
+ "selectors": [
+  "title",
+  "a.skip",
+  "div.brand",
+  "#nav-toggle",
+  "#topnav",
+  "#load-error",
+  "#overview",
+  "#model",
+  "#predictor",
+  "#test",
+  "#methods",
+  "footer"
+ ],
+ "snapshot": {
+  "html_lang": "zh-Hant-TW",
+  "order": [
+   "title",
+   "a.skip",
+   "div.brand",
+   "#nav-toggle",
+   "#topnav",
+   "#load-error",
+   "#overview",
+   "#model",
+   "#predictor",
+   "#test",
+   "#methods",
+   "footer"
+  ],
+  "blocks": {
+   "title": {
+    "tag": "title",
+    "attrs": [],
+    "children": [
+     {
+      "text": "King County 房價多元線性回歸分析 — HW2 Dashboard"
+     }
+    ]
+   },
+   "a.skip": {
+    "tag": "a",
+    "attrs": [
+     [
+      "class",
+      "skip"
+     ],
+     [
+      "href",
+      "#main"
+     ]
+    ],
+    "children": [
+     {
+      "text": "跳到主要內容"
+     }
+    ]
+   },
+   "div.brand": {
+    "tag": "div",
+    "attrs": [
+     [
+      "class",
+      "brand"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "aria-hidden",
+        "true"
+       ],
+       [
+        "class",
+        "brand__mark"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n        "
+       },
+       {
+        "tag": "svg",
+        "attrs": [
+         [
+          "fill",
+          "none"
+         ],
+         [
+          "height",
+          "18"
+         ],
+         [
+          "stroke",
+          "currentColor"
+         ],
+         [
+          "stroke-linecap",
+          "round"
+         ],
+         [
+          "stroke-linejoin",
+          "round"
+         ],
+         [
+          "stroke-width",
+          "2"
+         ],
+         [
+          "viewbox",
+          "0 0 24 24"
+         ],
+         [
+          "width",
+          "18"
+         ]
+        ],
+        "children": [
+         {
+          "tag": "path",
+          "attrs": [
+           [
+            "d",
+            "M3 20h18"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "tag": "path",
+          "attrs": [
+           [
+            "d",
+            "M6 16l4-6 4 3 5-8"
+           ]
+          ],
+          "children": []
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       }
+      ]
+     },
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "div",
+      "attrs": [],
+      "children": [
+       {
+        "text": "\n        "
+       },
+       {
+        "tag": "div",
+        "attrs": [
+         [
+          "class",
+          "brand__title"
+         ]
+        ],
+        "children": [
+         {
+          "text": "King County 房價多元線性回歸分析"
+         }
+        ]
+       },
+       {
+        "text": "\n        "
+       },
+       {
+        "tag": "div",
+        "attrs": [
+         [
+          "class",
+          "brand__sub"
+         ]
+        ],
+        "children": [
+         {
+          "text": "NCHU AIoT HW2 · CRISP-DM · 特徵選擇比較與 95% 預測區間"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     }
+    ]
+   },
+   "#nav-toggle": {
+    "tag": "button",
+    "attrs": [
+     [
+      "aria-controls",
+      "topnav"
+     ],
+     [
+      "aria-expanded",
+      "false"
+     ],
+     [
+      "class",
+      "nav-toggle"
+     ],
+     [
+      "id",
+      "nav-toggle"
+     ],
+     [
+      "type",
+      "button"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "svg",
+      "attrs": [
+       [
+        "aria-hidden",
+        "true"
+       ],
+       [
+        "fill",
+        "none"
+       ],
+       [
+        "height",
+        "20"
+       ],
+       [
+        "stroke",
+        "currentColor"
+       ],
+       [
+        "stroke-linecap",
+        "round"
+       ],
+       [
+        "stroke-width",
+        "2"
+       ],
+       [
+        "viewbox",
+        "0 0 24 24"
+       ],
+       [
+        "width",
+        "20"
+       ]
+      ],
+      "children": [
+       {
+        "tag": "path",
+        "attrs": [
+         [
+          "d",
+          "M4 7h16"
+         ]
+        ],
+        "children": []
+       },
+       {
+        "tag": "path",
+        "attrs": [
+         [
+          "d",
+          "M4 12h16"
+         ]
+        ],
+        "children": []
+       },
+       {
+        "tag": "path",
+        "attrs": [
+         [
+          "d",
+          "M4 17h16"
+         ]
+        ],
+        "children": []
+       }
+      ]
+     },
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "span",
+      "attrs": [],
+      "children": [
+       {
+        "text": "選單"
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     }
+    ]
+   },
+   "#topnav": {
+    "tag": "nav",
+    "attrs": [
+     [
+      "aria-label",
+      "頁內導覽"
+     ],
+     [
+      "class",
+      "topnav"
+     ],
+     [
+      "id",
+      "topnav"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "a",
+      "attrs": [
+       [
+        "href",
+        "#overview"
+       ]
+      ],
+      "children": [
+       {
+        "text": "概覽"
+       }
+      ]
+     },
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "a",
+      "attrs": [
+       [
+        "href",
+        "#model"
+       ]
+      ],
+      "children": [
+       {
+        "text": "模型與訓練 CV"
+       }
+      ]
+     },
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "a",
+      "attrs": [
+       [
+        "href",
+        "#predictor"
+       ]
+      ],
+      "children": [
+       {
+        "text": "即時預測"
+       }
+      ]
+     },
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "a",
+      "attrs": [
+       [
+        "href",
+        "#test"
+       ]
+      ],
+      "children": [
+       {
+        "text": "Test 評估"
+       }
+      ]
+     },
+     {
+      "text": "\n      "
+     },
+     {
+      "tag": "a",
+      "attrs": [
+       [
+        "href",
+        "#methods"
+       ]
+      ],
+      "children": [
+       {
+        "text": "方法與限制"
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     }
+    ]
+   },
+   "#load-error": {
+    "tag": "div",
+    "attrs": [
+     [
+      "class",
+      "alert"
+     ],
+     [
+      "hidden",
+      null
+     ],
+     [
+      "id",
+      "load-error"
+     ],
+     [
+      "role",
+      "alert"
+     ]
+    ],
+    "children": []
+   },
+   "#overview": {
+    "tag": "section",
+    "attrs": [
+     [
+      "aria-labelledby",
+      "h-overview"
+     ],
+     [
+      "class",
+      "section"
+     ],
+     [
+      "id",
+      "overview"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "section__head"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "eyebrow"
+         ]
+        ],
+        "children": [
+         {
+          "text": "A · 概覽"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "h1",
+        "attrs": [
+         [
+          "id",
+          "h-overview"
+         ]
+        ],
+        "children": [
+         {
+          "text": "King County House Sales 房價分析"
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "grid grid--3"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "article",
+        "attrs": [
+         [
+          "aria-labelledby",
+          "h-dataset"
+         ],
+         [
+          "class",
+          "card"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h2",
+          "attrs": [
+           [
+            "id",
+            "h-dataset"
+           ]
+          ],
+          "children": [
+           {
+            "text": "資料集"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "tag": "a",
+            "attrs": [
+             [
+              "href",
+              "#overview"
+             ],
+             [
+              "id",
+              "meta-dataset-link"
+             ]
+            ],
+            "children": [
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "id",
+                "meta-dataset-name"
+               ]
+              ],
+              "children": []
+             }
+            ]
+           },
+           {
+            "text": "（Kaggle "
+           },
+           {
+            "tag": "code",
+            "attrs": [
+             [
+              "id",
+              "meta-dataset-slug"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "）"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "dl",
+          "attrs": [
+           [
+            "class",
+            "facts small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "授權"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [
+             [
+              "id",
+              "meta-license"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "交易筆數"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [],
+            "children": [
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-rows"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": " 筆（"
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-houses"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": " 棟房屋，"
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-repeat"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": " 筆重複交易）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "CSV sha256"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [],
+            "children": [
+             {
+              "tag": "code",
+              "attrs": [
+               [
+                "class",
+                "hash"
+               ],
+               [
+                "id",
+                "meta-sha"
+               ]
+              ],
+              "children": []
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "article",
+        "attrs": [
+         [
+          "aria-labelledby",
+          "h-features"
+         ],
+         [
+          "class",
+          "card"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h2",
+          "attrs": [
+           [
+            "id",
+            "h-features"
+           ]
+          ],
+          "children": [
+           {
+            "text": "特徵數"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "dl",
+          "attrs": [
+           [
+            "class",
+            "facts small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "Source features"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [],
+            "children": [
+             {
+              "tag": "strong",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-sf"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": "（編碼前計數，不含 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "id"
+               }
+              ]
+             },
+             {
+              "text": " 與 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "price"
+               }
+              ]
+             },
+             {
+              "text": "）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "建模 feature groups"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [],
+            "children": [
+             {
+              "tag": "strong",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-groups"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": "（"
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "sqft_basement"
+               }
+              ]
+             },
+             {
+              "text": " 不進模型）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "特徵數條件"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [],
+            "children": [
+             {
+              "text": "作業正文 10–20 與補充 14–39 的交集 "
+             },
+             {
+              "tag": "strong",
+              "attrs": [],
+              "children": [
+               {
+                "text": "14–20"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small muted"
+           ],
+           [
+            "id",
+            "meta-excluded"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "article",
+        "attrs": [
+         [
+          "aria-labelledby",
+          "h-split"
+         ],
+         [
+          "class",
+          "card"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h2",
+          "attrs": [
+           [
+            "id",
+            "h-split"
+           ]
+          ],
+          "children": [
+           {
+            "text": "切分與交叉驗證"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "dl",
+          "attrs": [
+           [
+            "class",
+            "facts small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "切分"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [],
+            "children": [
+             {
+              "text": "以房屋 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "id"
+               }
+              ]
+             },
+             {
+              "text": " 分組的 80/20：訓練 "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-ntrain"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": " 筆、Test "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-ntest"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": " 筆"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "交叉驗證"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [],
+            "children": [
+             {
+              "text": "訓練集內 "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "num"
+               ],
+               [
+                "id",
+                "meta-folds"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": " 個分組 fold（每折 "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "id",
+                "meta-fold-rows"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": " 筆）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dt",
+            "attrs": [],
+            "children": [
+             {
+              "text": "Seed"
+             }
+            ]
+           },
+           {
+            "tag": "dd",
+            "attrs": [
+             [
+              "class",
+              "num"
+             ],
+             [
+              "id",
+              "meta-seed"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small muted"
+           ]
+          ],
+          "children": [
+           {
+            "text": "模型選擇只用訓練集；Test 在全部選擇固定後只評估一次。"
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "article",
+      "attrs": [
+       [
+        "aria-labelledby",
+        "h-repro"
+       ],
+       [
+        "class",
+        "card card--wide"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "h2",
+        "attrs": [
+         [
+          "id",
+          "h-repro"
+         ]
+        ],
+        "children": [
+         {
+          "text": "重現條件"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "dl",
+        "attrs": [
+         [
+          "class",
+          "facts facts--inline small"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "dt",
+          "attrs": [],
+          "children": [
+           {
+            "text": "套件版本"
+           }
+          ]
+         },
+         {
+          "tag": "dd",
+          "attrs": [
+           [
+            "id",
+            "meta-versions"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "dt",
+          "attrs": [],
+          "children": [
+           {
+            "text": "計算耗時"
+           }
+          ]
+         },
+         {
+          "tag": "dd",
+          "attrs": [
+           [
+            "id",
+            "meta-timing"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "dt",
+          "attrs": [],
+          "children": [
+           {
+            "text": "產生時間（UTC）"
+           }
+          ]
+         },
+         {
+          "tag": "dd",
+          "attrs": [
+           [
+            "id",
+            "meta-generated"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "dt",
+          "attrs": [],
+          "children": [
+           {
+            "text": "已匯出的區段"
+           }
+          ]
+         },
+         {
+          "tag": "dd",
+          "attrs": [
+           [
+            "id",
+            "meta-sections"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n  "
+     }
+    ]
+   },
+   "#model": {
+    "tag": "section",
+    "attrs": [
+     [
+      "aria-labelledby",
+      "h-model"
+     ],
+     [
+      "class",
+      "section"
+     ],
+     [
+      "id",
+      "model"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "section__head"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "eyebrow"
+         ]
+        ],
+        "children": [
+         {
+          "text": "B · 模型選擇 ／ C · 訓練 CV 表現"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "h2",
+        "attrs": [
+         [
+          "id",
+          "h-model"
+         ]
+        ],
+        "children": [
+         {
+          "text": "模型選擇與訓練 CV 表現"
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "layout-2col"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "aside",
+        "attrs": [
+         [
+          "aria-label",
+          "模型選擇控制"
+         ],
+         [
+          "class",
+          "card control"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "field"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "span",
+            "attrs": [
+             [
+              "class",
+              "label"
+             ],
+             [
+              "id",
+              "lbl-method"
+             ]
+            ],
+            "children": [
+             {
+              "text": "特徵選擇方法"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "aria-labelledby",
+              "lbl-method"
+             ],
+             [
+              "class",
+              "seg"
+             ],
+             [
+              "id",
+              "method-seg"
+             ],
+             [
+              "role",
+              "group"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "field"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "span",
+            "attrs": [
+             [
+              "class",
+              "label"
+             ],
+             [
+              "id",
+              "lbl-k"
+             ]
+            ],
+            "children": [
+             {
+              "text": "特徵數 k（feature groups）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "aria-labelledby",
+              "lbl-k"
+             ],
+             [
+              "class",
+              "kgrid"
+             ],
+             [
+              "id",
+              "k-grid"
+             ],
+             [
+              "role",
+              "group"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "p",
+            "attrs": [
+             [
+              "class",
+              "help"
+             ],
+             [
+              "id",
+              "k-help"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "button",
+          "attrs": [
+           [
+            "aria-controls",
+            "compare-card kchart-card"
+           ],
+           [
+            "aria-pressed",
+            "false"
+           ],
+           [
+            "class",
+            "toggle"
+           ],
+           [
+            "id",
+            "compare-all"
+           ],
+           [
+            "type",
+            "button"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "span",
+            "attrs": [
+             [
+              "aria-hidden",
+              "true"
+             ],
+             [
+              "class",
+              "toggle__sw"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "span",
+            "attrs": [],
+            "children": [
+             {
+              "text": "比較全部方法"
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "aria-live",
+            "polite"
+           ],
+           [
+            "class",
+            "selected-model"
+           ],
+           [
+            "id",
+            "selected-model"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n\n      "
+       },
+       {
+        "tag": "div",
+        "attrs": [
+         [
+          "class",
+          "stack"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "block-head"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "h3",
+            "attrs": [],
+            "children": [
+             {
+              "text": "訓練 CV 指標 "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "tag tag--cv"
+               ]
+              ],
+              "children": [
+               {
+                "text": "訓練 CV（USD）"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "p",
+            "attrs": [
+             [
+              "class",
+              "small muted"
+             ]
+            ],
+            "children": [
+             {
+              "text": "來源：所選模型的 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "cv"
+               }
+              ]
+             },
+             {
+              "text": "（訓練集內 "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "id",
+                "cv-nfolds"
+               ]
+              ],
+              "children": [
+               {
+                "text": "5"
+               }
+              ]
+             },
+             {
+              "text": " 個分組 fold 的平均 ± 標準差）；不含任何 Test 資料。"
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "grid grid--kpi"
+           ],
+           [
+            "id",
+            "kpi-cv"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "card"
+           ],
+           [
+            "id",
+            "kchart-card"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "chart__toolbar"
+             ]
+            ],
+            "children": [
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "h3",
+              "attrs": [],
+              "children": [
+               {
+                "text": "指標 vs k "
+               },
+               {
+                "tag": "span",
+                "attrs": [
+                 [
+                  "class",
+                  "tag tag--cv"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "訓練 CV（USD）"
+                 }
+                ]
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "spacer"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "label",
+              "attrs": [
+               [
+                "class",
+                "small muted"
+               ],
+               [
+                "for",
+                "metric-select"
+               ]
+              ],
+              "children": [
+               {
+                "text": "指標"
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "select",
+              "attrs": [
+               [
+                "class",
+                "input input--inline"
+               ],
+               [
+                "id",
+                "metric-select"
+               ]
+              ],
+              "children": [
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "option",
+                "attrs": [
+                 [
+                  "value",
+                  "rmse"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "RMSE（USD）"
+                 }
+                ]
+               },
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "option",
+                "attrs": [
+                 [
+                  "value",
+                  "mae"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "MAE（USD）"
+                 }
+                ]
+               },
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "option",
+                "attrs": [
+                 [
+                  "value",
+                  "mse"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "MSE（USD²）"
+                 }
+                ]
+               },
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "option",
+                "attrs": [
+                 [
+                  "value",
+                  "r2"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "R²（USD 尺度）"
+                 }
+                ]
+               },
+               {
+                "text": "\n            "
+               }
+              ]
+             },
+             {
+              "text": "\n          "
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "kchart"
+             ]
+            ],
+            "children": [
+             {
+              "tag": "canvas",
+              "attrs": [
+               [
+                "aria-describedby",
+                "kchart-summary"
+               ],
+               [
+                "aria-label",
+                "折線圖：四種特徵選擇方法在 k = 1 到 18 的訓練 CV 指標；All-in baseline、Ridge、Lasso 為水平參考線；各方法 CV winner 以圓環標示，invalid 候選以叉號標示，目前選取的模型以大圓圈標示。"
+               ],
+               [
+                "id",
+                "kchart-canvas"
+               ],
+               [
+                "role",
+                "img"
+               ]
+              ],
+              "children": []
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "p",
+            "attrs": [
+             [
+              "class",
+              "small muted"
+             ],
+             [
+              "id",
+              "kchart-summary"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "legend small"
+             ],
+             [
+              "id",
+              "kchart-legend"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "p",
+            "attrs": [
+             [
+              "class",
+              "small muted"
+             ]
+            ],
+            "children": [
+             {
+              "text": "來源："
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "methods[].cv"
+               }
+              ]
+             },
+             {
+              "text": "、"
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "baselines.allin.cv"
+               }
+              ]
+             },
+             {
+              "text": " 與 Ridge／Lasso 的 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "baselines.*.cv"
+               }
+              ]
+             },
+             {
+              "text": "（5 個分組 fold 的平均；Ridge／Lasso 為全部 18 group、以訓練 CV 選定的 alpha）。每個 fold 的子集只在該 fold 的訓練列上選出；CV 指標估計的是「方法在 k 下的程序」，不是 canonical subset 本身。不含任何 Test 資料。"
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "card card--flat"
+           ],
+           [
+            "hidden",
+            null
+           ],
+           [
+            "id",
+            "compare-card"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "h3",
+            "attrs": [],
+            "children": [
+             {
+              "text": "各方法 CV winner 與對照模型比較 "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "tag tag--cv"
+               ]
+              ],
+              "children": [
+               {
+                "text": "訓練 CV（USD）"
+               }
+              ]
+             },
+             {
+              "text": " "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "tag tag--test"
+               ]
+              ],
+              "children": [
+               {
+                "text": "Test 評估（USD）"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "tablewrap"
+             ]
+            ],
+            "children": [
+             {
+              "tag": "table",
+              "attrs": [
+               [
+                "class",
+                "table"
+               ],
+               [
+                "id",
+                "compare-table"
+               ]
+              ],
+              "children": []
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "p",
+            "attrs": [
+             [
+              "class",
+              "small muted"
+             ]
+            ],
+            "children": [
+             {
+              "text": "整體 CV winner 是 CV RMSE 最小者（平手依方法順序 All-in、Forward SFS、Backward SFS、RFE、Lasso 路徑排序）。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤；Test 評估才是獨立估計，Test 排名不同時也不換模型。來源：訓練 CV 欄來自 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "methods[].cv"
+               }
+              ]
+             },
+             {
+              "text": "、"
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "baselines.*.cv"
+               }
+              ]
+             },
+             {
+              "text": "；Test 欄只讀取匯出的 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "test"
+               }
+              ]
+             },
+             {
+              "text": "（每個被授權的模型只評估一次；canonical subset 相同的 CV winner 共用同一筆結果）。Ridge／Lasso 是 metric-only 對照（依老師補充建議）：alpha 只以訓練 CV 選、不參與 CV winner、Test 只報 MAE、MSE、RMSE、R²，沒有預測區間與涵蓋率；它們的 Test 指標只出現在本表。p-value backward 是講義方法對照，不在 Test 上評估。Adjusted R² 只對 OLS 子集模型在 log 尺度計算，Ridge／Lasso 與 CV 聚合值不適用。本頁的任何操作都不會觸發新的 Test 評估。"
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "card card--flat"
+           ],
+           [
+            "id",
+            "fit-card"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "h3",
+            "attrs": [],
+            "children": [
+             {
+              "text": "全訓練集擬合 "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "tag tag--fit"
+               ]
+              ],
+              "children": [
+               {
+                "text": "全訓練集擬合，R²／Adjusted R² 為 log 尺度"
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "dl",
+            "attrs": [
+             [
+              "class",
+              "facts facts--inline small"
+             ],
+             [
+              "id",
+              "fit-facts"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "comment": " 選配 (4) 係數表：預設收合（UI 決策 5）；來源是所選模型的 fit "
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "details",
+            "attrs": [
+             [
+              "class",
+              "coef"
+             ],
+             [
+              "id",
+              "coef-details"
+             ]
+            ],
+            "children": [
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "summary",
+              "attrs": [],
+              "children": [
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "span",
+                "attrs": [
+                 [
+                  "class",
+                  "coef__title"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "係數表（選配）"
+                 }
+                ]
+               },
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "span",
+                "attrs": [
+                 [
+                  "class",
+                  "tag tag--fit"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "全訓練集擬合，R²／Adjusted R² 為 log 尺度"
+                 }
+                ]
+               },
+               {
+                "text": "\n            "
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "div",
+              "attrs": [
+               [
+                "class",
+                "coef__body"
+               ]
+              ],
+              "children": [
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "p",
+                "attrs": [
+                 [
+                  "class",
+                  "small muted"
+                 ],
+                 [
+                  "id",
+                  "coef-intro"
+                 ]
+                ],
+                "children": []
+               },
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "div",
+                "attrs": [
+                 [
+                  "class",
+                  "tablewrap"
+                 ]
+                ],
+                "children": [
+                 {
+                  "tag": "table",
+                  "attrs": [
+                   [
+                    "class",
+                    "table"
+                   ],
+                   [
+                    "id",
+                    "coef-table"
+                   ]
+                  ],
+                  "children": []
+                 }
+                ]
+               },
+               {
+                "text": "\n              "
+               },
+               {
+                "tag": "p",
+                "attrs": [
+                 [
+                  "class",
+                  "small muted"
+                 ]
+                ],
+                "children": [
+                 {
+                  "text": "讀法：模型以 ln(price) 為目標、特徵為原始尺度，係數 b 表示其他欄位固定時，該欄增加 1 個單位，預測價格（exp(log 預測)，條件中位數的估計）約變動 100·(exp(b) − 1)%；zipcode 欄是相對於基準 zipcode 的差異；不同單位的特徵不能直接比較係數大小（notebook 第 6 章另列每 1 個 training 標準差的讀法）。標準誤是古典 OLS 標準誤，假設殘差同質變異與獨立，且沒有考慮特徵選擇。係數描述的是關聯，不是因果效果。"
+                 }
+                ]
+               },
+               {
+                "text": "\n            "
+               }
+              ]
+             },
+             {
+              "text": "\n          "
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small muted"
+           ],
+           [
+            "id",
+            "status-box"
+           ],
+           [
+            "role",
+            "status"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n  "
+     }
+    ]
+   },
+   "#predictor": {
+    "tag": "section",
+    "attrs": [
+     [
+      "aria-labelledby",
+      "h-predictor"
+     ],
+     [
+      "class",
+      "section"
+     ],
+     [
+      "id",
+      "predictor"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "section__head"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "eyebrow"
+         ]
+        ],
+        "children": [
+         {
+          "text": "D · 即時預測"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "h2",
+        "attrs": [
+         [
+          "id",
+          "h-predictor"
+         ]
+        ],
+        "children": [
+         {
+          "text": "即時房價預測"
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "card predictor"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "form",
+        "attrs": [
+         [
+          "id",
+          "pred-form"
+         ],
+         [
+          "novalidate",
+          null
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small muted"
+           ],
+           [
+            "id",
+            "pred-intro"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "fields"
+           ],
+           [
+            "id",
+            "pred-fields"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "aside",
+        "attrs": [
+         [
+          "aria-atomic",
+          "true"
+         ],
+         [
+          "aria-live",
+          "polite"
+         ],
+         [
+          "class",
+          "result card card--flat"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h3",
+          "attrs": [],
+          "children": [
+           {
+            "text": "預測結果"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "small muted"
+             ]
+            ],
+            "children": [
+             {
+              "text": "點預測（USD；exp(log 預測)，估計的是條件中位數，不是條件平均）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "result__price num"
+             ],
+             [
+              "id",
+              "pred-price"
+             ]
+            ],
+            "children": [
+             {
+              "text": "—"
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "small muted"
+             ]
+            ],
+            "children": [
+             {
+              "text": "95% 預測區間（參數式 OLS PI，在 log 尺度計算後轉回 USD，不對稱）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "result__pi num"
+             ],
+             [
+              "id",
+              "pred-pi"
+             ]
+            ],
+            "children": [
+             {
+              "text": "—"
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "result__status"
+           ],
+           [
+            "id",
+            "pred-status"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "result__meta"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "span",
+            "attrs": [],
+            "children": [
+             {
+              "text": "模型："
+             },
+             {
+              "tag": "strong",
+              "attrs": [
+               [
+                "id",
+                "pred-model"
+               ]
+              ],
+              "children": []
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "span",
+            "attrs": [],
+            "children": [
+             {
+              "text": "來源：所選模型的 "
+             },
+             {
+              "tag": "code",
+              "attrs": [],
+              "children": [
+               {
+                "text": "fit"
+               }
+              ]
+             },
+             {
+              "text": "（在整個 training set 上擬合）"
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "span",
+            "attrs": [],
+            "children": [
+             {
+              "text": "Ridge／Lasso 對照模型不提供即時預測與區間。"
+             }
+            ]
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n  "
+     }
+    ]
+   },
+   "#test": {
+    "tag": "section",
+    "attrs": [
+     [
+      "aria-labelledby",
+      "h-test"
+     ],
+     [
+      "class",
+      "section"
+     ],
+     [
+      "id",
+      "test"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "section__head"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "eyebrow"
+         ]
+        ],
+        "children": [
+         {
+          "text": "E · 保留 Test 集評估"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "h2",
+        "attrs": [
+         [
+          "id",
+          "h-test"
+         ]
+        ],
+        "children": [
+         {
+          "text": "保留 Test 集評估"
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "testzone"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "div",
+        "attrs": [
+         [
+          "class",
+          "testzone__head"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "span",
+          "attrs": [
+           [
+            "class",
+            "tag tag--test"
+           ]
+          ],
+          "children": [
+           {
+            "text": "Test 評估（USD）"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "span",
+          "attrs": [
+           [
+            "class",
+            "testzone__model"
+           ]
+          ],
+          "children": [
+           {
+            "text": "展示模型："
+           },
+           {
+            "tag": "strong",
+            "attrs": [
+             [
+              "id",
+              "test-model"
+             ]
+            ],
+            "children": [
+             {
+              "text": "—"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "span",
+          "attrs": [
+           [
+            "class",
+            "tag tag--winner"
+           ],
+           [
+            "hidden",
+            null
+           ],
+           [
+            "id",
+            "test-winner-tag"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "p",
+        "attrs": [
+         [
+          "class",
+          "small muted"
+         ],
+         [
+          "id",
+          "test-source"
+         ]
+        ],
+        "children": [
+         {
+          "text": "來源："
+         },
+         {
+          "tag": "code",
+          "attrs": [],
+          "children": [
+           {
+            "text": "test[kind=ols_subset]"
+           }
+          ]
+         },
+         {
+          "text": "；只對被授權評估的模型，每個模型只評估一次。本頁的任何操作都不會觸發新的 Test 評估。"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "div",
+        "attrs": [
+         [
+          "class",
+          "notice"
+         ],
+         [
+          "hidden",
+          null
+         ],
+         [
+          "id",
+          "test-notice"
+         ],
+         [
+          "role",
+          "status"
+         ]
+        ],
+        "children": []
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "div",
+        "attrs": [
+         [
+          "class",
+          "notice notice--empty"
+         ],
+         [
+          "hidden",
+          null
+         ],
+         [
+          "id",
+          "test-empty"
+         ]
+        ],
+        "children": [
+         {
+          "text": "Test 評估尚未執行：依協定，Test set 只在全部模型選擇與 alpha 固定之後評估一次，結果由主程式匯出。"
+         }
+        ]
+       },
+       {
+        "text": "\n\n      "
+       },
+       {
+        "tag": "div",
+        "attrs": [
+         [
+          "hidden",
+          null
+         ],
+         [
+          "id",
+          "test-body"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "grid grid--kpi4"
+           ],
+           [
+            "id",
+            "kpi-test"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "scatter-wrap"
+           ]
+          ],
+          "children": [
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "chart__toolbar"
+             ]
+            ],
+            "children": [
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "h3",
+              "attrs": [],
+              "children": [
+               {
+                "text": "實際 vs 預測（log 刻度，逐筆 95% PI）"
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "class",
+                "spacer"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "button",
+              "attrs": [
+               [
+                "aria-label",
+                "放大"
+               ],
+               [
+                "class",
+                "btn btn--icon"
+               ],
+               [
+                "id",
+                "zoom-in"
+               ],
+               [
+                "type",
+                "button"
+               ]
+              ],
+              "children": [
+               {
+                "text": "＋"
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "button",
+              "attrs": [
+               [
+                "aria-label",
+                "縮小"
+               ],
+               [
+                "class",
+                "btn btn--icon"
+               ],
+               [
+                "id",
+                "zoom-out"
+               ],
+               [
+                "type",
+                "button"
+               ]
+              ],
+              "children": [
+               {
+                "text": "－"
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "button",
+              "attrs": [
+               [
+                "class",
+                "btn"
+               ],
+               [
+                "id",
+                "zoom-reset"
+               ],
+               [
+                "type",
+                "button"
+               ]
+              ],
+              "children": [
+               {
+                "text": "重設檢視"
+               }
+              ]
+             },
+             {
+              "text": "\n          "
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "scatter"
+             ],
+             [
+              "id",
+              "scatter"
+             ]
+            ],
+            "children": [
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "canvas",
+              "attrs": [
+               [
+                "aria-describedby",
+                "scatter-help"
+               ],
+               [
+                "aria-label",
+                "散佈圖：x 軸為預測價格、y 軸為實際價格，皆為 log 刻度；每筆 Test 樣本有一條垂直的 95% 預測區間線段，依實際價格是否落入區間著色並以不同形狀標示；含 y = x 參考線。"
+               ],
+               [
+                "id",
+                "scatter-canvas"
+               ],
+               [
+                "role",
+                "img"
+               ],
+               [
+                "tabindex",
+                "0"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "div",
+              "attrs": [
+               [
+                "class",
+                "scatter__tip"
+               ],
+               [
+                "hidden",
+                null
+               ],
+               [
+                "id",
+                "scatter-tip"
+               ]
+              ],
+              "children": []
+             },
+             {
+              "text": "\n          "
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "div",
+            "attrs": [
+             [
+              "class",
+              "scatter__meta"
+             ]
+            ],
+            "children": [
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "span",
+              "attrs": [],
+              "children": [
+               {
+                "tag": "span",
+                "attrs": [
+                 [
+                  "aria-hidden",
+                  "true"
+                 ],
+                 [
+                  "class",
+                  "key key--in"
+                 ]
+                ],
+                "children": []
+               },
+               {
+                "text": "落入 PI（圓點）"
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "span",
+              "attrs": [],
+              "children": [
+               {
+                "tag": "span",
+                "attrs": [
+                 [
+                  "aria-hidden",
+                  "true"
+                 ],
+                 [
+                  "class",
+                  "key key--out"
+                 ]
+                ],
+                "children": []
+               },
+               {
+                "text": "未落入 PI（方塊）"
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "span",
+              "attrs": [],
+              "children": [
+               {
+                "tag": "span",
+                "attrs": [
+                 [
+                  "aria-hidden",
+                  "true"
+                 ],
+                 [
+                  "class",
+                  "key key--diag"
+                 ]
+                ],
+                "children": []
+               },
+               {
+                "text": "y = x"
+               }
+              ]
+             },
+             {
+              "text": "\n            "
+             },
+             {
+              "tag": "span",
+              "attrs": [
+               [
+                "id",
+                "scatter-help"
+               ]
+              ],
+              "children": [
+               {
+                "text": "滾輪縮放、拖曳平移、游標停留讀取單筆；鍵盤：方向鍵平移、＋／－ 縮放、0 重設。全部 Test 樣本逐筆繪製，不抽樣、不聚合。"
+               }
+              ]
+             },
+             {
+              "text": "\n          "
+             }
+            ]
+           },
+           {
+            "text": "\n          "
+           },
+           {
+            "tag": "p",
+            "attrs": [
+             [
+              "aria-live",
+              "off"
+             ],
+             [
+              "class",
+              "small muted num"
+             ],
+             [
+              "id",
+              "scatter-perf"
+             ]
+            ],
+            "children": []
+           },
+           {
+            "text": "\n        "
+           }
+          ]
+         },
+         {
+          "text": "\n\n        "
+         },
+         {
+          "tag": "div",
+          "attrs": [
+           [
+            "class",
+            "covstats"
+           ],
+           [
+            "id",
+            "covstats"
+           ]
+          ],
+          "children": []
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small muted"
+           ],
+           [
+            "id",
+            "coverage-note"
+           ]
+          ],
+          "children": [
+           {
+            "text": "涵蓋率的不確定性是假設各筆涵蓋事件獨立的二項近似（1.96·√(p(1−p)/n_test)）。Test set 含同一房屋的重複交易，涵蓋事件不保證獨立，這個近似的準確度未經估計，本頁不陳述偏差的方向或幅度。"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small muted"
+           ]
+          ],
+          "children": [
+           {
+            "text": "預測區間假設殘差常態、同質變異、獨立；特徵選擇後的推論與模型誤設都會影響名目涵蓋率，"
+           },
+           {
+            "tag": "strong",
+            "attrs": [],
+            "children": [
+             {
+              "text": "不宣稱保證 95% 的經驗涵蓋率"
+             }
+            ]
+           },
+           {
+            "text": "。經驗涵蓋率偏離 95% 時需要分析原因，不自動判定失敗。"
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n  "
+     }
+    ]
+   },
+   "#methods": {
+    "tag": "section",
+    "attrs": [
+     [
+      "aria-labelledby",
+      "h-methods"
+     ],
+     [
+      "class",
+      "section"
+     ],
+     [
+      "id",
+      "methods"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "section__head"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "eyebrow"
+         ]
+        ],
+        "children": [
+         {
+          "text": "F · 方法與限制"
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "h2",
+        "attrs": [
+         [
+          "id",
+          "h-methods"
+         ]
+        ],
+        "children": [
+         {
+          "text": "方法與限制"
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "p",
+      "attrs": [
+       [
+        "class",
+        "small muted labels-legend"
+       ]
+      ],
+      "children": [
+       {
+        "text": "標示："
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "tag tag--teacher"
+         ]
+        ],
+        "children": [
+         {
+          "text": "老師要求"
+         }
+        ]
+       },
+       {
+        "text": " 作業頁正文的要求；"
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "tag tag--suggest"
+         ]
+        ],
+        "children": [
+         {
+          "text": "依老師補充建議"
+         }
+        ]
+       },
+       {
+        "text": " 作業頁「補充」段的建議，本專案採用；"
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "class",
+          "tag tag--project"
+         ]
+        ],
+        "children": [
+         {
+          "text": "專案延伸"
+         }
+        ]
+       },
+       {
+        "text": " 本專案自行加入的設計，不是老師的要求。"
+       }
+      ]
+     },
+     {
+      "text": "\n    "
+     },
+     {
+      "tag": "div",
+      "attrs": [
+       [
+        "class",
+        "methods"
+       ]
+      ],
+      "children": [
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "article",
+        "attrs": [
+         [
+          "aria-labelledby",
+          "h-m-selection"
+         ],
+         [
+          "class",
+          "card prose"
+         ],
+         [
+          "id",
+          "methods-selection"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h3",
+          "attrs": [
+           [
+            "id",
+            "h-m-selection"
+           ]
+          ],
+          "children": [
+           {
+            "text": "特徵選擇方法 "
+           },
+           {
+            "tag": "span",
+            "attrs": [
+             [
+              "class",
+              "tag tag--teacher"
+             ]
+            ],
+            "children": [
+             {
+              "text": "老師要求"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "作業要求必做特徵選擇。本專案以 feature group 為選擇單位（同一個 source feature 的 encoded 欄位同進同出，例如 zipcode 的全部 one-hot 欄），比較四種有 k = 1…18 路徑的方法：Forward SFS、Backward SFS、RFE、Lasso 路徑排序取前 k 個；另以單一的 All-in baseline（全部 18 個 group 的 OLS，等於路徑在 k = 18 的端點）作為基準。每個方法的子集在每個 CV fold 的訓練列上重新計算（fold-internal selection），驗證列不參與選擇；另在整個 training set 上計算一次 canonical subset，作為本頁顯示的 groups、即時預測與 Test 評估的模型。"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "Ridge／Lasso 是依老師補充建議加入的 metric-only 對照（alpha 只以訓練 CV 選，不參與 CV winner，不提供預測與區間）；講義的 p-value backward elimination 只列為對照，不參與 CV winner，也不在 Test 上評估。"
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "article",
+        "attrs": [
+         [
+          "aria-labelledby",
+          "h-m-protocol"
+         ],
+         [
+          "class",
+          "card prose"
+         ],
+         [
+          "id",
+          "methods-protocol"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h3",
+          "attrs": [
+           [
+            "id",
+            "h-m-protocol"
+           ]
+          ],
+          "children": [
+           {
+            "text": "訓練 CV／Test 協定 "
+           },
+           {
+            "tag": "span",
+            "attrs": [
+             [
+              "class",
+              "tag tag--project"
+             ]
+            ],
+            "children": [
+             {
+              "text": "專案延伸"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "模型評估是老師的要求；下面的評估協定是本專案的設計。資料以房屋 "
+           },
+           {
+            "tag": "code",
+            "attrs": [],
+            "children": [
+             {
+              "text": "id"
+             }
+            ]
+           },
+           {
+            "text": " 分組切成 80／20 的 training 與 Test，training 內再以 "
+           },
+           {
+            "tag": "code",
+            "attrs": [],
+            "children": [
+             {
+              "text": "id"
+             }
+            ]
+           },
+           {
+            "text": " 分組成 5 個 fold，所有方法與 k 共用同一組 fold。每個方法取 CV RMSE（USD）最小的 k 為該方法的 CV winner，再從各方法 CV winner 與 All-in 中取最小者為整體 CV winner。在 18 個 k 與多個方法中取最小值，使 CV winner 的 CV 分數帶有樂觀的選擇偏誤。"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "全部選擇固定之後，Test 只對各方法 CV winner、All-in 與整體 CV winner（同一模型只評估一次）以及 Ridge／Lasso 各評估一次；Test 排名與 CV 排名不同時也不換模型。本頁的 KPI 與「指標 vs k」圖是訓練 CV，Test 區塊與比較表的 Test 欄只讀取匯出的結果，任何操作都不會觸發新的 Test 評估。"
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "article",
+        "attrs": [
+         [
+          "aria-labelledby",
+          "h-m-interval"
+         ],
+         [
+          "class",
+          "card prose"
+         ],
+         [
+          "id",
+          "methods-interval"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h3",
+          "attrs": [
+           [
+            "id",
+            "h-m-interval"
+           ]
+          ],
+          "children": [
+           {
+            "text": "預測區間的統計假設 "
+           },
+           {
+            "tag": "span",
+            "attrs": [
+             [
+              "class",
+              "tag tag--teacher"
+             ]
+            ],
+            "children": [
+             {
+              "text": "老師要求"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "作業要求預測圖加上信賴區間或預測區間。本專案對 OLS 子集模型在 ln(price) 尺度計算參數式 95% 預測區間 ŷ ± t·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀))，再以 exp 轉回 USD，所以區間不對稱；點預測 exp(log 預測) 估計的是條件中位數，不是條件平均。"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "區間假設殘差常態、同質變異、彼此獨立，而且沒有把特徵選擇的不確定性與可能的模型誤設算進去，所以"
+           },
+           {
+            "tag": "strong",
+            "attrs": [],
+            "children": [
+             {
+              "text": "不宣稱保證 95% 的經驗涵蓋率"
+             }
+            ]
+           },
+           {
+            "text": "；Test 上的經驗涵蓋率是對它的檢驗，偏離 95% 時分析原因，不自動判定失敗。涵蓋率的不確定性是假設各筆獨立的二項近似，Test 含同一房屋的重複交易，這個近似的準確度未經估計。"
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n      "
+       },
+       {
+        "tag": "article",
+        "attrs": [
+         [
+          "aria-labelledby",
+          "h-m-limits"
+         ],
+         [
+          "class",
+          "card prose"
+         ],
+         [
+          "id",
+          "methods-limits"
+         ]
+        ],
+        "children": [
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "h3",
+          "attrs": [
+           [
+            "id",
+            "h-m-limits"
+           ]
+          ],
+          "children": [
+           {
+            "text": "限制與非因果解讀 "
+           },
+           {
+            "tag": "span",
+            "attrs": [
+             [
+              "class",
+              "tag tag--suggest"
+             ]
+            ],
+            "children": [
+             {
+              "text": "依老師補充建議"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "五大回歸假設的診斷與模型解釋是依老師補充建議加入（見主程式 notebook 5.6 與第 6 章，只用 training set）。古典回歸假設的診斷與預測區間的假設分開看：training 殘差的診斷不能證明或否定區間的 95% 涵蓋。"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ],
+           [
+            "id",
+            "methods-limits-scope"
+           ]
+          ],
+          "children": [
+           {
+            "text": "適用範圍：King County 的房屋交易；超出 training 範圍的輸入仍會計算但屬於外推，未見過的 zipcode 以基準類別計算。同一房屋重複交易的誤差可能相關（notebook 5.6.2），誤差獨立的假設對這些交易不一定成立。"
+           }
+          ]
+         },
+         {
+          "text": "\n        "
+         },
+         {
+          "tag": "p",
+          "attrs": [
+           [
+            "class",
+            "small"
+           ]
+          ],
+          "children": [
+           {
+            "text": "係數、係數表與重要性描述的是資料中的"
+           },
+           {
+            "tag": "strong",
+            "attrs": [],
+            "children": [
+             {
+              "text": "關聯，不是因果效果"
+             }
+            ]
+           },
+           {
+            "text": "：不能用來推論「改變某個特徵會讓價格改變多少」。Ridge／Lasso 只是 metric-only 對照，不提供預測。"
+           }
+          ]
+         },
+         {
+          "text": "\n      "
+         }
+        ]
+       },
+       {
+        "text": "\n    "
+       }
+      ]
+     },
+     {
+      "text": "\n  "
+     }
+    ]
+   },
+   "footer": {
+    "tag": "footer",
+    "attrs": [
+     [
+      "class",
+      "footer small muted"
+     ]
+    ],
+    "children": [
+     {
+      "text": "\n  "
+     },
+     {
+      "tag": "p",
+      "attrs": [],
+      "children": [
+       {
+        "text": "本頁讀取主程式 "
+       },
+       {
+        "tag": "code",
+        "attrs": [],
+        "children": [
+         {
+          "text": "hw2.ipynb"
+         }
+        ]
+       },
+       {
+        "text": " 匯出的 "
+       },
+       {
+        "tag": "code",
+        "attrs": [],
+        "children": [
+         {
+          "text": "model_data"
+         }
+        ]
+       },
+       {
+        "text": "；所有資料與程式庫都在本機，不發出任何對外請求。圖表程式庫："
+       },
+       {
+        "tag": "span",
+        "attrs": [
+         [
+          "id",
+          "chartjs-version"
+         ]
+        ],
+        "children": [
+         {
+          "text": "Chart.js（本機打包）"
+         }
+        ]
+       },
+       {
+        "text": "。"
+       }
+      ]
+     },
+     {
+      "text": "\n"
+     }
+    ]
+   }
+  }
+ }
+}

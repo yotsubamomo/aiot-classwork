@@ -1,0 +1,333 @@
+{
+  "label": "edge_subject",
+  "mode": "kc",
+  "browserPid": 15168,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "kc": {
+      "first_draw_ms": [
+        92.8,
+        86.1,
+        98.6,
+        90.4
+      ],
+      "interactions": [
+        {
+          "type": "method",
+          "ms": 13.9,
+          "handler_ms": 13.7
+        },
+        {
+          "type": "method",
+          "ms": 9.2,
+          "handler_ms": 8.9
+        },
+        {
+          "type": "method",
+          "ms": 9.5,
+          "handler_ms": 9.3
+        },
+        {
+          "type": "method",
+          "ms": 8.1,
+          "handler_ms": 7.9
+        },
+        {
+          "type": "method",
+          "ms": 8.3,
+          "handler_ms": 8.1
+        },
+        {
+          "type": "k",
+          "ms": 4.3,
+          "handler_ms": 4.1
+        },
+        {
+          "type": "k",
+          "ms": 4.1,
+          "handler_ms": 4
+        },
+        {
+          "type": "k",
+          "ms": 4.3,
+          "handler_ms": 4.1
+        },
+        {
+          "type": "k",
+          "ms": 4.2,
+          "handler_ms": 4.1
+        },
+        {
+          "type": "button-zoom-out",
+          "ms": 1.7,
+          "handler_ms": 1.5
+        },
+        {
+          "type": "button-reset",
+          "ms": 1.5,
+          "handler_ms": 1.5
+        }
+      ],
+      "max_by_type": {
+        "method": {
+          "n": 5,
+          "max": 13.9
+        },
+        "k": {
+          "n": 4,
+          "max": 4.3
+        },
+        "button-zoom-out": {
+          "n": 1,
+          "max": 1.7
+        },
+        "button-reset": {
+          "n": 1,
+          "max": 1.5
+        }
+      },
+      "measures": {
+        "inputs": [
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.5
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.6
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.5
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.4
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.5
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.7
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.5
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": "zoom-out",
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": "zoom-out",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "zoom-out",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": "zoom-reset",
+            "lat_ms": 0.5
+          },
+          {
+            "type": "focusin",
+            "id": "zoom-reset",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "zoom-reset",
+            "lat_ms": 0
+          }
+        ],
+        "max_input_latency_ms": 0.7,
+        "frames": 1392,
+        "frame_gap_p50_ms": 4.2,
+        "frame_gap_p95_ms": 4.3,
+        "frame_gap_max_ms": 20.8,
+        "long_tasks": 0,
+        "long_task_max_ms": 0,
+        "long_error": null
+      }
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Edg/155.0.4283.62"
+}

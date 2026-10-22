@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>King County 房價多元線性回歸分析 — HW2 Dashboard</title>
 <link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/explore.css">
 </head>
 <body>
 <a class="skip" href="#main">跳到主要內容</a>
@@ -34,8 +35,210 @@
   </div>
 </header>
 
+<!-- V2：problem 下拉（控制列）。King County 是正式分析（V1 的頁面原樣）；其他兩項是探索執行。 -->
+<div class="problembar" id="problembar">
+  <div class="problembar__inner">
+    <label class="problembar__label" for="problem-select">分析問題（Problem）</label>
+    <select class="input problembar__select" id="problem-select" autocomplete="off" aria-describedby="problem-help" aria-controls="main">
+      <option value="king_county" selected>King County 房價（正式分析）</option>
+      <option value="startups50">50 Startups 利潤（探索）</option>
+      <option value="custom">自訂資料集（探索）</option>
+    </select>
+    <p class="problembar__help small muted" id="problem-help">King County 是作業的正式分析；50 Startups 與自訂資料集是探索執行，非正式評估。</p>
+  </div>
+</div>
+
 <main id="main">
   <div id="load-error" class="alert" role="alert" hidden></div>
+
+  <!-- V2. 探索執行（Exploratory run）：選 50 Startups 或自訂資料集時顯示、V1 區塊隱藏；id 一律以 ex- 開頭 -->
+  <section class="section explore" id="explore" aria-labelledby="ex-title" hidden>
+    <div class="section__head">
+      <span class="eyebrow">探索執行 · Exploratory run</span>
+      <h1 id="ex-title">探索執行</h1>
+      <p class="explore__banner small"><span class="tag tag--explore">探索執行，非正式評估</span> 每次執行探索（選取 50 Startups，或提交自訂資料集）都在瀏覽器內重新計算，結果不保存、不進報告數字，也不是作業的 Test 評估；King County 的正式分析與其數字不受影響。</p>
+    </div>
+    <div class="notice explore__message" id="ex-message" role="status" hidden></div>
+
+    <article class="card ex-block" id="ex-custom" aria-labelledby="ex-h-custom" hidden>
+      <h2 id="ex-h-custom">自訂資料集 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <p class="small">以 CSV 的 URL 或本機 CSV 檔案提交資料（UTF-8、逗號分隔、第一列為欄名）。兩種入口取得的內容走同一條載入與分析流程；資料只在這個分頁的記憶體中計算，不上傳、不保存，換到其他 problem 後再回來需要重新提交。</p>
+      <div class="ex-inputs">
+        <form class="field ex-url" id="ex-url-form" novalidate>
+          <label for="ex-url">CSV 的 URL</label>
+          <div class="ex-url__row">
+            <input class="input" id="ex-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" aria-describedby="ex-url-help">
+            <button class="btn ex-url__btn" type="submit" id="ex-url-load">載入 URL</button>
+          </div>
+          <p class="help" id="ex-url-help">只有按下「載入 URL」時，瀏覽器才對這個 URL 發出一次 GET 讀取：不帶 cookie 等憑證、不跟隨重新導向、不重試；其他操作都不發出請求。對方伺服器必須允許跨來源讀取（CORS），例如 GitHub 上的檔案請用 Raw 連結。讀取失敗時，可下載該 CSV 後改用本機檔案載入。</p>
+        </form>
+        <div class="field">
+          <label for="ex-file">本機 CSV 檔案</label>
+          <input class="input ex-file" id="ex-file" type="file" accept=".csv,text/csv,text/plain" aria-describedby="ex-file-help">
+          <p class="help" id="ex-file-help">在瀏覽器內讀取，不發出任何請求，離線也能使用。</p>
+        </div>
+        <div class="field">
+          <label for="ex-target">預測目標欄</label>
+          <select class="input" id="ex-target" disabled aria-describedby="ex-target-help"><option value="">（載入資料後選擇）</option></select>
+          <p class="help" id="ex-target-help">預設為最後一欄，必須是數值欄；改選後以同一份資料重新執行，不會重新讀取 URL。</p>
+        </div>
+      </div>
+      <p class="small ex-custom-status" id="ex-custom-status" role="status">尚未載入資料：請以 URL 或本機 CSV 檔案提交。</p>
+    </article>
+
+    <div class="card ex-run" id="ex-run" role="region" aria-labelledby="ex-h-run" hidden>
+      <h2 id="ex-h-run">執行中 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <progress class="ex-progress" id="ex-progress" max="1" value="0" aria-labelledby="ex-h-run" aria-describedby="ex-progress-text"></progress>
+      <p class="small ex-progress-text" id="ex-progress-text" role="status" aria-live="polite"></p>
+      <div class="ex-run__row">
+        <button class="btn ex-cancel" type="button" id="ex-cancel" aria-describedby="ex-cancel-help">取消執行</button>
+        <p class="help" id="ex-cancel-help">取消在目前的候選算完後（下一個候選邊界）生效；全部候選完成後（計算共線診斷與探索 test 時）則在進行中的步驟完成時生效。取消後已算出的部分結果不顯示，只顯示「已取消」與已完成的方法數；再次執行會從頭開始。等待期間「已耗時」持續更新。執行中仍可切換問題、改選目標欄或輸入 URL；新的選取或提交會先取消目前的執行。</p>
+      </div>
+    </div>
+
+    <article class="card ex-block" id="ex-data" aria-labelledby="ex-h-data" hidden>
+      <h2 id="ex-h-data">資料與前處理 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <dl class="facts small" id="ex-facts"></dl>
+      <div class="tablewrap"><table class="table" id="ex-columns"></table></div>
+      <p class="small muted">欄位型態在載入時逐格判定（每個非空儲存格都是數字的欄為數值欄）；含缺值的列整列刪除。保留或排除只用<strong>訓練列</strong>決定：類別欄在訓練列上超過 20 個層級、或任何欄在訓練列上只有一個值，就排除。Test 列不影響這些決定。</p>
+      <h3 class="ex-subhead" id="ex-h-deps">共線診斷（線性相依的欄位組）</h3>
+      <div id="ex-deps" aria-labelledby="ex-h-deps"></div>
+      <p class="small muted">對整個訓練集的 All-in 設計矩陣（截距＋全部編碼欄，canonical 編碼）做一次相依分析：欄依序檢查，與前面獨立欄的線性組合相同（容忍度 max(n, p)·eps）的欄形成一組線性關係。每組列出涉及的全部編碼欄、對應的 feature group 與關係式；同一組的欄彼此相依，不指認哪一欄是「問題欄」。含有完整一組相依欄的候選，設計矩陣秩不足，標為無效（INVALID_MODEL）。</p>
+    </article>
+
+    <article class="card ex-block" id="ex-model" aria-labelledby="ex-h-model" hidden>
+      <h2 id="ex-h-model">模型選擇與訓練 CV <span class="tag tag--explore">探索執行，非正式評估</span> <span class="tag tag--cv">訓練 CV</span></h2>
+      <div class="layout-2col ex-layout">
+        <aside class="card card--flat control" aria-label="探索模型選擇控制">
+          <div class="field">
+            <span class="label" id="ex-lbl-method">特徵選擇方法</span>
+            <div class="seg" role="group" aria-labelledby="ex-lbl-method" id="ex-method-seg"></div>
+          </div>
+          <div class="field">
+            <span class="label" id="ex-lbl-k">特徵數 k（feature groups）</span>
+            <div class="kgrid" role="group" aria-labelledby="ex-lbl-k" id="ex-k-grid"></div>
+            <p class="help" id="ex-k-help"></p>
+          </div>
+          <button class="toggle" id="ex-compare-all" type="button" aria-pressed="false" aria-controls="ex-kchart-card">
+            <span class="toggle__sw" aria-hidden="true"></span>
+            <span>比較全部方法</span>
+          </button>
+          <div class="selected-model" id="ex-selected" aria-live="polite"></div>
+        </aside>
+        <div class="stack">
+          <p class="small" id="ex-candidate"></p>
+          <div class="grid grid--kpi" id="ex-kpi-cv"></div>
+          <div class="card card--flat" id="ex-kchart-card">
+            <div class="chart__toolbar">
+              <h3>指標 vs k <span class="tag tag--cv">訓練 CV</span></h3>
+              <span class="spacer"></span>
+              <label class="small muted" for="ex-metric">指標</label>
+              <select class="input input--inline" id="ex-metric">
+                <option value="rmse">RMSE（目標單位）</option>
+                <option value="mae">MAE（目標單位）</option>
+                <option value="mse">MSE（目標單位²）</option>
+                <option value="r2">R²</option>
+              </select>
+            </div>
+            <div class="kchart"><canvas id="ex-kchart-canvas" role="img" aria-describedby="ex-kchart-summary"
+              aria-label="折線圖：四種特徵選擇方法在 k = 1 到 p 的訓練 CV 指標；All-in baseline 為水平虛線參考線；各方法 CV winner 以圓環標示，無效候選以紅色叉號標示在圖底，目前選取的模型以大圓圈標示。"></canvas></div>
+            <p class="small muted" id="ex-kchart-summary"></p>
+            <div class="legend small" id="ex-kchart-legend"></div>
+            <p class="small muted">每個 fold 的子集只在該 fold 的訓練列上選出（fold-internal selection），驗證列不參與選擇；CV 指標是 5 個 fold 驗證列指標的平均，估計的是「方法在 k 下的程序」，不是 canonical 子集本身。無效（INVALID_MODEL）的候選沒有 CV 指標，線段在該處中斷。不含任何 test 資料。</p>
+          </div>
+          <div class="card card--flat" id="ex-compare-card">
+            <h3>各方法 CV winner 與整體 CV winner <span class="tag tag--cv">訓練 CV</span> <span class="tag tag--test">探索 test（非正式評估）</span></h3>
+            <div class="tablewrap"><table class="table" id="ex-compare"></table></div>
+            <p class="small muted">方法 CV winner：該方法有效（VALID）候選中 CV RMSE 最小者，平手取較小的 k；All-in 只有一個候選，即為自身的 winner。整體 CV winner：各方法 winner 之中 CV RMSE 最小者，平手依方法順序 All-in、Forward SFS、Backward SFS、RFE、Lasso 路徑排序。全部選擇固定之後才讀取 test 列，test 只對這些 winner 的 canonical fit 計算（canonical 子集相同的 winner 是同一個模型，只算一次）；其他候選沒有 test 數字，test 也不回饋任何選擇。在多個 k 與方法中取最小值，使 winner 的 CV 分數帶有樂觀的選擇偏誤。</p>
+          </div>
+          <div class="tablewrap"><table class="table" id="ex-folds"></table></div>
+          <h3 class="ex-subhead">全訓練集擬合（canonical fit）</h3>
+          <dl class="facts facts--inline small" id="ex-fit"></dl>
+          <p class="small muted">CV 指標是 5 個 fold 驗證列指標的算術平均 ± 樣本標準差；每個 fold 的類別層級、基準層級（該 fold 訓練列中最先出現的層級）、one-hot 欄與 OLS 只用該 fold 的訓練列。Canonical 子集與 canonical fit 用整個訓練集。不含任何 test 資料。</p>
+          <div class="card card--flat" id="ex-lasso-card">
+            <h3>Lasso 路徑（整個訓練集） <span class="tag tag--cv">訓練 CV 的選擇依據</span></h3>
+            <p class="small" id="ex-lasso-summary"></p>
+            <div class="tablewrap"><table class="table" id="ex-lasso"></table></div>
+            <p class="small muted">Exact LARS（含 Lasso 修正）在訓練列上計算：數值欄以訓練列的平均與母體標準差標準化、one-hot 欄維持 0／1、再全部置中；目標在同一批列上置中並除以其均方根、不取 log（路徑與進入順序不變，但停止與平手的數值判定與目標的單位無關），entry alpha 再乘回目標的原始尺度。Group 在任一欄第一次出現非零係數時進入，entry alpha 是該節點的 alpha，由大到小排序（相同 alpha 依 CSV 欄序）。路徑結束時若仍有 group 未進入——active set 退化、路徑走到終點，或數值停止（alpha 回升、迭代達上限）——就停在那裡，上方摘要寫出實際的停止原因：已求得的路徑段是實際結果；未進入的 group 以 CSV 欄序列在後面，<strong>只作展示，不是實際路徑、也不構成選模依據</strong>，k 超過已進入 group 數的 Lasso 候選為無效（lasso_path_degenerate）。</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card ex-block" id="ex-predictor" aria-labelledby="ex-h-predictor" hidden>
+      <h2 id="ex-h-predictor">即時預測 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <div class="predictor">
+        <form id="ex-pred-form" novalidate>
+          <p class="small muted">輸入所選模型用到的來源欄原始值（預設為訓練中位數；類別欄只列訓練層級）。只有狀態為有效（VALID）的候選才提供預測。</p>
+          <div class="fields" id="ex-pred-fields"></div>
+        </form>
+        <aside class="result card card--flat" aria-live="polite" aria-atomic="true">
+          <h3>預測結果</h3>
+          <div>
+            <div class="small muted">點預測（目標原始單位）</div>
+            <div class="result__price num" id="ex-pred-value">—</div>
+          </div>
+          <div>
+            <div class="small muted">95% 預測區間（參數式 OLS PI，原始尺度）</div>
+            <div class="result__pi num" id="ex-pred-pi">—</div>
+          </div>
+          <div class="result__status" id="ex-pred-status"></div>
+          <div class="result__meta"><span id="ex-pred-model">模型：目前選取的候選在整個訓練集上的擬合</span></div>
+        </aside>
+      </div>
+    </article>
+
+    <article class="testzone ex-block" id="ex-test" aria-labelledby="ex-h-test" hidden>
+      <h2 id="ex-h-test">探索 test（非正式評估） <span class="tag tag--explore">探索執行，非正式評估</span> <span class="tag tag--test">探索 test（非正式評估）</span></h2>
+      <p class="small" id="ex-test-model"></p>
+      <p class="notice small" id="ex-test-hint" role="status" hidden></p>
+      <div class="grid ex-kpi5" id="ex-kpi-test"></div>
+      <div class="scatter-wrap">
+        <div class="chart__toolbar">
+          <h3>實際 vs 預測（線性刻度，逐筆 95% PI）</h3>
+          <span class="spacer"></span>
+          <button class="btn btn--icon" type="button" id="ex-zoom-in" aria-label="放大">＋</button>
+          <button class="btn btn--icon" type="button" id="ex-zoom-out" aria-label="縮小">－</button>
+          <button class="btn" type="button" id="ex-zoom-reset">重設檢視</button>
+        </div>
+        <div class="scatter" id="ex-scatter">
+          <canvas id="ex-scatter-canvas" tabindex="0" role="img" aria-describedby="ex-scatter-help"
+            aria-label="散佈圖：x 軸為預測值、y 軸為實際值，皆為線性刻度；每筆 test 樣本有一條垂直的 95% 預測區間線段，落入區間為圓點、未落入為方塊；含 y = x 參考線。"></canvas>
+          <div class="scatter__tip" id="ex-scatter-tip" hidden></div>
+        </div>
+        <div class="scatter__meta">
+          <span><span class="key key--in" aria-hidden="true"></span>落入 PI（圓點）</span>
+          <span><span class="key key--out" aria-hidden="true"></span>未落入 PI（方塊）</span>
+          <span><span class="key key--diag" aria-hidden="true"></span>y = x</span>
+          <span id="ex-scatter-help">滾輪縮放、拖曳平移、游標停留讀取單筆；鍵盤：方向鍵平移、＋／－ 縮放、0 重設。全部 test 樣本逐筆繪製。</span>
+        </div>
+      </div>
+      <p class="small muted">95% 預測區間 ŷ ± t(0.975, df)·√(s²(1 + x₀ᵀ(XᵀX)⁻¹x₀)) 在目標的原始尺度計算，假設殘差常態、同質變異、獨立，不宣稱保證 95% 的經驗涵蓋率。Test 列在全部模型選擇固定之後才讀取，只對被選出的模型計算，不回饋任何選擇。</p>
+    </article>
+
+    <article class="card ex-block" id="ex-methods" aria-labelledby="ex-h-methods" hidden>
+      <h2 id="ex-h-methods">方法與限制 <span class="tag tag--explore">探索執行，非正式評估</span></h2>
+      <p class="small">探索模式與 King County 正式分析使用同一套選模語義：feature group 整組進出、Forward／Backward SFS 以 RSS、RFE 以 group 對擬合值貢獻的標準差 sd(X_g β_g)、Lasso 以 exact LARS 的進入順序、平手依 CSV 欄序、只用訓練列的編碼與 OLS 參數式預測區間。兩個 problem 在下列幾點不同：</p>
+      <div class="tablewrap">
+        <table class="table" id="ex-semantics">
+          <caption class="small muted">兩個 problem 的語義差異</caption>
+          <thead><tr><th scope="col">項目</th><th scope="col">King County（正式分析）</th><th scope="col">探索執行（50 Startups／自訂資料集）</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">目標尺度</th><td>以 ln(price) 建模，預測與區間以 exp 轉回 USD（區間不對稱）</td><td>目標原始尺度建模與報告，不取 log、不取 exp（目標可為負或零）</td></tr>
+            <tr><th scope="row">切分</th><td>以房屋 id 分組的 80／20 與分組 5-fold（同一房屋不跨訓練與 test）</td><td>固定 seed 的逐列 80／20 與逐列 5-fold，不分組</td></tr>
+            <tr><th scope="row">Lasso 退化</th><td>未進入路徑的 group 依欄序補成 k = 1…18 的子集（King County 的選模語義）</td><td>路徑退化或提前結束時停止（停止判定與目標的單位無關）：已求得的路徑段是實際結果，之後的 group 只作展示，k 超過的候選為無效（lasso_path_degenerate）</td></tr>
+            <tr><th scope="row">派生規則</th><td>有：date 轉為日數、yr_renovated 拆成整修旗標與有效年份、zipcode 為類別、sqft_basement 不進模型</td><td>無：每個來源欄就是一個 feature group（數值欄一欄、類別欄為訓練層級的 one-hot）；沒有日期轉換或任何資料專屬規則</td></tr>
+            <tr><th scope="row">Test 的地位</th><td>正式的 Test evaluation，只做一次並記錄</td><td>探索 test：每次執行探索時只對 CV winner 計算一次（選取候選或切換方法不會重算）、不保存，永遠不是 Test evaluation</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="ex-subhead">運算預算、失敗與取消</h3>
+      <p class="small">Forward SFS、Backward SFS、RFE 與 Lasso 路徑在執行前各自估計運算量（預估 OLS 求解次數 × 訓練列數 × 編碼欄數²，只依資料大小，不依耗時）；超過該方法的預算時整個方法標「超出運算限制，未執行（SKIPPED_RESOURCE_LIMIT）」，其他方法照常執行。All-in baseline 一律最先嘗試。任一方法發生非預期的計算錯誤（含記憶體不足）時，只有該方法標為「計算失敗（FAILED）」並附訊息與環境資訊。這兩種狀態都沒有訓練 CV 指標、不會成為 winner，也不提供即時預測。執行中可取消：取消在下一個候選邊界生效，全部候選完成後則在進行中的共線診斷或探索 test 步驟完成時生效，取消後不顯示任何結果；同一份資料、同一目標欄與同一版本重跑，顯示的結果相同（耗時可不同）。</p>
+      <h3 class="ex-subhead">逐列切分的限制</h3>
+      <p class="small">探索模式的切分是逐列隨機的，沒有分組欄的概念。資料中若有<strong>重複的列</strong>、<strong>同一個實體的多筆紀錄</strong>（例如同一家公司或同一個人的多次觀測），或<strong>時間相依</strong>的資料，同一來源的資訊可能同時出現在訓練與 test（或同一 fold 的訓練與驗證）列，使 CV 與 test 指標過度樂觀。探索結果只供操作與比較，<strong>不代表正式研究結論</strong>。</p>
+      <p class="small muted">CV winner 是在多個 k 與方法中取最小 CV RMSE 選出的，CV 分數帶有樂觀的選擇偏誤；探索 test 只對 winner 計算一次作為較獨立的估計，test 排名與 CV 排名不同時也不換模型。</p>
+    </article>
+  </section>
 
   <!-- A. 概覽：資料來自 assets/model_data.js 的 meta -->
   <section class="section" id="overview" aria-labelledby="h-overview">
@@ -279,5 +482,11 @@
 <script src="assets/model_data.js"></script>
 <script src="assets/hw2core.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/data/startups50.js"></script>
+<script src="assets/explore_load.js"></script>
+<script src="assets/explore_engine.js"></script>
+<script src="assets/explore_plot.js"></script>
+<script src="assets/explore_app.js"></script>
+<script src="assets/explore_ui.js"></script>
 </body>
 </html>

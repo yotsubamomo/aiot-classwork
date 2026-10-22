@@ -3,6 +3,7 @@
 - **狀態**：**ACCEPTED（2026-10-18）**。接受的 normative 內容是 [`../brief/BRIEF.md`](../brief/BRIEF.md)（FINAL DRAFT）於 commit **`dff7c55c70ede3dede17469a48d5a80376fda77e`**（branch `home_work_02-regrill`）的版本，連同同一 commit 的 Grill 紀錄 rev 7 與 `CONTEXT.md`。接受紀錄見第 3 節（acceptor 原文逐字）。Agent 代寫的接受紀錄不等於取得授權；效力來自第 3.1 節的 acceptor 原文（治理 §1.2、§5.3；Bindings §2.1）。
 - **承載方式**：依治理 §1.2「Prompt、Task Brief … 均可承載契約」與 Bindings §2.3（Formal：`doc/governance/outcome-contract.md` 附接受紀錄），本檔**不重寫** Brief 的內容，只做兩件事：(1) 對照治理 §3.1 的七項 properties 指出 Brief 的對應位置；(2) 記錄接受。Brief 是 MATT Grill 的產物，其內部流程獨立於治理（acceptor 2026-10-18 指示）；本檔與 Brief 不一致時，以 Brief 於上列 commit 的內容為準。
 - **與前一個契約的關係**：本契約取代 2026-10-14 接受的 Outcome Contract r4（branch `home_work_02-outcome-contract`，`e2153254`）作為 HW2 之後工作的 Outcome Contract。r4、其 Spec v1.1、derivation 與 decision records 保留在原 branch 作為歷史，不修改、不刪除。r4 衍生的 GitHub Issues #50–#56 的處置，由 Design Authority 在本契約下判定。
+- **V2 Enhance**：**ACCEPTED（2026-10-22）**，增量 scope，不取代上列 V1 契約；接受內容是 commit **`d7f02d4179d2cb5c2ecf0c39a4643a6ef8287907`**（branch `home_work_02-v2-enhance`）的 Brief V2 rev 2（含勘誤 E-1）、Spec V2 rev 2、`tickets-v2.md` 與 issue #74–#78。接受紀錄見第 5 節。
 - **Bindings**：b5（`main` merge commit `5ebcc58eba1d776cc7380d391ced1dc503a3ee31`）。
 - **Acceptor**：GitHub `yotsubamomo`（Bindings §2.1）。
 - **撰寫者**：無角色主 session，依 acceptor 2026-10-18 指示「完成必要的 Brief／Outcome Contract acceptance 記錄」轉錄。
@@ -161,3 +162,61 @@
 - **背景**：DA derivation §9 finding TK-1：Brief §7／§10 要求在 GitHub Pages 網址上重做 dashboard 檢查，但 Pages 只發布 `main`，合併屬 RB-1，#67 無法執行。
 - **Acceptor 原文（逐字）**：「TK-1 採 (a)：GitHub Pages URL 的檢查作為合併進 main 之後的 Lightweight work item（觸及 H-2，需 audit）；#67 與 ACCEPTANCE.md 先記 NOT TESTED（pending merge）。」
 - **效果**：Pages 檢查從 #67 的完成條件移出，成為合併後的獨立 Lightweight work item（依 Bindings §4、§5：以 acceptor 的直接指示為其 Outcome Contract；觸及 H-2 → 需 independent audit）。#67 與 ACCEPTANCE.md 對該項記 NOT TESTED（pending merge）；Spec Integration Audit 與 phase acceptance 把它列為 open item，不阻擋 S2。
+
+## 5. V2 Enhance 接受紀錄（2026-10-22）
+
+| 項目 | 內容 |
+| --- | --- |
+| 狀態 | **已接受**（2026-10-22） |
+| Acceptor | GitHub `yotsubamomo`，於 Claude Code 對話中以第 5.1 節原文接受 |
+| 接受的內容 | commit `d7f02d4179d2cb5c2ecf0c39a4643a6ef8287907`（原文 `d7f02d4`；branch `home_work_02-v2-enhance`）的 `doc/brief/BRIEF-V2.md` rev 2（含勘誤 E-1）、`doc/spec/SPEC-V2.md` rev 2、`doc/ticket/tickets-v2.md` 與 GitHub issue #74–#78；V2 的驗收條件、四個測試 seams、依賴與 V1 保持要求。接受基準只限該 commit，不以 working tree、issue label 或之後的實作 commit 代替（原文） |
+| 與 V1 的關係 | 不取代第 1–4 節的 V1 契約；V1 契約對 V1 正式分析仍有效且具權威。V2 是增量 Enhance scope，只受明確接受的 V2 覆寫約束（原文） |
+| 授權 | Design Authority 派工以產生 `decisions/derivation-SPEC-V2.md`（含 lane 與高風險類別判定，涵蓋使用者提供 URL 的 fetch 能力）；兩項前提完成並驗證後，Orchestrator 續行既有 run `run-20261022-hw2-v2-enhance` 並派 #74，執行限 #74–#78 與其依賴；SA-1 下的本機 commit |
+| 未授權 | push、merge、修改凍結的 V1 產物 |
+| SA-3 | 原文標題為「SA-3 DECISION」，內容授權在本檔登錄 V2 接受，**沒有明確引用 SA-3 作為合併授權**，且原文明示「No push, merge … is authorized」。依 Bindings §2.5 SA-3 條件 (1)（未引用者仍屬 RB-1），V2 的合併屬 **RB-1，保留給 acceptor** |
+
+### 5.1 Acceptor 原文（2026-10-22，逐字）
+
+> HW2 V2 — Outcome Contract Acceptance & SA-3 Decision
+> Acceptance date: 2026-10-22
+> Accepted baseline commit: d7f02d4
+> Accepted branch: home_work_02-v2-enhance
+> ACCEPTOR DECISION: ACCEPTED
+> I formally accept the HW2 V2 Enhance contract at baseline commit d7f02d4, including:
+>
+> 1. BRIEF-V2.md rev 2, including erratum E-1.
+> 2. SPEC-V2.md rev 2.
+> 3. tickets-v2.md and GitHub issues #74–#78.
+> 4. The V2 acceptance criteria, four approved test seams, dependencies, and V1 preservation requirements.
+> 5. The previously accepted V1 contract remains unchanged and authoritative for V1 formal analysis.
+>
+> SA-3 DECISION:
+> Authorize registration of this V2 acceptance in the existing outcome-contract.md under the current governance rules.
+> The accepted baseline is d7f02d4. Do not substitute the working-tree state, an issue label, or a later implementation commit as the acceptance basis.
+> This acceptance does not supersede the V1 contract. V2 is an additive Enhance scope, subject to the explicitly accepted V2 overrides.
+> DESIGN AUTHORITY AUTHORIZATION:
+> Authorize dispatch of gov-design-authority to produce derivation-SPEC-V2.md against the accepted V2 Outcome Contract.
+> The Design Authority must determine the applicable lane and high-risk categories using existing governance rules, including the user-supplied URL fetching capability.
+> Do not presume a low-risk classification or bypass any required review.
+> No separate approval is required merely to dispatch the Design Authority.
+> EXECUTION AUTHORIZATION:
+> After the Outcome Contract registration and Design Authority derivation are completed and validated, the Orchestrator may continue the existing run and dispatch #74, provided all other existing preconditions pass.
+> Execution remains limited to accepted V2 tickets #74–#78 and their dependencies.
+> Follow existing Bindings, Orchestrator Contract, independent review requirements, and evidence rules. Do not add governance rules or new approval gates.
+> GIT AUTHORIZATION:
+> Local changes and commits required for the accepted governance records and authorized V2 ticket execution may follow existing SA-1 rules.
+> No push, merge, or modification of frozen V1 artifacts is authorized.
+> If a mandatory governance precondition fails, stop and report the specific failure rather than modifying governance rules or inventing an exception.
+> Please record this acceptor decision verbatim, complete the two missing preconditions, and report their validation results before dispatching #74.
+
+轉錄者：Orchestrator session `37216426-f292-44f9-bad1-e2d862e7b8f1`，依上述原文「Authorize registration of this V2 acceptance in the existing outcome-contract.md」轉錄；接受與授權的效力來自原文，不來自本轉錄。本節不改變第 1–4 節的任何內容。
+
+### 5.2 CC-V2-1（2026-10-22）— F-1：既有 `<script src>` 斷言（APPROVED CONTRACT CHANGE）
+
+- **性質**：治理 §5.3 第 1 類（改變 accepted 語義：票的共同條款與 run designation 第 4 點的「既有測試全部不變」對這一條斷言放寬）。來源：Design Authority [`decisions/derivation-SPEC-V2.md`](decisions/derivation-SPEC-V2.md) §4 B-13、§9 F-1，fail-closed 至 acceptor。
+- **變更後的 accepted 語義**：只有 `tests/test_dashboard_static.py::test_page_loads_data_as_a_js_global_and_the_bundled_chartjs` 的 `<script src>` 斷言可修改：前四個 `<script src>` 必須仍是 V1 的四個檔案（`assets/vendor/chart.umd.js`、`assets/model_data.js`、`assets/hw2core.js`、`assets/app.js`）且順序不變，其後逐一列出 V2 腳本。其他既有測試不變。修改於 #74 R1 以 H-2 核對。
+- **Acceptor 原文（2026-10-22，逐字）**：
+
+> F-1：採 (a)。授權只修改 test_page_loads_data_as_a_js_global_and_the_bundled_chartjs 這一條斷言：前四個 <script src> 必須仍是 V1 的四個檔案且順序不變，其後逐一列出 V2 腳本；其他既有測試不變，於 #74 R1 以 H-2 核對。請派工 #74。
+
+轉錄者：Orchestrator session `37216426-f292-44f9-bad1-e2d862e7b8f1`；效力來自上述原文。

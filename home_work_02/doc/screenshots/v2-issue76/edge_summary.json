@@ -1,0 +1,222 @@
+{
+ "browser": "Edg/155.0.4283.62",
+ "initial_kc": {
+  "v1Shown": 5,
+  "footerShown": true
+ },
+ "startups50": {
+  "blocks": 5,
+  "footerShown": false,
+  "kpiTest": "9,850 / 8,351 / 97,026,682 / 0.9399 / 100.0%"
+ },
+ "custom_empty": {
+  "blocks": [
+   "ex-custom"
+  ],
+  "footerShown": false,
+  "targetDisabled": true
+ },
+ "back_to_kc_identical": true,
+ "url_cors_localhost": {
+  "requests": [
+   [
+    "GET",
+    "<foreign>/cors/50_Startups.csv",
+    "cookie:none"
+   ]
+  ],
+  "sha256_equal": true,
+  "kpiTest_equal_builtin": true,
+  "target": "4"
+ },
+ "teacher_url_localhost": {
+  "requests": [
+   {
+    "url": "https://raw.githubusercontent.com/Avik-Jain/100-Days-Of-ML-Code/master/datasets/50_Startups.csv",
+    "method": "GET",
+    "type": "Fetch"
+   }
+  ],
+  "sha256_equal": true,
+  "kpiTest_equal_builtin": true,
+  "message": "執行完成：五種方法共 17 個候選，耗時"
+ },
+ "target_categorical": {
+  "message": "無法載入資料：預測目標欄「State」不是數值欄（TARGET_NOT_NUMERIC），沒有執行分析。請在「預測目標欄」下拉改選數值欄；改選後以同一份資料重新執行。",
+  "blocks": [
+   "ex-custom",
+   "ex-data"
+  ]
+ },
+ "target_numeric": {
+  "blocks": 6,
+  "kpiTest": "27,549 / 24,869 / 758,945,317 / -0.8068 / 100.0%"
+ },
+ "target_requests_added": 0,
+ "overflow": {
+  "w375": 0,
+  "w768": 0
+ },
+ "failures": {
+  "nocors": {
+   "requests": [
+    "/nocors/50_Startups.csv"
+   ],
+   "message": "URL 讀取失敗（URL_FETCH_FAILED，network）：網路或跨來源限制：沒有取得回應。可能是網路中斷、對方伺服器不允許跨來源",
+   "guide": true
+  },
+  "redirect": {
+   "requests": [
+    "/redirect.csv"
+   ],
+   "message": "URL 讀取失敗（URL_FETCH_FAILED，network）：網路或跨來源限制：沒有取得回應。可能是網路中斷、對方伺服器不允許跨來源",
+   "guide": true
+  },
+  "http404": {
+   "requests": [
+    "/missing.csv"
+   ],
+   "message": "URL 讀取失敗（URL_FETCH_FAILED，http_status）：伺服器回應錯誤的 HTTP 狀態：HTTP 404 Not F",
+   "guide": true
+  },
+  "binary": {
+   "requests": [
+    "/binary.png"
+   ],
+   "message": "URL 讀取失敗（URL_FETCH_FAILED，not_text）：回應不是文字：內容含有二進位資料（例如圖片、壓縮檔或試算表檔），不是",
+   "guide": true
+  },
+  "big5": {
+   "requests": [
+    "/bad/big5.csv"
+   ],
+   "message": "不是 UTF-8 文字（ENCODING）：請把檔案以 UTF-8 另存後再載入。",
+   "guide": false
+  },
+  "not_csv": {
+   "requests": [
+    "/bad/not_csv.csv"
+   ],
+   "message": "不是可讀取的 CSV（NOT_CSV）：有沒有結束的引號欄位。需要 UTF-8 文字、逗號分隔、第一列為欄名、至少兩欄。",
+   "guide": false
+  },
+  "no_header": {
+   "requests": [
+    "/bad/no_header.csv"
+   ],
+   "message": "第一列不是欄名（NO_HEADER）：第一列全是數字，看起來沒有欄名列。請在第一列放欄名（不可空白，也不可全是數字）。",
+   "guide": false
+  },
+  "ragged": {
+   "requests": [
+    "/bad/ragged.csv"
+   ],
+   "message": "欄數不一致（RAGGED_ROWS）：第 26 筆資料列有 2 欄，欄名有 3 欄。",
+   "guide": false
+  },
+  "too_few": {
+   "requests": [
+    "/bad/too_few.csv"
+   ],
+   "message": "列數不足（TOO_FEW_ROWS）：刪除含缺值的列（0 列）後只剩 19 列，至少需要 20 列。",
+   "guide": false
+  },
+  "target_categorical": {
+   "requests": [
+    "/bad/target_categorical.csv"
+   ],
+   "message": "預測目標欄「label」不是數值欄（TARGET_NOT_NUMERIC），沒有執行分析。請在「預測目標欄」下拉改選數值欄；改選後以同一份資",
+   "guide": false
+  },
+  "duplicate": {
+   "requests": [
+    "/bad/duplicate.csv"
+   ],
+   "message": "欄名重複（DUPLICATE_COLUMN）：「a」出現在第 1 與第 2 欄。每一欄需要不同的欄名。",
+   "guide": false
+  },
+  "too_large": {
+   "requests": [
+    "/bad/too_large_columns.csv"
+   ],
+   "message": "超過載入上限（TOO_LARGE）：有 61 欄，上限 60 欄；不會截斷。",
+   "guide": false
+  },
+  "timeout": {
+   "requests": [
+    "/slow.csv"
+   ],
+   "message": "URL 讀取失敗（URL_FETCH_FAILED，timeout）：逾時：超過時間沒有讀完，已中止（20 秒）。請用瀏覽器下載該 CSV，",
+   "guide": true
+  }
+ },
+ "timeout_seconds": 20.028,
+ "invalid_input": {
+  "message": "只接受 http:// 或 https:// 開頭的網址。",
+  "requests": 0
+ },
+ "file_after_url_failure": {
+  "requests": 0,
+  "sha256_equal": true,
+  "kpiTest_equal_builtin": true,
+  "source": "來源=本機 CSV 檔案：50_Startups.csv"
+ },
+ "pending_then_kc": {
+  "kcIdentical": true,
+  "problem": "king_county",
+  "exploreBlocks": 0
+ },
+ "custom_again": {
+  "blocks": [
+   "ex-custom"
+  ],
+  "status": "尚未載入資料：請以 URL 或本機 CSV 檔案提交。",
+  "targetDisabled": true
+ },
+ "back_to_kc_2_identical": true,
+ "predictor_enter": {
+  "fields": 1,
+  "href": "http://127.0.0.1:8761/index.html",
+  "problem": "startups50"
+ },
+ "url_enter": {
+  "href": "http://127.0.0.1:8761/index.html",
+  "message": "執行完成：五種方法共 17 個候選，耗時 4.0 ms（瀏覽器內計算，只供參考）",
+  "requests": [
+   "/cors/50_Startups.csv"
+  ]
+ },
+ "h5_probe": {
+  "markup": 0,
+  "titleUnchanged": true,
+  "bodyDisplay": "block",
+  "requests": [],
+  "columns": [
+   "<img src=x onerror=\"document.title=1\">",
+   "</script><b>bold</b>",
+   "javascript:alert(1)",
+   "<style>body{display:none}</style>"
+  ],
+  "predOptions": [
+   "<svg onload=alert(1)>（基準）",
+   "\"><iframe src=//evil.example>",
+   "a&amp;b",
+   "<script>alert(3)</script>"
+  ],
+  "kcAfterIdentical": true
+ },
+ "end": {
+  "hrefUnchanged": true,
+  "cookieUnchanged": true,
+  "storage": [
+   0,
+   0
+  ]
+ },
+ "all_off_page_requests": 20,
+ "cookie_or_auth_on_any_page_read": false,
+ "exceptions": 0,
+ "console_errors": 0,
+ "dialogs": 0,
+ "browser_log_errors": 8
+}

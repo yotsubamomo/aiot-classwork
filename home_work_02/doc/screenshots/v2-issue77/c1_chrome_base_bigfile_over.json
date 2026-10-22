@@ -1,0 +1,44 @@
+{
+  "label": "chrome_base",
+  "mode": "bigfile",
+  "browserPid": 29188,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "bigfile": {
+      "done": true,
+      "ms": 8887,
+      "message": "無法載入資料：不是可讀取的 CSV（NOT_CSV）：內容是空的。需要 UTF-8 文字、逗號分隔、第一列為欄名、至少兩欄。",
+      "load": {
+        "reason": "NOT_CSV",
+        "detail": {
+          "problem": "empty"
+        },
+        "env": null,
+        "sha256": "79dc2507a9513e58c3d578fa72123f44651d975a971fb3b30217c685c0c43db9"
+      },
+      "blocks": [
+        "ex-custom",
+        "ex-data"
+      ]
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85",
+  "csv": {
+    "file": "over_540mb.csv",
+    "bytes": 540000006
+  }
+}

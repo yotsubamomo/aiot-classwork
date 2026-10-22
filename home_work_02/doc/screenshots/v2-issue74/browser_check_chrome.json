@@ -1,0 +1,322 @@
+{
+ "note": "#74 Executor self-verification (headless browser over the DevTools protocol; not an independent audit). Subject: commit 1bd1df8c72808c807d231d20400be1d1c9d415a2, a clean sparse clone of branch home_work_02-v2-enhance opened from file://; network blocked (DevTools offline, every host unresolvable, dead proxy). Method: doc/governance/worklog/issue-74.md section 6.",
+ "browser": "Chrome/155.0.8059.85",
+ "external_requests": [],
+ "all_requests": [
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "file:///<clean-clone>/home_work_02/… (truncated in the log)",
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD"
+ ],
+ "console_errors": [],
+ "checks": {
+  "kc_initial": {
+   "select": "king_county",
+   "options": [
+    "king_county|King County 房價（正式分析）",
+    "startups50|50 Startups 利潤（探索）",
+    "custom|自訂資料集（探索）"
+   ],
+   "v1Hidden": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "exploreHidden": true,
+   "blocks": [
+    "ex-custom:hidden",
+    "ex-data:hidden",
+    "ex-model:hidden",
+    "ex-predictor:hidden",
+    "ex-test:hidden"
+   ],
+   "navShown": "flex",
+   "title": "探索執行",
+   "message": null
+  },
+  "kc_v1_firstDraw": {
+   "start": 0,
+   "end": 247.70000000298023,
+   "ms": 247.70000000298023,
+   "nPoints": 4323
+  },
+  "kc_label_absent": true,
+  "tab_path": [
+   "A.skip",
+   "A.",
+   "A.",
+   "A.",
+   "A.",
+   "A.",
+   "problem-select"
+  ],
+  "focused": "problem-select",
+  "focus_outline": "solid 3px",
+  "keyboard_after_arrow": {
+   "select": "startups50",
+   "options": [
+    "king_county|King County 房價（正式分析）",
+    "startups50|50 Startups 利潤（探索）",
+    "custom|自訂資料集（探索）"
+   ],
+   "v1Hidden": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "exploreHidden": false,
+   "blocks": [
+    "ex-custom:hidden",
+    "ex-data:shown",
+    "ex-model:shown",
+    "ex-predictor:shown",
+    "ex-test:shown"
+   ],
+   "navShown": "none",
+   "title": "50 Startups 利潤（探索）",
+   "message": "執行完成：耗時 3.4 ms（瀏覽器內計算，只供參考）"
+  },
+  "keyboard_wall_ms_upper_bound": 337,
+  "timing_in_page": [
+   {
+    "handler_ms": 4,
+    "controller_ms": 1.7
+   },
+   {
+    "handler_ms": 2.8,
+    "controller_ms": 0.7
+   },
+   {
+    "handler_ms": 2.1,
+    "controller_ms": 0.4
+   },
+   {
+    "handler_ms": 2.2,
+    "controller_ms": 0.5
+   },
+   {
+    "handler_ms": 2,
+    "controller_ms": 0.4
+   }
+  ],
+  "s50": {
+   "select": "startups50",
+   "options": [
+    "king_county|King County 房價（正式分析）",
+    "startups50|50 Startups 利潤（探索）",
+    "custom|自訂資料集（探索）"
+   ],
+   "v1Hidden": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "exploreHidden": false,
+   "blocks": [
+    "ex-custom:hidden",
+    "ex-data:shown",
+    "ex-model:shown",
+    "ex-predictor:shown",
+    "ex-test:shown"
+   ],
+   "navShown": "none",
+   "title": "50 Startups 利潤（探索）",
+   "message": "執行完成：耗時 0.4 ms（瀏覽器內計算，只供參考）"
+  },
+  "s50_content": {
+   "run": "COMPLETED",
+   "candidate": "VALID",
+   "k": 4,
+   "kpiCv": [
+    "CV RMSE | 9,664 | ± 3,246（5 個 fold 的平均 ± 標準差）",
+    "CV MAE | 6,967 | ± 1,120（5 個 fold 的平均 ± 標準差）",
+    "CV MSE | 101,829,201 | ± 71,540,401（5 個 fold 的平均 ± 標準差）",
+    "CV R² | 0.9326 | ± 0.0317（5 個 fold 的平均 ± 標準差）"
+   ],
+   "kpiTest": [
+    "Test RMSE | 9,668",
+    "Test MAE | 8,223",
+    "Test MSE | 93,470,948",
+    "Test R² | 0.9421",
+    "PI 涵蓋率 | 100.0% | 10 / 10 筆落入 95% PI"
+   ],
+   "predValue": "112,847",
+   "predPi": "92,604 ～ 133,089",
+   "predInputs": [
+    "R&D Spend",
+    "Administration",
+    "Marketing Spend",
+    "State"
+   ],
+   "canvas": "1175x734",
+   "canvasInkPixels": 7979,
+   "nTest": 10,
+   "labels": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "testLabel": "探索 test（非正式評估） 探索執行，非正式評估 探索 test（非正式評估）",
+   "cvLabel": "模型與訓練 CV 探索執行，非正式評估 訓練 CV",
+   "message": "執行完成：耗時 0.4 ms（瀏覽器內計算，只供參考）"
+  },
+  "predictor_out_of_range": {
+   "before": "112,847",
+   "after": "8,170,609",
+   "pi": "7,150,563 ～ 9,190,656",
+   "warnings": [
+    "R&D Spend 的輸入超出訓練範圍（0～165349.2），仍照常計算，屬於外推。"
+   ]
+  },
+  "predictor_state": {
+   "options": [
+    "New York|New York（基準）",
+    "California|California",
+    "Florida|Florida"
+   ],
+   "value": "New York"
+  },
+  "plot_zoom": "ex-scatter-canvas",
+  "contrast_s50": {
+   "count": 173,
+   "worst": {
+    "ratio": 6.74,
+    "need": 4.5,
+    "text": "King County 是作業的正式分析；50 Startups 與自訂資料集是",
+    "color": "rgb(71, 85, 105)",
+    "cls": "problembar__help small muted"
+   }
+  },
+  "custom": {
+   "select": "custom",
+   "options": [
+    "king_county|King County 房價（正式分析）",
+    "startups50|50 Startups 利潤（探索）",
+    "custom|自訂資料集（探索）"
+   ],
+   "v1Hidden": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "exploreHidden": false,
+   "blocks": [
+    "ex-custom:shown",
+    "ex-data:hidden",
+    "ex-model:hidden",
+    "ex-predictor:hidden",
+    "ex-test:hidden"
+   ],
+   "navShown": "none",
+   "title": "自訂資料集（探索）",
+   "message": null
+  },
+  "custom_inputs": 0,
+  "contrast_custom": {
+   "count": 12,
+   "worst": {
+    "ratio": 6.74,
+    "need": 4.5,
+    "text": "King County 是作業的正式分析；50 Startups 與自訂資料集是",
+    "color": "rgb(71, 85, 105)",
+    "cls": "problembar__help small muted"
+   }
+  },
+  "kc_back": {
+   "select": "king_county",
+   "options": [
+    "king_county|King County 房價（正式分析）",
+    "startups50|50 Startups 利潤（探索）",
+    "custom|自訂資料集（探索）"
+   ],
+   "v1Hidden": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "exploreHidden": true,
+   "blocks": [
+    "ex-custom:shown",
+    "ex-data:hidden",
+    "ex-model:hidden",
+    "ex-predictor:hidden",
+    "ex-test:hidden"
+   ],
+   "navShown": "flex",
+   "title": "自訂資料集（探索）",
+   "message": null
+  },
+  "kc_text_identical_after_exploring": true,
+  "overflow": {
+   "375": {
+    "king_county": 0,
+    "startups50": 0,
+    "custom": 0
+   },
+   "768": {
+    "king_county": 0,
+    "startups50": 0,
+    "custom": 0
+   }
+  },
+  "contrast_s50_375": {
+   "count": 172,
+   "worst": {
+    "ratio": 6.74,
+    "need": 4.5,
+    "text": "King County 是作業的正式分析；50 Startups 與自訂資料集是",
+    "color": "rgb(71, 85, 105)",
+    "cls": "problembar__help small muted"
+   }
+  }
+ }
+}

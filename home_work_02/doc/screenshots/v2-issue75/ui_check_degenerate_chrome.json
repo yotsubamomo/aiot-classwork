@@ -1,0 +1,372 @@
+{
+ "browser": "Chrome/155.0.8059.85",
+ "mode": "degenerate",
+ "checks": {
+  "handler_ms": [
+   72.4,
+   33.1,
+   30.7,
+   33.5,
+   31.9
+  ],
+  "engine_ms": 19.5,
+  "initial": {
+   "run": "COMPLETED",
+   "selection": {
+    "key": "forward_sfs_k04",
+    "compareAll": false,
+    "metric": "rmse"
+   },
+   "overall": {
+    "method": "forward_sfs",
+    "key": "forward_sfs_k04",
+    "k": 4
+   },
+   "message": "執行完成：五種方法共 29 個候選，耗時 19.5 ms（瀏覽器內計算，只供參考）",
+   "blocks": [
+    "ex-data",
+    "ex-model",
+    "ex-predictor",
+    "ex-test",
+    "ex-methods"
+   ],
+   "seg": [
+    [
+     "All-in baselinek = 7 固定",
+     "false"
+    ],
+    [
+     "Forward SFS7 個 k，2 個無效",
+     "true"
+    ],
+    [
+     "Backward SFS7 個 k，2 個無效",
+     "false"
+    ],
+    [
+     "RFE7 個 k，3 個無效",
+     "false"
+    ],
+    [
+     "Lasso 路徑排序7 個 k，2 個無效",
+     "false"
+    ]
+   ],
+   "kgrid": [
+    [
+     "1",
+     "kbtn",
+     "false",
+     "k = 1"
+    ],
+    [
+     "2",
+     "kbtn",
+     "false",
+     "k = 2"
+    ],
+    [
+     "3",
+     "kbtn",
+     "false",
+     "k = 3"
+    ],
+    [
+     "4",
+     "kbtn is-winner",
+     "true",
+     "k = 4（該方法 CV winner）"
+    ],
+    [
+     "5",
+     "kbtn",
+     "false",
+     "k = 5"
+    ],
+    [
+     "6",
+     "kbtn is-invalid",
+     "false",
+     "k = 6（無效模型（INVALID_MODEL））"
+    ],
+    [
+     "7",
+     "kbtn is-invalid",
+     "false",
+     "k = 7（無效模型（INVALID_MODEL））"
+    ]
+   ],
+   "selected": "Forward SFS · k = 4\nForward SFS 的 CV winner\n整體 CV winner\nCanonical 子集（整個訓練集上選出）：x1、x2、x4、cat\n各 fold 的子集（只在該 fold 的訓練列上選出）",
+   "candidate": "目前選取：Forward SFS · k = 4　狀態：有效（VALID）　canonical 子集：x1、x2、x4、cat",
+   "kpi": "CV RMSE\n2.29\n± 0.5164（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n1.94\n± 0.5202（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n5.46\n± 2.12（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.9878\n± 0.0047（5 個 fold 的平均 ± 標準差，訓練 CV）",
+   "compareRows": [
+    "All-in baseline 沒有有效（VALID）的候選，沒有 CV winner",
+    "Forward SFS k = 4整體 CV winner x1、x2、x4、cat 2.29 1.94 0.9878 1.8 1.31 0.9936 93.8%（15/16）",
+    "Backward SFS k = 4 x1、x2、x4、cat（與「Forward SFS · k = 4」同一模型，test 只算一次） 2.29 1.94 0.9878 1.8 1.31 0.9936 93.8%（15/16）",
+    "RFE k = 4 x1、x2、x4、cat（與「Forward SFS · k = 4」同一模型，test 只算一次） 2.29 1.94 0.9878 1.8 1.31 0.9936 93.8%（15/16）",
+    "Lasso 路徑排序 k = 4 x1、x2、x4、cat（與「Forward SFS · k = 4」同一模型，test 只算一次） 2.29 1.94 0.9878 1.8 1.31 0.9936 93.8%（15/16）"
+   ],
+   "compareHead": "方法 CV winner 訓練 CV 探索 test（非正式評估） RMSE MAE R² RMSE MAE R² PI 涵蓋率 ",
+   "kchartSummary": "RMSE（訓練 CV）：Forward SFS 的 CV winner 為 k = 4（2.29）；Backward SFS 的 CV winner 為 k = 4（2.29）；RFE 的 CV winner 為 k = 4（2.29）；Lasso 路徑排序 的 CV winner 為 k = 4（2.29）；All-in baseline 無效。",
+   "legend": "Forward SFS\nBackward SFS\nRFE\nLasso 路徑排序\nAll-in baseline（參考線）\n該方法 CV winner（圓環）\n無效候選（叉號，沒有 CV 指標）\n目前選取",
+   "lasso": "路徑在加入第 6 個 feature group 前停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化））：只有前 5 個 group 是實際路徑，k ≥ 6 的 Lasso 候選無效。另有 5 個 fold 的路徑退化（見各候選的原因）。",
+   "lassoRows": [
+    "1 x4 19.62 實際路徑",
+    "2 x1 8.35 實際路徑",
+    "3 x2 4.45 實際路徑",
+    "4 cat 1.34 實際路徑",
+    "5 dup_a 0.1311 實際路徑",
+    "— x_sum — 未進入（退化後，只作展示）",
+    "— dup_b — 未進入（退化後，只作展示）"
+   ],
+   "deps": "All-in 設計矩陣（含截距 9 欄）的 rank 只有 7，找到 2 組線性相依的欄位：\n\n涉及的 feature group：x1、x2、x_sum\n編碼欄：x1、x2、x_sum\n關係式：x1 + x2 − x_sum ≈ 0\n涉及的 feature group：dup_a、dup_b\n編碼欄：dup_a、dup_b\n關係式：dup_a − dup_b ≈ 0",
+   "testModel": "展示模型：Forward SFS · k = 4（Forward SFS 的 CV winner、整體 CV winner）；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+   "testHint": null,
+   "testKpi": "Test RMSE\n1.8\nTest MAE\n1.31\nTest MSE\n3.23\nTest R²\n0.9936\nPI 涵蓋率\n93.8%\n15 / 16 筆落入 95% PI",
+   "predModel": "模型：Forward SFS · k = 4 在整個訓練集上的擬合",
+   "predDisabled": null,
+   "predInputs": 4,
+   "predStatus": "",
+   "predValue": "4.59",
+   "predPi": "0.3048 ～ 8.87",
+   "methodsBlock": "方法與限制\n探索執行，非正式評估\n\n探索模式與 King County 正式分析使用同一套選模語義：feature group 整組進出、Forward／Backward SFS 以 RSS、RFE 以 group 對擬合值貢獻的標準差 sd(X_g β_g)、Lasso 以 exact LARS 的進入順序、平手依 CSV 欄序、只用訓練列的編碼與 OLS 參數式預測區間。兩個 problem 在下列幾點不同：\n\n兩個 problem 的語義差異\n項目\tKing County（正式分析）\t探索執行（50 Startups／自訂資料集）\n目標尺度\t以 ln(price) 建模，預測與區間以 exp 轉回 USD（區間不對稱）\t目標原始尺度建模與報告，不取 log、不取 exp（目標可為負或零）\n切分\t以房屋 id 分組的 80／20 與分組 5-fold（同一房屋不跨訓練與 test）\t固定 seed 的逐列 80／20 與逐列 5-fold，不分組\nLasso 退化\t未進入路徑的 group 依欄序補成 k = 1…18 的子集（King County 的選模語義）\t路徑退化後停止：已求得的路徑段是實際結果，之後的 group 只作展示，k 超過的候選為無效（lasso_path_degenerate）\n派生規則\t有：date 轉為日數、yr_renovated 拆成整修旗標與有效年份、zipcode 為類別、sqft_basement 不進模型\t無：每個來源欄就是一個 feature group（數值欄一欄、類別欄為訓練層級的 one-hot）；沒有日期轉換或任何資料專屬規則\nTest 的地位\t正式的 Test evaluation，只做一次並記錄\t探索 test：每次選取都重算、不保存，永遠不是 Test evaluation\n逐列切分的限制\n\n探索模式的切分是逐列隨機的，沒有分組欄的概念。資料中若有重複的列、同一個實體的多筆紀錄（例如同一家公司或同一個人的多次觀測），或時間相依的資料，同一來源的資訊可能同時出現在訓練與 test（或同一 fold 的訓練與驗證）列，使 CV 與 test 指標過度樂觀。探索結果只供操作與比較，不代表正式研究結論。\n\nCV winner 是在多個 k 與方法中取最小 CV RMSE 選出的，CV 分數帶有樂觀的選擇偏誤；探索 test 只對 winner 計算一次作為較獨立的估計，test 排名與 CV 排名不同時也不換模型。",
+   "kchartPixels": 11742,
+   "scatterPixels": 31057,
+   "chartjs": true,
+   "labels": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "metric_r2": "R²（訓練 CV）：Forward SFS 的 CV winner 為 k = 4（0.9878）；Backward SFS 的 CV winner 為 k = 4（0.9878）；RFE 的 CV winner 為 k = 4（0.9878）；Lasso 路徑排序 的 CV winner 為 k = 4（0.9878）；All-in baseline 無效。",
+  "compare_all": {
+   "pressed": "true",
+   "dim": 0
+  },
+  "compare_all_off": {
+   "pressed": "false",
+   "dim": 3
+  },
+  "by_method": [
+   {
+    "method": "allin",
+    "selection": {
+     "key": "allin",
+     "compareAll": false,
+     "metric": "rmse"
+    },
+    "kgrid": [],
+    "testModel": "展示模型：Forward SFS · k = 4（Forward SFS 的 CV winner、整體 CV winner）；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+    "testHint": "「All-in baseline」沒有有效（VALID）的候選，所以沒有 CV winner；下面展示整體 CV winner。",
+    "predDisabled": "true",
+    "predInputs": 0,
+    "kpi": "無訓練 CV 指標\n無效模型（INVALID_MODEL）\n第 1 個 fold 的訓練列：設計矩陣（含截距）秩不足，rank 7 < 9 欄\n第 2 個 fold 的訓練列：設計矩陣（含截距）秩不足，rank 7 < 9 欄\n第 3 個 fold 的訓練列：設計矩陣（含截距）秩不足，rank 7 < 9 欄\n第 4 "
+   },
+   {
+    "method": "forward_sfs",
+    "selection": {
+     "key": "forward_sfs_k04",
+     "compareAll": false,
+     "metric": "rmse"
+    },
+    "kgrid": [
+     "1",
+     "2",
+     "3",
+     "4W*",
+     "5",
+     "6X",
+     "7X"
+    ],
+    "testModel": "展示模型：Forward SFS · k = 4（Forward SFS 的 CV winner、整體 CV winner）；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+    "testHint": null,
+    "predDisabled": null,
+    "predInputs": 4,
+    "kpi": "CV RMSE\n2.29\n± 0.5164（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n1.94\n± 0.5202（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n5.46\n± 2.12（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.9878\n± 0.004",
+    "nonWinner": {
+     "k": "1",
+     "selection": {
+      "key": "forward_sfs_k01",
+      "compareAll": false,
+      "metric": "rmse"
+     },
+     "testModel": "展示模型：Forward SFS · k = 4（Forward SFS 的 CV winner、整體 CV winner）；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+     "testHint": "目前選取的「Forward SFS · k = 1」不是該方法的 CV winner；test 只對 CV winner 計算，下面展示「Forward SFS」的 CV winner（k = 4）。",
+     "predDisabled": null,
+     "predInputs": 1,
+     "predStatus": "",
+     "kpi": "CV RMSE\n11.74\n± 2.6（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n9.66\n± 2.57（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n143.35\n± 53.19（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.6565\n± 0.2216（5 個 fold 的平均 ± 標準差，訓練 CV）",
+     "selected": "Forward SFS · k = 1\nCanonical 子集（整個訓練集上選出）：x4\n各 fold 的子集（只在該 fold 的訓練列上選出）"
+    }
+   },
+   {
+    "method": "backward_sfs",
+    "selection": {
+     "key": "backward_sfs_k04",
+     "compareAll": false,
+     "metric": "rmse"
+    },
+    "kgrid": [
+     "1",
+     "2",
+     "3",
+     "4W*",
+     "5",
+     "6X",
+     "7X"
+    ],
+    "testModel": "展示模型：Backward SFS · k = 4（Backward SFS 的 CV winner）；與「Forward SFS · k = 4」同一模型，test 只算一次；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+    "testHint": null,
+    "predDisabled": null,
+    "predInputs": 4,
+    "kpi": "CV RMSE\n2.29\n± 0.5164（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n1.94\n± 0.5202（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n5.46\n± 2.12（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.9878\n± 0.004",
+    "nonWinner": {
+     "k": "1",
+     "selection": {
+      "key": "backward_sfs_k01",
+      "compareAll": false,
+      "metric": "rmse"
+     },
+     "testModel": "展示模型：Backward SFS · k = 4（Backward SFS 的 CV winner）；與「Forward SFS · k = 4」同一模型，test 只算一次；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+     "testHint": "目前選取的「Backward SFS · k = 1」不是該方法的 CV winner；test 只對 CV winner 計算，下面展示「Backward SFS」的 CV winner（k = 4）。",
+     "predDisabled": null,
+     "predInputs": 1,
+     "predStatus": "",
+     "kpi": "CV RMSE\n11.74\n± 2.6（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n9.66\n± 2.57（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n143.35\n± 53.19（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.6565\n± 0.2216（5 個 fold 的平均 ± 標準差，訓練 CV）",
+     "selected": "Backward SFS · k = 1\nCanonical 子集（整個訓練集上選出）：x4\n各 fold 的子集（只在該 fold 的訓練列上選出）"
+    }
+   },
+   {
+    "method": "rfe",
+    "selection": {
+     "key": "rfe_k04",
+     "compareAll": false,
+     "metric": "rmse"
+    },
+    "kgrid": [
+     "1",
+     "2",
+     "3",
+     "4W*",
+     "5X",
+     "6X",
+     "7X"
+    ],
+    "testModel": "展示模型：RFE · k = 4（RFE 的 CV winner）；與「Forward SFS · k = 4」同一模型，test 只算一次；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+    "testHint": null,
+    "predDisabled": null,
+    "predInputs": 4,
+    "kpi": "CV RMSE\n2.29\n± 0.5164（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n1.94\n± 0.5202（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n5.46\n± 2.12（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.9878\n± 0.004",
+    "nonWinner": {
+     "k": "1",
+     "selection": {
+      "key": "rfe_k01",
+      "compareAll": false,
+      "metric": "rmse"
+     },
+     "testModel": "展示模型：RFE · k = 4（RFE 的 CV winner）；與「Forward SFS · k = 4」同一模型，test 只算一次；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+     "testHint": "目前選取的「RFE · k = 1」不是該方法的 CV winner；test 只對 CV winner 計算，下面展示「RFE」的 CV winner（k = 4）。",
+     "predDisabled": null,
+     "predInputs": 1,
+     "predStatus": "",
+     "kpi": "CV RMSE\n11.74\n± 2.6（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n9.66\n± 2.57（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n143.35\n± 53.19（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.6565\n± 0.2216（5 個 fold 的平均 ± 標準差，訓練 CV）",
+     "selected": "RFE · k = 1\nCanonical 子集（整個訓練集上選出）：x4\n各 fold 的子集（只在該 fold 的訓練列上選出）"
+    }
+   },
+   {
+    "method": "lasso_path",
+    "selection": {
+     "key": "lasso_path_k04",
+     "compareAll": false,
+     "metric": "rmse"
+    },
+    "kgrid": [
+     "1",
+     "2",
+     "3",
+     "4W*",
+     "5",
+     "6X",
+     "7X"
+    ],
+    "testModel": "展示模型：Lasso 路徑排序 · k = 4（Lasso 路徑排序 的 CV winner）；與「Forward SFS · k = 4」同一模型，test 只算一次；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+    "testHint": null,
+    "predDisabled": null,
+    "predInputs": 4,
+    "kpi": "CV RMSE\n2.29\n± 0.5164（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n1.94\n± 0.5202（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n5.46\n± 2.12（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.9878\n± 0.004",
+    "nonWinner": {
+     "k": "1",
+     "selection": {
+      "key": "lasso_path_k01",
+      "compareAll": false,
+      "metric": "rmse"
+     },
+     "testModel": "展示模型：Lasso 路徑排序 · k = 4（Lasso 路徑排序 的 CV winner）；與「Forward SFS · k = 4」同一模型，test 只算一次；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+     "testHint": "目前選取的「Lasso 路徑排序 · k = 1」不是該方法的 CV winner；test 只對 CV winner 計算，下面展示「Lasso 路徑排序」的 CV winner（k = 4）。",
+     "predDisabled": null,
+     "predInputs": 1,
+     "predStatus": "",
+     "kpi": "CV RMSE\n11.74\n± 2.6（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MAE\n9.66\n± 2.57（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV MSE\n143.35\n± 53.19（5 個 fold 的平均 ± 標準差，訓練 CV）\nCV R²\n0.6565\n± 0.2216（5 個 fold 的平均 ± 標準差，訓練 CV）",
+     "selected": "Lasso 路徑排序 · k = 1\nCanonical 子集（整個訓練集上選出）：x4\n各 fold 的子集（只在該 fold 的訓練列上選出）"
+    }
+   }
+  ],
+  "invalid_selected": {
+   "k": "6",
+   "selection": {
+    "key": "lasso_path_k06",
+    "compareAll": false,
+    "metric": "rmse"
+   },
+   "kpi": "無訓練 CV 指標\n無效模型（INVALID_MODEL）\n第 1 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 2 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 3 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 4 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 5 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n整個訓練集：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）",
+   "predDisabled": "true",
+   "predStatus": "預測器停用：目前的候選狀態為 無效模型（INVALID_MODEL）\n第 1 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 2 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 3 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 4 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n第 5 個 fold 的訓練列：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）\n整個訓練集：Lasso 路徑只求得前 5 個 feature group 就停止（路徑結束時仍有 feature group 沒有進入（它們與已進入的欄線性相依，或在這些列上沒有變化）），k ≥ 6 沒有實際路徑（lasso_path_degenerate）",
+   "predValue": "—",
+   "testModel": "展示模型：Lasso 路徑排序 · k = 4（Lasso 路徑排序 的 CV winner）；與「Forward SFS · k = 4」同一模型，test 只算一次；test 列 16 筆，在全部選擇固定後才讀取，只對 CV winner 計算。",
+   "testHint": "目前選取的「Lasso 路徑排序 · k = 6」不是該方法的 CV winner；test 只對 CV winner 計算，下面展示「Lasso 路徑排序」的 CV winner（k = 4）。",
+   "selected": "Lasso 路徑排序 · k = 6\n無效模型（INVALID_MODEL）\nCanonical 子集（整個訓練集上選出）：—（Lasso 路徑在整個訓練集上沒有到達這個 k）\n各 fold 的子集（只在該 fold 的訓練列上選出）"
+  },
+  "compare_click": "forward_sfs_k04",
+  "test_only_winners": {
+   "test_keys": [
+    "forward_sfs_k04"
+   ],
+   "winner_keys": [
+    "forward_sfs_k04",
+    "backward_sfs_k04",
+    "rfe_k04",
+    "lasso_path_k04"
+   ],
+   "overall": "forward_sfs_k04",
+   "non_winner_with_test": []
+  },
+  "overflow": {
+   "375": 0,
+   "768": 0
+  },
+  "contrast": {
+   "min": 6.47,
+   "where": "BUTTON.kbtn is-invalid: 6",
+   "count": 380
+  },
+  "kc_back_equal": true,
+  "kc_has_explore_label": false,
+  "title_unchanged": true,
+  "explore_markup": {
+   "img": 0,
+   "svg": 0,
+   "iframe": 0,
+   "script": 0,
+   "b": 0
+  },
+  "requests_non_file": [],
+  "requests_total": 14,
+  "exceptions": [],
+  "console_errors": [],
+  "dialogs": 0
+ }
+}

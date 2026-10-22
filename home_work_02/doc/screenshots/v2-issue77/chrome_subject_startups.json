@@ -1,0 +1,103 @@
+{
+  "label": "chrome_subject",
+  "mode": "startups",
+  "browserPid": 38624,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "runs": [
+      {
+        "wall_ms": 56,
+        "message": "執行完成：五種方法共 17 個候選，耗時 11.2 ms（瀏覽器內計算，只供參考）。各方法耗時：All-in baseline 1.4 ms、Forward SFS 2.4 ms、Backward SFS 1.4 ms、RFE 1.0 ms、Lasso 路徑排序 1.4 ms。",
+        "kpi_test": "9,850 / 8,351 / 97,026,682 / 0.9399 / 100.0%",
+        "kpi_cv": "8,917 / 6,825 / 92,489,893 / 0.9425",
+        "timing_ms": {
+          "started_at_epoch_ms": 1792621646925,
+          "decisions": 0.20000000298023224,
+          "allin": 1.3999999910593033,
+          "forward_sfs": 2.3999999910593033,
+          "backward_sfs": 1.4000000059604645,
+          "rfe": 1,
+          "lasso_path": 1.4000000059604645,
+          "dependencies": 0.19999998807907104,
+          "test": 0.4000000059604645,
+          "total": 8.900000005960464
+        },
+        "statuses": "VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID",
+        "budget": {
+          "unit": "estimated OLS solves x training rows x encoded columns^2",
+          "constants": {
+            "forward_sfs": 200000000000,
+            "backward_sfs": 200000000000,
+            "rfe": 200000000000,
+            "lasso_path": 80000000000
+          },
+          "estimates": {
+            "allin": 6000,
+            "forward_sfs": 84000,
+            "backward_sfs": 84000,
+            "rfe": 84000,
+            "lasso_path": 48000
+          },
+          "n_train": 40,
+          "encoded_columns": 5,
+          "feature_groups": 4
+        }
+      },
+      {
+        "wall_ms": 15,
+        "message": "執行完成：五種方法共 17 個候選，耗時 5.7 ms（瀏覽器內計算，只供參考）。各方法耗時：All-in baseline 0.2 ms、Forward SFS 1.7 ms、Backward SFS 0.8 ms、RFE 0.7 ms、Lasso 路徑排序 0.9 ms。",
+        "kpi_test": "9,850 / 8,351 / 97,026,682 / 0.9399 / 100.0%",
+        "kpi_cv": "8,917 / 6,825 / 92,489,893 / 0.9425",
+        "timing_ms": {
+          "started_at_epoch_ms": 1792621647187,
+          "decisions": 0.09999999403953552,
+          "allin": 0.20000000298023224,
+          "forward_sfs": 1.7000000029802322,
+          "backward_sfs": 0.7999999970197678,
+          "rfe": 0.7000000029802322,
+          "lasso_path": 0.9000000059604645,
+          "dependencies": 0.09999999403953552,
+          "test": 0,
+          "total": 4.5999999940395355
+        },
+        "statuses": "VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID,VALID",
+        "budget": {
+          "unit": "estimated OLS solves x training rows x encoded columns^2",
+          "constants": {
+            "forward_sfs": 200000000000,
+            "backward_sfs": 200000000000,
+            "rfe": 200000000000,
+            "lasso_path": 80000000000
+          },
+          "estimates": {
+            "allin": 6000,
+            "forward_sfs": 84000,
+            "backward_sfs": 84000,
+            "rfe": 84000,
+            "lasso_path": 48000
+          },
+          "n_train": 40,
+          "encoded_columns": 5,
+          "feature_groups": 4
+        }
+      }
+    ],
+    "same_deterministic": true,
+    "same_display": true,
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85"
+}

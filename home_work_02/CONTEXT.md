@@ -8,8 +8,9 @@ the spec, not here.
 ## Sources
 
 **Assignment page**:
-The teacher's iLearning HW2 page (SRC-1 transcription, SRC-2 print, SRC-2T transcription). Its main
-text carries the formal requirements; its 「補充」 section carries suggestions.
+The teacher's iLearning HW2 page (SRC-1 transcription, SRC-2 print, SRC-2T transcription, SRC-4
+text copy of 2026-10-21). Its main text carries the formal requirements and, since SRC-4, the
+bonus items; the 「補充」 section of SRC-2 carries suggestions.
 _Avoid_: The spec, the brief
 
 **Classroom Verbal Requirement**:
@@ -109,6 +110,26 @@ coverage that is verified empirically on the test set.
 _Avoid_: Confidence interval (that is about the mean response), error band (an RMSE-width band is
 not a prediction interval)
 
+## Exploration
+
+**Problem**:
+One dataset together with the target it predicts, selectable on the dashboard. HW2 has two built-in
+problems, King County house prices (the formal analysis) and 50 Startups profit (an exploratory
+demonstration), plus any dataset a viewer supplies.
+_Avoid_: Task, mode, example
+
+**Formal analysis**:
+The King County analysis performed by the main program: feature selection, CV winners, the one-time
+test evaluation and the prediction intervals that the report and the dashboard's King County problem
+show. Its numbers never change through the dashboard.
+_Avoid_: Official model, production model
+
+**Exploratory run**:
+The on-the-spot preparation, feature selection, fitting and scoring that the dashboard performs in
+the viewer's browser on a built-in demonstration problem or a viewer-supplied dataset. Its results
+are recomputed on every run, are kept nowhere, enter no report, and are never a test evaluation.
+_Avoid_: Test evaluation, live training, custom model
+
 ## Delivery
 
 **Main program**:
@@ -118,12 +139,14 @@ _Avoid_: Script, demo notebook
 
 **Dashboard**:
 The static interactive web page published on GitHub Pages under `home_work_02/`, driven by results
-exported from the main program, and shipped in the submission package so that it works fully
-offline from `file://` with no network and no server. An additional delivery; it replaces none of
-the assignment page's required files.
-_Avoid_: Web app, backend, site (when the repository is meant)
+exported from the main program for the King County problem and by exploratory runs for the other
+problems, and shipped in the submission package so that it works fully offline from `file://` with
+no network and no server. Since the 2026-10-21 assignment page it is, with the repository, the
+main delivery.
+_Avoid_: Web app, backend, site (when the repository is meant), additional delivery
 
 **Submission package**:
-The ZIP `<學號>_hw2.zip` uploaded to iLearning, containing the main program, the PDF report and
-the supporting files the assignment page requires.
-_Avoid_: Release, deployment
+What is handed in on iLearning: the repository URL, the dashboard URL, and the ZIP
+`<學號>_hw2.zip` containing the main program, the PDF report, the dashboard and the supporting
+files.
+_Avoid_: Release, deployment, the ZIP (when the links are meant too)

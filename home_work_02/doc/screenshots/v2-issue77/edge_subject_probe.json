@@ -1,0 +1,60 @@
+{
+  "label": "edge_subject",
+  "mode": "probe",
+  "browserPid": 30268,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "files": [
+      {
+        "run": {
+          "status": "COMPLETED",
+          "reason": null
+        },
+        "statuses": {
+          "allin": {
+            "VALID": 1
+          },
+          "forward_sfs": {
+            "VALID": 3
+          },
+          "backward_sfs": {
+            "VALID": 3
+          },
+          "rfe": {
+            "VALID": 3
+          },
+          "lasso_path": {
+            "VALID": 3
+          }
+        },
+        "lasso_summary": "全部 3 個 feature group 都進入路徑，沒有退化。",
+        "lasso_rows": [
+          "1<img src=x onerror=\"document.title=1\">85.48實際路徑",
+          "2</script><b>bold</b>20.9實際路徑",
+          "3javascript:alert(1)1.2實際路徑"
+        ],
+        "message": "執行完成：五種方法共 13 個候選，耗時 15.3 ms（瀏覽器內計算，只供參考）。各方法耗時：All-in baseline 1.5 ms、Forward SFS 2.3 ms、Backward SFS 0.9 ms、RFE 1.1 ms、Lasso 路徑排序 1.6 ms。",
+        "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+        "lasso_k_last_reason": [],
+        "markup_in_explore": 0,
+        "title": "King County 房價多元線性回歸分析 — HW2 Dashboard",
+        "file": "probe76.csv"
+      }
+    ],
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Edg/155.0.4283.62"
+}

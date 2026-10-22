@@ -1,0 +1,333 @@
+{
+  "label": "chrome_subject",
+  "mode": "time",
+  "browserPid": 37900,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "timings": [
+      {
+        "file": "m10k.csv",
+        "bytes": 1046757,
+        "wall_ms": 4457,
+        "run": "COMPLETED",
+        "load_rows": 10000,
+        "timing_ms": {
+          "started_at_epoch_ms": 1792622412216,
+          "decisions": 13.299999997019768,
+          "allin": 148.70000000298023,
+          "forward_sfs": 1051.9000000059605,
+          "backward_sfs": 1038,
+          "rfe": 977.7999999970198,
+          "lasso_path": 1016.5,
+          "dependencies": 32.70000000298023,
+          "test": 33.30000001192093,
+          "total": 4336.20000000298
+        },
+        "budget": {
+          "unit": "estimated OLS solves x training rows x encoded columns^2",
+          "constants": {
+            "forward_sfs": 200000000000,
+            "backward_sfs": 200000000000,
+            "rfe": 200000000000,
+            "lasso_path": 80000000000
+          },
+          "estimates": {
+            "allin": 88752000,
+            "forward_sfs": 18549168000,
+            "backward_sfs": 18549168000,
+            "rfe": 18549168000,
+            "lasso_path": 3372576000
+          },
+          "n_train": 8000,
+          "encoded_columns": 43,
+          "feature_groups": 19
+        },
+        "statuses": {
+          "allin": {
+            "VALID": 1
+          },
+          "forward_sfs": {
+            "VALID": 19
+          },
+          "backward_sfs": {
+            "VALID": 19
+          },
+          "rfe": {
+            "VALID": 19
+          },
+          "lasso_path": {
+            "VALID": 19
+          }
+        },
+        "measures": {
+          "inputs": [
+            {
+              "type": "input",
+              "id": "ex-file",
+              "lat_ms": 0
+            },
+            {
+              "type": "change",
+              "id": "ex-file",
+              "lat_ms": 0
+            }
+          ],
+          "max_input_latency_ms": 0,
+          "frames": 347,
+          "frame_gap_p50_ms": 12.5,
+          "frame_gap_p95_ms": 16.6,
+          "frame_gap_max_ms": 50,
+          "long_tasks": 1,
+          "long_task_max_ms": 51,
+          "long_error": null
+        }
+      },
+      {
+        "file": "medium.csv",
+        "bytes": 2725065,
+        "wall_ms": 19836,
+        "run": "COMPLETED",
+        "load_rows": 20000,
+        "timing_ms": {
+          "started_at_epoch_ms": 1792622416898,
+          "decisions": 26.400000005960464,
+          "allin": 429.79999999701977,
+          "forward_sfs": 5061.29999999702,
+          "backward_sfs": 4630.5999999940395,
+          "rfe": 4594.9000000059605,
+          "lasso_path": 4536.9000000059605,
+          "dependencies": 223,
+          "test": 103.09999999403954,
+          "total": 19669.79999999702
+        },
+        "budget": {
+          "unit": "estimated OLS solves x training rows x encoded columns^2",
+          "constants": {
+            "forward_sfs": 200000000000,
+            "backward_sfs": 200000000000,
+            "rfe": 200000000000,
+            "lasso_path": 80000000000
+          },
+          "estimates": {
+            "allin": 405600000,
+            "forward_sfs": 141960000000,
+            "backward_sfs": 141960000000,
+            "rfe": 141960000000,
+            "lasso_path": 20280000000
+          },
+          "n_train": 16000,
+          "encoded_columns": 65,
+          "feature_groups": 25
+        },
+        "statuses": {
+          "allin": {
+            "VALID": 1
+          },
+          "forward_sfs": {
+            "VALID": 25
+          },
+          "backward_sfs": {
+            "VALID": 25
+          },
+          "rfe": {
+            "VALID": 25
+          },
+          "lasso_path": {
+            "VALID": 25
+          }
+        },
+        "measures": {
+          "inputs": [
+            {
+              "type": "input",
+              "id": "ex-file",
+              "lat_ms": 0
+            },
+            {
+              "type": "change",
+              "id": "ex-file",
+              "lat_ms": 0
+            }
+          ],
+          "max_input_latency_ms": 0,
+          "frames": 1566,
+          "frame_gap_p50_ms": 12.5,
+          "frame_gap_p95_ms": 16.6,
+          "frame_gap_max_ms": 120.8,
+          "long_tasks": 1,
+          "long_task_max_ms": 122,
+          "long_error": null
+        }
+      },
+      {
+        "file": "near_cat.csv",
+        "bytes": 1569364,
+        "wall_ms": 67897,
+        "run": "COMPLETED",
+        "load_rows": 50000,
+        "timing_ms": {
+          "started_at_epoch_ms": 1792622436849,
+          "decisions": 35.19999998807907,
+          "allin": 4240.79999999702,
+          "forward_sfs": 16334.40000000596,
+          "backward_sfs": 12340.79999999702,
+          "rfe": 12340.90000000596,
+          "lasso_path": 19913.70000000298,
+          "dependencies": 2049.5,
+          "test": 529.5999999940395,
+          "total": 67785.19999998808
+        },
+        "budget": {
+          "unit": "estimated OLS solves x training rows x encoded columns^2",
+          "constants": {
+            "forward_sfs": 200000000000,
+            "backward_sfs": 200000000000,
+            "rfe": 200000000000,
+            "lasso_path": 80000000000
+          },
+          "estimates": {
+            "allin": 4245360000,
+            "forward_sfs": 148587600000,
+            "backward_sfs": 148587600000,
+            "rfe": 148587600000,
+            "lasso_path": 59435040000
+          },
+          "n_train": 40000,
+          "encoded_columns": 133,
+          "feature_groups": 7
+        },
+        "statuses": {
+          "allin": {
+            "VALID": 1
+          },
+          "forward_sfs": {
+            "VALID": 7
+          },
+          "backward_sfs": {
+            "VALID": 7
+          },
+          "rfe": {
+            "VALID": 7
+          },
+          "lasso_path": {
+            "VALID": 7
+          }
+        },
+        "measures": {
+          "inputs": [
+            {
+              "type": "input",
+              "id": "ex-file",
+              "lat_ms": 0.1
+            },
+            {
+              "type": "change",
+              "id": "ex-file",
+              "lat_ms": 0
+            }
+          ],
+          "max_input_latency_ms": 0.1,
+          "frames": 5223,
+          "frame_gap_p50_ms": 12.5,
+          "frame_gap_p95_ms": 16.7,
+          "frame_gap_max_ms": 125,
+          "long_tasks": 13,
+          "long_task_max_ms": 126,
+          "long_error": null
+        }
+      },
+      {
+        "file": "over_mix.csv",
+        "bytes": 3906396,
+        "wall_ms": 16696,
+        "run": "COMPLETED",
+        "load_rows": 50000,
+        "timing_ms": {
+          "started_at_epoch_ms": 1792622505018,
+          "decisions": 41.20000000298023,
+          "allin": 1809.1000000089407,
+          "forward_sfs": 0.09999999403953552,
+          "backward_sfs": 0,
+          "rfe": 0,
+          "lasso_path": 13158.70000000298,
+          "dependencies": 899.0999999940395,
+          "test": 490.30000001192093,
+          "total": 16484.40000000596
+        },
+        "budget": {
+          "unit": "estimated OLS solves x training rows x encoded columns^2",
+          "constants": {
+            "forward_sfs": 200000000000,
+            "backward_sfs": 200000000000,
+            "rfe": 200000000000,
+            "lasso_path": 80000000000
+          },
+          "estimates": {
+            "allin": 1775040000,
+            "forward_sfs": 211229760000,
+            "backward_sfs": 211229760000,
+            "rfe": 211229760000,
+            "lasso_path": 49701120000
+          },
+          "n_train": 40000,
+          "encoded_columns": 86,
+          "feature_groups": 14
+        },
+        "statuses": {
+          "allin": {
+            "VALID": 1
+          },
+          "forward_sfs": {
+            "SKIPPED_RESOURCE_LIMIT": 14
+          },
+          "backward_sfs": {
+            "SKIPPED_RESOURCE_LIMIT": 14
+          },
+          "rfe": {
+            "SKIPPED_RESOURCE_LIMIT": 14
+          },
+          "lasso_path": {
+            "VALID": 14
+          }
+        },
+        "measures": {
+          "inputs": [
+            {
+              "type": "input",
+              "id": "ex-file",
+              "lat_ms": 0
+            },
+            {
+              "type": "change",
+              "id": "ex-file",
+              "lat_ms": 0
+            }
+          ],
+          "max_input_latency_ms": 0,
+          "frames": 1281,
+          "frame_gap_p50_ms": 12.5,
+          "frame_gap_p95_ms": 16.7,
+          "frame_gap_max_ms": 170.7,
+          "long_tasks": 7,
+          "long_task_max_ms": 173,
+          "long_error": null
+        }
+      }
+    ],
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85"
+}

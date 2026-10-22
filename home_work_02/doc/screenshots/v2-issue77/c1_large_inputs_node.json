@@ -1,0 +1,28 @@
+[
+ {
+  "case": "rows over the limit",
+  "bytes": 540000006,
+  "ms": 6530,
+  "ok": false,
+  "reason": "TOO_LARGE",
+  "detail": {
+   "rows_over": 50000
+  },
+  "sha_ok": true,
+  "text_decode_of_whole_input": "Error: Cannot create a string longer than 0x1fffffe8 characters",
+  "written": "over_540mb.csv"
+ },
+ {
+  "case": "within the limits, cells too long",
+  "bytes": 560080006,
+  "ms": 8540,
+  "ok": false,
+  "reason": null,
+  "environment_error": {
+   "stage": "decode",
+   "error": "Error",
+   "message": "Cannot create a string longer than 0x1fffffe8 characters",
+   "bytes": 560080006
+  }
+ }
+]

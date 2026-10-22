@@ -1,0 +1,630 @@
+{
+  "label": "edge_subject",
+  "mode": "medium",
+  "browserPid": 18696,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "run_while_operating": {
+      "run_panel_shown_after_ms": 141,
+      "progress_samples": [
+        {
+          "t": 141,
+          "v": 0,
+          "text": "執行中：準備資料與切分…"
+        },
+        {
+          "t": 1698,
+          "v": 0.1485148514851485,
+          "text": "執行中（Forward SFS · k = 14：完成）：已完成 15／101 個候選、1／5 個方法（15%），已耗時 1.5 秒"
+        },
+        {
+          "t": 2372,
+          "v": 0.16831683168316833,
+          "text": "執行中（Forward SFS · k = 16：完成）：已完成 17／101 個候選、1／5 個方法（17%），已耗時 2.1 秒"
+        },
+        {
+          "t": 4010,
+          "v": 0.2079207920792079,
+          "text": "執行中（Forward SFS · k = 20：完成）：已完成 21／101 個候選、1／5 個方法（21%），已耗時 3.7 秒"
+        },
+        {
+          "t": 5540,
+          "v": 0.24752475247524752,
+          "text": "執行中（Forward SFS · k = 24：完成）：已完成 25／101 個候選、1／5 個方法（25%），已耗時 5.3 秒"
+        }
+      ],
+      "progress_distinct_values": 5,
+      "dropdown_problem": {
+        "focused": "problem-select",
+        "value": "custom",
+        "unchanged": true
+      },
+      "dropdown_target": {
+        "focused": "ex-target",
+        "disabled": false,
+        "options": 26
+      },
+      "typed_url": "https://example.org/typing-test.csv",
+      "still_running_before_cancel": true,
+      "run_state_before_cancel": {
+        "running": 1,
+        "cancelling": false,
+        "waiting": false
+      },
+      "cancel_acknowledged": true,
+      "cancel_ack_ms": 103,
+      "ended": true,
+      "cancel_to_end_ms": 291,
+      "result_run": {
+        "status": "CANCELLED",
+        "reason": null,
+        "methods_completed": 2,
+        "methods_total": 5,
+        "candidates_completed": 26,
+        "candidates_total": 101
+      },
+      "message": "已取消：取消在下一個候選邊界生效，停止時已完成 2／5 個方法（26／101 個候選）。已算出的部分結果不顯示；再次執行會從頭開始。",
+      "visible_blocks": [
+        "ex-custom"
+      ],
+      "result_blocks_shown": [],
+      "no_candidates_in_result": true,
+      "measures_during_run": {
+        "inputs": [
+          {
+            "type": "input",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "change",
+            "id": "ex-file",
+            "lat_ms": 0
+          },
+          {
+            "type": "mousedown",
+            "id": "problem-select",
+            "lat_ms": 13.3
+          },
+          {
+            "type": "focusin",
+            "id": "problem-select",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "problem-select",
+            "lat_ms": 8.6
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-target",
+            "lat_ms": 12
+          },
+          {
+            "type": "focusin",
+            "id": "ex-target",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "ex-target",
+            "lat_ms": 9.4
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "focusin",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "ex-url",
+            "lat_ms": 0.8
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 13.3
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 13.5
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 13.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.8
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 12.1
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 13
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.6
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.9
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "keydown",
+            "id": "ex-url",
+            "lat_ms": 11.7
+          },
+          {
+            "type": "input",
+            "id": "ex-url",
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": "ex-cancel",
+            "lat_ms": 11.5
+          },
+          {
+            "type": "change",
+            "id": "ex-url",
+            "lat_ms": 0
+          },
+          {
+            "type": "focusin",
+            "id": "ex-cancel",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "ex-cancel",
+            "lat_ms": 12.4
+          }
+        ],
+        "max_input_latency_ms": 13.6,
+        "frames": 470,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 16.7,
+        "frame_gap_max_ms": 129.2,
+        "long_tasks": 1,
+        "long_task_max_ms": 130,
+        "long_error": null
+      }
+    },
+    "rerun": {
+      "completed": true,
+      "wall_ms": 19891,
+      "first_progress_texts": [
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.1 秒",
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.1 秒",
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.1 秒",
+        "執行中（準備完成，開始計算候選）：已完成 0／101 個候選、0／5 個方法（0%），已耗時 0.1 秒",
+        "執行中（All-in baseline · k = 25：完成）：已完成 1／101 個候選、1／5 個方法（1%），已耗時 0.5 秒",
+        "執行中（All-in baseline · k = 25：完成）：已完成 1／101 個候選、1／5 個方法（1%），已耗時 0.5 秒"
+      ],
+      "message": "執行完成：五種方法共 101 個候選，耗時 19840.0 ms（瀏覽器內計算，只供參考）。各方法耗時：All-in baseline 422.8 ms、Forward SFS 4894.3 ms、Backward SFS 4721.8 ms、RFE 4620.4 ms、Lasso 路徑排序 4758.4 ms。",
+      "timing_ms": {
+        "started_at_epoch_ms": 1792621760345,
+        "decisions": 25.5,
+        "allin": 422.80000001192093,
+        "forward_sfs": 4894.29999999702,
+        "backward_sfs": 4721.79999999702,
+        "rfe": 4620.4000000059605,
+        "lasso_path": 4758.4000000059605,
+        "dependencies": 112.8999999910593,
+        "test": 96.20000000298023,
+        "total": 19716.10000000894
+      },
+      "budget": {
+        "unit": "estimated OLS solves x training rows x encoded columns^2",
+        "constants": {
+          "forward_sfs": 200000000000,
+          "backward_sfs": 200000000000,
+          "rfe": 200000000000,
+          "lasso_path": 80000000000
+        },
+        "estimates": {
+          "allin": 405600000,
+          "forward_sfs": 141960000000,
+          "backward_sfs": 141960000000,
+          "rfe": 141960000000,
+          "lasso_path": 20280000000
+        },
+        "n_train": 16000,
+        "encoded_columns": 65,
+        "feature_groups": 25
+      },
+      "statuses": {
+        "allin": {
+          "VALID": 1
+        },
+        "forward_sfs": {
+          "VALID": 25
+        },
+        "backward_sfs": {
+          "VALID": 25
+        },
+        "rfe": {
+          "VALID": 25
+        },
+        "lasso_path": {
+          "VALID": 25
+        }
+      },
+      "kpi_test": "4.94 / 3.98 / 24.39 / 0.9938 / 95.6%",
+      "measures": {
+        "inputs": [
+          {
+            "type": "change",
+            "id": "ex-target",
+            "lat_ms": 0
+          }
+        ],
+        "max_input_latency_ms": 0,
+        "frames": 1558,
+        "frame_gap_p50_ms": 12.5,
+        "frame_gap_p95_ms": 16.7,
+        "frame_gap_max_ms": 120.8,
+        "long_tasks": 1,
+        "long_task_max_ms": 122,
+        "long_error": null
+      }
+    },
+    "reproducible": {
+      "same_deterministic": true,
+      "kpi_test": "4.94 / 3.98 / 24.39 / 0.9938 / 95.6%",
+      "timing_ms": {
+        "started_at_epoch_ms": 1792621781185,
+        "decisions": 26.600000008940697,
+        "allin": 437.40000000596046,
+        "forward_sfs": 4911.5,
+        "backward_sfs": 4712.79999999702,
+        "rfe": 4675.79999999702,
+        "lasso_path": 4515.29999999702,
+        "dependencies": 211.70000000298023,
+        "test": 104.59999999403954,
+        "total": 19659.40000000596
+      }
+    },
+    "back_to_kc": {
+      "v1Visible": true,
+      "exploreHidden": true,
+      "footer": "block"
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Edg/155.0.4283.62",
+  "csv": {
+    "file": "medium.csv",
+    "bytes": 2725065
+  }
+}

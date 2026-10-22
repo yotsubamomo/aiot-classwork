@@ -1,0 +1,89 @@
+/* HW2 V2 dashboard: the problem drop-down and the Exploratory run blocks (#74). Uses the V1 tokens of
+ * assets/style.css (not modified); every rule here targets V2 elements only (problembar, #explore, ex-*)
+ * or the page while exploring (body.is-exploring). No remote or imported resources. */
+.problembar { background: var(--c-surface-2); border-bottom: 1px solid var(--c-border); }
+.problembar__inner {
+  max-width: 1440px; margin: 0 auto; padding: var(--space-2) var(--space-4);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
+}
+.problembar__label { font-weight: 700; font-size: 0.9375rem; }
+.problembar__select.input { width: auto; min-width: 16rem; max-width: 100%; min-height: 44px; font-weight: 600; }
+.problembar__select:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.problembar__help { margin: 0; flex: 1 1 18rem; min-width: 0; }
+
+/* While exploring, the V1 page navigation points at hidden blocks: hide it (King County restores it). */
+body.is-exploring .topnav, body.is-exploring .nav-toggle { display: none !important; }
+/* #76 (DA decision-20261022-r1f3-v1-footer R3-2): the V1 footer belongs to King County; it is hidden
+ * while exploring, without touching its DOM or text, and shows again as it was on King County. */
+body.is-exploring footer.footer { display: none !important; }
+
+.tag--explore { background: #FFEDD5; color: #7C2D12; border-color: #FDBA74; white-space: normal; }
+.explore__banner { margin: var(--space-2) 0 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.explore__message { margin-bottom: var(--space-4); }
+.explore__message[hidden] { display: none; }
+.explore__message--error { border-color: #FCA5A5; border-left-color: var(--c-danger); background: #FEF2F2; color: #7F1D1D; }
+.explore .ex-block { margin-bottom: var(--space-4); }
+.explore .ex-block[hidden] { display: none !important; }
+.explore h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ex-subhead { margin-top: var(--space-4); }
+.ex-kpi5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+#ex-columns th[scope="row"], #ex-folds th[scope="row"] { color: var(--c-text); font-weight: 600; overflow-wrap: break-word; }
+#ex-columns th[scope="row"] { min-width: 7.5em; }
+#ex-columns td:last-child { min-width: 10em; }
+#ex-columns, #ex-folds { margin-top: var(--space-3); }
+/* #76: the custom dataset's inputs (URL, local file, target column) */
+.ex-inputs { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-3) var(--space-4); margin-top: var(--space-3); }
+.ex-url { margin: 0; }
+.ex-url__row { display: flex; gap: var(--space-2); min-width: 0; }
+.ex-url__row .input { flex: 1 1 auto; min-width: 0; }
+.ex-url__btn { flex: 0 0 auto; font-weight: 600; }
+.ex-url__btn:disabled { cursor: progress; opacity: 0.7; }
+.ex-file { padding: 6px 8px; }
+.ex-custom-status { margin: var(--space-3) 0 0; overflow-wrap: anywhere; }
+#ex-pred-form[aria-disabled="true"] .fields { display: none; }
+/* #77: the running panel (progress and the cancel button stay operable while a run is in progress) */
+.explore .ex-run { margin-bottom: var(--space-4); }
+.explore .ex-run[hidden] { display: none !important; }
+.ex-progress { display: block; width: 100%; height: 12px; margin: var(--space-2) 0; accent-color: var(--c-primary); }
+.ex-progress-text { margin: 0 0 var(--space-2); overflow-wrap: anywhere; }
+.ex-run__row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-2) var(--space-3); }
+.ex-run__row .help { flex: 1 1 18rem; margin: 0; min-width: 0; }
+.ex-cancel { flex: 0 0 auto; font-weight: 600; min-height: 44px; }
+.ex-cancel:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.ex-cancel:disabled { cursor: progress; opacity: 0.7; }
+.explore .field > label { font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
+
+/* #75: model selection, metric vs k, winners table, Lasso path, dependency diagnostic, methods block */
+.ex-layout { margin-top: var(--space-3); }
+.ex-layout .control { position: static; }
+.ex-legend-text { color: #334155; }
+#ex-kpi-cv .ex-invalid { grid-column: 1 / -1; display: grid; gap: 6px; }
+#ex-compare th[scope="colgroup"] { text-align: center; }
+#ex-compare .ex-test-head, #ex-compare .ex-test-cell { background: #F1F5F9; }
+#ex-compare .ex-row-overall th, #ex-compare .ex-row-overall td { box-shadow: inset 0 2px 0 #86EFAC, inset 0 -2px 0 #86EFAC; }
+#ex-compare .tag { margin-left: 6px; }
+.ex-row-none td, .ex-row-none th { color: var(--c-muted); }
+#ex-folds td:nth-child(2), #ex-compare td .small { overflow-wrap: anywhere; }
+.linklike { font: inherit; color: var(--c-primary); background: none; border: 0; padding: 0; min-height: 32px; text-align: left;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-weight: 600; }
+.linklike:focus-visible { outline: 3px solid var(--c-primary); outline-offset: 2px; }
+.ex-deps { margin: var(--space-2) 0 0; padding-left: 1.4em; display: grid; gap: var(--space-2); }
+.ex-deps code { overflow-wrap: anywhere; }
+#ex-deps .warn { margin: var(--space-2) 0 0; }
+#ex-test-hint { margin: var(--space-2) 0; }
+#ex-semantics th[scope="row"] { color: var(--c-text); font-weight: 600; min-width: 6em; }
+#ex-semantics td { min-width: 12em; }
+
+@media (max-width: 1024px) {
+  .ex-kpi5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ex-inputs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ex-url { grid-column: 1 / -1; }
+}
+@media (max-width: 768px) {
+  .ex-inputs { grid-template-columns: 1fr; }
+  .ex-url__row { flex-wrap: wrap; }
+  .problembar__select.input { min-width: 0; width: 100%; }
+}
+@media (max-width: 480px) {
+  .ex-kpi5 { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,91 @@
+{
+  "label": "chrome_subject",
+  "mode": "ov",
+  "browserPid": 22052,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 3.0 (V2-T4: budgets, cancellation, unit-free paths)",
+      "budgets": {
+        "forward_sfs": 200000000000,
+        "backward_sfs": 200000000000,
+        "rfe": 200000000000,
+        "lasso_path": 80000000000
+      }
+    },
+    "ov": {
+      "contrast": [
+        {
+          "tag": "h2",
+          "id": "ex-h-run",
+          "cls": null,
+          "ratio": 17.85,
+          "size": "16.8px"
+        },
+        {
+          "tag": "span",
+          "id": null,
+          "cls": "tag tag--explore",
+          "ratio": 8.18,
+          "size": "12px"
+        },
+        {
+          "tag": "p",
+          "id": "ex-progress-text",
+          "cls": "small ex-progress-text",
+          "ratio": 17.85,
+          "size": "14px"
+        },
+        {
+          "tag": "button",
+          "id": "ex-cancel",
+          "cls": "btn ex-cancel",
+          "ratio": 17.85,
+          "size": "16px"
+        },
+        {
+          "tag": "p",
+          "id": "ex-cancel-help",
+          "cls": "help",
+          "ratio": 7.58,
+          "size": "13px"
+        }
+      ],
+      "min_ratio": 7.58,
+      "overflow": {
+        "375": {
+          "scroll": 375,
+          "client": 375,
+          "overflow": 0,
+          "runVisible": true
+        },
+        "768": {
+          "scroll": 753,
+          "client": 753,
+          "overflow": 0,
+          "runVisible": true
+        }
+      },
+      "keyboard": {
+        "tabs_from_target": 1,
+        "focused": "ex-cancel",
+        "outline": "solid 3px",
+        "enter_cancels": true,
+        "result": {
+          "status": "CANCELLED",
+          "reason": null,
+          "methods_completed": 1,
+          "methods_total": 5,
+          "candidates_completed": 18,
+          "candidates_total": 101
+        }
+      }
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Chrome/155.0.8059.85"
+}

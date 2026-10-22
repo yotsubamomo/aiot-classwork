@@ -1,0 +1,327 @@
+{
+  "label": "edge_base",
+  "mode": "kc",
+  "browserPid": 13912,
+  "page": "file:// export (index.html)",
+  "checks": {
+    "initial": {
+      "value": "king_county",
+      "v1Visible": true,
+      "engine": "explore-engine 2.1 (V2-T3: column names as own keys)"
+    },
+    "kc": {
+      "first_draw_ms": [
+        88.5,
+        88.8,
+        96,
+        88.9
+      ],
+      "interactions": [
+        {
+          "type": "method",
+          "ms": 14.2,
+          "handler_ms": 14.1
+        },
+        {
+          "type": "method",
+          "ms": 8.7,
+          "handler_ms": 8.5
+        },
+        {
+          "type": "method",
+          "ms": 9.4,
+          "handler_ms": 9.3
+        },
+        {
+          "type": "method",
+          "ms": 8.8,
+          "handler_ms": 8.7
+        },
+        {
+          "type": "method",
+          "ms": 9.1,
+          "handler_ms": 8.8
+        },
+        {
+          "type": "k",
+          "ms": 4.5,
+          "handler_ms": 4.2
+        },
+        {
+          "type": "k",
+          "ms": 3.9,
+          "handler_ms": 3.7
+        },
+        {
+          "type": "k",
+          "ms": 3.9,
+          "handler_ms": 3.7
+        },
+        {
+          "type": "k",
+          "ms": 4.8,
+          "handler_ms": 4.6
+        },
+        {
+          "type": "button-zoom-out",
+          "ms": 1.8,
+          "handler_ms": 1.6
+        },
+        {
+          "type": "button-reset",
+          "ms": 1.6,
+          "handler_ms": 1.4
+        }
+      ],
+      "max_by_type": {
+        "method": {
+          "n": 5,
+          "max": 14.2
+        },
+        "k": {
+          "n": 4,
+          "max": 4.8
+        },
+        "button-zoom-out": {
+          "n": 1,
+          "max": 1.8
+        },
+        "button-reset": {
+          "n": 1,
+          "max": 1.6
+        }
+      },
+      "measures": {
+        "inputs": [
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.5
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.7
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.1
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.7
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "focusin",
+            "id": null,
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.5
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.8
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "mousedown",
+            "id": null,
+            "lat_ms": 0.3
+          },
+          {
+            "type": "click",
+            "id": null,
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": "zoom-out",
+            "lat_ms": 0.4
+          },
+          {
+            "type": "focusin",
+            "id": "zoom-out",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "zoom-out",
+            "lat_ms": 0.2
+          },
+          {
+            "type": "mousedown",
+            "id": "zoom-reset",
+            "lat_ms": 0.4
+          },
+          {
+            "type": "focusin",
+            "id": "zoom-reset",
+            "lat_ms": 0
+          },
+          {
+            "type": "click",
+            "id": "zoom-reset",
+            "lat_ms": 0.2
+          }
+        ],
+        "max_input_latency_ms": 0.8,
+        "frames": 1406,
+        "frame_gap_p50_ms": 4.2,
+        "frame_gap_p95_ms": 4.3,
+        "frame_gap_max_ms": 20.9,
+        "long_tasks": 0,
+        "long_task_max_ms": 0,
+        "long_error": null
+      }
+    },
+    "non_file_requests": [],
+    "dialogs": 0,
+    "exceptions": []
+  },
+  "browser": "Edg/155.0.4283.62"
+}
