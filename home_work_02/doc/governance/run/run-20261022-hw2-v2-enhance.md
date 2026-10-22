@@ -313,3 +313,7 @@ Root session 核對：`('claude-opus-5-5','medium')` 276 則，單一元素（�
 - Acceptor 原文逐字：「授權將 home_work_02-v2-enhance 以一般 fast-forward push 推送至 origin（push 前重跑學號檢查），並開 PR 到 main；不合併。」
 - 依據：SA-1（push topic branch）、SA-2（開 PR）；合併仍屬 RB-1，未授權。
 - 學號檢查與 push／PR 結果見下（push 前寫入，隨本 commit 一併推送）。
+- 學號檢查（push 前，Orchestrator；值只在記憶體中讀自未追蹤的 `.local/packaging.json`，不印出）：`origin/main..HEAD` 42 個 commit 的 tree、commit message、patch 皆 0 命中；工作樹追蹤檔 0 命中；`git ls-files` 無 `.env`。
+- Push：一般 push（新 branch，無 force），`origin/home_work_02-v2-enhance`＝`1210821041596ee0aad4953871558819a9b3d6ba`＝本機 HEAD。
+- PR：<https://github.com/yotsubamomo/aiot-classwork/pull/79>（base `main`，head `home_work_02-v2-enhance`），diff 162 個檔案全部在 `home_work_02/` 內。開立時 checks：1 passing、1 pending。**未合併**（RB-1）。
+- 本段在 push 後以本機 record-only commit 寫入，尚未 push（acceptor 的授權範圍是 push 當時的 branch；之後的 push 依下一次指示）。
