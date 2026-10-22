@@ -275,8 +275,35 @@ Tracked items for dispatch packs（更新）：
 | 24 | 2026-10-22 | #78 rework（SIA-F1＋SIA-F2） | agentId `acc8906c845bfc14f`（續派，同一 worklog） | `gov-executor` | Opus 5.5／`high` | 進行中 |
 | 24→ | 2026-10-22 | #78 rework | agentId `acc8906c845bfc14f` | `gov-executor` | Opus 5.5／`high` | DONE；subject `69f8e07`（README、report.md）＋`17f10a7`（records）；新 ZIP sha256 `8a51fc1c…8f8d`（未追蹤）；觀測 `('claude-opus-5-5','high')` 248 則（全 transcript）→ 採用。Concerns → SIA R2（README 亦在 ZIP 內改變；OV-1／SR-09 舊證據是否仍適用）；`#ex-lasso-card` 停止原因列表 → tracked（DA 判為範圍外） |
 | 25 | 2026-10-22 | Spec V2 SIA c1 R2 | agentId `aa43e1e2fb1e18487`（續派，重讀 delta） | `gov-primary-reviewer` | Opus 5.5／`xhigh` | 進行中；subject `17f10a7`（實作 `69f8e07`） |
-| 25→ | 2026-10-22 | Spec V2 SIA c1 R2 | agentId `aa43e1e2fb1e18487` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/spec-SPEC-V2-c1-r2.md`；最終整合 subject `17f10a7c1626bd334bee82c93202822d0e9f6976`（實作 `69f8e07`）；觀測 `('claude-opus-5-5','xhigh')` 270 則（R1＋R2 全 transcript）→ 採用 |
+| 25→ | 2026-10-22 | Spec V2 SIA c1 R2 | agentId `aa43e1e2fb1e18487` | `gov-primary-reviewer` | Opus 5.5／`xhigh` | **CLOSURE**；record `audit/spec-SPEC-V2-c1-r2.md`；最終整合 subject `17f10a7c1626bd334bee82c93202822d0e9f6976`（實作 `69f8e07`）；觀測 `('claude-opus-5-5','xhigh')` 280 則（R1＋R2 全 transcript，Orchestrator 核對）→ 採用 |
 
 P7（Orchestrator 核對）：`git diff --name-only 17f10a7 HEAD` 只有 `home_work_02/doc/governance/**`（run record、audit record）→ record-only（Bindings §7）。#78 的 closed subject 依此更新為 `17f10a7`（rework 屬同一 worklog identity，已由 SIA R2 涵蓋）。
 
 | 26 | 2026-10-22 | DA phase acceptance（Spec V2） | （fresh） | `gov-design-authority` | Opus 5.5／`high` | 進行中 |
+| 26→ | 2026-10-22 | DA phase acceptance | agentId `a7c01dd8574c584bb` | `gov-design-authority` | Opus 5.5／`high` | **PHASE ACCEPTED**（Spec V2 rev 2，#73，subject `17f10a7`）；record `decisions/decision-20261022-phase-acceptance-SPEC-V2.md`，引用 SIA R1、R2 與 SIA-F1 decision；觀測 `('claude-opus-5-5','high')` 98 則 → 採用 |
+
+## 12. Terminus 與 completion report（orch-default §8；治理 §3.8）
+
+Root session 核對：`('claude-opus-5-5','medium')` 276 則，單一元素（全 run，無改變點、無 escalation、無替代）。
+
+**Terminus**：授權工作（#74–#78、Spec V2 的 Spec Integration Audit、DA phase acceptance）全部完成；剩餘工作皆受 §1.5 真正 boundary 阻擋（push 未授權；合併屬 RB-1；繳交屬 RB-2；Pages 檢查依賴合併）。Run 在此結束。
+
+四種 completion 分別陳述：
+- **Work item completion**：#74–#78 全部已結案（§9 各結案核對；#78 closed subject 經 rework 為 `17f10a7`）。
+- **Phase acceptance**：Spec V2 rev 2 PHASE ACCEPTED（`decision-20261022-phase-acceptance-SPEC-V2.md`）。
+- **Run completion**：本 run 於本節結束（successful orchestration completion）。不等於 Outcome Contract 完成：B-10 Pages 檢查仍 open。
+- **Release authorization**：**未授權**。無 SA-3 opt-in；合併屬 RB-1。Formal merge gates（全部 Ticket 結案、SIA closure、phase acceptance）已滿足，但只是前提。
+
+| 項目 | 內容 |
+| --- | --- |
+| Final subject | branch `home_work_02-v2-enhance`，最終整合 subject `17f10a7c1626bd334bee82c93202822d0e9f6976`（實作 `69f8e07`）；HEAD 為之後的 record-only commits；未 push（`origin` 無此 branch）；`main`＝`392e9df` 未動 |
+| Closed subjects | #74 `9e99a10`；#75 `ded2769`；#76 `9ac8499`；#77 `31a2255`；#78 `3745e9c` → rework 後 `17f10a7` |
+| Verification | pytest 478 passed、0 skipped；Node 88 passed、0 skipped；offline_scan PASS（SIA R1／R2、phase acceptance 各自重跑） |
+| Audit | 每張票 R1（#74、#76、#77 另有 R2）全部 CLOSURE；SIA c1 R1、R2 CLOSURE；無 Alternate Review、無 Final Adjudication |
+| DA decisions | derivation-SPEC-V2；r1f3-v1-footer；issue75-lasso-early-stop；issue77-resource-limits；issue77-cancel-final-phase；sia-f1-dashboard-wording；phase-acceptance-SPEC-V2 |
+| Contract change | CC-V2-1（acceptor，F-1） |
+| 繳交 ZIP | 未追蹤 `home_work_02/dist/<學號>_hw2.zip`，sha256 `8a51fc1ca26d176f3edb075f7f8aeda7a0dc659531484c10e695bc3800d08f8d`（覆蓋了同路徑的 V1 ZIP） |
+| Open items（皆非 PASS） | OI-V2-1 B-10 Pages 檢查（合併後 Lightweight item，需 acceptor 指示＋independent audit）；OI-V2-2 重新打包時須核對 dashboard 位元組（SIA-F3）；OI-V2-3／4 SIA-F4、F5 測試覆蓋缺口；OI-V2-5 `#ex-lasso-card` 停止原因列表不全；OI-V2-6 ACCEPTANCE V2-38～40、G.2 的新舊 ZIP 對應註記（optional）；OI-V2-7 AD-1 best-effort NOT TESTED；OI-V2-11 GitHub #73–#78 仍 OPEN（未 push） |
+| Acceptor actions | push（OI-V2-8；push 前重跑學號檢查）；合併 RB-1（OI-V2-9）；iLearning 繳交 RB-2（OI-V2-10；建議合併與 Pages 檢查之後）；啟動 B-10 item；optional：向老師確認「兩種 problem」（OI-V2-13）、更新基準的過時狀態文字（OI-V2-14）；OI-V2-3～5 若要處理需接受為新工作 |
+| Recovery／replacement／rollover | 無 replacement、無 escalation、無 rollover；acceptor 暫停一次（§10）後於同一 session 續行（§11） |
+| Process incidents（repo 外） | #75 Executor 以 `taskkill /IM chrome.exe` 關閉全部 Chrome；#76 Reviewer 以預設 profile 開啟一次 Chrome（已以 PID 停止）；之後派工 pack 加入程序規則，未再發生涉及 acceptor 環境的事件 |
