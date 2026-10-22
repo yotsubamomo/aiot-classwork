@@ -22,7 +22,7 @@
 
 | 對象 | 觀測（Bindings §3.6 指令，全部 assistant 訊息） | 結果 |
 | --- | --- | --- |
-| 本 assignment，agentId `acc8906c845bfc14f`（`agentType` `gov-executor`） | `('claude-opus-5-5', 'high')`：193 則（寫入本節前；return 前由派工者依 §3.6 全程核對） | 單一元素，等於有效 mapping；無 escalation、無替代 |
+| 本 assignment，agentId `acc8906c845bfc14f`（`agentType` `gov-executor`） | `('claude-opus-5-5', 'high')`：193 則（寫入本節前）；最後一個紀錄 commit 前再核對 217 則，仍為單一元素（return 前由派工者依 §3.6 全程核對） | 單一元素，等於有效 mapping；無 escalation、無替代 |
 
 - Bounded assignments：**未使用**（沒有派 `gov-investigator`／`gov-bounded-worker` 或任何 subagent）。
 
@@ -92,7 +92,7 @@
 
 ### 6.3 瀏覽器（V2-37～V2-40）
 
-- **方法**：scratchpad 的 `ov78.js` 以 DevTools Protocol 驅動 headless Google Chrome 155.0.8059.85（PID 33588）與 Microsoft Edge 155.0.4283.62（PID 29700），各用全新的 scratchpad `--user-data-dir`；頁面為 ZIP 解壓到 scratchpad 的 `index.html`（`file://`）；`Network.emulateNetworkConditions` offline＋`--host-resolver-rules=MAP * ~NOTFOUND`；`Input.dispatchMouseEvent`／`dispatchKeyEvent`／`insertText` 送真實輸入；`DOM.setFileInputFiles` 選檔；`PerformanceObserver('longtask')`；`HW2_PERF` 與 `HW2_EXPLORE` 只讀取。每個瀏覽器結束時以 `taskkill /PID <pid> /T /F` 停止，事後以 PID 查無程序；沒有在 acceptor 的預設 profile 上啟動任何瀏覽器。另以 `shot_test.js`（同樣做法，PID 3240）擷取 King County 的 Test 區塊截圖。
+- **方法**：scratchpad 的 `ov78.js` 以 DevTools Protocol 驅動 headless Google Chrome 155.0.8059.85（PID 33588）與 Microsoft Edge 155.0.4283.62（PID 29700），各用全新的 scratchpad `--user-data-dir`；頁面為 ZIP 解壓到 scratchpad 的 `index.html`（`file://`）；`Network.emulateNetworkConditions` offline＋`--host-resolver-rules=MAP * ~NOTFOUND`；`Input.dispatchMouseEvent`／`dispatchKeyEvent`／`insertText` 送真實輸入；`DOM.setFileInputFiles` 選檔；`PerformanceObserver('longtask')`；`HW2_PERF` 與 `HW2_EXPLORE` 只讀取。每個瀏覽器結束時以 `taskkill /PID <pid> /T /F` 停止。Chrome 的 PID 事後查無程序；Edge 則留下一個父程序已結束、因而不在樹內的 `msedge.exe`（PID 30592，連同 7 個子程序，命令列都是本票的 scratchpad profile）——清理 profile 時發現，以 `Win32_Process` 的命令列（只比對本 session 的 scratchpad profile 路徑）找出後以 `taskkill /PID 30592 /T /F` 停止，之後剩餘 0。沒有以映像名稱停止任何程序，也沒有在 acceptor 的預設 profile 上啟動任何瀏覽器。另以 `shot_test.js`（同樣做法，PID 3240）擷取 King County 的 Test 區塊截圖。
 - **第一次 Chrome 執行（不作證據）**：`style.css` 的 `scroll-behavior: smooth` 使 `scrollIntoView` 後量到的座標錯位，滾輪、拖曳與部分按鈕沒有落在元素上（與 #77 記錄的「滾輪縮放與拖曳平移未被頁面記錄」同一原因）；另有目標欄選項比對與焦點兩個腳本錯誤。修正腳本（`behavior: 'instant'`、以選項文字找 State、先聚焦下拉）後重跑 Chrome 與 Edge，以下是重跑的結果。
 - **結果**（`ov78_chrome.json`、`ov78_edge.json`；兩個瀏覽器相同處合併寫）：
   - OV-1：King County 方法 5、KPI 4、預測器 19 個輸入、US$503,564（PI US$351,404 – US$721,610）、散佈圖 4,323 點；50 Startups `COMPLETED`、17 個 `VALID`、方法按鈕 5、比較表 5 列、探索 test KPI、兩張圖已繪製、預測器有值、五個區塊皆標示、V1 區塊與頁尾隱藏。對外請求只有兩次按「載入 URL」時對老師範例 URL 的各一個 GET；其餘 0。頁面讀取 13 個本機檔。例外 0、對話框 0。解壓副本 `offline_scan.scan()` 13 檔 0 findings。
@@ -131,3 +131,4 @@
 ## 9. 執行時間
 
 - 開始：2026-10-22 09:33（+08:00）；BASE pytest 09:33–09:35；README、報告與測試至約 09:43（commit `f56461b`）；打包 09:44:33–09:44:48；瀏覽器檢查 09:48–09:54（每個瀏覽器約 35～40 s）；ACCEPTANCE 與本 worklog 至約 10:05。
+- 收尾（約 10:10）：提交紀錄 commit 後全部 pytest 再跑一次 478 passed、0 skipped；刪除 scratchpad 的解壓 ZIP 與瀏覽器 profile（中型資料 2.8 MB 與腳本保留在 scratchpad，不進 repo）。
