@@ -1,0 +1,161 @@
+{
+  "trips_used": 8976,
+  "vehicles": 172,
+  "by_type": {
+    "HEV": 5086,
+    "ICE": 3890
+  },
+  "dropped_implausible_l100": 17,
+  "oat_range": [
+    -15.4,
+    40.0
+  ],
+  "l100_quartiles": [
+    4.99,
+    6.64,
+    9.17
+  ],
+  "cv_grouped_by_vehicle": {
+    "mean_baseline": {
+      "MAE": 2.453,
+      "RMSE": 3.05,
+      "R2": -0.005,
+      "MAPE_%": 38.0
+    },
+    "mlr": {
+      "MAE": 0.998,
+      "RMSE": 1.311,
+      "R2": 0.814,
+      "MAPE_%": 14.9
+    },
+    "hgb": {
+      "MAE": 0.945,
+      "RMSE": 1.271,
+      "R2": 0.825,
+      "MAPE_%": 13.6
+    }
+  },
+  "median_l100_by_oat_bin": {
+    "(-30, -10]": {
+      "median_l100": 9.52,
+      "trips": 47
+    },
+    "(-10, -5]": {
+      "median_l100": 7.66,
+      "trips": 280
+    },
+    "(-5, 0]": {
+      "median_l100": 7.43,
+      "trips": 678
+    },
+    "(0, 5]": {
+      "median_l100": 6.66,
+      "trips": 1224
+    },
+    "(5, 10]": {
+      "median_l100": 6.28,
+      "trips": 1175
+    },
+    "(10, 15]": {
+      "median_l100": 6.44,
+      "trips": 941
+    },
+    "(15, 20]": {
+      "median_l100": 6.04,
+      "trips": 1073
+    },
+    "(20, 25]": {
+      "median_l100": 6.23,
+      "trips": 1524
+    },
+    "(25, 30]": {
+      "median_l100": 6.6,
+      "trips": 1342
+    },
+    "(30, 40]": {
+      "median_l100": 7.52,
+      "trips": 692
+    }
+  },
+  "within_vehicle_fixed_effects": {
+    "coefs": {
+      "cold": {
+        "coef": 0.0332,
+        "ci95": [
+          0.0279,
+          0.0386
+        ],
+        "p": 2e-34
+      },
+      "hot": {
+        "coef": 0.094,
+        "ci95": [
+          0.0716,
+          0.1163
+        ],
+        "p": 1.8e-16
+      },
+      "mean_speed_kmh": {
+        "coef": -0.1353,
+        "ci95": [
+          -0.1781,
+          -0.0925
+        ],
+        "p": 5.9e-10
+      },
+      "speed2": {
+        "coef": 0.1266,
+        "ci95": [
+          0.092,
+          0.1612
+        ],
+        "p": 7.4e-13
+      },
+      "idle_frac": {
+        "coef": 4.498,
+        "ci95": [
+          3.4842,
+          5.5119
+        ],
+        "p": 3.5e-18
+      },
+      "stops_per_km": {
+        "coef": -0.0433,
+        "ci95": [
+          -0.344,
+          0.2573
+        ],
+        "p": 0.78
+      },
+      "pke": {
+        "coef": 6.5682,
+        "ci95": [
+          5.8992,
+          7.2372
+        ],
+        "p": 1.7e-82
+      },
+      "log_dist": {
+        "coef": -0.1982,
+        "ci95": [
+          -0.2953,
+          -0.1011
+        ],
+        "p": 6.3e-05
+      }
+    },
+    "r2_within_insample": 0.877,
+    "typical_l100": 6.64,
+    "cold_minus8_vs_20_extra_l100": 0.93,
+    "cold_minus8_vs_20_pct_of_typical": 14.0
+  },
+  "cold_attribution_example": {
+    "cold_quartile_oat_max": 5.1,
+    "trips": 2244,
+    "median_cold_share_%": 9.9,
+    "p10_p90_cold_share_%": [
+      5.7,
+      15.7
+    ]
+  }
+}
