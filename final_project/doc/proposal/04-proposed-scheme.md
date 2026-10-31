@@ -87,9 +87,9 @@ flowchart TB
 | Agent | 輸入 | 輸出 | 工具 |
 | --- | --- | --- | --- |
 | 規劃 Agent | 使用者問題、騎士記憶 | 任務分派、彙整後的計畫草案 | 知識庫檢索 |
-| 配速分析 Agent | 路線、出發時間、騎士 ID | 各段 P50 / P90 時間、各點預計抵達時間 | 路線切段、地形特徵、配速模型、Google 預估時間 |
-| 天氣 Agent | 各段位置與預計抵達時間 | 各段降雨機率、溫度、警特報；民用暮光終 | 氣象署預報、觀測、日出日沒資料 |
-| 路況與補給 Agent | 路線、各點預計抵達時間、車型 | 路況事件、可用加油站（含營業時間）、續航檢查 | TDX、中油加油站、車系規格 |
+| 配速分析 Agent | 路線、出發時間、騎士 ID | 各段 P50 / P90 時間、各點 P50 與 P90 預計抵達時刻（4.6） | 路線切段、地形特徵、配速模型、Google 預估時間 |
+| 天氣 Agent | 各段位置與 P50 / P90 預計抵達時刻 | 各段降雨機率、溫度、警特報；民用暮光終 | 氣象署預報、觀測、日出日沒資料 |
+| 路況與補給 Agent | 路線、各點 P90 預計抵達時刻、車型 | 路況事件、可用加油站（含營業時間）、續航檢查 | TDX、中油加油站、車系規格 |
 | 驗證 Agent | 完整計畫草案 | 通過，或違反的規則清單 | 驗證規則（4.6） |
 
 ### 4.4.2 對應課程框架
@@ -133,9 +133,10 @@ flowchart TB
 | $r = (s_1, \dots, s_n)$ | 一條路線切成 $n$ 個路段（約 0.5–2 km，或依道路切分） |
 | $\mathbf{x}_i$ | 路段 $s_i$ 的特徵：曲率（每公里轉角、最小半徑）、坡度（DTM）、道路等級、公路局急彎與陡坡標記、時段、天氣、已騎里程 |
 | $L_i$ | 路段長度 |
-| $\hat{v}^{(q)}_i = f_q(\mathbf{x}_i)$ | 個人配速模型對路段 $i$ 第 $q$ 分位數速度的預測（$q = 0.5, 0.9$ 對應 P50 / P90 時間） |
+| $\hat{t}^{(q)}_i = \exp\big(f_q(\mathbf{x}_i)\big)$ | 個人配速模型對路段 $i$ 移動時間第 $q$ 分位數的預測（$q = 0.5, 0.9$ 即 P50 / P90 時間）；$f_q$ 以對數移動時間為目標訓練 |
 | $d$ | 出發時間 |
-| $T^{(q)}$ | 整趟第 $q$ 分位數的騎乘時間（含休息） |
+| $\mathrm{ETA}^{(q)}_k$ | 抵達第 $k$ 個路段終點的第 $q$ 分位數時刻（$k = 1, \dots, n$） |
+| $T^{(q)}$ | 整趟第 $q$ 分位數的騎乘時間（含休息），$T^{(q)} = \mathrm{ETA}^{(q)}_n - d$ |
 | $T_{\text{dusk}}$ | 當日民用暮光終（氣象署資料）[D5] |
 | $T_{\text{user}}$ | 騎士設定的最晚回程時間 |
 | $R$ | 車輛續航（油箱容量 × 油耗，取自車系規格與騎士資料） |
@@ -143,9 +144,11 @@ flowchart TB
 
 ## 4.6 數學模型（PF）
 
-**配速模型。** 以騎士自己的行程訓練，目標是路段移動時間（或對數速度）：
+**配速模型。** 以騎士自己的行程訓練，目標是路段移動時間的對數 $y_i = \log t_i$。分位數在單調遞增變換下不變，所以對數時間的第 $q$ 分位數取指數就是時間的第 $q$ 分位數：
 
-$$\hat{t}^{(q)}_i = \frac{L_i}{\hat{v}^{(q)}_i}, \qquad \hat{v}^{(q)}_i = f_q(\mathbf{x}_i)$$
+$$\hat{t}^{(q)}_i = \exp\big(f_q(\mathbf{x}_i)\big), \qquad q \in \{0.5,\ 0.9\}$$
+
+不以速度為目標再換算成時間：時間 $t = L/v$ 是速度的遞減函數，速度的第 0.9 分位數對應的是時間的第 0.1 分位數，若用速度的 P90 換算，P90 時間會變成最樂觀的估計，日照規則就會失效。
 
 - Baseline：平均速度、速限換算、Google Maps 兩輪車預估時間。
 - 模型一：多元迴歸（課程 L6）。
@@ -158,11 +161,17 @@ $$T^{(0.9)} = \sum_i \hat{t}^{(0.5)}_i + B + \hat{c}_{0.9}$$
 
 其中 $B$ 是休息時間，$\hat{c}_{0.9}$ 是校正量。
 
+**各點抵達時刻。** 天氣、補給與驗證規則需要的是「抵達沿線某一點」的時刻，不只是整趟時間。P50 抵達時刻由各段 P50 時間累加；P90 抵達時刻把整趟校正量 $\hat{c}_{0.9}$ 依已騎里程比例分攤到該點：
+
+$$\mathrm{ETA}^{(0.5)}_k = d + \sum_{i \le k} \hat{t}^{(0.5)}_i + B_k, \qquad \mathrm{ETA}^{(0.9)}_k = \mathrm{ETA}^{(0.5)}_k + \hat{c}_{0.9} \cdot \frac{\sum_{i \le k} L_i}{\sum_{i} L_i}$$
+
+$B_k$ 是第 $k$ 段之前已排定的休息時間。配速 Agent 把 $\mathrm{ETA}^{(0.5)}_k$ 與 $\mathrm{ETA}^{(0.9)}_k$ 一併交給天氣與路況與補給 Agent；各段的 P90 時間 $\hat{t}^{(0.9)}_i$ 只用於地圖上色與找出最難的路段，不加總。
+
 **可行性限制（驗證 Agent 的硬規則）：**
 
 1. 日照：$d + T^{(0.9)} \le \min(T_{\text{dusk}}, T_{\text{user}})$
-2. 續航：任兩個相鄰補給點（含起點）之間的距離 $\le R \times (1 - m)$，$m$ 為安全餘裕；且抵達該加油站的 P90 時間落在其營業時間內
-3. 天氣：路段抵達時間落在大雨以上警特報範圍內時，該段標為高風險；高風險段不得位於日照限制最緊的最後一段
+2. 續航：任兩個相鄰補給點（含起點）之間的距離 $\le R \times (1 - m)$，$m$ 為安全餘裕；且抵達該加油站的 P90 時刻 $\mathrm{ETA}^{(0.9)}_k$ 落在其營業時間內
+3. 天氣：路段的抵達時段 $[\mathrm{ETA}^{(0.5)}_i, \mathrm{ETA}^{(0.9)}_i]$ 與大雨以上警特報範圍重疊時，該段標為高風險；高風險段不得位於日照限制最緊的最後一段
 4. 路況：路段有 TDX 封閉或管制事件時，計畫不可行
 5. 數字可追溯：回答中的每個時間、距離、機率都必須出現在工具輸出中
 
@@ -221,11 +230,11 @@ Output: feasible trip plan P with ranges and citations, or an infeasibility repo
 06: attempts ← 0 ; best ← ∅
 07: repeat
 08:     for each d in D do
-09:         (t50, ETA) ← PACE_AGENT(X, d, u)          ▷ per-segment P50 times, arrival times
-10:         T90 ← Σ t50 + BREAKS(ctx) + CONFORMAL_Q90(u)
-11:         W ← WEATHER_AGENT(route, ETA)             ▷ per-segment forecast, warnings, T_dusk
-12:         F ← SUPPLY_AGENT(route, ETA, VEHICLE(u))   ▷ open stations, range check, road events
-13:         plan ← ORCHESTRATOR_COMPOSE(d, t50, T90, W, F, SEARCH(KB, W, F))
+09:         (t50, t90, ETA50, ETA90) ← PACE_AGENT(X, d, u)   ▷ segment times, ETAs (4.6)
+10:         T90 ← ETA90[n] − d                        ▷ = Σ t50 + BREAKS + c_0.9
+11:         W ← WEATHER_AGENT(route, ETA50, ETA90)    ▷ forecast, warnings, T_dusk
+12:         F ← SUPPLY_AGENT(route, ETA90, VEHICLE(u)) ▷ stations (ETA90), range, events
+13:         plan ← ORCHESTRATOR_COMPOSE(d, t50, t90, T90, W, F, SEARCH(KB, W, F))
 14:         (ok, violations) ← VERIFY(plan)            ▷ rules 1–5, numbers traceable
 15:         if ok and SLACK(plan) > SLACK(best) then best ← plan
 16:     if best = ∅ then
@@ -247,7 +256,7 @@ Output: updated models f_0.5, f_0.9 and conformal correction c_0.9
 04:     g ← SPLIT_MOVING(g)                          ▷ separate moving time from stops
 05:     S_u ← S_u ∪ SEGMENTS(g)                      ▷ features from DTM, OSM, weather history
 06: folds ← GROUP_KFOLD(S_u, by = trip)
-07: f_0.5, f_0.9 ← FIT_QUANTILE_GBM(S_u, folds)      ▷ MLR kept as baseline
+07: f_0.5, f_0.9 ← FIT_QUANTILE_GBM(S_u, folds)      ▷ y = log moving time; MLR baseline
 08: c_0.9 ← Q90(trip_actual − trip_predicted on held-out trips)
 09: return f_0.5, f_0.9, c_0.9
 ```
@@ -287,18 +296,20 @@ Output: updated models f_0.5, f_0.9 and conformal correction c_0.9
 | 實驗 | 問題 | 方法 | 指標 |
 | --- | --- | --- | --- |
 | E1 配速模型 | 個人配速模型比一般導航的時間估計準嗎？ | 平均速度、速限換算、Google 兩輪車預估時間 vs 多元迴歸 vs LightGBM；依行程分組交叉驗證，再加上以最新行程為測試集的時間外推 | 路段與整趟的 MAE、MAPE；整趟 P90 覆蓋率 |
-| E2 驗證 Agent 與消融 | 外部驗證能不能提高計畫的可行率？ | 準備約 20–30 題規劃問題，比較只用 LLM、LLM + 知識庫、完整 Agent（工具 + 驗證） | 計畫可行率（通過規則 1–5 的比例）、時間誤差、數字可追溯率 |
+| E2 驗證 Agent 與消融 | 外部驗證能不能提高計畫的可行率？ | 準備約 20–30 題規劃問題。每題事先以獨立腳本（不經 Agent 與其工具）算出 oracle：當日民用暮光終、沿線加油站營業時間、該日已知的管制事件、以實際騎過的行程為準的各段時間。比較只用 LLM、LLM + 知識庫、完整 Agent（工具 + 驗證）三組 | oracle 違規率（計畫違反任一 oracle 事實的比例）、回程時間對 oracle 的誤差、計畫中的數字與 oracle 一致率；另報告各組的拒答／不可行報告率與候選出發時間數 |
 | E3 風險規則 | 風險規則是否抓得到歷史封路日？ | 以歷史封路紀錄回測規則；敏感度分析 | 命中率、誤報率；不宣稱預測事故 |
 | E4 案例研究 | 對騎士有沒有實際價值？ | 2–3 個完整情境；以過去的實際行程回測「如果當時用這個工具，預測的回程時間和實際差多少」 | 質性說明與回測誤差 |
 
-**預期成果：** 個人配速模型在彎道多的山區路段，整趟時間誤差低於一般導航的估計；完整 Agent 的計畫可行率高於只用 LLM 的版本。這些是待驗證的假設。
+E2 不以驗證 Agent 自己的規則 1–5 當指標：完整 Agent 只會輸出通過這些規則的計畫，用同一套規則評分會變成循環驗證；只用 LLM 的對照組沒有工具輸出，規則 5 也必然不通過。改以獨立算出的 oracle 評分，三組才站在同一個基準上；同時報告拒答率，避免完整 Agent 以拒答換取低違規率。
+
+**預期成果：** 個人配速模型在彎道多的山區路段，整趟時間誤差低於一般導航的估計；完整 Agent 的計畫對獨立 oracle 的違規率低於只用 LLM 的版本。這些是待驗證的假設。
 
 ## 4.12 主要創新（PK）
 
 1. **以騎士自己的歷史行程學個人配速，並輸出區間。** 現有研究多為群體平均或城市汽車 [1][2][8]，本專題以單一騎士的山路資料預測，並用 conformal 校正整趟 P90。
 2. **依「抵達時間」整合天氣、日照與補給。** 天氣與加油站查詢是依各段預計抵達時間，而不是出發時間。
 3. **規劃與驗證分離的多 Agent 架構。** LLM 負責理解與規劃，確定性的驗證規則檢查可行性並觸發重新規劃，回應 LLM 規劃不可靠的研究結果 [4][5][13]。
-4. **以消融實驗量化 Agent 的價值。** 直接比較只用 LLM 與完整 Agent 的計畫可行率。
+4. **以消融實驗量化 Agent 的價值。** 以獨立 oracle 判定可行性，直接比較只用 LLM 與完整 Agent 的計畫違規率。
 
 ## 4.13 可行性與限制
 
