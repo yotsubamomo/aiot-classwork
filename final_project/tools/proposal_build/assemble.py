@@ -14,6 +14,7 @@ SECTIONS = [  # (file, family used for bare [n] citations)
     ("03-deep-research.md", None),
     ("04-proposed-scheme.md", "R"),
 ]
+APPENDICES = ["05-ai-usage.md"]  # placed after the reference list, no citations renumbered
 REF_FILES = {"01-introduction.md": "I", "02-related-work.md": "R", "03-deep-research.md": "D"}
 # same work cited under different URLs in different drafts
 MANUAL_ALIASES = [(("D", "4"), ("R", "11")), (("D", "16"), ("R", "5")), (("I", "8"), ("R", "11"))]
@@ -194,7 +195,12 @@ def main(src, out):
     # cover page fields live next to the sections so they can be edited without touching code
     with open(os.path.join(src, "metadata.yaml"), encoding="utf-8") as fh:
         meta = fh.read().strip() + "\n\n"
-    full = meta + "\n\n".join(parts) + "\n\n" + "\n".join(reflist)
+    appendix = []
+    for name in APPENDICES:
+        path = os.path.join(src, name)
+        if os.path.exists(path):
+            appendix.append(open(path, encoding="utf-8").read().strip())
+    full = meta + "\n\n".join(parts) + "\n\n" + "\n".join(reflist) + "\n\n" + "\n\n".join(appendix) + "\n"
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(out, "proposal-full.md"), "w", encoding="utf-8") as fh:
         fh.write(full)

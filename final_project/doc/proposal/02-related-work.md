@@ -111,7 +111,7 @@ Geedipally 等人 [8] 用 SHRP 2 車速資料檢驗彎道速度模型能否跨�
 
 | Ref | Year | Problem | AI Method | Domain Knowledge | Dataset | Findings | Limitation |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [1] | 2018 | 城市中任意路徑的旅行時間 | DeepTTE：geo-convolution + recurrent + multi-task | 路口、號誌使路段時間無法直接相加 | 兩個大規模軌跡資料集（範例資料為成都；另一個未查證） | 優於當時方法（摘要無具體數字） | 需要大量軌跡；城市汽車；無區間 |
+| [1] | 2018 | 城市中任意路徑的旅行時間 | DeepTTE：geo-convolution + recurrent + multi-task | 路口、號誌使路段時間無法直接相加 | 兩個城市的大規模計程車軌跡資料集（公開範例資料為成都） | 優於當時方法（摘要無具體數字） | 需要大量軌跡；城市汽車；無區間 |
 | [2] | 2021 | Google Maps 的 ETA 預測 | GNN on supersegments，MetaGradients 訓練 | 道路等級、歷史與即時車速 | Google Maps 生產資料；離線實驗 NYC、LAX、TYO、SGP | Sydney 等城市負面 ETA 降低 40% 以上 | 只涵蓋約一百萬個 supersegment；未提到個人化、機車、天氣 |
 | [3] | 2025（arXiv 2024） | 機率式旅行時間，考慮行程間相關 | ProbETA：低秩多變量高斯 + link representation（empirical Bayes） | 天氣與駕駛行為造成行程間相關 | 成都、哈爾濱網約車 GPS（各 6 天） | MAPE 降低 12.60% 以上，以 CRPS 評估分布 | 高斯假設；城市資料；無個人化 |
 | [4] | 2024 | LLM Agent 能否完成真實旅遊規劃 | ReAct 等 Agent 框架 + 工具 | 旅遊常識限制與使用者硬限制 | 1,225 個需求、約四百萬筆沙盒資料 | GPT-4-Turbo 兩階段 final pass rate 0.6% | 限制以預算、班次、住宿為主；美國國內旅遊 |

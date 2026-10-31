@@ -1,0 +1,82 @@
+# Proposal 驗收清單
+
+> 檢查日期：2026-10-31。依據：`final_project/docs/requirements_proposal.txt`（作業規範）、`Part_3._課程專題說明.pdf`（①–⑩ 架構）、`L4-1_期末計劃Proposal_寫作方法_.pdf`（A–Z SOP）。
+> 對象：`doc/proposal/00-abstract.md`–`04-proposed-scheme.md`、`proposal.docx`／`pdf`、`slides.md`、`proposal-slides.pptx`、`proposal-video`。
+> 狀態：✅ 符合、⚠️ 部分符合或建議補強、❌ 缺少。
+
+## 1. 作業規範：Proposal 四部分
+
+| # | 要求 | 位置 | 狀態 | 說明 |
+| --- | --- | --- | --- | --- |
+| R1 | Abstract 採 A–F 六段（Attention Getter → But → Cure → Development → Experiments → Findings） | 00-abstract.md | ✅ | 三段落涵蓋 A–F；F 寫預期成果並聲明不含實驗結果 |
+| R2 | A 段用 2025–2026 證據，不只寫「AI 快速發展」 | 00-abstract.md、01 §A | ✅ | 道安資訊查詢網 2025 年死亡數、機車占比；公路局 2025 年登記數 |
+| R3 | F 段不得虛構實驗結果 | 全文 | ✅ | 全文未出現實驗結果；範例段落標明為示意 |
+| R4 | Introduction 回答 Why，分 A–F（Attention、Background、Problem、Limitations、Innovation、Contributions） | 01-introduction.md | ✅ | 六節齊全 |
+| R5 | Introduction 重要論述有客觀證據與來源 | 01 證據查證表 | ✅ | 19 筆證據逐一查證；交通部對機車族群的說法僅新聞層級，已照原文用詞 |
+| R6 | Related Work 約一半 AI、一半領域知識 | 02-related-work.md | ✅ | 摘要表 12 篇：AI 6、領域 6 |
+| R7 | Article Summary Table 欄位：Ref／Year／Problem／AI Method／Domain Knowledge／Dataset／Findings／Limitation | 02 §2.5 | ✅ | 欄位完全一致 |
+| R8 | 歸納 Existing Research → Limitations → Research Gap → Our Project | 02 §2.7 | ✅ | 四列齊全 |
+| R9 | Deep Research Q1：五個核心思維模式，各含意義、證據、對系統設計的影響 | 03 Q1 | ✅ | M1–M5，每項都寫出影響的 Agent 或規則 |
+| R10 | Q2：三個爭論，觀點 A ↔ B → 證據 → 共識 → 未解問題 | 03 Q2 | ✅ | C1–C3 |
+| R11 | Q3：十個問題，涵蓋 Why／What-if／Trade-off／Failure Case／Evidence／Comparison／Design Decision／Real-world Scenario | 03 Q3 | ✅ | 10 題，八種類型都有 |
+| R12 | Proposed Scheme 依 ①–⑧ 基本架構（情境、輸入、Planner、資料取得、分析、領域知識、決策、輸出） | 04 §4.4 | ✅ | 架構圖與模組表逐一對應 |
+| R13 | 完整架構圖，模組以 ①②③… 編號並在正文逐一說明 | 04 §4.4、圖 1 | ✅ | |
+| R14 | Flowchart：Input → Processing → AI/Analytics → Decision → Output，必要時含 Decision、Loop、Exception、Human Interaction | 04 §4.7、圖 2 | ✅ | 含資訊不足時追問、驗證不通過重新規劃、API 失敗的例外處理 |
+| R15 | 有行號的 Pseudocode（Input／Output） | 04 §4.8 | ✅ | Algorithm 1（21 行）、Algorithm 2（9 行） |
+| R16 | 資料來源類型（IoT、DB、CSV、API、Web、Open Data、PDF、KB、Vector DB） | 04 §4.10 | ✅ | GPX、API、開放資料、知識庫；向量資料庫未明寫，屬實作細節 |
+| R17 | References | proposal.docx 參考文獻 | ✅ | 45 篇，依出現順序統一編號 |
+
+## 2. 作業規範：繳交物
+
+| # | 要求 | 位置 | 狀態 | 說明 |
+| --- | --- | --- | --- | --- |
+| D1 | ① Proposal Document | proposal.docx／pdf（39 頁，含附錄 A） | ⚠️ | 封面組號還是「第 ＿＿ 組」 |
+| D2 | ② Proposal PPT：研究動機、文獻、Research Gap、Agent Design、Architecture、Flowchart、Pseudocode | proposal-slides.pptx（16 頁） | ⚠️ | 七項內容都有；頁尾組號未填 |
+| D3 | ③ GitHub Repository：建立正式專題 repo | — | ❌ | 已決定另開新 repo，名稱與公開設定未定 |
+| D4 | ④ DESIGN.md：從 Proposal 階段開始維護 | — | ❌ | 尚未建立；評分「GitHub + DESIGN.md + 完整度」5% |
+| D5 | 簡報影片（老師另外要求） | proposal-video.mp4（9 分 58 秒） | ⚠️ | 已產生；組號未填、尚未上傳 YouTube |
+
+## 3. 課程專題說明（Part 3，①–⑩）
+
+| # | 要求 | 位置 | 狀態 | 說明 |
+| --- | --- | --- | --- | --- |
+| P1 | ① 先定義：Agent 是誰、服務誰、解決什麼真實問題 | 01 §B–C、04 §4.1 | ✅ | |
+| P2 | ③ 標準 Agent Workflow：Understand → Plan → Acquire → Analyze → Generate → Interact | 04 §4.4.2 | ✅ | 2026-10-31 補上六階段對照表 |
+| P3 | ④ 六大能力 TALK × KNOW × SENSE × ANALYZE × THINK × SHOW（老師說適合當評分指標） | 04 §4.4.2、簡報第 9 頁 | ✅ | 2026-10-31 補上對照表與簡報頁 |
+| P4 | ⑥ LLM 負責理解推理，Analytics Engine 負責計算與證據 | 04 §4.3、§4.4.1 | ✅ | |
+| P5 | ⑦ 專業介面，不只是聊天視窗 | 04 §4.4 ⑧ | ✅ | Google Maps 行程儀表板 |
+| P6 | ⑨ Level 1／2／3 | 04 §4.4.2、簡報第 9 頁 | ✅ | 2026-10-31 補上各 Level 在本專題的內容與範圍 |
+| P7 | ⑩ 成功作品的六項成果 | 04 §4.11 | ✅ | 評估計畫 E1–E4 |
+
+## 4. A–Z SOP（建議項目）
+
+| # | 項目 | 狀態 | 說明 |
+| --- | --- | --- | --- |
+| S1 | Abstract 精簡（SOP 建議 150–250 字為主） | ✅ | 2026-10-31 由約 739 字精簡為約 496 字（含引用標號），保留 A–F |
+| S2 | L：Introduction 最後交代文章結構 | ⚠️ | 沒有章節導讀段落 |
+| S3 | M–O：Related Work 分類、近期方法、比較表 | ✅ | |
+| S4 | PA–PL | ✅ | |
+| S5 | PM：數學證明，或以複雜度分析代替 | ⚠️ | 未寫；SOP 說非理論型研究可省略或改寫複雜度分析 |
+| S6 | Q–V：評估指標、比較方法、實驗設定 | ✅ | Proposal 階段以評估計畫呈現 |
+
+## 5. 其他
+
+| # | 項目 | 狀態 | 說明 |
+| --- | --- | --- | --- |
+| O1 | AI 使用規範：能解釋 AI 做了什麼、為什麼這樣設計、如何驗證 | ⚠️ | 2026-10-31 新增附錄 A（`05-ai-usage.md`）與提示詞紀錄（`ai-usage-log.md`）；內容待組員確認 |
+| O2 | Word 內殘留的查證標記 | ✅ | 2026-10-31 已改寫 DeepTTE 的 Dataset 欄 |
+| O3 | 草稿標記、TODO | ✅ | 組成的文件中沒有 |
+
+## 待處理清單
+
+| 優先 | 項目 | 需要誰 |
+| --- | --- | --- |
+| 必要 | D3、D4：建立正式專題 repo 與 DESIGN.md | 你決定 repo 名稱與公開設定 |
+| 必要 | D1、D2、D5：填組號，重新產生文件、簡報與影片 | 你提供組號 |
+| 必要 | D5：定稿後上傳 YouTube | 你 |
+| ~~建議~~ 已完成 | P2、P3、P6：Proposed Scheme §4.4.2 與簡報第 9 頁 | — |
+| ~~建議~~ 已完成 | S1：Abstract 約 496 字 | — |
+| 建議 | O1：附錄 A 與提示詞紀錄已起草，待確認內容 | 你確認 |
+| ~~建議~~ 已完成 | O2：DeepTTE Dataset 欄 | — |
+| 可選 | S2：Introduction 加章節導讀段落 | Claude |
+| 可選 | S5：Proposed Scheme 補簡短的複雜度分析 | Claude |
