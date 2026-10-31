@@ -11,6 +11,9 @@
 | 正式專題 repo | 另開新 repo；專題程式、README、DESIGN.md 放新 repo，`aiot-classwork/final_project/` 只留選題與課程文件 |
 | 文件格式 | 用 Word（.docx）撰寫，交 PDF |
 | GPX 驗證 | Proposal 階段不做，只寫預期成果；驗證留到期末實作 |
+| 封面 | 以組繳交，封面寫組別，不寫學號（`metadata.yaml`） |
+| 簡報影片 | 老師要求 Proposal 要交；約 8–10 分鐘（約 12–15 頁、逐字稿約 2,000–2,800 字）；AI 語音（台灣中文神經語音）；投影片與逐字稿由同一份 Markdown 產生，再合成自動播放的 MP4 |
+| 影片存放 | MP4 不放進 repo（`.gitignore`），只上傳 YouTube；字幕檔 `.srt` 與 PPT 放進 repo |
 | 修改方式 | `doc/proposal/` 的 Markdown 是唯一來源（封面在 `metadata.yaml`）；Word 與 PDF 用 `final_project/tools/proposal_build/build.py` 重新產生，不直接改 Word |
 
 ## 交付物
@@ -21,6 +24,11 @@
 | ② Proposal PPT | 動機、文獻、Research Gap、Agent 設計、架構圖、流程圖、Pseudocode | 同上內容 |
 | ③ GitHub repo | 正式專題 repo | 和 ④ 合計 5% |
 | ④ DESIGN.md | 從 Proposal 階段開始維護 | |
+| ⑤ 簡報影片 | 投影片 + AI 語音逐字稿的自動播放影片，約 8–10 分鐘 | 老師另外要求 |
+
+### 簡報影片流程
+
+`slides.md`（每頁：投影片內容 + 逐字稿）→ 可編輯的 `.pptx`（逐字稿放備忘稿）→ PowerPoint 輸出每頁圖片 → 逐字稿轉 AI 語音 → 每頁停留時間等於語音長度，加上字幕，合成 1080p MP4。工具：python-pptx、PowerPoint、edge-tts（台灣中文語音 HsiaoChen／HsiaoYu／YunJhe）、imageio-ffmpeg。
 
 ## 文件結構（對應作業規範與 A–Z SOP）
 
