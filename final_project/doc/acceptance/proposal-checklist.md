@@ -81,6 +81,20 @@
 
 第一批（F-01、F-02、F-05）在 PR #82 commit 0e97ed3 與 moto-touring-copilot PR #3；第二批（簡報、影片、DESIGN.md Algorithm 1）在本次 commit 與 moto-touring-copilot 分支 `docs-review-sync-alg1-slides`。
 
+## 7. 參考文獻真實性審查（2026-10-31）
+
+組員以 GPT 對 Word 版做了參考文獻審查（[1]–[45]），結論是沒有虛構文獻。逐條複核後的處理：
+
+| 原編號 | 審查意見 | 複核結果 | 處理 |
+| --- | --- | --- | --- |
+| [4] | 漏列第 5 位作者 | 屬實（Crossref 有 R. D. Roberts） | 已補 |
+| [29] | 腳踏車模式報導不支持「2018 年機車導航上線」 | 屬實 | 改引 Google 官方公告 [11]；原 [29] 移除，其後編號前移，共 44 篇 |
+| [31] | TxDOT 網址有 Unicode 破折號 | 屬實，原因是 pandoc 把網址中的 `--` 轉成破折號 | 建置改用 `autolink_bare_uris`，網址不再被轉換，Word 內連結可點 |
+| [33] | 改引 MSF 原始研究 | 屬實；原文「right curve doubles the risk of a crash or near-crash」、「67% of all single-vehicle crashes and near-crashes involved curve negotiation」 | 改引 Williams 等（2016）原始論文，正文說明數字含近事故，移除「partial」 |
+| [13]、[45] | 缺 www 無法開啟 | 不屬實，會自動轉址；仍改為 www 正式網址 | 已改 |
+| [25] | 典藏網址無法驗證 | 不屬實，中大典藏可開啟，DOI 已列 | 不改 |
+| [1]、[9]、[44] | 部分確認 | 網址皆可開啟；[44] 原 PDF 確認碰撞理賠頻率降 25% | 不改 |
+
 ## 待處理清單
 
 | 優先 | 項目 | 需要誰 |

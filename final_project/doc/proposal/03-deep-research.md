@@ -9,7 +9,7 @@
 | --- | --- | --- | --- |
 | D1 | txdot.gov Roadway Design Manual 20.4.2 | yes | 曲率半徑與事故風險倍數 |
 | D2 | gov.uk Highway Code rules 103–158 | yes | Rule 125、126、154 |
-| D3 | motorcyclecolorado.com/blog/?p=7853 | partial | MSF 100 研究的二手摘要；MSF 原始 PDF 有 bot 防護，VTTI 簡報 404，未能開啟 |
+| D3 | MSF 原始論文 Risk_Factors_From_MSF_100_Study_Paper-1.pdf | yes | 2026-10-31 依文獻審查改引原始論文：「right curve doubles the risk of a crash or near-crash」、「67% of all single-vehicle crashes and near-crashes involved curve negotiation」（含近事故） |
 | D4 | UCAR DASH 資料頁（Lin et al.） | yes | 只讀到摘要層級 |
 | D5 | cwa.gov.tw 產品說明 8-1-1.pdf | yes | 民用暮光終定義與欄位 |
 | D6 | visordown.com 2019 報導 | partial | DfT 疲勞報告的新聞轉述，原報告未找到 |
@@ -22,7 +22,7 @@
 | D17 | rosap.ntl.bts.gov/view/dot/36257 | yes | 摘要層級 |
 | D18–D19 | iihs.org 兩篇新聞 | yes | |
 | D20 | HLDI Bulletin 42.13 PDF | yes | 讀第 1 頁摘要 |
-| D21 | bennetts.co.uk BikeSocial 2019 | partial | 評論文章，引用的計程車研究為汽車且未見原文 |
+| D21 | www.bennetts.co.uk BikeSocial 2019 | partial | 評論文章，引用的計程車研究為汽車且未見原文 |
 
 ---
 
@@ -32,7 +32,7 @@
 
 **意義：** 一趟山路行程的風險和時間誤差集中在少數彎道密集的路段。整趟平均速度會掩蓋這些路段，資深騎士看的是「最難那一段要花多久、能不能安全通過」。
 
-**證據：** TxDOT 設計手冊整理的研究指出，單車事故在半徑 1,500 ft 以下的彎道約為直線路段的近 5 倍風險，半徑 1,500–3,000 ft 約 2 倍 [D1]。英國 Highway Code 要求以「能在可見且淨空的距離內停下」的速度行駛，並提醒鄉間彎道可能比看起來更急 [D2]。MSF 100 自然騎乘研究的二手摘要指出，右彎的事故與近事故風險約為直線的 2 倍，單車事件有 67% 涉及過彎 [D3]（partial）。Victoria Police 也指出團騎死亡最常見的型態之一是彎道失控 [D11]。
+**證據：** TxDOT 設計手冊整理的研究指出，單車事故在半徑 1,500 ft 以下的彎道約為直線路段的近 5 倍風險，半徑 1,500–3,000 ft 約 2 倍 [D1]。英國 Highway Code 要求以「能在可見且淨空的距離內停下」的速度行駛，並提醒鄉間彎道可能比看起來更急 [D2]。MSF 100 自然騎乘研究（100 位騎士、約 36.6 萬英里）指出，右彎的事故與近事故風險約為直線的 2 倍，單車事故與近事故有 67% 涉及過彎；這些數字包含近事故，不等於致命事故風險 [D3]。Victoria Police 也指出團騎死亡最常見的型態之一是彎道失控 [D11]。
 
 **如何影響系統設計：** 配速分析 Agent 以路段為單位預測，特徵包含曲率、坡度與彎道密度，輸出 P50/P90 而不是單一平均值；地圖依路段上色，讓最難的路段一眼可見；baseline 比較刻意納入「整趟平均速度」，用來證明路段化的必要。
 
@@ -109,7 +109,7 @@
 | 2 | What-if | 如果配速模型的 P50 很準，但 P90 區間覆蓋率只有 60%，會發生什麼？ | 系統會低估晚歸的機率，日落硬規則形同失效。好答案會提到用覆蓋率當評估指標，並以分位數損失或校準修正。 |
 | 3 | Trade-off | 預防性封路的資訊沒有機器可讀 API，系統要「保守地全部警示」還是「只警示有資料的路段」？ | 全部警示會造成警示疲乏，只警示有資料的會漏報。合理做法是區分「已知封閉」「狀態未知需人工確認」兩級，並附公路局來源 [D9][D10]。 |
 | 4 | Failure Case | 驗證 Agent 全部通過，計畫還可能在哪些地方出錯？ | 驗證只檢查有寫成規則的硬限制，例如時間、續航、日落 [D13]。路面碎石、臨時施工、騎士當天身體狀況都不在規則內；所以要有折返點並標示驗證範圍。 |
-| 5 | Evidence | 「右彎風險較高」這個說法的證據強度如何？能直接用在台灣嗎？ | 目前只讀到 MSF 100 的二手摘要 [D3]，原報告未能查證，樣本是美國 100 位騎士。台灣同為靠右行駛，方向上可比，但道路幾何與交通組成不同，只能當假設，要用自己的 GPX 檢查。 |
+| 5 | Evidence | 「右彎風險較高」這個說法的證據強度如何？能直接用在台灣嗎？ | MSF 100 原始論文 [D3] 的數字包含近事故，樣本是美國 100 位騎士。台灣同為靠右行駛，方向上可比，但道路幾何與交通組成不同，只能當假設，要用自己的 GPX 檢查。 |
 | 6 | Comparison | 個人配速模型和 Google Maps 預估時間，各自在什麼情境比較準？ | 個人模型在騎過的路線、休閒騎乘情境應較準，因為熟悉度會改變速度 [D17]。Google Maps 有即時車流，塞車路段可能較準；沒騎過的路線個人模型可能退化。 |
 | 7 | Design Decision | 為什麼驗證交給程式規則，不讓另一個 LLM 當驗證者？ | LLM 自我驗證有大量偽陽性，甚至降低規劃表現 [D14]；外部可靠驗證器在 TravelPlanner 類任務效果明顯 [D13][D16]。LLM 負責理解與解釋，數字一律來自工具輸出。 |
 | 8 | Real-world Scenario | 週六團騎南橫，朋友騎得比你快，系統該怎麼規劃？ | 團騎中試圖跟上是可能的致命因素 [D11]。計畫應以隊伍中最慢者的配速估計，設集合點，並提醒各自以自己的速度騎。 |
@@ -122,7 +122,7 @@
 
 - [D1] Texas Department of Transportation. *Roadway Design Manual*, Section 20.4.2 Horizontal Curves (Specific). TxDOT, online edition（未載明年份）. https://www.txdot.gov/manuals/des/rdw/chapter-20-motorcyclist-design-considerations/20-4-highway-features/20-4-2-horizontal-curves--specific--.html
 - [D2] Department for Transport. *The Highway Code*: General rules, techniques and advice for all drivers and riders (103 to 158). GOV.UK, online edition. https://www.gov.uk/guidance/the-highway-code/general-rules-techniques-and-advice-for-all-drivers-and-riders-103-to-158
-- [D3] Motorcycle Colorado. "Digging Into Results Of Naturalistic Study"（MSF 100 Motorcyclists Naturalistic Study 二手摘要）. Blog, n.d. https://motorcyclecolorado.com/blog/?p=7853
+- [D3] Williams, V., McLaughlin, S., Atwood, J., Buche, T. "Factors that Increase and Decrease Motorcyclist Crash Risk." Virginia Tech Transportation Institute / Motorcycle Safety Foundation (MSF 100 Motorcyclists Naturalistic Study), 2016. https://msf-usa.org/wp-content/uploads/2021/07/Risk_Factors_From_MSF_100_Study_Paper-1.pdf
 - [D4] Lin, P., Chang, P., Jou, B. J.-D., Wilson, J. W., & Roberts, R. "Warm season afternoon thunderstorm characteristics under weak synoptic-scale forcing over Taiwan Island." American Meteorological Society; record at UCAR/NCAR DASH, 2011. https://ckanprod.data-commons.k8s.ucar.edu/dataset/warm-season-afternoon-thunderstorm-characteristics-under-weak-synoptic-scale-forcing-over-taiwa
 - [D5] 中央氣象署。《日出日沒時刻：全臺各縣市年度逐日日出日沒時刻資料》產品說明文件，2023。https://www.cwa.gov.tw/Data/data_catalog/8-1-1.pdf
 - [D6] Visordown. "Government runs study into rider fatigue." Visordown, 2019. https://www.visordown.com/news/general/government-runs-study-rider-fatigue
@@ -140,4 +140,4 @@
 - [D18] IIHS. "Largest study of its kind strengthens argument for motorcycle ABS." IIHS News, 2021. https://www.iihs.org/news/detail/largest-study-of-its-kind-strengthens-argument-for-motorcycle-abs
 - [D19] IIHS. "Motorcycle ABS benefits both high-risk and low-risk riders." IIHS News, 2014. https://www.iihs.org/news/detail/motorcycle-abs-benefits-both-high-risk-and-low-risk-riders
 - [D20] Highway Loss Data Institute. "Evaluation of motorcycle antilock braking systems, alone and in conjunction with combined control braking systems: an update." HLDI Bulletin 42(13), 2025. https://www.iihs.org/media/66a450d6-b3c2-40cd-9716-cab3a7c37ff9/W7ERBQ/HLDI%20Research/Bulletins/hldi_bulletin_42.13.pdf
-- [D21] Purvis, B. "Why isn't ABS saving our lives?" Bennetts BikeSocial, 2019. https://bennetts.co.uk/bikesocial/news-and-views/features/bikes/why-isnt-abs-saving-our-lives
+- [D21] Purvis, B. "Why isn't ABS saving our lives?" Bennetts BikeSocial, 2019. https://www.bennetts.co.uk/bikesocial/news-and-views/features/bikes/why-isnt-abs-saving-our-lives

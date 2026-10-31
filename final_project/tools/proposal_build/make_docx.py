@@ -122,9 +122,10 @@ def border_tables(path):
 def main(out_dir, target):
     ref = os.path.join(out_dir, "reference.docx")
     make_reference(ref)
+    # autolink_bare_uris keeps URLs out of smart typography ("--" would become an en dash)
     pypandoc.convert_file(
         os.path.join(out_dir, "proposal-full.md"), "docx", outputfile=target,
-        format="markdown+tex_math_dollars+pipe_tables+implicit_figures",
+        format="markdown+tex_math_dollars+pipe_tables+implicit_figures+autolink_bare_uris",
         extra_args=["--reference-doc", ref, "--toc", "--toc-depth=2",
                     "--resource-path", out_dir, "--standalone"],
     )

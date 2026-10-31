@@ -24,7 +24,7 @@
 | I14 | Google Routes API 二輪車路線支援台灣 | 「支援二輪車輛的國家和地區」清單列有台灣（TW） | 頁面更新 2026-10-30 | 官方（Google Maps Platform 文件） | https://developers.google.com/maps/documentation/routes/coverage-two-wheeled | 已查證；新增證據 |
 | I15 | Google Maps 的 ETA 模型以整體車流訓練 | 以 GNN 預測 ETA 並已上線，部分城市（如雪梨）負面 ETA 結果減少 40% 以上 | 2021（CIKM 2021） | 論文 | https://arxiv.org/abs/2108.11482 | 已查證（摘要） |
 | I16 | 既有重機 App 的功能 | Calimoto：彎道路線演算法、環線、傾角與爬升統計、行程日誌；Kurviger：網頁規劃路線傳到手機、離線地圖（付費方案）；REVER：路線紀錄、即時位置分享、天氣警示（PRO）。文中沒有提到個人化的抵達時間預測或封路風險 | 2025-01-13 | 新聞（SlashGear 評測） | https://www.slashgear.com/1755865/motorcycle-apps-find-routes-track-rides | 已查證（評測層級） |
-| I17 | REVER PRO 官方功能清單 | 列有 Twisty Routing、ADV Planner、離線地圖、即時位置分享、Weather Alerts；沒有列出抵達時間預測或封路提示 | 2026-10-31 開啟 | 官方（產品頁） | https://rever.co/pro | 已查證 |
+| I17 | REVER PRO 官方功能清單 | 列有 Twisty Routing、ADV Planner、離線地圖、即時位置分享、Weather Alerts；沒有列出抵達時間預測或封路提示 | 2026-10-31 開啟 | 官方（產品頁） | https://www.rever.co/pro | 已查證 |
 | I18 | 氣象署開放資料 API 可用的資料集 | F-D0047 鄉鎮天氣預報（未來 3 天逐 3 小時、1 週）、O-A0001-001 全測站逐時觀測、A-B0062-001 全臺逐日日出日沒時刻、W-C0033-001 縣市天氣警特報；需會員授權碼 | 2026-10-31 開啟 | 官方（中央氣象署 API 文件） | https://opendata.cwa.gov.tw/apidoc/v1 | 已查證 |
 | I19 | TDX 省道即時路況 | 「省道發布路段即時路況資料」，每 1 分鐘更新，需在 TDX 註冊取得 API 金鑰，免費 | 2026-10-31 開啟 | 官方（政府資料開放平臺） | https://data.gov.tw/dataset/161171 | 已查證 |
 
@@ -91,7 +91,7 @@
 - [I4][I5] 交通部公路局，《中華民國 114 年交通部公路局統計年報》，表 26 機動車輛登記數、表 27 新車領牌數，2026。https://ws.thb.gov.tw/001/Upload/436/relfile/13775/5693/fd88dd50-c215-4973-8db5-33f0c3e9510e.pdf
 - [I6] 中央社，〈颱風影響　南橫公路梅山口到向陽段預警性封路〉，2025-07-19。https://www.cna.com.tw/news/aloc/202507190089.aspx
 - [I7] 中央社，〈樺加沙影響　南橫台東端初來至向陽持續封閉〉，2025-09-23。https://www.cna.com.tw/news/ahel/202509230076.aspx
-- [I8] Lin, P.-F., Chang, P.-L., Jou, B. J.-D., Wilson, J. W., "Warm Season Afternoon Thunderstorm Characteristics under Weak Synoptic-Scale Forcing over Taiwan Island," *Weather and Forecasting*, 26(1), 44–60, American Meteorological Society, 2011-02. https://doi.org/10.1175/2010WAF2222386.1
+- [I8] Lin, P.-F., Chang, P.-L., Jou, B. J.-D., Wilson, J. W., Roberts, R. D., "Warm Season Afternoon Thunderstorm Characteristics under Weak Synoptic-Scale Forcing over Taiwan Island," *Weather and Forecasting*, 26(1), 44–60, American Meteorological Society, 2011-02. https://doi.org/10.1175/2010WAF2222386.1
 - [I9] Xie, J., et al., "TravelPlanner: A Benchmark for Real-World Planning with Language Agents," ICML 2024. https://arxiv.org/abs/2402.01622
 - [I10] Gundawar, A., et al., "Robust Planning with LLM-Modulo Framework: Case Study in Travel Planning," arXiv, 2024-05-31. https://arxiv.org/abs/2405.20625
 - [I11] Hao, Y., Chen, Y., Zhang, Y., Fan, C., "Large Language Models Can Solve Real-World Planning Rigorously with Formal Verification Tools," NAACL 2025, pp. 3434–3483, 2025-04. https://aclanthology.org/2025.naacl-long.176
@@ -100,6 +100,6 @@
 - [I14] Google Maps Platform，"Countries and regions supported for two-wheeled vehicles"（Routes API），頁面更新 2026-10-30。https://developers.google.com/maps/documentation/routes/coverage-two-wheeled
 - [I15] Derrow-Pinion, A., et al., "ETA Prediction with Graph Neural Networks in Google Maps," CIKM 2021. https://arxiv.org/abs/2108.11482
 - [I16] Henges, K., "6 Popular Motorcycle Apps For Finding Routes And Tracking Rides," SlashGear, 2025-01-13. https://www.slashgear.com/1755865/motorcycle-apps-find-routes-track-rides
-- [I17] REVER, "REVER PRO," 產品頁，2026-10-31 開啟。https://rever.co/pro
+- [I17] REVER, "REVER PRO," 產品頁，2026-10-31 開啟。https://www.rever.co/pro
 - [I18] 中央氣象署，〈氣象資料開放平臺 Opendata API 說明文件〉，2026-10-31 開啟。https://opendata.cwa.gov.tw/apidoc/v1
 - [I19] 交通部，〈省道發布路段即時路況資料〉，政府資料開放平臺，2026-10-31 開啟。https://data.gov.tw/dataset/161171

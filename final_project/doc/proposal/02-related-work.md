@@ -25,7 +25,7 @@
 | [15] | https://calimoto.com/en | yes | 產品官網 |
 | [16] | https://kurviger.com/en | yes | 產品官網 |
 | [17] | https://www.rever.co/ | yes | 產品官網 |
-| [18] | https://www.bnext.com.tw/article/56492/google-maps-bike-model-taiwan | partial | 只確認 2018 年 7 月在台灣推出機車導航；ETA 計算方式文中未說明 |
+| [18] | https://taiwan.googleblog.com/2018/07/google.html | yes | Google 官方公告：2018-07-18 機車模式在台上線（原引用的數位時代報導談的是腳踏車模式，2026-10-31 依文獻審查改引官方公告） |
 | [19] | https://apps.apple.com/app/id1250173746 | yes | App Store 產品頁 |
 
 ---
@@ -161,7 +161,7 @@ AI 技術 6 篇（[1]–[6]），領域知識 6 篇（[7]–[12]）；[13]、[14
 
 [10] A. Wood, W. Mackaness, T. I. Simpson, J. D. Armstrong, "Improved prediction of hiking speeds using a data driven approach," *PLOS ONE*, 2023. doi:10.1371/journal.pone.0295848. https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0295848
 
-[11] P.-F. Lin, P.-L. Chang, B. J.-D. Jou, J. W. Wilson, "Warm Season Afternoon Thunderstorm Characteristics under Weak Synoptic-Scale Forcing over Taiwan Island," *Weather and Forecasting*, vol. 26, no. 1, pp. 44–60, 2011. doi:10.1175/2010WAF2222386.1. https://scholars.lib.ntu.edu.tw/handle/123456789/463591
+[11] P.-F. Lin, P.-L. Chang, B. J.-D. Jou, J. W. Wilson, and R. D. Roberts, "Warm Season Afternoon Thunderstorm Characteristics under Weak Synoptic-Scale Forcing over Taiwan Island," *Weather and Forecasting*, vol. 26, no. 1, pp. 44–60, 2011. doi:10.1175/2010WAF2222386.1. https://scholars.lib.ntu.edu.tw/handle/123456789/463591
 
 [12] S.-R. Yang, C.-W. Shen, C.-M. Huang, C.-T. Lee, C.-T. Cheng, C.-Y. Chen, "Prediction of Mountain Road Closure Due to Rainfall-Induced Landslides," *Journal of Performance of Constructed Facilities*, vol. 26, no. 2, pp. 197–202, 2012. doi:10.1061/(ASCE)CF.1943-5509.0000242. https://ir.lib.ncu.edu.tw/ir/handle/987654321/103259
 
@@ -175,6 +175,6 @@ AI 技術 6 篇（[1]–[6]），領域知識 6 篇（[7]–[12]）；[13]、[14
 
 [17] REVER, product website. https://www.rever.co/ （2026-10-31 查閱）
 
-[18] 數位時代，「繼機車導航後，Google Maps 腳踏車模式正式在台上線」. https://www.bnext.com.tw/article/56492/google-maps-bike-model-taiwan （2026-10-31 查閱）
+[18] Google 台灣官方部落格，〈Google 地圖機車模式正式在台上線〉，2018-07-18。https://taiwan.googleblog.com/2018/07/google.html
 
 [19] BMW Motorrad Connected, Apple App Store listing. https://apps.apple.com/app/id1250173746 （2026-10-31 查閱）
