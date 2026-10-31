@@ -253,7 +253,7 @@ Understand → Plan → Acquire → Analyze → Generate → Interact（③-1 �
 **Google Maps 的注意事項（待確認）：**
 
 - 要用 Google Maps Platform 的 API 金鑰，並綁定帳單帳戶；費用和免費額度要先查清楚。
-- Google 的路線服務若支援機車模式，它的預估時間可以直接當 ⑥ 的 baseline（「一般導航的時間」vs「個人配速模型」）；台灣是否支援要實測。
+- Google Routes API 的兩輪車路線覆蓋清單有列台灣（2026-10-31 查證，[coverage](https://developers.google.com/maps/documentation/routes/coverage-two-wheeled)），它的預估時間可以直接當 ⑥ 的 baseline（「一般導航的時間」vs「個人配速模型」）；實際回傳內容要實測。
 - 依 Google 的使用條款，Google 提供的路線和時間要顯示在 Google 地圖上，不能搬到其他地圖。
 
 **決定：** ☐ 最低　☑ 標準，含 Google Maps（2026-10-25）　☐ 延伸（L3 時加上騎乘中語音提醒）
