@@ -1,7 +1,7 @@
 ---
 title: 重機旅遊規劃顧問（Moto Touring Copilot）
 subtitle: 結合個人配速模型與外部驗證的多 Agent 重機旅遊規劃系統
-footer: AIoT-DA 期末專題提案　｜　第 ＿＿ 組
+footer: AIoT-DA 期末專題提案　｜　第 12 組
 voice: zh-TW-HsiaoChenNeural
 target_minutes: 8-10
 ---
@@ -20,7 +20,7 @@ target_minutes: 8-10
 layout: title
 
 - 結合個人配速模型與外部驗證的多 Agent 重機旅遊規劃系統
-- AIoT-DA 期末專題提案　｜　第 ＿＿ 組
+- AIoT-DA 期末專題提案　｜　第 12 組
 
 ### 逐字稿
 
