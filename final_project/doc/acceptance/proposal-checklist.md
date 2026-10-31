@@ -34,7 +34,7 @@
 | D2 | ② Proposal PPT：研究動機、文獻、Research Gap、Agent Design、Architecture、Flowchart、Pseudocode | proposal-slides.pptx（16 頁） | ✅ | 七項內容都有；2026-10-31 頁尾填上第 12 組並重新產生；同日依審查修正第 10、15 頁 |
 | D3 | ③ GitHub Repository：建立正式專題 repo | [moto-touring-copilot](https://github.com/yotsubamomo/moto-touring-copilot) | ✅ | 2026-10-31 建立（公開）：README、DESIGN.md、Proposal PDF／PPTX、圖；`.gitignore` 排除原始 GPX。PDF／PPTX 是組號填寫前的版本，重新產生後要同步 |
 | D4 | ④ DESIGN.md：從 Proposal 階段開始維護 | moto-touring-copilot/DESIGN.md | ✅ | Problem → Requirements → Architecture → Components → Data → AI/Analytics → Domain Knowledge → Algorithm → Implementation Mapping → How to Run → Results → Limitations；尚未實作的部分標明為規劃或 TBD |
-| D5 | 簡報影片（老師另外要求） | proposal-video.mp4（9 分 59 秒） | ⚠️ | 2026-10-31 依審查修正第 10、15 頁後重新產生；舊版 https://youtu.be/8XWvbD2qnNo 的第 15 頁仍是舊的 E2 指標，需重新上傳並更新連結 |
+| D5 | 簡報影片（老師另外要求） | [YouTube](https://youtu.be/9ZBrHomaZoI)（9 分 59 秒） | ✅ | 2026-10-31 依審查修正第 10、15 頁後重新產生並重新上傳；舊版 8XWvbD2qnNo 已下架；moto-touring-copilot README 連結在其 PR #4 |
 
 ## 3. 課程專題說明（Part 3，①–⑩）
 
@@ -90,7 +90,7 @@
 | ~~必要~~ 已完成 | D5：上傳 YouTube（https://youtu.be/8XWvbD2qnNo），連結補進 moto-touring-copilot README | — |
 | ~~建議~~ 已完成 | P2、P3、P6：Proposed Scheme §4.4.2 與簡報第 9 頁 | — |
 | ~~建議~~ 已完成 | S1：Abstract 約 496 字 | — |
-| 必要 | D5：重新上傳修正後的影片，更新 moto-touring-copilot README 與本清單的連結 | 你上傳 |
+| ~~必要~~ 已完成 | D5：重新上傳修正後的影片（https://youtu.be/9ZBrHomaZoI），更新 README 與本清單的連結 | — |
 | 建議 | O1：附錄 A 與提示詞紀錄已起草，待確認內容 | 你確認 |
 | ~~建議~~ 已完成 | O2：DeepTTE Dataset 欄 | — |
 | 可選 | S2：Introduction 加章節導讀段落 | Claude |
