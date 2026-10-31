@@ -30,11 +30,11 @@
 
 | # | 要求 | 位置 | 狀態 | 說明 |
 | --- | --- | --- | --- | --- |
-| D1 | ① Proposal Document | proposal.docx／pdf（39 頁，含附錄 A） | ✅ | 2026-10-31 封面填上第 12 組並重新產生 |
-| D2 | ② Proposal PPT：研究動機、文獻、Research Gap、Agent Design、Architecture、Flowchart、Pseudocode | proposal-slides.pptx（16 頁） | ✅ | 七項內容都有；2026-10-31 頁尾填上第 12 組並重新產生 |
+| D1 | ① Proposal Document | proposal.docx／pdf（40 頁，含附錄 A） | ✅ | 2026-10-31 封面填上第 12 組；同日依獨立審查修正後重新產生（見第 6 節） |
+| D2 | ② Proposal PPT：研究動機、文獻、Research Gap、Agent Design、Architecture、Flowchart、Pseudocode | proposal-slides.pptx（16 頁） | ✅ | 七項內容都有；2026-10-31 頁尾填上第 12 組並重新產生；同日依審查修正第 10、15 頁 |
 | D3 | ③ GitHub Repository：建立正式專題 repo | [moto-touring-copilot](https://github.com/yotsubamomo/moto-touring-copilot) | ✅ | 2026-10-31 建立（公開）：README、DESIGN.md、Proposal PDF／PPTX、圖；`.gitignore` 排除原始 GPX。PDF／PPTX 是組號填寫前的版本，重新產生後要同步 |
 | D4 | ④ DESIGN.md：從 Proposal 階段開始維護 | moto-touring-copilot/DESIGN.md | ✅ | Problem → Requirements → Architecture → Components → Data → AI/Analytics → Domain Knowledge → Algorithm → Implementation Mapping → How to Run → Results → Limitations；尚未實作的部分標明為規劃或 TBD |
-| D5 | 簡報影片（老師另外要求） | [YouTube](https://youtu.be/8XWvbD2qnNo)（9 分 58 秒） | ✅ | 2026-10-31 以第 12 組重新產生並上傳；連結已加進 moto-touring-copilot README |
+| D5 | 簡報影片（老師另外要求） | proposal-video.mp4（9 分 59 秒） | ⚠️ | 2026-10-31 依審查修正第 10、15 頁後重新產生；舊版 https://youtu.be/8XWvbD2qnNo 的第 15 頁仍是舊的 E2 指標，需重新上傳並更新連結 |
 
 ## 3. 課程專題說明（Part 3，①–⑩）
 
@@ -67,6 +67,20 @@
 | O2 | Word 內殘留的查證標記 | ✅ | 2026-10-31 已改寫 DeepTTE 的 Dataset 欄 |
 | O3 | 草稿標記、TODO | ✅ | 組成的文件中沒有 |
 
+## 6. 獨立審查（2026-10-31）
+
+另一個 session 對 Proposal 做了一次獨立審查（PASS WITH ISSUES，F-01…F-23、N-01…N-06）。修正分兩批：
+
+| 項目 | 處理 | 位置 |
+| --- | --- | --- |
+| F-01 配速模型以速度分位數換算時間，P90 時間實為最樂觀值 | 已修：改為直接預測路段移動時間的對數 | 04 §4.5、§4.6；Alg 2 line 07；簡報第 10 頁；DESIGN.md §6 |
+| F-02 各點抵達時刻未定義 P90 | 已修：新增 ETA^(0.5)、ETA^(0.9) 定義；規則 2、3 改用抵達時刻 | 04 §4.4.1、§4.6、Alg 1 lines 09–13；DESIGN.md §4.1、§4.2 |
+| F-05 E2 以規則 1–5 評分會循環驗證 | 已修：改以獨立 oracle 評分（違規率、時間誤差、一致率、拒答率） | 04 §4.11、§4.12；Abstract；Introduction F4；簡報第 15 頁；DESIGN.md §6 |
+| F-20 DESIGN.md 的 Algorithm 1 與 Proposal 不一致 | 已修：改為 Proposal 的 21 行版本 | DESIGN.md §8 |
+| F-03、F-04、F-06～F-12 等其餘 Major | 不改 Proposal，留到實作 Spec 階段 | 審查報告 |
+
+第一批（F-01、F-02、F-05）在 PR #82 commit 0e97ed3 與 moto-touring-copilot PR #3；第二批（簡報、影片、DESIGN.md Algorithm 1）在本次 commit 與 moto-touring-copilot 分支 `docs-review-sync-alg1-slides`。
+
 ## 待處理清單
 
 | 優先 | 項目 | 需要誰 |
@@ -76,6 +90,7 @@
 | ~~必要~~ 已完成 | D5：上傳 YouTube（https://youtu.be/8XWvbD2qnNo），連結補進 moto-touring-copilot README | — |
 | ~~建議~~ 已完成 | P2、P3、P6：Proposed Scheme §4.4.2 與簡報第 9 頁 | — |
 | ~~建議~~ 已完成 | S1：Abstract 約 496 字 | — |
+| 必要 | D5：重新上傳修正後的影片，更新 moto-touring-copilot README 與本清單的連結 | 你上傳 |
 | 建議 | O1：附錄 A 與提示詞紀錄已起草，待確認內容 | 你確認 |
 | ~~建議~~ 已完成 | O2：DeepTTE Dataset 欄 | — |
 | 可選 | S2：Introduction 加章節導讀段落 | Claude |
