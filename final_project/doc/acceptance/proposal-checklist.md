@@ -32,8 +32,8 @@
 | --- | --- | --- | --- | --- |
 | D1 | ① Proposal Document | proposal.docx／pdf（39 頁，含附錄 A） | ⚠️ | 封面組號還是「第 ＿＿ 組」 |
 | D2 | ② Proposal PPT：研究動機、文獻、Research Gap、Agent Design、Architecture、Flowchart、Pseudocode | proposal-slides.pptx（16 頁） | ⚠️ | 七項內容都有；頁尾組號未填 |
-| D3 | ③ GitHub Repository：建立正式專題 repo | — | ❌ | 已決定另開新 repo，名稱與公開設定未定 |
-| D4 | ④ DESIGN.md：從 Proposal 階段開始維護 | — | ❌ | 尚未建立；評分「GitHub + DESIGN.md + 完整度」5% |
+| D3 | ③ GitHub Repository：建立正式專題 repo | [moto-touring-copilot](https://github.com/yotsubamomo/moto-touring-copilot) | ✅ | 2026-10-31 建立（公開）：README、DESIGN.md、Proposal PDF／PPTX、圖；`.gitignore` 排除原始 GPX。PDF／PPTX 是組號填寫前的版本，重新產生後要同步 |
+| D4 | ④ DESIGN.md：從 Proposal 階段開始維護 | moto-touring-copilot/DESIGN.md | ✅ | Problem → Requirements → Architecture → Components → Data → AI/Analytics → Domain Knowledge → Algorithm → Implementation Mapping → How to Run → Results → Limitations；尚未實作的部分標明為規劃或 TBD |
 | D5 | 簡報影片（老師另外要求） | proposal-video.mp4（9 分 58 秒） | ⚠️ | 已產生；組號未填、尚未上傳 YouTube |
 
 ## 3. 課程專題說明（Part 3，①–⑩）
@@ -71,9 +71,9 @@
 
 | 優先 | 項目 | 需要誰 |
 | --- | --- | --- |
-| 必要 | D3、D4：建立正式專題 repo 與 DESIGN.md | 你決定 repo 名稱與公開設定 |
-| 必要 | D1、D2、D5：填組號，重新產生文件、簡報與影片 | 你提供組號 |
-| 必要 | D5：定稿後上傳 YouTube | 你 |
+| ~~必要~~ 已完成 | D3、D4：正式專題 repo 與 DESIGN.md | — |
+| 必要 | D1、D2、D5：填組號，重新產生文件、簡報與影片，並把新的 PDF／PPTX 同步到 moto-touring-copilot | 你提供組號 |
+| 必要 | D5：定稿後上傳 YouTube，把連結補進 moto-touring-copilot README | 你 |
 | ~~建議~~ 已完成 | P2、P3、P6：Proposed Scheme §4.4.2 與簡報第 9 頁 | — |
 | ~~建議~~ 已完成 | S1：Abstract 約 496 字 | — |
 | 建議 | O1：附錄 A 與提示詞紀錄已起草，待確認內容 | 你確認 |

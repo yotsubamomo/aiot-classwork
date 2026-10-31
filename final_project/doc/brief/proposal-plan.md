@@ -8,7 +8,7 @@
 | 項目 | 決定 |
 | --- | --- |
 | 文件語言 | 中文為主，專有名詞保留英文 |
-| 正式專題 repo | 另開新 repo；專題程式、README、DESIGN.md 放新 repo，`aiot-classwork/final_project/` 只留選題與課程文件 |
+| 正式專題 repo | 另開新 repo；專題程式、README、DESIGN.md 放新 repo，`aiot-classwork/final_project/` 只留選題與課程文件。2026-10-31 建立 [yotsubamomo/moto-touring-copilot](https://github.com/yotsubamomo/moto-touring-copilot)（公開），本機放在 aiot-classwork 同層 |
 | 文件格式 | 用 Word（.docx）撰寫，交 PDF |
 | GPX 驗證 | Proposal 階段不做，只寫預期成果；驗證留到期末實作 |
 | 封面 | 以組繳交，封面寫組別，不寫學號（`metadata.yaml`） |
@@ -59,5 +59,5 @@
 
 ## 待決定
 
-- [ ] 新 repo 的名稱、公開或私人
+- [x] 新 repo 的名稱、公開或私人：moto-touring-copilot，公開
 - [ ] Word 範本：用學校或老師的範本，或自訂
