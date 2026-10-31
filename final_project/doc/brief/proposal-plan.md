@@ -13,7 +13,7 @@
 | GPX 驗證 | Proposal 階段不做，只寫預期成果；驗證留到期末實作 |
 | 封面 | 以組繳交，封面寫組別，不寫學號（`metadata.yaml`） |
 | 簡報影片 | 老師要求 Proposal 要交；約 8–10 分鐘（約 12–15 頁、逐字稿約 2,000–2,800 字）；AI 語音（台灣中文神經語音）；投影片與逐字稿由同一份 Markdown 產生，再合成自動播放的 MP4 |
-| 影片存放 | MP4 不放進 repo（`.gitignore`），只上傳 YouTube；字幕檔 `.srt` 與 PPT 放進 repo |
+| 影片存放 | MP4 不放進 repo（`.gitignore`），只上傳 YouTube；字幕檔 `.srt` 與 PPT 放進 repo。2026-10-31 上傳：https://youtu.be/8XWvbD2qnNo |
 | 修改方式 | `doc/proposal/` 的 Markdown 是唯一來源（封面在 `metadata.yaml`）；Word 與 PDF 用 `final_project/tools/proposal_build/build.py` 重新產生，不直接改 Word |
 
 ## 交付物
