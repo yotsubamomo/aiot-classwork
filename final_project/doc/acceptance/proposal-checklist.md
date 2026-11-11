@@ -30,7 +30,7 @@
 
 | # | 要求 | 位置 | 狀態 | 說明 |
 | --- | --- | --- | --- | --- |
-| D1 | ① Proposal Document | proposal.docx／pdf（40 頁，含附錄 A） | ✅ | 2026-10-31 封面填上第 12 組；同日依獨立審查修正後重新產生（見第 6 節） |
+| D1 | ① Proposal Document | proposal.docx／pdf（43 頁，含附錄 A） | ✅ | 2026-10-31 封面填上第 12 組；同日依獨立審查修正後重新產生（見第 6 節） |
 | D2 | ② Proposal PPT：研究動機、文獻、Research Gap、Agent Design、Architecture、Flowchart、Pseudocode | proposal-slides.pptx（16 頁） | ✅ | 七項內容都有；2026-10-31 頁尾填上第 12 組並重新產生；同日依審查修正第 10、15 頁 |
 | D3 | ③ GitHub Repository：建立正式專題 repo | [moto-touring-copilot](https://github.com/yotsubamomo/moto-touring-copilot) | ✅ | 2026-10-31 建立（公開）：README、DESIGN.md、Proposal PDF／PPTX、圖；`.gitignore` 排除原始 GPX。PDF／PPTX 是組號填寫前的版本，重新產生後要同步 |
 | D4 | ④ DESIGN.md：從 Proposal 階段開始維護 | moto-touring-copilot/DESIGN.md | ✅ | Problem → Requirements → Architecture → Components → Data → AI/Analytics → Domain Knowledge → Algorithm → Implementation Mapping → How to Run → Results → Limitations；尚未實作的部分標明為規劃或 TBD |
@@ -94,6 +94,22 @@
 | [13]、[45] | 缺 www 無法開啟 | 不屬實，會自動轉址；仍改為 www 正式網址 | 已改 |
 | [25] | 典藏網址無法驗證 | 不屬實，中大典藏可開啟，DOI 已列 | 不改 |
 | [1]、[9]、[44] | 部分確認 | 網址皆可開啟；[44] 原 PDF 確認碰撞理賠頻率降 25% | 不改 |
+
+## 8. 證據補強（2026-11-11）
+
+依兩份 Perplexity 報告補強摘要與證據；新來源都開過原文，報告中有誤或過度描述的內容不採用。
+
+| 變更 | 位置 | 來源 |
+| --- | --- | --- |
+| Abstract 改寫為約 390 字（不含引用標號），保留 A–F 重點 | 00-abstract.md | 既有引用 |
+| 補「每年減 7% 目標只達約四成」 | 01 §A | 聯合報 2026-03-12（新 I20） |
+| TravelPlanner 0.6% 註明為須滿足所有限制；補 RETAIL 最強既有模型 1.0% | 01 §D | RETAIL（EMNLP 2025，新 I21） |
+| 新增「多 Agent 與即時環境」段落與 Research Gap 對照 | 02 §2.2 A2、§2.7 | RETAIL、Vaiage、ROAM（新 [20]–[22]；摘要層級） |
+| E2 加入逐一拿掉個人配速、天氣、路況資料的消融；預期成果加入可解釋輸出範例與「不宣稱降低事故率」 | 04 §4.11 | — |
+
+不採用：報告 2 把 15,506（2025 年新領牌數）寫成「重機事故死亡」、宣稱重機「快速成長」（新領牌數實為下降）、LLM-Modulo「提升至 4.6%」（實為 4.4%→20.6%）；TGMA「同一模型由 1.0% 提升至 2.72%」與 ROAM「重規劃處理封路」皆過度描述；報告 1 建議依騎士分組與人工 oracle（本專題僅一位騎士，oracle 維持獨立腳本以便重現）。
+
+結果：參考文獻 44 → 48 篇，PDF 40 → 43 頁。簡報與影片未改（E2 新增的模組消融未放進第 15 頁）。注意：本版在 2026-11-11 繳交之後產生，與已繳交的 PDF 不同。
 
 ## 待處理清單
 
